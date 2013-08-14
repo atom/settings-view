@@ -1,6 +1,6 @@
 {
   "name": "settings-view",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "main": "./lib/settings-view",
   "description": "GUI pane for Atom settings",
   "deferredDeserializers": [
