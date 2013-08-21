@@ -10,7 +10,7 @@ describe "SettingsView", ->
   describe "serialization", ->
     it "remembers which panel was visible", ->
       settingsView.showPanel('Packages')
-      newSettingsView = deserialize(settingsView.serialize())
+      newSettingsView = new SettingsView(settingsView.serialize())
       settingsView.remove()
       newSettingsView.attachToDom()
       expect(newSettingsView.activePanelName).toBe 'Packages'
@@ -18,7 +18,7 @@ describe "SettingsView", ->
     it "shows the previously active panel if it is added after deserialization", ->
       settingsView.addPanel('Panel 1', $$ -> @div id: 'panel-1')
       settingsView.showPanel('Panel 1')
-      newSettingsView = deserialize(settingsView.serialize())
+      newSettingsView = new SettingsView(settingsView.serialize())
       settingsView.remove()
       newSettingsView.attachToDom()
       newSettingsView.addPanel('Panel 1', $$ -> @div id: 'panel-1')
