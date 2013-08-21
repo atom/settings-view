@@ -1,16 +1,24 @@
+_ = require 'underscore'
+telepath = require 'telepath'
+
 Project = require 'project'
+SettingsView = null
 
 configUri = 'atom://config'
-SettingsView = null
 
 createSettingsView = (state) ->
   SettingsView ?= require './settings-view'
+  unless state instanceof telepath.Document
+    state = _.extend({deserializer: deserializer.name, version: deserializer.version}, state)
+    state = site.createDocument(state)
   new SettingsView(state)
 
-registerDeserializer
+deserializer =
+  acceptsDocuments: true
   name: 'SettingsView'
   version: 1
   deserialize: (state) -> createSettingsView(state)
+registerDeserializer(deserializer)
 
 module.exports =
   activate: ->

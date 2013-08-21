@@ -2,6 +2,8 @@
 ScrollView = require 'scroll-view'
 $ = require 'jquery'
 _ = require 'underscore'
+telepath = require 'telepath'
+
 Pane = require 'pane'
 GeneralPanel = require './general-panel'
 ThemePanel = require './theme-panel'
@@ -21,10 +23,13 @@ class SettingsView extends ScrollView
         @button "Open ~/.atom", id: 'open-dot-atom', class: 'btn btn-default btn-small'
       @div id: 'panels', outlet: 'panels'
 
-  activePanelName: null
-
-  initialize: ({activePanelName, @uri}={}) ->
+  initialize: (@state) ->
     super
+
+    if @state
+      activePanelName = @state.get('activePanelName')
+      @uri = @state.get('uri')
+
     @panelsByName = {}
     @on 'click', '#panels-menu li a', (e) =>
       @showPanel($(e.target).closest('li').attr('name'))
@@ -37,9 +42,9 @@ class SettingsView extends ScrollView
     @addPanel('Packages', new PackagePanel)
     @showPanel(activePanelName) if activePanelName
 
-  serialize: ->
-    deserializer: 'SettingsView'
-    activePanelName: @activePanelName
+  serialize: -> @state.clone()
+
+  getState: -> @state
 
   addPanel: (name, panel) ->
     panelItem = $$ -> @li name: name, => @a name
@@ -52,6 +57,8 @@ class SettingsView extends ScrollView
   getPanelCount: ->
     _.values(@panelsByName).length
 
+  getActivePanelName: -> @state.get('activePanelName')
+
   showPanel: (name) ->
     if @panelsByName[name]
       @panels.children().hide()
@@ -60,7 +67,7 @@ class SettingsView extends ScrollView
       for editorElement in @panelsByName[name].find(".editor")
         $(editorElement).view().redraw()
       @panelMenu.children("[name='#{name}']").addClass('active')
-      @activePanelName = name
+      @state.set('activePanelName', name)
       @panelToShow = null
     else
       @panelToShow = name

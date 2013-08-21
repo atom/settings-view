@@ -5,7 +5,7 @@ describe "SettingsView", ->
   settingsView = null
 
   beforeEach ->
-    settingsView = new SettingsView
+    settingsView = new SettingsView(site.createDocument({}))
 
   describe "serialization", ->
     it "remembers which panel was visible", ->
@@ -13,7 +13,7 @@ describe "SettingsView", ->
       newSettingsView = new SettingsView(settingsView.serialize())
       settingsView.remove()
       newSettingsView.attachToDom()
-      expect(newSettingsView.activePanelName).toBe 'Packages'
+      expect(newSettingsView.getActivePanelName()).toBe 'Packages'
 
     it "shows the previously active panel if it is added after deserialization", ->
       settingsView.addPanel('Panel 1', $$ -> @div id: 'panel-1')
@@ -22,7 +22,7 @@ describe "SettingsView", ->
       settingsView.remove()
       newSettingsView.attachToDom()
       newSettingsView.addPanel('Panel 1', $$ -> @div id: 'panel-1')
-      expect(newSettingsView.activePanelName).toBe 'Panel 1'
+      expect(newSettingsView.getActivePanelName()).toBe 'Panel 1'
 
   describe ".addPanel(name, view)", ->
     it "adds a menu entry to the left and a panel that can be activated by clicking it", ->
