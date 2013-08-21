@@ -8,26 +8,12 @@ ThemePanel = require './theme-panel'
 PackagePanel = require './package-panel'
 Project = require 'project'
 
-configUri = "atom://config"
-
 ###
 # Internal #
 ###
 
 module.exports =
 class SettingsView extends ScrollView
-  registerDeserializer(this)
-
-  @activate: (state) ->
-    Project.registerOpener (filePath) ->
-      new SettingsView() if filePath is configUri
-
-    rootView.command 'settings-view:toggle', ->
-      rootView.open(configUri)
-
-  @deserialize: ({activePanelName}={}) ->
-    new SettingsView(activePanelName)
-
   @content: ->
     @div id: 'settings-view', tabindex: -1, =>
       @div id: 'config-menu', =>
@@ -37,7 +23,7 @@ class SettingsView extends ScrollView
 
   activePanelName: null
 
-  initialize: (activePanelName) ->
+  initialize: ({activePanelName, @uri}={}) ->
     super
     @panelsByName = {}
     @on 'click', '#panels-menu li a', (e) =>
@@ -83,7 +69,7 @@ class SettingsView extends ScrollView
     "Settings"
 
   getUri: ->
-    configUri
+    @uri
 
   isEqual: (other) ->
     other instanceof SettingsView
