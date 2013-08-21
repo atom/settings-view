@@ -9,6 +9,7 @@ createSettingsView = (state) ->
 
 registerDeserializer
   name: 'SettingsView'
+  version: 1
   deserialize: (state) -> createSettingsView(state)
 
 module.exports =
