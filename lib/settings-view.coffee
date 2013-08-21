@@ -35,7 +35,7 @@ class SettingsView extends ScrollView
       @showPanel($(e.target).closest('li').attr('name'))
 
     @on 'click', '#open-dot-atom', ->
-      atom.open(config.configDirPath)
+      atom.open(pathsToOpen: [config.configDirPath])
 
     @addPanel('General', new GeneralPanel)
     @addPanel('Themes', new ThemePanel)
