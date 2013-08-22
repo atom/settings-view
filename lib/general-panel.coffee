@@ -27,10 +27,9 @@ class GeneralPanel extends View
   activatePackages: (finishedCallback) ->
     iterator = (pack, callback) ->
       try
-        if pack instanceof AtomPackage and not pack.isActive()
-          pack.activate({immediate: true})
-      catch e
-        console.error e
+        pack.activateConfig()
+      catch error
+        console.error "Error activating package config for '#{pack.name}'", error
       finally
         callback()
 
