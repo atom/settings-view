@@ -96,6 +96,7 @@ class GeneralPanel extends View
 
 appendSetting = (namespace, name, value) ->
   return if namespace is 'core' and name is 'themes' # Handled in the Themes panel
+  return if namespace is 'core' and name is 'disabledPackages' # Handled in the Packages panel
 
   @div class: 'control-group', =>
     @div class: 'controls', =>
