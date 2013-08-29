@@ -4,7 +4,7 @@ semver = require 'semver'
 packageManager = require './package-manager'
 _ = require 'underscore'
 {$$, View} = require 'space-pen'
-requireWithGlobals 'bootstrap/js/bootstrap-dropdown', jQuery: require 'jquery'
+requireWithGlobals 'bootstrap/js/dropdown', jQuery: require 'jquery'
 
 ### Internal ###
 module.exports =
