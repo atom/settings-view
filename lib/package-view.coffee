@@ -1,3 +1,4 @@
+url = require 'url'
 Package = require 'package'
 semver = require 'semver'
 packageManager = require './package-manager'
@@ -83,7 +84,7 @@ class PackageView extends View
         repoUrl = @metadata.repository?.url
       if repoUrl
         repoUrl = repoUrl.replace(/.git$/, '')
-        homepage = repoUrl if require('url').parse(repoUrl).host is 'github.com'
+        homepage = repoUrl if url.parse(repoUrl).host is 'github.com'
     if homepage
       @homepage.find('a').attr('href', homepage)
     else
