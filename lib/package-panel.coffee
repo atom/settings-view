@@ -103,9 +103,16 @@ class PackagePanel extends View
     view = $$ ->
       @div class: 'alert alert-error', =>
         @button type: 'button', class: 'close', 'data-dismiss': 'alert', 'aria-hidden': true, '\u00d7'
-        @span class: 'error-message', text
+        @span class: 'error-message', "#{text} "
+        @a class: 'toggle-details', 'More information\u2026'
         @pre class: 'error-details', details
     view.on 'click', '.close', -> view.remove()
+    view.on 'click', '.toggle-details', ->
+      if view.find('.error-details').toggle().isVisible()
+        $(this).text('Less information\u2026')
+      else
+        $(this).text('More information\u2026')
+    view.find('.error-details').hide()
     view
 
   updateInstalledCount: ->
