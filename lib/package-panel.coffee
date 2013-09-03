@@ -43,10 +43,20 @@ class PackagePanel extends View
       @installedPackages.toggle()
 
     @packageEventEmitter.on 'package-installed', (error, pack) =>
-      @addInstalledPackage(pack) unless error?
+      if error?
+        console.error(error.stack ? error)
+        errorView = @createErrorView(error.message, error.stderr)
+        errorView.insertAfter(@packageFilter)
+      else
+        @addInstalledPackage(pack)
 
     @packageEventEmitter.on 'package-uninstalled', (error, pack) =>
-      @removeInstalledPackage(pack) unless error?
+      if error?
+        console.error(error.stack ? error)
+        errorView = @createErrorView(error.message, error.stderr)
+        errorView.insertAfter(@packageFilter)
+      else
+        @removeInstalledPackage(pack)
 
     @packageFilter.getBuffer().on 'contents-modified', =>
       @filterPackages(@packageFilter.getText())
@@ -71,7 +81,10 @@ class PackagePanel extends View
     packageManager.getAvailable (error, @packages=[]) =>
       @availablePackages.empty()
       if error?
-        errorView = @createErrorView('Error fetching available packages.')
+        errorView =  $$ ->
+          @div class: 'alert alert-error', =>
+            @span 'Error fetching available packages.'
+            @button class: 'btn btn-mini btn-retry', 'Retry'
         errorView.on 'click', => @loadAvailableViews()
         @availablePackages.append errorView
         console.error(error.stack ? error)
@@ -86,11 +99,14 @@ class PackagePanel extends View
     $$ ->
       @div class: 'alert alert-info loading-area', text
 
-  createErrorView: (text) ->
-    $$ ->
+  createErrorView: (text, details='') ->
+    view = $$ ->
       @div class: 'alert alert-error', =>
-        @span text
-        @button class: 'btn btn-mini btn-retry', 'Retry'
+        @button type: 'button', class: 'close', 'data-dismiss': 'alert', 'aria-hidden': true, '\u00d7'
+        @span class: 'error-message', text
+        @pre class: 'error-details', details
+    view.on 'click', '.close', -> view.remove()
+    view
 
   updateInstalledCount: ->
     @installedCount.text(@installedPackages.children().length)

@@ -51,27 +51,41 @@ install = ({name, version}, callback) ->
 
   command = require.resolve '.bin/apm'
   args = ['install', "#{name}@#{version}"]
+  outputLines = []
+  stdout = (lines) -> outputLines.push(lines)
+  errorLines = []
+  stderr = (lines) -> errorLines.push(lines)
   exit = (code) ->
-    if code is 0
+    if code is 0 and false
       atom.activatePackage(name) if activateOnSuccess
       callback()
     else
       atom.activatePackage(name) if activateOnFailure
-      callback(new Error("Installing '#{name}' failed."))
+      error = new Error("Installing '#{name}' failed.")
+      error.stdout = outputLines.join('\n')
+      error.stderr = errorLines.join('\n')
+      callback(error)
 
-  new BufferedNodeProcess({command, args, exit})
+  new BufferedNodeProcess({command, args, stdout, stderr, exit})
 
 uninstall = ({name}, callback) ->
   atom.deactivatePackage(name) if atom.isPackageActive(name)
 
   command = require.resolve '.bin/apm'
   args = ['uninstall', name]
+  outputLines = []
+  stdout = (lines) -> outputLines.push(lines)
+  errorLines = []
+  stderr = (lines) -> errorLines.push(lines)
   exit = (code) ->
     if code is 0
       atom.unloadPackage(name) if atom.isPackageLoaded(name)
       callback()
     else
-      callback(new Error("Uninstalling '#{name}' failed."))
+      error = new Error("Uninstalling '#{name}' failed.")
+      error.stdout = outputLines.join('\n')
+      error.stderr = errorLines.join('\n')
+      callback(error)
 
   new BufferedNodeProcess({command, args, exit})
 

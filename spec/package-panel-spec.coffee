@@ -102,12 +102,29 @@ describe "PackagePanel", ->
         expect(configObserver).toHaveBeenCalledWith(['p1'])
 
     describe "when Uninstall is clicked", ->
-      it "removes the package from the tab", ->
-        expect(panel.installedPackages.find("[name='p1']")).toExist()
-        p1View = panel.installedPackages.find("[name='p1']").view()
-        expect(p1View.defaultAction.text()).toBe 'Uninstall'
-        p1View.defaultAction.click()
-        expect(panel.installedPackages.find("[name='p1']")).not.toExist()
+      describe "when the uninstall succeeds", ->
+        it "removes the package from the tab", ->
+          expect(panel.installedPackages.find("[name='p1']")).toExist()
+          p1View = panel.installedPackages.find("[name='p1']").view()
+          expect(p1View.defaultAction.text()).toBe 'Uninstall'
+          p1View.defaultAction.click()
+          expect(panel.installedPackages.find("[name='p1']")).not.toExist()
+
+      describe "when the uninstall fails", ->
+        it "displays the error and logs it to the console", ->
+          spyOn(console, 'error')
+          jasmine.unspy(packageManager, 'uninstall')
+          spyOn(packageManager, 'uninstall').andCallFake (pack, callback) ->
+            callback(new Error('Package is missing'))
+
+          expect(panel.find('.alert-error')).not.toExist()
+          expect(panel.installedPackages.find("[name='p1']")).toExist()
+          p1View = panel.installedPackages.find("[name='p1']").view()
+          expect(p1View.defaultAction.text()).toBe 'Uninstall'
+          p1View.defaultAction.click()
+          expect(panel.installedPackages.find("[name='p1']")).toExist()
+          expect(panel.find('.alert-error').text()).toContain 'Package is missing'
+          expect(console.error).toHaveBeenCalled()
 
   describe 'Available tab', ->
     it 'lists all available packages', ->
@@ -143,11 +160,28 @@ describe "PackagePanel", ->
       expect(p6View.issues).toBeHidden()
 
     describe "when Install is clicked", ->
-      it "adds the package to the Installed tab", ->
-        expect(panel.installedPackages.find("[name='p4']")).not.toExist()
-        expect(panel.availablePackages.find("[name='p4']")).toExist()
-        p4View = panel.availablePackages.find("[name='p4']").view()
-        expect(p4View.defaultAction.text()).toBe 'Install'
-        p4View.defaultAction.click()
-        expect(panel.installedPackages.find("[name='p4']")).toExist()
-        expect(p4View.defaultAction.text()).toBe 'Uninstall'
+      describe "when the install succeeds", ->
+        it "adds the package to the Installed tab", ->
+          expect(panel.installedPackages.find("[name='p4']")).not.toExist()
+          expect(panel.availablePackages.find("[name='p4']")).toExist()
+          p4View = panel.availablePackages.find("[name='p4']").view()
+          expect(p4View.defaultAction.text()).toBe 'Install'
+          p4View.defaultAction.click()
+          expect(panel.installedPackages.find("[name='p4']")).toExist()
+          expect(p4View.defaultAction.text()).toBe 'Uninstall'
+
+      describe "when the install fails", ->
+        it "displays the error and logs it to the console", ->
+          spyOn(console, 'error')
+          jasmine.unspy(packageManager, 'install')
+          spyOn(packageManager, 'install').andCallFake (pack, callback) ->
+            callback(new Error('Package is corrupt'))
+
+          expect(panel.find('.alert-error')).not.toExist()
+          p4View = panel.availablePackages.find("[name='p4']").view()
+          expect(p4View.defaultAction.text()).toBe 'Install'
+          p4View.defaultAction.click()
+          expect(panel.installedPackages.find("[name='p4']")).not.toExist()
+          expect(p4View.defaultAction.text()).toBe 'Install'
+          expect(panel.find('.alert-error').text()).toContain 'Package is corrupt'
+          expect(console.error).toHaveBeenCalled()
