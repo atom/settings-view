@@ -26,6 +26,7 @@ class PackagePanel extends View
             @span class: 'badge pull-right', outlet: 'availableCount'
 
       @subview 'packageFilter', new Editor(mini: true, attributes: {id: 'package-filter'})
+      @div class: 'errors', outlet: 'errors'
       @div outlet: 'installedPackages'
       @div outlet: 'availablePackages'
 
@@ -44,17 +45,13 @@ class PackagePanel extends View
 
     @packageEventEmitter.on 'package-installed', (error, pack) =>
       if error?
-        console.error(error.stack ? error)
-        errorView = @createErrorView(error.message, error.stderr)
-        errorView.insertAfter(@packageFilter)
+        @showPackageError(error)
       else
         @addInstalledPackage(pack)
 
     @packageEventEmitter.on 'package-uninstalled', (error, pack) =>
       if error?
-        console.error(error.stack ? error)
-        errorView = @createErrorView(error.message, error.stderr)
-        errorView.insertAfter(@packageFilter)
+        @showPackageError(error)
       else
         @removeInstalledPackage(pack)
 
@@ -94,6 +91,12 @@ class PackagePanel extends View
           @availablePackages.append(view)
 
       @updateAvailableCount()
+
+  showPackageError: (error) ->
+    console.error(error.stack ? error)
+    errorView = @createErrorView(error.message, error.stderr)
+    @errors.append(errorView)
+    @parent().scrollTop(errorView.offset().top - @offset().top)
 
   createLoadingView: (text) ->
     $$ ->
