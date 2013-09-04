@@ -4,7 +4,6 @@ $ = require 'jquery'
 _ = require 'underscore'
 telepath = require 'telepath'
 
-Pane = require 'pane'
 GeneralPanel = require './general-panel'
 ThemePanel = require './theme-panel'
 PackagePanel = require './package-panel'
