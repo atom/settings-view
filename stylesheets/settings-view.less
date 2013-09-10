@@ -1,13 +1,14 @@
 @import "bootstrap/less/variables.less";
 @import "octicon-mixins.less";
+@import "ui-variables.less";
 
 #settings-view {
-  background: white;
   display: -webkit-flex;
 
   #config-menu {
     display: -webkit-flex;
     -webkit-flex-direction: column;
+    padding-right: @component-padding;
 
     #panels-menu {
       width: 150px;
@@ -37,12 +38,6 @@
 
     > div {
       -webkit-flex: 1;
-    }
-
-    .editor {
-      padding-left: 0.25em;
-      border: 1px solid #aaa;
-      box-shadow: 1px 1px 1px 0 #888 inset;
     }
   }
 
@@ -128,13 +123,10 @@
 
   .loading-area {
     span {
-      .octicon(hourglass);
-
       &:before {
         font-size: 1.1em;
         width: 1.1em;
         height: 1.1em;
-        margin-right: 5px;
       }
     }
   }
