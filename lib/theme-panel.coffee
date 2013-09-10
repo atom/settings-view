@@ -17,15 +17,16 @@ delete window.jQuery
 module.exports =
 class ThemeConfigPanel extends View
   @content: ->
-    @div id: 'themes-config', =>
-      @legend "Themes"
+    @div class: 'section', id: 'themes-config', =>
+      @h1 class: 'section-heading', "Themes"
       @div id: 'theme-picker', =>
         @div class: 'panel', =>
           @div class: 'panel-heading', "Enabled Themes"
-          @ol id: 'enabled-themes', class: 'list-group list-group-flush', outlet: 'enabledThemes'
+          @ol id: 'enabled-themes', class: 'list-group', outlet: 'enabledThemes'
+
         @div class: 'panel', =>
           @div class: 'panel-heading', "Available Themes"
-          @ol id: 'available-themes', class: 'list-group list-group-flush', outlet: 'availableThemes'
+          @ol id: 'available-themes', class: 'list-group', outlet: 'availableThemes'
 
   constructor: ->
     super
@@ -44,11 +45,12 @@ class ThemeConfigPanel extends View
     @on "click", "#enabled-themes .disable-theme", (e) =>
       $(e.target).closest('li').remove()
       @enabledThemesUpdated()
+      false
 
   buildThemeLi: (name, {draggable} = {}) ->
     li = $$ ->
-      @li class: 'list-group-item', name: name, =>
-        @div class: 'disable-theme pull-right'
+      @li class: 'list-item', name: name, =>
+        @a href: '#', class: 'icon icon-x disable-theme pull-right'
         @text name
     if draggable
       li.draggable
