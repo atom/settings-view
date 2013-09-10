@@ -3,6 +3,8 @@
 @import "ui-variables.less";
 
 #settings-view {
+  @menu-width: 150px;
+
   display: -webkit-flex;
 
   #config-menu {
@@ -11,20 +13,12 @@
     padding-right: @component-padding;
 
     #panels-menu {
-      width: 150px;
-      margin-left: @line-height-base;
-      margin-top: @line-height-base;
+      width: @menu-width;
       -webkit-flex-grow: 1;
-
-      li a {
-        cursor: pointer;
-      }
     }
 
     #open-dot-atom {
-      width: 150px;
-      margin-left: @line-height-base;
-      margin-bottom: @line-height-base;
+      width: @menu-width;
     }
   }
 
@@ -32,7 +26,6 @@
     -webkit-flex: 1;
     -webkit-flex-flow: column;
     display: -webkit-flex;
-    padding: @line-height-base;
     position: relative;
     overflow-y: auto;
 
@@ -56,11 +49,11 @@
         display: -webkit-flex;
         -webkit-flex-flow: column;
         min-height: 0;
-        &:first-child { margin-right: @line-height-base / 2; }
-        &:last-child { margin-left: @line-height-base / 2; }
+        &:first-child { margin-right: @component-padding / 2; }
+        &:last-child { margin-left: @component-padding / 2; }
 
         .panel-heading {
-          margin-bottom: 0;
+          border-radius: @component-border-radius @component-border-radius 0 0;
         }
 
         ol {
@@ -72,28 +65,20 @@
           li {
             -webkit-user-select: none;
             cursor: default;
-            padding-right: 15px;
-            &:first-child { border-top: 0; }
           }
         }
+      }
 
-        #enabled-themes {
-          li:hover .disable-theme {
-            .octicon(x);
-            color: #888;
-            cursor: pointer;
-            &:hover { color: #000; }
-          }
+      a.disable-theme { display: none; }
+      #enabled-themes {
+        li:hover {
+          a.disable-theme { display: block; }
         }
       }
     }
 
     li.ui-draggable-dragging, li.ui-sortable-helper {
-      border: 0;
-      box-sizing: content-box;
-      background: white;
-      border-radius: 0;
-      box-shadow: 0 0 5px rgba(0, 0, 0, .5);
+      a.disable-theme { display: none !important; }
     }
   }
 
