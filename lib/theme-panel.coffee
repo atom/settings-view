@@ -19,6 +19,7 @@ class ThemeConfigPanel extends View
   @content: ->
     @div class: 'section', id: 'themes-config', =>
       @h1 class: 'section-heading', "Themes"
+      @p 'Drag themes between the Available Themes and the Enabled Themes sections'
       @div id: 'theme-picker', =>
         @div class: 'panel', =>
           @div class: 'panel-heading', "Enabled Themes"
