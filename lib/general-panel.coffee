@@ -12,14 +12,14 @@ Editor = require 'editor'
 module.exports =
 class GeneralPanel extends View
   @content: ->
-    @form id: 'general-panel', class: 'form-horizontal', =>
-      @div outlet: "loadingElement", class: 'alert alert-info loading-area', "Loading settings"
+    @form id: 'general-panel', =>
+      @div outlet: "loadingElement", class: 'alert alert-info loading-area icon icon-hourglass', "Loading settings"
 
   initialize: ->
     window.setTimeout (=> @activatePackages => @showSettings()), 1
 
   showSettings: ->
-    @loadingElement.hide()
+    @loadingElement.remove()
     @appendSettings(name, settings) for name, settings of config.getSettings()
     @bindFormFields()
     @bindEditors()
@@ -39,8 +39,8 @@ class GeneralPanel extends View
     return if _.isEmpty(settings)
 
     @append $$ ->
-      @fieldset =>
-        @legend "#{_.uncamelcase(namespace)} settings"
+      @section class: 'bordered', =>
+        @h1 class: 'section-heading', "#{_.uncamelcase(namespace)} settings"
         appendSetting.call(this, namespace, name, value) for name, value of settings
 
   bindFormFields: ->

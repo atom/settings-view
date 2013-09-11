@@ -15,9 +15,9 @@ _.extend PackageEventEmitter.prototype, EventEmitter
 module.exports =
 class PackagePanel extends View
   @content: ->
-    @div class: 'package-panel', =>
-      @legend 'Packages'
-      @ul class: 'nav nav-tabs', =>
+    @div class: 'package-panel section', =>
+      @h1 class: 'section-heading', 'Packages'
+      @ul class: 'nav nav-tabs block', =>
         @li class: 'active', =>
           @a 'Installed', =>
             @span class: 'badge pull-right', outlet: 'installedCount'
@@ -25,8 +25,9 @@ class PackagePanel extends View
           @a 'Available', =>
             @span class: 'badge pull-right', outlet: 'availableCount'
 
-      @subview 'packageFilter', new Editor(mini: true, attributes: {id: 'package-filter'})
-      @div class: 'errors', outlet: 'errors'
+      @div class: 'block', =>
+        @subview 'packageFilter', new Editor(mini: true)
+        @div class: 'errors', outlet: 'errors'
       @div outlet: 'installedPackages'
       @div outlet: 'availablePackages'
 

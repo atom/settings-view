@@ -10,25 +10,26 @@ requireWithGlobals 'bootstrap/js/dropdown', jQuery: require 'jquery'
 module.exports =
 class PackageView extends View
   @content: ->
-    @div class: 'panel', =>
+    @div class: 'bordered panel block', =>
       @div outlet: 'heading', class: 'panel-heading', =>
         @span outlet: 'name'
         @span outlet: 'version', class: 'label'
         @span outlet: 'update', class: 'label label-info', 'Update Available'
         @span outlet: 'disabedLabel', class: 'label label-warning', 'Disabled'
         @div class: 'btn-group pull-right', =>
-          @button outlet: 'defaultAction', class: 'btn btn-small btn-primary'
-          @button outlet: 'dropdownButton', class: 'btn btn-small btn-primary dropdown-toggle', 'data-toggle': 'dropdown', =>
+          @button outlet: 'defaultAction', class: 'btn btn-small'
+          @button outlet: 'dropdownButton', class: 'btn btn-small dropdown-toggle', 'data-toggle': 'dropdown', =>
             @span class: 'caret'
           @ul outlet: 'dropdown', class: 'dropdown-menu', =>
             @li outlet: 'enableToggle', => @a 'Disable'
             @li outlet: 'homepage', => @a 'Visit homepage'
             @li outlet: 'issues', => @a 'Report issue'
-      @div outlet: 'description'
-      @ul class: 'list-group list-group-flush', =>
-        @li outlet: 'readmeArea', class: 'list-group-item', =>
-          @a 'Show README', outlet: 'readmeLink'
-          @div class: 'readme', outlet: 'readme'
+      @div class: 'padded panel-body', =>
+        @div outlet: 'description'
+        @ul class: 'list-group list-group-flush', =>
+          @li outlet: 'readmeArea', class: 'list-item', =>
+            @a 'Show README', outlet: 'readmeLink'
+            @div class: 'readme', outlet: 'readme'
 
   pack: null
   metadata: null
