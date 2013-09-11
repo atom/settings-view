@@ -16,11 +16,11 @@ Project = require 'project'
 module.exports =
 class SettingsView extends ScrollView
   @content: ->
-    @div id: 'settings-view', class: 'padded pane-item', tabindex: -1, =>
+    @div id: 'settings-view', class: 'pane-item', tabindex: -1, =>
       @div id: 'config-menu', =>
         @ul id: 'panels-menu', class: 'nav nav-pills nav-stacked', outlet: 'panelMenu'
         @button "Open ~/.atom", id: 'open-dot-atom', class: 'btn btn-default btn-small'
-      @div id: 'panels', outlet: 'panels'
+      @div id: 'panels', class: 'padded', outlet: 'panels'
 
   initialize: (@state) ->
     super
