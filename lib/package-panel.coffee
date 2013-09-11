@@ -15,8 +15,8 @@ _.extend PackageEventEmitter.prototype, EventEmitter
 module.exports =
 class PackagePanel extends View
   @content: ->
-    @div class: 'package-panel', =>
-      @legend 'Packages'
+    @div class: 'package-panel section', =>
+      @h1 class: 'section-heading', 'Packages'
       @ul class: 'nav nav-tabs', =>
         @li class: 'active', =>
           @a 'Installed', =>
