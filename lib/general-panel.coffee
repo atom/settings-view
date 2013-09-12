@@ -70,13 +70,20 @@ class GeneralPanel extends View
         name = editor.attr('id')
         type = editor.attr('type')
 
-        @observeConfig name, (value) ->
-          return if value?.toString() == editor.getText()
+        @observeConfig name, (value) =>
+          stringValue = @valueToString(value)
+          return if stringValue == editor.getText()
           value ?= ""
-          editor.setText(value.toString())
+          editor.setText(stringValue)
 
         editor.getBuffer().on 'contents-modified', =>
           config.set(name, @parseValue(type, editor.getText()))
+
+  valueToString: (value) ->
+    if _.isArray(value)
+      value.join(", ")
+    else
+      value?.toString()
 
   parseValue: (type, value) ->
     if value == ''
@@ -87,6 +94,9 @@ class GeneralPanel extends View
     else if type == 'float'
       floatValue = parseFloat(value)
       value = floatValue unless isNaN(floatValue)
+    else if type == 'array'
+      arrayValue = value.split(',')
+      value = (val.trim() for val in arrayValue when val)
 
     value
 
@@ -129,6 +139,7 @@ appendEditor = (namespace, name, value) ->
 
 appendArray = (namespace, name, value) ->
   englishName = _.uncamelcase(name)
+  keyPath = "#{namespace}.#{name}"
   @label class: 'control-label', englishName
   @div class: 'controls', =>
-    @text "readOnly: " + value.join(", ")
+    @subview keyPath.replace('.', ''), new Editor(mini: true, attributes: {id: keyPath, type: 'array'})
