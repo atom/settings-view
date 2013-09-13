@@ -73,7 +73,7 @@ class GeneralPanel extends View
         @observeConfig name, (value) =>
           stringValue = @valueToString(value)
           return if stringValue == editor.getText()
-          value ?= ""
+          stringValue ?= ""
           editor.setText(stringValue)
 
         editor.getBuffer().on 'contents-modified', =>
@@ -95,7 +95,7 @@ class GeneralPanel extends View
       floatValue = parseFloat(value)
       value = floatValue unless isNaN(floatValue)
     else if type == 'array'
-      arrayValue = value.split(',')
+      arrayValue = (value or '').split(',')
       value = (val.trim() for val in arrayValue when val)
 
     value
