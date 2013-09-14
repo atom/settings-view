@@ -1,10 +1,13 @@
 $ = require 'jquery'
 ThemePanel = require '../lib/theme-panel'
 
-describe "ThemePanel", ->
+fdescribe "ThemePanel", ->
   panel = null
 
   beforeEach ->
+    atom.themes.loadTheme('atom-light-ui')
+    atom.themes.loadTheme('atom-dark-ui')
+    atom.themes.loadTheme('atom-dark-syntax')
     config.set('core.themes', ['atom-dark-ui', 'atom-dark-syntax'])
     panel = new ThemePanel
 
