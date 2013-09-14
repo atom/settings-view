@@ -1,7 +1,7 @@
 $ = require 'jquery'
 ThemePanel = require '../lib/theme-panel'
 
-fdescribe "ThemePanel", ->
+describe "ThemePanel", ->
   panel = null
 
   beforeEach ->
