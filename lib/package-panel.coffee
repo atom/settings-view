@@ -1,9 +1,6 @@
-{_, $, $$, View} = require 'atom-api'
-EventEmitter = require 'event-emitter'
-Editor = require 'editor'
+{_, $, $$, Editor, EventEmitter, stringscore, View} = require 'atom-api'
 PackageView = require './package-view'
 packageManager = require './package-manager'
-stringScore = require 'stringscore'
 
 
 ### Internal ###
