@@ -1,4 +1,4 @@
-BufferedNodeProcess = require 'buffered-node-process'
+{BufferedNodeProcess} = require 'atom-api'
 roaster = require 'roaster'
 async = require 'async'
 

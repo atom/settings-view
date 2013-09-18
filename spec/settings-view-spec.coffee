@@ -1,5 +1,5 @@
 SettingsView = require '../lib/settings-view'
-{$$} = require 'space-pen'
+{$$} = require 'atom-api'
 
 describe "SettingsView", ->
   settingsView = null

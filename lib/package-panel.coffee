@@ -1,6 +1,4 @@
-$ = require 'jquery'
-_ = require 'underscore'
-{View, $$} = require 'space-pen'
+{_, $, $$, View} = require 'atom-api'
 EventEmitter = require 'event-emitter'
 Editor = require 'editor'
 PackageView = require './package-view'

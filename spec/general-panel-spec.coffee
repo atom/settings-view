@@ -1,5 +1,4 @@
 GeneralPanel = require '../lib/general-panel'
-Editor = require 'editor'
 
 describe "GeneralPanel", ->
   panel = null

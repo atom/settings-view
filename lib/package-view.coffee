@@ -1,10 +1,8 @@
 url = require 'url'
-Package = require 'package'
 semver = require 'semver'
 packageManager = require './package-manager'
-_ = require 'underscore'
-{$$, View} = require 'space-pen'
-requireWithGlobals 'bootstrap/js/dropdown', jQuery: require 'jquery'
+{_, $, $$, View} = require 'atom-api'
+requireWithGlobals 'bootstrap/js/dropdown', jQuery: $
 
 ### Internal ###
 module.exports =
@@ -39,7 +37,7 @@ class PackageView extends View
   updateAvailable: false
 
   initialize: (pack, @packageEventEmitter) ->
-    if pack instanceof Package
+    if pack?.metadata?
       @pack = pack
       @metadata = @pack.metadata
     else
