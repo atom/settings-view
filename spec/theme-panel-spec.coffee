@@ -1,4 +1,4 @@
-{$} = require 'atom-api'
+{$} = require 'atom'
 ThemePanel = require '../lib/theme-panel'
 
 describe "ThemePanel", ->

@@ -1,7 +1,7 @@
 url = require 'url'
 semver = require 'semver'
 packageManager = require './package-manager'
-{_, $, $$, View} = require 'atom-api'
+{_, $, $$, View} = require 'atom'
 requireWithGlobals 'bootstrap/js/dropdown', jQuery: $
 
 ### Internal ###

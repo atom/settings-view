@@ -1,4 +1,4 @@
-{_, $, $$, ScrollView} = require 'atom-api'
+{_, $, $$, ScrollView} = require 'atom'
 telepath = require 'telepath'
 
 GeneralPanel = require './general-panel'

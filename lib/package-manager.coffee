@@ -1,4 +1,4 @@
-{BufferedNodeProcess} = require 'atom-api'
+{BufferedNodeProcess} = require 'atom'
 roaster = require 'roaster'
 async = require 'async'
 
@@ -22,7 +22,7 @@ renderMarkdownInMetadata = (packages, callback) ->
   queue.drain = callback
 
 getAvailable = (callback) ->
-  command = require.resolve '.bin/apm'
+  command = require.resolve 'atom-package-manager/bin/apm'
   args = ['available', '--json']
   output = []
   stdout = (lines) -> output.push(lines)
@@ -49,7 +49,7 @@ install = ({name, version}, callback) ->
   atom.deactivatePackage(name) if atom.isPackageActive(name)
   atom.unloadPackage(name) if atom.isPackageLoaded(name)
 
-  command = require.resolve '.bin/apm'
+  command = require.resolve 'atom-package-manager/bin/apm'
   args = ['install', "#{name}@#{version}"]
   outputLines = []
   stdout = (lines) -> outputLines.push(lines)
@@ -71,7 +71,7 @@ install = ({name, version}, callback) ->
 uninstall = ({name}, callback) ->
   atom.deactivatePackage(name) if atom.isPackageActive(name)
 
-  command = require.resolve '.bin/apm'
+  command = require.resolve 'atom-package-manager/bin/apm'
   args = ['uninstall', name]
   outputLines = []
   stdout = (lines) -> outputLines.push(lines)

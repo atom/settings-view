@@ -1,4 +1,4 @@
-{_, $, $$, Editor, View} = require 'atom-api'
+{_, $, $$, Editor, View} = require 'atom'
 async = require 'async'
 
 ###

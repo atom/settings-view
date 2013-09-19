@@ -1,4 +1,4 @@
-{_, $, $$, Editor, EventEmitter, stringscore, View} = require 'atom-api'
+{_, $, $$, Editor, EventEmitter, stringscore, View} = require 'atom'
 PackageView = require './package-view'
 packageManager = require './package-manager'
 
