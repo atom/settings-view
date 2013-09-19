@@ -1,9 +1,5 @@
-{$$, View} = require 'space-pen'
-$ = require 'jquery'
-_ = require 'underscore'
+{_, $, $$, Editor, View} = require 'atom'
 async = require 'async'
-AtomPackage = require 'atom-package'
-Editor = require 'editor'
 
 ###
 # Internal #

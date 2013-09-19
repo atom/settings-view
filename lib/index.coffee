@@ -1,7 +1,6 @@
-_ = require 'underscore'
+{_} = require 'atom'
 telepath = require 'telepath'
 
-Project = require 'project'
 SettingsView = null
 
 configUri = 'atom://config'
@@ -22,7 +21,7 @@ registerDeserializer(deserializer)
 
 module.exports =
   activate: ->
-    Project.registerOpener (filePath) ->
+    project.registerOpener (filePath) ->
       createSettingsView({uri: configUri}) if filePath is configUri
 
     rootView.command 'settings-view:toggle', -> rootView.open(configUri)

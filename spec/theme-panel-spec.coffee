@@ -1,4 +1,4 @@
-$ = require 'jquery'
+{$} = require 'atom'
 ThemePanel = require '../lib/theme-panel'
 
 describe "ThemePanel", ->

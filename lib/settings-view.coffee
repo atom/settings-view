@@ -1,13 +1,9 @@
-{$$} = require 'space-pen'
-ScrollView = require 'scroll-view'
-$ = require 'jquery'
-_ = require 'underscore'
+{_, $, $$, ScrollView} = require 'atom'
 telepath = require 'telepath'
 
 GeneralPanel = require './general-panel'
 ThemePanel = require './theme-panel'
 PackagePanel = require './package-panel'
-Project = require 'project'
 
 ###
 # Internal #

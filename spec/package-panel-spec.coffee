@@ -1,6 +1,6 @@
 PackagePanel = require '../lib/package-panel'
 packageManager = require '../lib/package-manager'
-_ = require 'underscore'
+{_} = require 'atom'
 
 describe "PackagePanel", ->
   [panel, configObserver] = []

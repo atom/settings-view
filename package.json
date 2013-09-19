@@ -5,7 +5,8 @@
   "description": "GUI pane for Atom settings",
   "dependencies": {
     "jqueryui-browser": "~1.10.2-1",
-    "roaster": "0.0.7"
+    "roaster": "0.0.7",
+    "async": "~0.2.9"
   },
   "repository": {
     "type": "git",

@@ -1,11 +1,6 @@
-$ = require 'jquery'
-_ = require 'underscore'
-{View, $$} = require 'space-pen'
-EventEmitter = require 'event-emitter'
-Editor = require 'editor'
+{_, $, $$, Editor, EventEmitter, stringscore, View} = require 'atom'
 PackageView = require './package-view'
 packageManager = require './package-manager'
-stringScore = require 'stringscore'
 
 
 ### Internal ###

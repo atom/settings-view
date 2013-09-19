@@ -1,6 +1,4 @@
-{View, $$} = require 'space-pen'
-$ = require 'jquery'
-_ = require 'underscore'
+{_, $, $$, View} = require 'atom'
 
 ###
 # Internal #
