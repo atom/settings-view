@@ -143,7 +143,7 @@ class PackagePanel extends View
       for packageView in children
         name = packageView.getAttribute('name')
         continue unless name
-        if /^\s*$/.test(filterString) or stringScore(name, filterString)
+        if /^\s*$/.test(filterString) or stringscore(name, filterString)
           $(packageView).show()
         else
           $(packageView).hide()
