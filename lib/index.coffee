@@ -1,5 +1,4 @@
-{_} = require 'atom'
-telepath = require 'telepath'
+{_, Document} = require 'atom'
 
 SettingsView = null
 
@@ -7,7 +6,7 @@ configUri = 'atom://config'
 
 createSettingsView = (state) ->
   SettingsView ?= require './settings-view'
-  unless state instanceof telepath.Document
+  unless state instanceof Document
     state = _.extend({deserializer: deserializer.name, version: deserializer.version}, state)
     state = site.createDocument(state)
   new SettingsView(state)
