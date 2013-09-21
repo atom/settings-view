@@ -1,5 +1,4 @@
 {_, $, $$, ScrollView} = require 'atom'
-telepath = require 'telepath'
 
 GeneralPanel = require './general-panel'
 ThemePanel = require './theme-panel'
