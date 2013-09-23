@@ -128,7 +128,7 @@ describe "PackagePanel", ->
 
   describe 'Available tab', ->
     it 'lists all available packages', ->
-      panel.find("li a:contains(Available)").click()
+      panel.find("li a:contains(Available Packages)").parent().click()
       panel.attachToDom()
 
       expect(panel.availablePackages.children('.panel').length).toBe 3
