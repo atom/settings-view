@@ -13,18 +13,26 @@ class PackagePanel extends View
     @div class: 'package-panel section', =>
       @h1 class: 'section-heading', 'Packages'
       @ul class: 'nav nav-tabs block', =>
-        @li class: 'active', =>
-          @a 'Installed', =>
-            @span class: 'badge pull-right', outlet: 'installedCount'
-        @li =>
-          @a 'Available', =>
-            @span class: 'badge pull-right', outlet: 'availableCount'
+        @li class: 'active installed-packages', =>
+          @a 'Installed Packages', =>
+            @span class: 'badge pull-right', outlet: 'installedPackagesCount'
+        @li class: 'available-packages', =>
+          @a 'Available Packages', =>
+            @span class: 'badge pull-right', outlet: 'availablePackagesCount'
+        @li class: 'installed-themes', =>
+          @a 'Installed Themes', =>
+            @span class: 'badge pull-right', outlet: 'installedThemesCount'
+        @li class: 'available-themes', =>
+          @a 'Available Themes', =>
+            @span class: 'badge pull-right', outlet: 'availableThemesCount'
 
       @div class: 'block', =>
         @subview 'packageFilter', new Editor(mini: true)
         @div class: 'errors', outlet: 'errors'
-      @div outlet: 'installedPackages'
-      @div outlet: 'availablePackages'
+      @div class: 'package-container', outlet: 'installedPackages'
+      @div class: 'package-container', outlet: 'availablePackages'
+      @div class: 'package-container', outlet: 'installedThemes'
+      @div class: 'package-container', outlet: 'availableThemes'
 
   initialize: ->
     @packageEventEmitter = new PackageEventEmitter()
@@ -34,10 +42,21 @@ class PackagePanel extends View
     @loadAvailableViews()
 
     @find('.nav-tabs li').on 'click', (event) =>
-      return if $(event.currentTarget).hasClass('active')
-      @find('.nav-tabs li').toggleClass('active')
-      @availablePackages.toggle()
-      @installedPackages.toggle()
+      el = $(event.currentTarget)
+      return if el.hasClass('active')
+
+      @find('.nav-tabs li.active').removeClass('active')
+      @.toggleClass('active')
+      @find('.package-container').hide()
+
+      if el.hasClass('available-packages')
+        @availablePackages.show()
+      else if el.hasClass('installed-packages')
+        @installedPackages.show()
+      else if el.hasClass('available-themes')
+        @availableThemes.show()
+      else if el.hasClass('installed-themes')
+        @installedThemes.show()
 
     @packageEventEmitter.on 'package-installed', (error, pack) =>
       if error?
@@ -61,11 +80,16 @@ class PackagePanel extends View
     packages = _.sortBy(atom.getAvailablePackageMetadata(), 'name')
     packageManager.renderMarkdownInMetadata packages, =>
       @installedPackages.empty()
+      @installedThemes.empty()
       for pack in packages
         view = new PackageView(pack, @packageEventEmitter)
-        @installedPackages.append(view)
+        if pack.theme
+          @installedThemes.append(view)
+        else
+          @installedPackages.append(view)
 
-      @updateInstalledCount()
+      @updateInstalledPackagesCount()
+      @updateInstalledThemesCount()
 
   loadAvailableViews: ->
     @availablePackages.empty()
@@ -73,6 +97,7 @@ class PackagePanel extends View
 
     packageManager.getAvailable (error, @packages=[]) =>
       @availablePackages.empty()
+      @availableThemes.empty()
       if error?
         errorView =  $$ ->
           @div class: 'alert alert-error', =>
@@ -84,9 +109,13 @@ class PackagePanel extends View
       else
         for pack in @packages
           view = new PackageView(pack, @packageEventEmitter)
-          @availablePackages.append(view)
+          if pack.theme
+            @availableThemes.append(view)
+          else
+            @availablePackages.append(view)
 
-      @updateAvailableCount()
+      @updateAvailablePackagesCount()
+      @updateAvailableThemesCount()
 
   showPackageError: (error) ->
     console.error(error.stack ? error)
@@ -114,15 +143,22 @@ class PackagePanel extends View
     view.find('.error-details').hide()
     view
 
-  updateInstalledCount: ->
-    @installedCount.text(@installedPackages.children().length)
+  updateInstalledPackagesCount: ->
+    @installedPackagesCount.text(@installedPackages.children().length)
 
-  updateAvailableCount: ->
-    @availableCount.text(@availablePackages.children().length)
+  updateAvailablePackagesCount: ->
+    @availablePackagesCount.text(@availablePackages.children().length)
+
+  updateInstalledThemesCount: ->
+    @installedThemesCount.text(@installedThemes.children().length)
+
+  updateAvailableThemesCount: ->
+    @availableThemesCount.text(@availableThemes.children().length)
 
   removeInstalledPackage: ({name}) ->
     @installedPackages.children("[name=#{name}]").remove()
-    @updateInstalledCount()
+    @updateInstalledPackagesCount()
+    @updateInstalledThemesCount()
 
   addInstalledPackage: (pack) ->
     packageNames = [pack.name]
@@ -136,10 +172,11 @@ class PackagePanel extends View
     else
       @installedPackages.children(":eq(#{insertAfterIndex})").after(view)
 
-    @updateInstalledCount()
+    @updateInstalledPackagesCount()
+    @updateInstalledThemesCount()
 
   filterPackages: (filterString) ->
-    for children in [@installedPackages.children(), @availablePackages.children()]
+    for children in [@installedPackages.children(), @availablePackages.children(), @installedThemes.children(), @availableThemes.children()]
       for packageView in children
         name = packageView.getAttribute('name')
         continue unless name
