@@ -1,5 +1,4 @@
 {_, $, $$, Editor, View} = require 'atom'
-async = require 'async'
 
 ###
 # Internal #
@@ -12,24 +11,10 @@ class GeneralPanel extends View
       @div outlet: "loadingElement", class: 'alert alert-info loading-area icon icon-hourglass', "Loading settings"
 
   initialize: ->
-    window.setTimeout (=> @activatePackages => @showSettings()), 1
-
-  showSettings: ->
     @loadingElement.remove()
     @appendSettings(name, settings) for name, settings of config.getSettings()
     @bindFormFields()
     @bindEditors()
-
-  activatePackages: (finishedCallback) ->
-    iterator = (pack, callback) ->
-      try
-        pack.activateConfig()
-      catch error
-        console.error "Error activating package config for '#{pack.name}'", error
-      finally
-        callback()
-
-    async.each atom.getLoadedPackages(), iterator, finishedCallback
 
   appendSettings: (namespace, settings) ->
     return if _.isEmpty(settings)

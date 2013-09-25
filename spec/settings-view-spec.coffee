@@ -6,6 +6,10 @@ describe "SettingsView", ->
 
   beforeEach ->
     settingsView = new SettingsView(site.createDocument({}))
+    spyOn(settingsView, "initializePanels").andCallThrough()
+    window.advanceClock(10000)
+    waitsFor ->
+      settingsView.initializePanels.callCount > 0
 
   describe "serialization", ->
     it "remembers which panel was visible", ->
@@ -19,6 +23,7 @@ describe "SettingsView", ->
       settingsView.addPanel('Panel 1', $$ -> @div id: 'panel-1')
       settingsView.showPanel('Panel 1')
       newSettingsView = new SettingsView(settingsView.serialize())
+      newSettingsView.initializePanels()
       settingsView.remove()
       newSettingsView.attachToDom()
       newSettingsView.addPanel('Panel 1', $$ -> @div id: 'panel-1')
