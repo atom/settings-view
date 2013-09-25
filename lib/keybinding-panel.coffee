@@ -8,23 +8,23 @@ class KeybindingPanel extends View
       @table =>
         @thead =>
           @tr =>
+            @th "Source"
             @th "Keys"
-            @th "Selector"
             @th "Command"
+            @th "Selector"
         @tbody outlet: 'keybindingRows'
 
   initialize: ->
     @appendKeybindings()
 
   appendKeybindings: ->
-    for bindingSet in global.keymap.getBindingSets()
-      selector = bindingSet.getSelector()
-      for keystrokes, command of bindingSet.getCommandsByKeystrokes()
-        @keybindingRows.append @elementForKeybinding(selector, keystrokes, command)
+    for {selector, keystrokes, command, source} in global.keymap.getAllKeyMappings()
+      @keybindingRows.append @elementForKeybinding(selector, keystrokes, command, source)
 
-  elementForKeybinding: (selector, keystroke, command) ->
+  elementForKeybinding: (selector, keystroke, command, source) ->
     $$$ ->
       @tr =>
+        @td source
         @td keystroke
-        @td selector
         @td command
+        @td selector
