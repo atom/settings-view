@@ -3,6 +3,7 @@
 GeneralPanel = require './general-panel'
 ThemePanel = require './theme-panel'
 PackagePanel = require './package-panel'
+KeybindingPanel = require './keybinding-panel'
 
 ###
 # Internal #
@@ -32,6 +33,7 @@ class SettingsView extends ScrollView
       atom.open(pathsToOpen: [config.configDirPath])
 
     @addPanel('General', new GeneralPanel)
+    @addPanel('Keybindings', new KeybindingPanel)
     @addPanel('Themes', new ThemePanel)
     @addPanel('Packages', new PackagePanel)
     @showPanel(activePanelName) if activePanelName
