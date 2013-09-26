@@ -27,10 +27,6 @@ describe "GeneralPanel", ->
     config.set('foo.string', 'hey')
 
     panel = new GeneralPanel()
-    spyOn(panel, "showSettings").andCallThrough()
-    window.advanceClock(10000)
-    waitsFor ->
-      panel.showSettings.callCount > 0
 
   it "automatically binds named fields to their corresponding config keys", ->
     expect(getValueForId('foo.int')).toBe '22'

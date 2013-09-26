@@ -120,4 +120,52 @@
       }
     }
   }
+
+  .keybinding-panel {
+    label {
+      float: left;
+      padding-top: 4px;
+      padding-right: 10px;
+    }
+    table {
+      width: 100%;
+      table-layout: fixed;
+    }
+    th {
+      height: 34px;
+
+      font-weight: normal;
+
+      border-top: 1px solid fadein(@background-color-highlight, 10%);
+      padding: @component-padding - 2px @component-padding;
+      padding-left: 0;
+
+      background-color: transparent;
+      background-image: -webkit-linear-gradient(@panel-heading-background-color, darken(@panel-heading-background-color, 10%));
+    }
+    td {
+      height: @component-line-height;
+    }
+    td,th {
+      padding-left: 1%;
+      padding-right: 1%;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    col.keystrokes {
+      width: (15% - 2%);
+    }
+    col.command {
+      width: (40% - 2%);
+    }
+    col.source {
+      width: (10% - 2%);
+    }
+    col.selector {
+      width: (35%  - 2%);
+    }
+    td.keystrokes, td.command, td.source {
+      border-right: solid 1px @base-border-color;
+    }
+  }
 }
