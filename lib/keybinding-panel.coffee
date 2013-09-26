@@ -1,30 +1,47 @@
-{$$, $$$, View} = require 'atom'
+{_, $, $$$, View, Editor, stringscore} = require 'atom'
 
 module.exports =
 class KeybindingPanel extends View
   @content: ->
     @div class: 'keybinding-panel section', =>
       @h1 class: 'section-heading', 'Keybindings'
+      @div class: 'block', =>
+        @subview 'filter', new Editor(mini: true)
       @table =>
         @thead =>
           @tr =>
-            @th "Source"
-            @th "Keys"
+            @th "Keystrokes"
             @th "Command"
+            @th "Source"
             @th "Selector"
         @tbody outlet: 'keybindingRows'
 
   initialize: ->
-    @appendKeybindings()
+    @keyMappings = _.sortBy(global.keymap.getAllKeyMappings(), (x) -> x.keystrokes)
+    @appendKeyMappings(@keyMappings)
 
-  appendKeybindings: ->
-    for {selector, keystrokes, command, source} in global.keymap.getAllKeyMappings()
-      @keybindingRows.append @elementForKeybinding(selector, keystrokes, command, source)
+    @filter.getBuffer().on 'contents-modified', =>
+      @filterKeyMappings(@keyMappings, @filter.getText())
 
-  elementForKeybinding: (selector, keystroke, command, source) ->
+  filterKeyMappings: (keyMappings, filterString) ->
+    @keybindingRows.empty()
+    for keyMapping in keyMappings
+      {selector, keystrokes, command, source} = keyMapping
+      searchString = "#{selector}#{keystrokes}#{command}#{source}"
+      continue unless searchString
+
+      if /^\s*$/.test(filterString) or searchString.indexOf(filterString) != -1
+        @keybindingRows.append @elementForKeyMapping(keyMapping)
+
+  appendKeyMappings: (keyMappings) ->
+    for keyMapping in keyMappings
+      @keybindingRows.append @elementForKeyMapping(keyMapping)
+
+  elementForKeyMapping: (keyMapping) ->
+    {selector, keystrokes, command, source} = keyMapping
     $$$ ->
       @tr =>
-        @td source
-        @td keystroke
+        @td keystrokes
         @td command
+        @td source
         @td selector

@@ -15,8 +15,8 @@ describe "KeybindingPanel", ->
       expect(panel.keybindingRows.children().length).toBe 1
 
       row = panel.keybindingRows.find(':first')
-      expect(row.find(':nth-child(1)').text()).toBe 'Core'
-      expect(row.find(':nth-child(2)').text()).toBe 'ctrl-a'
-      expect(row.find(':nth-child(3)').text()).toBe 'core:select-all'
+      expect(row.find(':nth-child(1)').text()).toBe 'ctrl-a'
+      expect(row.find(':nth-child(2)').text()).toBe 'core:select-all'
+      expect(row.find(':nth-child(3)').text()).toBe 'Core'
       expect(row.find(':nth-child(4)').text()).toBe '.editor'
 
