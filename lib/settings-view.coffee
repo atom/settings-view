@@ -1,8 +1,10 @@
+async = require 'async'
 {_, $, $$, ScrollView} = require 'atom'
 
 GeneralPanel = require './general-panel'
 ThemePanel = require './theme-panel'
 PackagePanel = require './package-panel'
+KeybindingPanel = require './keybinding-panel'
 
 ###
 # Internal #
@@ -19,6 +21,10 @@ class SettingsView extends ScrollView
 
   initialize: (@state) ->
     super
+    window.setTimeout (=> @activatePackages => @initializePanels()), 1
+
+  initializePanels: ->
+    return if @panels.size > 0
 
     if @state
       activePanelName = @state.get('activePanelName')
@@ -32,6 +38,7 @@ class SettingsView extends ScrollView
       atom.open(pathsToOpen: [config.configDirPath])
 
     @addPanel('General', new GeneralPanel)
+    @addPanel('Keybindings', new KeybindingPanel)
     @addPanel('Themes', new ThemePanel)
     @addPanel('Packages', new PackagePanel)
     @showPanel(activePanelName) if activePanelName
@@ -74,3 +81,15 @@ class SettingsView extends ScrollView
 
   isEqual: (other) ->
     other instanceof SettingsView
+
+  activatePackages: (finishedCallback) ->
+    iterator = (pack, callback) ->
+      try
+        pack.activateConfig()
+      catch error
+        console.error "Error activating package config for '#{pack.name}'", error
+      finally
+        callback()
+
+    async.each atom.getLoadedPackages(), iterator, finishedCallback
+
