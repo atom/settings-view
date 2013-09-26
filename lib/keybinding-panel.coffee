@@ -6,14 +6,19 @@ class KeybindingPanel extends View
     @div class: 'keybinding-panel section', =>
       @h1 class: 'section-heading', 'Keybindings'
       @div class: 'block', =>
+        @label 'Filter:'
         @subview 'filter', new Editor(mini: true)
       @table =>
+        @col class: 'keystrokes'
+        @col class: 'command'
+        @col class: 'source'
+        @col class: 'selector'
         @thead =>
           @tr =>
-            @th "Keystrokes"
-            @th "Command"
-            @th "Source"
-            @th "Selector"
+            @th class: 'keystrokes', 'Keystrokes'
+            @th class: 'command', 'Command'
+            @th class: 'source', 'Source'
+            @th class: 'selector', 'Selector'
         @tbody outlet: 'keybindingRows'
 
   initialize: ->
@@ -41,7 +46,7 @@ class KeybindingPanel extends View
     {selector, keystrokes, command, source} = keyMapping
     $$$ ->
       @tr =>
-        @td keystrokes
-        @td command
-        @td source
-        @td selector
+        @td class: 'keystrokes', keystrokes
+        @td class: 'command', command
+        @td class: 'source', source
+        @td class: 'selector', selector
