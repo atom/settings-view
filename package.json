@@ -8,7 +8,7 @@
     "roaster": "0.0.7",
     "async": "~0.2.9",
     "semver": "~1.1.4",
-    "atom-package-manager": "~0.6.0"
+    "atom-package-manager": "~0.7.0"
   },
   "repository": {
     "type": "git",
