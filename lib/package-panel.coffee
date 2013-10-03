@@ -46,7 +46,7 @@ class PackagePanel extends View
       return if el.hasClass('active')
 
       @find('.nav-tabs li.active').removeClass('active')
-      @.toggleClass('active')
+      el.addClass('active')
       @find('.package-container').hide()
 
       if el.hasClass('available-packages')
