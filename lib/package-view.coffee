@@ -105,15 +105,15 @@ class PackageView extends View
         if @updateAvailable
           @defaultAction.text('Upgrading\u2026')
           packageManager.install @metadata, (error) =>
-            @packageEventEmitter.trigger('package-upgraded', error, @metadata)
+            @packageEventEmitter.emit('package-upgraded', error, @metadata)
         else
           @defaultAction.text('Uninstalling\u2026')
           packageManager.uninstall @metadata, (error) =>
-            @packageEventEmitter.trigger('package-uninstalled', error, @metadata)
+            @packageEventEmitter.emit('package-uninstalled', error, @metadata)
       else
         @defaultAction.text('Installing\u2026')
         packageManager.install @metadata, (error) =>
-          @packageEventEmitter.trigger('package-installed', error, @metadata)
+          @packageEventEmitter.emit('package-installed', error, @metadata)
 
     @updateDefaultAction()
 

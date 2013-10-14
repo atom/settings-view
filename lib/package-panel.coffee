@@ -1,11 +1,12 @@
-{_, $, $$, Editor, EventEmitter, stringscore, View} = require 'atom'
+{_, $, $$, Editor, stringscore, View} = require 'atom'
+{Emitter} = require 'emissary'
 PackageView = require './package-view'
 packageManager = require './package-manager'
 
 
 ### Internal ###
 class PackageEventEmitter
-_.extend PackageEventEmitter.prototype, EventEmitter
+  Emitter.includeInto(this)
 
 module.exports =
 class PackagePanel extends View
