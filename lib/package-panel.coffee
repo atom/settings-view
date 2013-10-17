@@ -1,4 +1,5 @@
-{_, $, $$, Editor, stringscore, View} = require 'atom'
+{_, $, $$, Editor, View} = require 'atom'
+{score} = require 'fuzzaldrin'
 {Emitter} = require 'emissary'
 PackageView = require './package-view'
 packageManager = require './package-manager'
@@ -181,7 +182,7 @@ class PackagePanel extends View
       for packageView in children
         name = packageView.getAttribute('name')
         continue unless name
-        if /^\s*$/.test(filterString) or stringscore(name, filterString)
+        if /^\s*$/.test(filterString) or score(name, filterString)
           $(packageView).show()
         else
           $(packageView).hide()

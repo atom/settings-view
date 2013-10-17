@@ -1,4 +1,4 @@
-{_, $, $$$, View, Editor, stringscore} = require 'atom'
+{_, $, $$$, View, Editor} = require 'atom'
 
 module.exports =
 class KeybindingPanel extends View
