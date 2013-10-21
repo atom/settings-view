@@ -93,13 +93,13 @@ describe "PackagePanel", ->
       it "adds the package name to the disabled packages array", ->
         p2View = panel.installedPackages.find("[name='p2']").view()
         p2View.enableToggle.find('a').click()
-        expect(configObserver).toHaveBeenCalledWith(['p1', 'p3', 'p2'])
+        expect(configObserver).toHaveBeenCalledWith(['p1', 'p3', 'p2'], previous: ['p1', 'p3'])
 
     describe "when the enable link is clicked", ->
       it "removes the package name from the disabled packages array", ->
         p3View = panel.installedPackages.find("[name='p3']").view()
         p3View.enableToggle.find('a').click()
-        expect(configObserver).toHaveBeenCalledWith(['p1'])
+        expect(configObserver).toHaveBeenCalledWith(['p1'], previous: ['p1', 'p3'])
 
     describe "when Uninstall is clicked", ->
       describe "when the uninstall succeeds", ->
