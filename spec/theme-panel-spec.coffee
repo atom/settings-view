@@ -5,9 +5,9 @@ describe "ThemePanel", ->
   panel = null
 
   beforeEach ->
-    atom.themes.loadTheme('atom-light-ui')
-    atom.themes.loadTheme('atom-dark-ui')
-    atom.themes.loadTheme('atom-dark-syntax')
+    atom.packages.activatePackage('atom-light-ui')
+    atom.packages.activatePackage('atom-dark-ui')
+    atom.packages.activatePackage('atom-dark-syntax')
     config.set('core.themes', ['atom-dark-ui', 'atom-dark-syntax'])
     panel = new ThemePanel
 
