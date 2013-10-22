@@ -4,8 +4,6 @@ async = require 'async'
 
 apmCommand = atom.packages.getApmPath()
 
-### Internal ###
-
 renderMarkdownInMetadata = (packages, callback) ->
   queue = async.queue (pack, callback) ->
     operations = []
