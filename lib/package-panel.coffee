@@ -131,11 +131,12 @@ class PackagePanel extends View
 
   createErrorView: (text, details='') ->
     view = $$ ->
-      @div class: 'alert alert-error', =>
+      @div class: 'alert alert-danger alert-dismissable error-view', =>
         @button type: 'button', class: 'close', 'data-dismiss': 'alert', 'aria-hidden': true, '\u00d7'
         @span class: 'error-message', "#{text} "
-        @a class: 'toggle-details', 'More information\u2026'
-        @pre class: 'error-details', details
+        @a class: 'alert-link toggle-details', 'More information\u2026'
+        @div class: 'padded error-details', =>
+          @pre details
     view.on 'click', '.close', -> view.remove()
     view.on 'click', '.toggle-details', ->
       if view.find('.error-details').toggle().isVisible()
