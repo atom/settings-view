@@ -2,6 +2,8 @@
 roaster = require 'roaster'
 async = require 'async'
 
+apmCommand = atom.packages.getApmPath()
+
 ### Internal ###
 
 renderMarkdownInMetadata = (packages, callback) ->
@@ -22,7 +24,7 @@ renderMarkdownInMetadata = (packages, callback) ->
   queue.drain = callback
 
 getAvailable = (callback) ->
-  command = require.resolve 'atom-package-manager/bin/apm'
+  command = apmCommand
   args = ['available', '--json']
   output = []
   stdout = (lines) -> output.push(lines)
@@ -49,7 +51,7 @@ install = ({name, version}, callback) ->
   atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
   atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
 
-  command = require.resolve 'atom-package-manager/bin/apm'
+  command = apmCommand
   args = ['install', "#{name}@#{version}"]
   outputLines = []
   stdout = (lines) -> outputLines.push(lines)
@@ -71,7 +73,7 @@ install = ({name, version}, callback) ->
 uninstall = ({name}, callback) ->
   atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
 
-  command = require.resolve 'atom-package-manager/bin/apm'
+  command = apmCommand
   args = ['uninstall', name]
   outputLines = []
   stdout = (lines) -> outputLines.push(lines)
