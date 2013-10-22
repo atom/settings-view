@@ -123,7 +123,8 @@ class PackagePanel extends View
     console.error(error.stack ? error)
     errorView = @createErrorView(error.message, error.stderr)
     @errors.append(errorView)
-    @parent().scrollTop(errorView.offset().top - @offset().top)
+    top = errorView.offset().top - @offset().top
+    @parent().scrollTop(top) if @parent().scrollTop() > top
 
   createLoadingView: (text) ->
     $$ ->
