@@ -58,7 +58,7 @@ install = ({name, version}, callback) ->
   errorLines = []
   stderr = (lines) -> errorLines.push(lines)
   exit = (code) ->
-    if code is 0 and false
+    if code is 0
       atom.packages.activatePackage(name) if activateOnSuccess
       callback()
     else
