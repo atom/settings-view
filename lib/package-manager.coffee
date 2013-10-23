@@ -87,6 +87,6 @@ uninstall = ({name}, callback) ->
       error.stderr = errorLines.join('\n')
       callback(error)
 
-  new BufferedNodeProcess({command, args, exit})
+  new BufferedNodeProcess({command, args, stdout, stderr, exit})
 
 module.exports = {renderMarkdownInMetadata, install, uninstall, getAvailable}
