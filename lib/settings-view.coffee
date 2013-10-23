@@ -65,7 +65,7 @@ class SettingsView extends ScrollView
   getActivePanelName: -> @state.get('activePanelName')
 
   showPanel: (name) ->
-    if @panelsByName and @panelsByName[name]
+    if @panelsByName?[name]
       @panels.children().hide()
       @panelMenu.children('.active').removeClass('active')
       @panelsByName[name].show()
