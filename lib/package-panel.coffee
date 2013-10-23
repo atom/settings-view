@@ -102,7 +102,7 @@ class PackagePanel extends View
       @availableThemes.empty()
       if error?
         errorView =  $$ ->
-          @div class: 'alert alert-error', =>
+          @div class: 'alert alert-danger', =>
             @span 'Error fetching available packages.'
             @button class: 'btn btn-mini btn-retry', 'Retry'
         errorView.on 'click', => @loadAvailableViews()
