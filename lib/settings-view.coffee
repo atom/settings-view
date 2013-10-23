@@ -21,6 +21,8 @@ class SettingsView extends ScrollView
 
   initialize: (@state) ->
     super
+    @initialized = false
+    @initializeCallbacks = []
     window.setTimeout (=> @activatePackages => @initializePanels()), 1
 
   initializePanels: ->
@@ -42,6 +44,19 @@ class SettingsView extends ScrollView
     @addPanel('Themes', new ThemePanel)
     @addPanel('Packages', new PackagePanel)
     @showPanel(activePanelName) if activePanelName
+
+    @initialized = true
+    @onInitialized()
+
+  waitTilInitialized: (callback) ->
+    if @initialized
+      callback()
+    else
+      @initializeCallbacks.push(callback)
+
+  onInitialized: ->
+    cb() for cb in @initializeCallbacks
+    null
 
   serialize: -> @state.clone()
 
@@ -92,4 +107,3 @@ class SettingsView extends ScrollView
         callback()
 
     async.each atom.getLoadedPackages(), iterator, finishedCallback
-
