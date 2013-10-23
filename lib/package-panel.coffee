@@ -79,7 +79,8 @@ class PackagePanel extends View
     @installedPackages.empty()
     @installedPackages.append @createLoadingView('Loading installed packages\u2026')
 
-    packages = _.sortBy(atom.getAvailablePackageMetadata(), 'name')
+    packages = _.uniq atom.getAvailablePackageMetadata(), ({name}) -> name
+    packages = _.sortBy(packages, 'name')
     packageManager.renderMarkdownInMetadata packages, =>
       @installedPackages.empty()
       @installedThemes.empty()
