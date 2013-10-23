@@ -21,6 +21,7 @@ class SettingsView extends ScrollView
 
   initialize: (@state) ->
     super
+    @panelToShow = null
     window.setTimeout (=> @activatePackages => @initializePanels()), 1
 
   initializePanels: ->
@@ -29,6 +30,8 @@ class SettingsView extends ScrollView
     if @state
       activePanelName = @state.get('activePanelName')
       @uri = @state.get('uri')
+
+    activePanelName = @panelToShow or activePanelName
 
     @panelsByName = {}
     @on 'click', '#panels-menu li a', (e) =>
@@ -41,6 +44,7 @@ class SettingsView extends ScrollView
     @addPanel('Keybindings', new KeybindingPanel)
     @addPanel('Themes', new ThemePanel)
     @addPanel('Packages', new PackagePanel)
+
     @showPanel(activePanelName) if activePanelName
 
   serialize: -> @state.clone()
@@ -61,7 +65,7 @@ class SettingsView extends ScrollView
   getActivePanelName: -> @state.get('activePanelName')
 
   showPanel: (name) ->
-    if @panelsByName[name]
+    if @panelsByName and @panelsByName[name]
       @panels.children().hide()
       @panelMenu.children('.active').removeClass('active')
       @panelsByName[name].show()
