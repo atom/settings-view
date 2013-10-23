@@ -3,6 +3,7 @@
   "version": "0.31.1",
   "main": "./lib/index",
   "description": "GUI pane for Atom settings",
+  "private": true,
   "dependencies": {
     "jqueryui-browser": "~1.10.2-1",
     "roaster": "0.0.7",
