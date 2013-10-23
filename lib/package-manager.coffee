@@ -44,10 +44,10 @@ getAvailable = (callback) ->
   new BufferedNodeProcess({command, args, stdout, exit})
 
 install = ({name, version}, callback) ->
-  activateOnSuccess = !atom.isPackageDisabled(name)
-  activateOnFailure = atom.isPackageActive(name)
-  atom.deactivatePackage(name) if atom.isPackageActive(name)
-  atom.unloadPackage(name) if atom.isPackageLoaded(name)
+  activateOnSuccess = !atom.packages.isPackageDisabled(name)
+  activateOnFailure = atom.packages.isPackageActive(name)
+  atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
+  atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
 
   command = require.resolve 'atom-package-manager/bin/apm'
   args = ['install', "#{name}@#{version}"]
@@ -57,10 +57,10 @@ install = ({name, version}, callback) ->
   stderr = (lines) -> errorLines.push(lines)
   exit = (code) ->
     if code is 0 and false
-      atom.activatePackage(name) if activateOnSuccess
+      atom.packages.activatePackage(name) if activateOnSuccess
       callback()
     else
-      atom.activatePackage(name) if activateOnFailure
+      atom.packages.activatePackage(name) if activateOnFailure
       error = new Error("Installing '#{name}' failed.")
       error.stdout = outputLines.join('\n')
       error.stderr = errorLines.join('\n')
@@ -69,7 +69,7 @@ install = ({name, version}, callback) ->
   new BufferedNodeProcess({command, args, stdout, stderr, exit})
 
 uninstall = ({name}, callback) ->
-  atom.deactivatePackage(name) if atom.isPackageActive(name)
+  atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
 
   command = require.resolve 'atom-package-manager/bin/apm'
   args = ['uninstall', name]
@@ -79,7 +79,7 @@ uninstall = ({name}, callback) ->
   stderr = (lines) -> errorLines.push(lines)
   exit = (code) ->
     if code is 0
-      atom.unloadPackage(name) if atom.isPackageLoaded(name)
+      atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
       callback()
     else
       error = new Error("Uninstalling '#{name}' failed.")

@@ -67,7 +67,7 @@ class ThemeConfigPanel extends View
     @enabledThemes.find(".ui-draggable").removeClass('ui-draggable')
 
   enabledThemesUpdated: ->
-    config.set('core.themes', @getEnabledThemeNames())
+    atom.themes.setEnabledThemes(@getEnabledThemeNames())
 
   getEnabledThemeNames: ->
     $(li).attr('name') for li in @enabledThemes.children().toArray()

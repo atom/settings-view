@@ -99,7 +99,6 @@ class PackageView extends View
         @togglePackageEnablement()
         return
 
-
       @defaultAction.disable()
       if @installed
         if @updateAvailable
@@ -132,19 +131,19 @@ class PackageView extends View
 
   togglePackageEnablement: ->
     if @disabled
-      config.removeAtKeyPath('core.disabledPackages', @metadata.name)
+      atom.packages.enablePackage(@metadata.name)
     else
-      config.pushAtKeyPath('core.disabledPackages', @metadata.name)
+      atom.packages.disablePackage(@metadata.name)
 
   updatePackageState: ->
     @disabled = atom.isPackageDisabled(@metadata.name)
     @updateAvailable = false
     @bundled = false
     loadedPackage = atom.getLoadedPackage(@metadata.name)
-    packagePath = loadedPackage?.path ? atom.resolvePackagePath(@metadata.name)
+    packagePath = loadedPackage?.path ? atom.packages.resolvePackagePath(@metadata.name)
     @installed = packagePath?
     if @installed
-      for packageDirPath in config.bundledPackageDirPaths
+      for packageDirPath in atom.config.bundledPackageDirPaths
         if packagePath.indexOf("#{packageDirPath}/") is 0
           @bundled = true
           break

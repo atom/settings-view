@@ -49,7 +49,7 @@ describe "PackagePanel", ->
       callback()
 
     spyOn(atom, 'getAvailablePackageMetadata').andReturn(installedPackages)
-    spyOn(atom, 'resolvePackagePath').andCallFake (name) ->
+    atom.packages.resolvePackagePath.andCallFake (name) ->
       if _.contains(_.pluck(installedPackages, 'name'), name)
         "/tmp/atom-packages/#{name}"
 
