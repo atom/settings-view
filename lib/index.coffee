@@ -1,7 +1,7 @@
 {_, Document} = require 'atom'
 
 SettingsView = null
-settingsViewInstance = null
+settingsView = null
 
 configUri = 'atom://config'
 
@@ -10,7 +10,7 @@ createSettingsView = (state) ->
   unless state instanceof Document
     state = _.extend({deserializer: deserializer.name, version: deserializer.version}, state)
     state = site.createDocument(state)
-  settingsViewInstance = new SettingsView(state)
+  settingsView = new SettingsView(state)
 
 deserializer =
   acceptsDocuments: true
@@ -19,11 +19,6 @@ deserializer =
   deserialize: (state) -> createSettingsView(state)
 registerDeserializer(deserializer)
 
-showPanelWhenInitialized = (panelName) ->
-  settingsViewInstance.waitTilInitialized ->
-    setImmediate ->
-      settingsViewInstance.showPanel(panelName)
-
 module.exports =
   activate: ->
     project.registerOpener (filePath) ->
@@ -31,16 +26,16 @@ module.exports =
 
     rootView.command 'settings-view:toggle', ->
       rootView.open(configUri)
-      showPanelWhenInitialized('General')
+      settingsView.showPanel('General')
 
-    rootView.command 'settings-view:show-Keybindings', ->
+    rootView.command 'settings-view:show-keybindings', ->
       rootView.open(configUri)
-      showPanelWhenInitialized('Keybindings')
+      settingsView.showPanel('Keybindings')
 
     rootView.command 'settings-view:change-themes', ->
       rootView.open(configUri)
-      showPanelWhenInitialized('Themes')
+      settingsView.showPanel('Themes')
 
     rootView.command 'settings-view:install-packages', ->
       rootView.open(configUri)
-      showPanelWhenInitialized('Packages')
+      settingsView.showPanel('Packages')
