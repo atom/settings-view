@@ -92,4 +92,3 @@ class SettingsView extends ScrollView
         callback()
 
     async.each atom.getLoadedPackages(), iterator, finishedCallback
-

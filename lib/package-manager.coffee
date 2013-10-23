@@ -2,7 +2,7 @@
 roaster = require 'roaster'
 async = require 'async'
 
-### Internal ###
+apmCommand = atom.packages.getApmPath()
 
 renderMarkdownInMetadata = (packages, callback) ->
   queue = async.queue (pack, callback) ->
@@ -22,7 +22,7 @@ renderMarkdownInMetadata = (packages, callback) ->
   queue.drain = callback
 
 getAvailable = (callback) ->
-  command = require.resolve 'atom-package-manager/bin/apm'
+  command = apmCommand
   args = ['available', '--json']
   output = []
   stdout = (lines) -> output.push(lines)
@@ -49,14 +49,14 @@ install = ({name, version}, callback) ->
   atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
   atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
 
-  command = require.resolve 'atom-package-manager/bin/apm'
+  command = apmCommand
   args = ['install', "#{name}@#{version}"]
   outputLines = []
   stdout = (lines) -> outputLines.push(lines)
   errorLines = []
   stderr = (lines) -> errorLines.push(lines)
   exit = (code) ->
-    if code is 0 and false
+    if code is 0
       atom.packages.activatePackage(name) if activateOnSuccess
       callback()
     else
@@ -71,7 +71,7 @@ install = ({name, version}, callback) ->
 uninstall = ({name}, callback) ->
   atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
 
-  command = require.resolve 'atom-package-manager/bin/apm'
+  command = apmCommand
   args = ['uninstall', name]
   outputLines = []
   stdout = (lines) -> outputLines.push(lines)
@@ -87,6 +87,6 @@ uninstall = ({name}, callback) ->
       error.stderr = errorLines.join('\n')
       callback(error)
 
-  new BufferedNodeProcess({command, args, exit})
+  new BufferedNodeProcess({command, args, stdout, stderr, exit})
 
 module.exports = {renderMarkdownInMetadata, install, uninstall, getAvailable}

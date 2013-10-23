@@ -3,12 +3,12 @@
   "version": "0.31.1",
   "main": "./lib/index",
   "description": "GUI pane for Atom settings",
+  "private": true,
   "dependencies": {
     "jqueryui-browser": "~1.10.2-1",
     "roaster": "0.0.7",
     "async": "~0.2.9",
     "semver": "~1.1.4",
-    "atom-package-manager": "~0.7.0",
     "emissary": "~0.6.0",
     "fuzzaldrin": "~0.1.0"
   },
@@ -21,8 +21,5 @@
   },
   "engines": {
     "atom": "*"
-  },
-  "publishConfig": {
-    "registry": "https://atom.cloudant.com/registry/_design/app/_rewrite"
   }
 }

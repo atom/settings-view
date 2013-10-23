@@ -102,7 +102,7 @@ class PackagePanel extends View
       @availableThemes.empty()
       if error?
         errorView =  $$ ->
-          @div class: 'alert alert-error', =>
+          @div class: 'alert alert-danger error-view', =>
             @span 'Error fetching available packages.'
             @button class: 'btn btn-mini btn-retry', 'Retry'
         errorView.on 'click', => @loadAvailableViews()
@@ -123,7 +123,8 @@ class PackagePanel extends View
     console.error(error.stack ? error)
     errorView = @createErrorView(error.message, error.stderr)
     @errors.append(errorView)
-    @parent().scrollTop(errorView.offset().top - @offset().top)
+    top = errorView.offset().top - @offset().top
+    @parent().scrollTop(top) if @parent().scrollTop() > top
 
   createLoadingView: (text) ->
     $$ ->
@@ -131,11 +132,12 @@ class PackagePanel extends View
 
   createErrorView: (text, details='') ->
     view = $$ ->
-      @div class: 'alert alert-error', =>
+      @div class: 'alert alert-danger alert-dismissable error-view', =>
         @button type: 'button', class: 'close', 'data-dismiss': 'alert', 'aria-hidden': true, '\u00d7'
         @span class: 'error-message', "#{text} "
-        @a class: 'toggle-details', 'More information\u2026'
-        @pre class: 'error-details', details
+        @a class: 'alert-link toggle-details', 'More information\u2026'
+        @div class: 'padded error-details', =>
+          @pre details
     view.on 'click', '.close', -> view.remove()
     view.on 'click', '.toggle-details', ->
       if view.find('.error-details').toggle().isVisible()
