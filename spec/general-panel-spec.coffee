@@ -6,14 +6,14 @@ describe "GeneralPanel", ->
   getValueForId = (id) ->
     element = panel.find("##{id.replace('.', '\\.')}")
     if element.is("input")
-      element.attr('checked')?
+      element.prop('checked')
     else
       element.view().getText()
 
   setValueForId = (id, value) ->
     element = panel.find("##{id.replace('.', '\\.')}")
     if element.is("input")
-      element.attr('checked', if value then 'checked' else '')
+      element.prop('checked', value)
       element.change()
     else
       element.view().setText(value?.toString())

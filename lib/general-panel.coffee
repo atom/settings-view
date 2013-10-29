@@ -33,16 +33,17 @@ class GeneralPanel extends View
 
         @observeConfig name, (value) ->
           if type is 'checkbox'
-            input.attr('checked', value)
+            input.prop('checked', value)
           else
             input.val(value) if value
 
         input.on 'change', =>
           value = input.val()
           if type == 'checkbox'
-            value = !!input.attr('checked')
+            value = !!input.prop('checked')
           else
             value = @parseValue(type, value)
+
           config.set(name, value)
 
   bindEditors: ->
