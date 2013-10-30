@@ -110,6 +110,7 @@ class PackagePanel extends View
         @availablePackages.append errorView
         @logApmError(error)
       else
+        @packages = _.sortBy(@packages, 'name')
         for pack in @packages
           view = new PackageView(pack, @packageEventEmitter)
           if pack.theme
