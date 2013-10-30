@@ -1,6 +1,6 @@
 {
   "name": "settings-view",
-  "version": "0.34.0",
+  "version": "0.35.0",
   "main": "./lib/index",
   "description": "GUI pane for Atom settings",
   "private": true,
