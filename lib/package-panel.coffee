@@ -108,7 +108,7 @@ class PackagePanel extends View
             @button class: 'btn btn-mini btn-retry', 'Retry'
         errorView.on 'click', => @loadAvailableViews()
         @availablePackages.append errorView
-        console.error(error.stack ? error)
+        @logApmError(error)
       else
         for pack in @packages
           view = new PackageView(pack, @packageEventEmitter)
@@ -121,11 +121,18 @@ class PackagePanel extends View
       @updateAvailableThemesCount()
 
   showPackageError: (error) ->
-    console.error(error.stack ? error)
+    @logApmError(error)
     errorView = @createErrorView(error.message, error.stderr)
     @errors.append(errorView)
     top = errorView.offset().top - @offset().top
     @parent().scrollTop(top) if @parent().scrollTop() > top
+
+  logApmError: (error) ->
+    stdout = error.stdout ? ''
+    stderr = error.stderr ? ''
+    if output = "#{stdout}\n#{stderr}".trim()
+      console.error(output)
+    console.error(error.stack ? error)
 
   createLoadingView: (text) ->
     $$ ->

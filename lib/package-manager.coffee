@@ -24,12 +24,14 @@ renderMarkdownInMetadata = (packages, callback) ->
 getAvailable = (callback) ->
   command = apmCommand
   args = ['available', '--json']
-  output = []
-  stdout = (lines) -> output.push(lines)
+  outputLines = []
+  stdout = (lines) -> outputLines.push(lines)
+  errorLines = []
+  stderr = (lines) -> errorLines.push(lines)
   exit = (code) ->
     if code is 0
       try
-        packages = JSON.parse(output.join()) ? []
+        packages = JSON.parse(outputLines.join('\n')) ? []
       catch error
         callback(error)
         return
@@ -39,9 +41,12 @@ getAvailable = (callback) ->
       else
         callback(null, packages)
     else
-      callback(new Error("apm failed with code: #{code}"))
+      error = new Error("apm failed with code: #{code}")
+      error.stdout = outputLines.join('\n')
+      error.stderr = errorLines.join('\n')
+      callback(error)
 
-  new BufferedNodeProcess({command, args, stdout, exit})
+  new BufferedNodeProcess({command, args, stdout, stderr, exit})
 
 install = ({name, version}, callback) ->
   activateOnSuccess = !atom.packages.isPackageDisabled(name)
