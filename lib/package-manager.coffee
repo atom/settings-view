@@ -23,7 +23,7 @@ renderMarkdownInMetadata = (packages, callback) ->
 
 getAvailable = (callback) ->
   command = apmCommand
-  args = ['available', '--json']
+  args = ['available', '--json', '--no-color']
   outputLines = []
   stdout = (lines) -> outputLines.push(lines)
   errorLines = []
@@ -55,7 +55,7 @@ install = ({name, version}, callback) ->
   atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
 
   command = apmCommand
-  args = ['install', "#{name}@#{version}"]
+  args = ['install', "#{name}@#{version}", '--no-color']
   outputLines = []
   stdout = (lines) -> outputLines.push(lines)
   errorLines = []
@@ -77,7 +77,7 @@ uninstall = ({name}, callback) ->
   atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
 
   command = apmCommand
-  args = ['uninstall', name]
+  args = ['uninstall', name, '--no-color']
   outputLines = []
   stdout = (lines) -> outputLines.push(lines)
   errorLines = []
