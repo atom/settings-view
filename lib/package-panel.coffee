@@ -152,13 +152,13 @@ class PackagePanel extends View
     @installedPackagesCount.text(@installedPackages.children().length)
 
   updateAvailablePackagesCount: ->
-    @availablePackagesCount.text(@availablePackages.children().length)
+    @availablePackagesCount.text(@availablePackages.children('.package-view').length)
 
   updateInstalledThemesCount: ->
     @installedThemesCount.text(@installedThemes.children().length)
 
   updateAvailableThemesCount: ->
-    @availableThemesCount.text(@availableThemes.children().length)
+    @availableThemesCount.text(@availableThemes.children('.package-view').length)
 
   removeInstalledPackage: ({name}) ->
     @installedPackages.children("[name=#{name}]").remove()

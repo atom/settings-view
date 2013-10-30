@@ -8,7 +8,7 @@ requireWithGlobals 'bootstrap/js/dropdown', jQuery: $
 module.exports =
 class PackageView extends View
   @content: ->
-    @div class: 'bordered panel block', =>
+    @div class: 'bordered panel block package-view', =>
       @div outlet: 'heading', class: 'panel-heading', =>
         @span outlet: 'name'
         @span outlet: 'version', class: 'label'
