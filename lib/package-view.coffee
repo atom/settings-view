@@ -143,11 +143,7 @@ class PackageView extends View
     packagePath = loadedPackage?.path ? atom.packages.resolvePackagePath(@metadata.name)
     @installed = packagePath?
     if @installed
-      for packageDirPath in atom.config.bundledPackageDirPaths
-        if packagePath.indexOf("#{packageDirPath}/") is 0
-          @bundled = true
-          break
-
+      @bundled = atom.packages.isBundledPackage(@metadata.name)
       version = loadedPackage?.metadata.version
       unless version
         try
