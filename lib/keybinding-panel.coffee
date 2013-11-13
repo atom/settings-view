@@ -9,20 +9,20 @@ class KeybindingPanel extends View
         @label 'Filter:'
         @subview 'filter', new Editor(mini: true)
       @table =>
-        @col class: 'keystrokes'
+        @col class: 'keystroke'
         @col class: 'command'
         @col class: 'source'
         @col class: 'selector'
         @thead =>
           @tr =>
-            @th class: 'keystrokes', 'Keystrokes'
+            @th class: 'keystroke', 'Keystroke'
             @th class: 'command', 'Command'
             @th class: 'source', 'Source'
             @th class: 'selector', 'Selector'
         @tbody outlet: 'keybindingRows'
 
   initialize: ->
-    @keyMappings = _.sortBy(global.keymap.getAllKeyMappings(), (x) -> x.keystrokes)
+    @keyMappings = _.sortBy(global.keymap.getAllKeyMappings(), (x) -> x.keystroke)
     @appendKeyMappings(@keyMappings)
 
     @filter.getBuffer().on 'contents-modified', =>
@@ -31,8 +31,8 @@ class KeybindingPanel extends View
   filterKeyMappings: (keyMappings, filterString) ->
     @keybindingRows.empty()
     for keyMapping in keyMappings
-      {selector, keystrokes, command, source} = keyMapping
-      searchString = "#{selector}#{keystrokes}#{command}#{source}"
+      {selector, keystroke, command, source} = keyMapping
+      searchString = "#{selector}#{keystroke}#{command}#{source}"
       continue unless searchString
 
       if /^\s*$/.test(filterString) or searchString.indexOf(filterString) != -1
@@ -43,10 +43,10 @@ class KeybindingPanel extends View
       @keybindingRows.append @elementForKeyMapping(keyMapping)
 
   elementForKeyMapping: (keyMapping) ->
-    {selector, keystrokes, command, source} = keyMapping
+    {selector, keystroke, command, source} = keyMapping
     $$$ ->
       @tr =>
-        @td class: 'keystrokes', keystrokes
+        @td class: 'keystroke', keystroke
         @td class: 'command', command
         @td class: 'source', source
         @td class: 'selector', selector

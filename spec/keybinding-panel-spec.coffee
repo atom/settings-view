@@ -7,7 +7,7 @@ describe "KeybindingPanel", ->
     beforeEach ->
       expect(global.keymap).toBeDefined
       spyOn(global.keymap, 'getAllKeyMappings').andReturn [
-        source: 'Core', keystrokes: 'ctrl-a', command: 'core:select-all', selector: '.editor'
+        source: 'Core', keystroke: 'ctrl-a', command: 'core:select-all', selector: '.editor'
       ]
       panel = new KeybindingPanel
 
