@@ -110,8 +110,9 @@ class PackagePanel extends View
         @availablePackages.append errorView
         @logApmError(error)
       else
+        installedPackageNames = atom.getAvailablePackageNames()
         @packages = _.sortBy(@packages, 'name')
-        for pack in @packages
+        for pack in @packages when pack.name not in installedPackageNames
           view = new PackageView(pack, @packageEventEmitter)
           if pack.theme
             @availableThemes.append(view)
