@@ -6,8 +6,8 @@ describe "KeybindingPanel", ->
   describe "loads and displays core key mappings", ->
     beforeEach ->
       expect(global.keymap).toBeDefined
-      spyOn(global.keymap, 'getAllKeyMappings').andReturn [
-        source: 'Core', keystroke: 'ctrl-a', command: 'core:select-all', selector: '.editor'
+      spyOn(global.keymap, 'allMappings').andReturn [
+        source: '/atom', keystroke: 'ctrl-a', command: 'core:select-all', selector: '.editor'
       ]
       panel = new KeybindingPanel
 
@@ -19,4 +19,3 @@ describe "KeybindingPanel", ->
       expect(row.find(':nth-child(2)').text()).toBe 'core:select-all'
       expect(row.find(':nth-child(3)').text()).toBe 'Core'
       expect(row.find(':nth-child(4)').text()).toBe '.editor'
-
