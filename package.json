@@ -6,7 +6,7 @@
   "private": true,
   "dependencies": {
     "jqueryui-browser": "~1.10.2-1",
-    "roaster": "0.0.7",
+    "roaster": "~0.0.8",
     "async": "~0.2.9",
     "semver": "~1.1.4",
     "emissary": "~0.9.0",
