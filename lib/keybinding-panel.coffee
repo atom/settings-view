@@ -23,28 +23,28 @@ class KeybindingPanel extends View
         @tbody outlet: 'keybindingRows'
 
   initialize: ->
-    @keyMappings = _.sortBy(global.keymap.allMappings(), (x) -> x.keystroke)
-    @appendKeyMappings(@keyMappings)
+    @keyBindings = _.sortBy(global.keymap.allBindings(), (x) -> x.keystroke)
+    @appendKeyMappings(@keyBindings)
 
     @filter.getBuffer().on 'contents-modified', =>
-      @filterKeyMappings(@keyMappings, @filter.getText())
+      @filterKeyMappings(@keyBindings, @filter.getText())
 
-  filterKeyMappings: (keyMappings, filterString) ->
+  filterKeyMappings: (keyBindings, filterString) ->
     @keybindingRows.empty()
-    for keyMapping in keyMappings
-      {selector, keystroke, command, source} = keyMapping
+    for keyBinding in keyBindings
+      {selector, keystroke, command, source} = keyBinding
       searchString = "#{selector}#{keystroke}#{command}#{source}"
       continue unless searchString
 
       if /^\s*$/.test(filterString) or searchString.indexOf(filterString) != -1
-        @keybindingRows.append @elementForKeyMapping(keyMapping)
+        @keybindingRows.append @elementForKeyMapping(keyBinding)
 
-  appendKeyMappings: (keyMappings) ->
-    for keyMapping in keyMappings
-      @keybindingRows.append @elementForKeyMapping(keyMapping)
+  appendKeyMappings: (keyBindings) ->
+    for keyBinding in keyBindings
+      @keybindingRows.append @elementForKeyMapping(keyBinding)
 
-  elementForKeyMapping: (keyMapping) ->
-    {selector, keystroke, command, source} = keyMapping
+  elementForKeyMapping: (keyBinding) ->
+    {selector, keystroke, command, source} = keyBinding
     source = @determineSource(source)
     $$$ ->
       @tr =>

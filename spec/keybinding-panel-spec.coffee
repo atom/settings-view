@@ -3,10 +3,10 @@ KeybindingPanel = require '../lib/keybinding-panel'
 describe "KeybindingPanel", ->
   panel = null
 
-  describe "loads and displays core key mappings", ->
+  describe "loads and displays core key bindings", ->
     beforeEach ->
       expect(global.keymap).toBeDefined
-      spyOn(global.keymap, 'allMappings').andReturn [
+      spyOn(global.keymap, 'allBindings').andReturn [
         source: '/atom', keystroke: 'ctrl-a', command: 'core:select-all', selector: '.editor'
       ]
       panel = new KeybindingPanel
