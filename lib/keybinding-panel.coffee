@@ -24,12 +24,12 @@ class KeybindingPanel extends View
 
   initialize: ->
     @keyBindings = _.sortBy(global.keymap.allBindings(), (x) -> x.keystroke)
-    @appendKeyMappings(@keyBindings)
+    @appendKeyBindings(@keyBindings)
 
     @filter.getBuffer().on 'contents-modified', =>
-      @filterKeyMappings(@keyBindings, @filter.getText())
+      @filterKeyBindings(@keyBindings, @filter.getText())
 
-  filterKeyMappings: (keyBindings, filterString) ->
+  filterKeyBindings: (keyBindings, filterString) ->
     @keybindingRows.empty()
     for keyBinding in keyBindings
       {selector, keystroke, command, source} = keyBinding
@@ -37,13 +37,13 @@ class KeybindingPanel extends View
       continue unless searchString
 
       if /^\s*$/.test(filterString) or searchString.indexOf(filterString) != -1
-        @keybindingRows.append @elementForKeyMapping(keyBinding)
+        @keybindingRows.append @elementForKeyBinding(keyBinding)
 
-  appendKeyMappings: (keyBindings) ->
+  appendKeyBindings: (keyBindings) ->
     for keyBinding in keyBindings
-      @keybindingRows.append @elementForKeyMapping(keyBinding)
+      @keybindingRows.append @elementForKeyBinding(keyBinding)
 
-  elementForKeyMapping: (keyBinding) ->
+  elementForKeyBinding: (keyBinding) ->
     {selector, keystroke, command, source} = keyBinding
     source = @determineSource(source)
     $$$ ->
