@@ -23,7 +23,7 @@ class KeybindingPanel extends View
         @tbody outlet: 'keybindingRows'
 
   initialize: ->
-    @keyBindings = _.sortBy(global.keymap.allBindings(), (x) -> x.keystroke)
+    @keyBindings = _.sortBy(global.keymap.getKeyBindings(), (x) -> x.keystroke)
     @appendKeyBindings(@keyBindings)
 
     @filter.getBuffer().on 'contents-modified', =>
