@@ -48,14 +48,14 @@ describe "PackagePanel", ->
       installedPackages.push(pack)
       callback()
 
-    spyOn(atom, 'getAvailablePackageMetadata').andReturn(installedPackages)
+    spyOn(atom.packages, 'getAvailablePackageMetadata').andReturn(installedPackages)
     atom.packages.resolvePackagePath.andCallFake (name) ->
       if _.contains(_.pluck(installedPackages, 'name'), name)
         "/tmp/atom-packages/#{name}"
 
     configObserver = jasmine.createSpy("configObserver")
     observeSubscription = config.observe('core.disabledPackages', configObserver)
-    config.set('core.disabledPackages', ['p1', 'p3'])
+    atom.config.set('core.disabledPackages', ['p1', 'p3'])
     configObserver.reset()
     jasmine.unspy(window, "setTimeout")
     panel = new PackagePanel
@@ -79,7 +79,7 @@ describe "PackagePanel", ->
 
     describe "when the core.disabledPackages array changes", ->
       it "updates the checkboxes for newly disabled / enabled packages", ->
-        config.set('core.disabledPackages', ['p2'])
+        atom.config.set('core.disabledPackages', ['p2'])
         p1View = panel.installedPackages.find("[name='p1']").view()
         expect(p1View.enableToggle.find('a').text()).toBe 'Disable'
 

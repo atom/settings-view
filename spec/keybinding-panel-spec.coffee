@@ -5,8 +5,8 @@ describe "KeybindingPanel", ->
 
   describe "loads and displays core key bindings", ->
     beforeEach ->
-      expect(global.keymap).toBeDefined
-      spyOn(global.keymap, 'getKeyBindings').andReturn [
+      expect(atom.keymap).toBeDefined()
+      spyOn(atom.keymap, 'getKeyBindings').andReturn [
         source: '/atom', keystroke: 'ctrl-a', command: 'core:select-all', selector: '.editor'
       ]
       panel = new KeybindingPanel

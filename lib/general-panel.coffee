@@ -12,7 +12,7 @@ class GeneralPanel extends View
 
   initialize: ->
     @loadingElement.remove()
-    @appendSettings(name, settings) for name, settings of config.getSettings()
+    @appendSettings(name, settings) for name, settings of atom.config.getSettings()
     @bindFormFields()
     @bindEditors()
 
@@ -44,7 +44,7 @@ class GeneralPanel extends View
           else
             value = @parseValue(type, value)
 
-          config.set(name, value)
+          atom.config.set(name, value)
 
   bindEditors: ->
     for editor in @find('.editor[id]').views()
@@ -59,7 +59,7 @@ class GeneralPanel extends View
           editor.setText(stringValue)
 
         editor.getBuffer().on 'contents-modified', =>
-          config.set(name, @parseValue(type, editor.getText()))
+          atom.config.set(name, @parseValue(type, editor.getText()))
 
   valueToString: (value) ->
     if _.isArray(value)

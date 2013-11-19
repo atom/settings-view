@@ -8,7 +8,7 @@ describe "ThemePanel", ->
     atom.packages.activatePackage('atom-light-ui')
     atom.packages.activatePackage('atom-dark-ui')
     atom.packages.activatePackage('atom-dark-syntax')
-    config.set('core.themes', ['atom-dark-ui', 'atom-dark-syntax'])
+    atom.config.set('core.themes', ['atom-dark-ui', 'atom-dark-syntax'])
     panel = new ThemePanel
 
   describe "when an enabled theme is reloced in the themes list", ->
@@ -48,5 +48,5 @@ describe "ThemePanel", ->
 
   describe "when the 'core.config' key is updated", ->
     it "refreshes the enabled themes list", ->
-      config.set('core.themes', ['atom-light-ui', 'atom-light-syntax'])
+      atom.config.set('core.themes', ['atom-light-ui', 'atom-light-syntax'])
       expect(panel.getEnabledThemeNames()).toEqual ['atom-light-ui', 'atom-light-syntax']

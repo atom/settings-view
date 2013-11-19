@@ -21,10 +21,10 @@ describe "GeneralPanel", ->
 
 
   beforeEach ->
-    config.set('foo.int', 22)
-    config.set('foo.float', 0.1)
-    config.set('foo.boolean', true)
-    config.set('foo.string', 'hey')
+    atom.config.set('foo.int', 22)
+    atom.config.set('foo.float', 0.1)
+    atom.config.set('foo.boolean', true)
+    atom.config.set('foo.string', 'hey')
 
     panel = new GeneralPanel()
 
@@ -34,10 +34,11 @@ describe "GeneralPanel", ->
     expect(getValueForId('foo.boolean')).toBeTruthy()
     expect(getValueForId('foo.string')).toBe 'hey'
 
-    config.set('foo.int', 222)
-    config.set('foo.float', 0.11)
-    config.set('foo.boolean', false)
-    config.set('foo.string', 'hey again')
+    atom.config.set('foo.int', 222)
+    atom.config.set('foo.float', 0.11)
+    atom.config.set('foo.boolean', false)
+    atom.config.set('foo.string', 'hey again')
+
     expect(getValueForId('foo.int')).toBe '222'
     expect(getValueForId('foo.float')).toBe '0.11'
     expect(getValueForId('foo.boolean')).toBeFalsy()
@@ -47,21 +48,23 @@ describe "GeneralPanel", ->
     setValueForId('foo.float', 89.2)
     setValueForId('foo.string', "oh hi")
     setValueForId('foo.boolean', true)
-    expect(config.get('foo.int')).toBe 90
-    expect(config.get('foo.float')).toBe 89.2
-    expect(config.get('foo.boolean')).toBe true
-    expect(config.get('foo.string')).toBe 'oh hi'
+
+    expect(atom.config.get('foo.int')).toBe 90
+    expect(atom.config.get('foo.float')).toBe 89.2
+    expect(atom.config.get('foo.boolean')).toBe true
+    expect(atom.config.get('foo.string')).toBe 'oh hi'
 
     setValueForId('foo.int', '')
     setValueForId('foo.float', '')
     setValueForId('foo.string', '')
-    expect(config.get('foo.int')).toBeUndefined()
-    expect(config.get('foo.float')).toBeUndefined()
-    expect(config.get('foo.string')).toBeUndefined()
+
+    expect(atom.config.get('foo.int')).toBeUndefined()
+    expect(atom.config.get('foo.float')).toBeUndefined()
+    expect(atom.config.get('foo.string')).toBeUndefined()
 
   it "does not save the config value until it has been changed to a new value", ->
     observeHandler = jasmine.createSpy("observeHandler")
-    config.observe "foo.int", observeHandler
+    atom.config.observe "foo.int", observeHandler
     observeHandler.reset()
 
     window.advanceClock(10000) # wait for contents-modified to be triggered

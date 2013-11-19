@@ -9,8 +9,12 @@ createSettingsView = (state) ->
   SettingsView ?= require './settings-view'
   unless state instanceof Document
     state = _.extend({deserializer: deserializer.name, version: deserializer.version}, state)
-    state = site.createDocument(state)
+    state = atom.site.createDocument(state)
   settingsView = new SettingsView(state)
+
+openPanel = (panelName) ->
+  atom.rootView.open(configUri)
+  settingsView.showPanel(panelName)
 
 deserializer =
   acceptsDocuments: true
@@ -25,17 +29,13 @@ module.exports =
       createSettingsView({uri: configUri}) if filePath is configUri
 
     rootView.command 'settings-view:toggle', ->
-      rootView.open(configUri)
-      settingsView.showPanel('General')
+      openPanel('General')
 
     rootView.command 'settings-view:show-keybindings', ->
-      rootView.open(configUri)
-      settingsView.showPanel('Keybindings')
+      openPanel('Keybindings')
 
     rootView.command 'settings-view:change-themes', ->
-      rootView.open(configUri)
-      settingsView.showPanel('Themes')
+      openPane('Themes')
 
     rootView.command 'settings-view:install-packages', ->
-      rootView.open(configUri)
-      settingsView.showPanel('Packages')
+      openPanel('Packages')

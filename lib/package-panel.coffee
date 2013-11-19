@@ -79,7 +79,7 @@ class PackagePanel extends View
     @installedPackages.empty()
     @installedPackages.append @createLoadingView('Loading installed packages\u2026')
 
-    packages = _.uniq atom.getAvailablePackageMetadata(), ({name}) -> name
+    packages = _.uniq atom.packages.getAvailablePackageMetadata(), ({name}) -> name
     packages = _.sortBy(packages, 'name')
     packageManager.renderMarkdownInMetadata packages, =>
       @installedPackages.empty()
@@ -110,7 +110,7 @@ class PackagePanel extends View
         @availablePackages.append errorView
         @logApmError(error)
       else
-        installedPackageNames = atom.getAvailablePackageNames()
+        installedPackageNames = atom.packages.getAvailablePackageNames()
         @packages = _.sortBy(@packages, 'name')
         for pack in @packages when pack.name not in installedPackageNames
           view = new PackageView(pack, @packageEventEmitter)

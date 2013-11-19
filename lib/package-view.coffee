@@ -136,18 +136,15 @@ class PackageView extends View
       atom.packages.disablePackage(@metadata.name)
 
   updatePackageState: ->
-    @disabled = atom.isPackageDisabled(@metadata.name)
+    @disabled = atom.packages.isPackageDisabled(@metadata.name)
     @updateAvailable = false
     @bundled = false
-    loadedPackage = atom.getLoadedPackage(@metadata.name)
+    loadedPackage = atom.packages.getLoadedPackage(@metadata.name)
     packagePath = loadedPackage?.path ? atom.packages.resolvePackagePath(@metadata.name)
     @installed = packagePath?
     if @installed
       @bundled = atom.packages.isBundledPackage(@metadata.name)
       version = loadedPackage?.metadata.version
-      unless version
-        try
-          version = Package.loadMetadata(@metadata.name).version
       @updateAvailable = semver.gt(@metadata.version, version)
 
     if @updateAvailable
