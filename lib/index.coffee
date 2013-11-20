@@ -21,7 +21,7 @@ deserializer =
   name: 'SettingsView'
   version: 1
   deserialize: (state) -> createSettingsView(state)
-registerDeserializer(deserializer)
+atom.deserializers.add(deserializer)
 
 module.exports =
   activate: ->
