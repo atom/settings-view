@@ -54,7 +54,7 @@ describe "PackagePanel", ->
         "/tmp/atom-packages/#{name}"
 
     configObserver = jasmine.createSpy("configObserver")
-    observeSubscription = config.observe('core.disabledPackages', configObserver)
+    observeSubscription = atom.config.observe('core.disabledPackages', configObserver)
     atom.config.set('core.disabledPackages', ['p1', 'p3'])
     configObserver.reset()
     jasmine.unspy(window, "setTimeout")
