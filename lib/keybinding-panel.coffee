@@ -8,7 +8,7 @@ class KeybindingPanel extends View
       @h1 class: 'section-heading', 'Keybindings'
       @div class: 'block', =>
         @label 'Filter:'
-        @subview 'filter', new Editor(mini: true)
+        @input type: 'text', outlet: 'bindingFilter'
       @table =>
         @col class: 'keystroke'
         @col class: 'command'
@@ -26,8 +26,8 @@ class KeybindingPanel extends View
     @keyBindings = _.sortBy(atom.keymap.getKeyBindings(), (x) -> x.keystroke)
     @appendKeyBindings(@keyBindings)
 
-    @filter.getBuffer().on 'contents-modified', =>
-      @filterKeyBindings(@keyBindings, @filter.getText())
+    @bindingFilter.on 'keyup', =>
+      @filterKeyBindings(@keyBindings, @bindingFilter.val())
 
   filterKeyBindings: (keyBindings, filterString) ->
     @keybindingRows.empty()

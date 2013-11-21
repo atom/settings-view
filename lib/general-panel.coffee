@@ -47,7 +47,7 @@ class GeneralPanel extends View
           atom.config.set(name, value)
 
   bindEditors: ->
-    for editor in @find('input[id]')
+    for editor in @find('input[type="text"]')
       editor = $(editor)
       do (editor) =>
         name = editor.attr('id')
@@ -118,11 +118,11 @@ appendEditor = (namespace, name, value) ->
 
   @label class: 'control-label', englishName
   @div class: 'controls', =>
-    @input id: keyPath, type: 'text', value: keyPath.replace('.', ''), 'data-type': type
+    @input id: keyPath, type: 'text', value: keyPath.replace('.', ''), 'data-type': type, class: 'native-key-bindings'
 
 appendArray = (namespace, name, value) ->
   englishName = _.uncamelcase(name)
   keyPath = "#{namespace}.#{name}"
   @label class: 'control-label', englishName
   @div class: 'controls', =>
-    @input id: keyPath, type: 'text', value: keyPath.replace('.', ''), 'data-type': 'array'
+    @input id: keyPath, type: 'text', value: keyPath.replace('.', ''), 'data-type': 'array', class: 'native-key-bindings'

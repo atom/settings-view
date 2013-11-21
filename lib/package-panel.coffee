@@ -29,7 +29,7 @@ class PackagePanel extends View
             @span class: 'badge pull-right', outlet: 'availableThemesCount'
 
       @div class: 'block', =>
-        @subview 'packageFilter', new Editor(mini: true)
+        @input type: 'text', outlet: 'packageFilter'
         @div class: 'errors', outlet: 'errors'
       @div class: 'package-container', outlet: 'installedPackages'
       @div class: 'package-container', outlet: 'availablePackages'
@@ -72,8 +72,8 @@ class PackagePanel extends View
       else
         @removeInstalledPackage(pack)
 
-    @packageFilter.getBuffer().on 'contents-modified', =>
-      @filterPackages(@packageFilter.getText())
+    @packageFilter.on 'keyup', =>
+      @filterPackages(@packageFilter.val())
 
   loadInstalledViews: ->
     @installedPackages.empty()
