@@ -25,17 +25,17 @@ atom.deserializers.add(deserializer)
 
 module.exports =
   activate: ->
-    project.registerOpener (filePath) ->
+    atom.project.registerOpener (filePath) ->
       createSettingsView({uri: configUri}) if filePath is configUri
 
-    rootView.command 'settings-view:toggle', ->
+    atom.rootView.command 'settings-view:toggle', ->
       openPanel('General')
 
-    rootView.command 'settings-view:show-keybindings', ->
+    atom.rootView.command 'settings-view:show-keybindings', ->
       openPanel('Keybindings')
 
-    rootView.command 'settings-view:change-themes', ->
+    atom.rootView.command 'settings-view:change-themes', ->
       openPane('Themes')
 
-    rootView.command 'settings-view:install-packages', ->
+    atom.rootView.command 'settings-view:install-packages', ->
       openPanel('Packages')
