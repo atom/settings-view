@@ -14,15 +14,34 @@ module.exports =
 class SettingsView extends ScrollView
   @content: ->
     @div id: 'settings-view', class: 'pane-item', tabindex: -1, =>
-      @div id: 'config-menu', =>
+      @iframe id: 'panels', class: 'padded', outlet: 'iframe'
+      @div id: 'config-menu', outlet: 'menu', =>
         @ul id: 'panels-menu', class: 'nav nav-pills nav-stacked', outlet: 'panelMenu'
-        @button "Open ~/.atom", id: 'open-dot-atom', class: 'btn btn-default btn-small'
+        @button "Open ~/.atom", id: 'open-dot-atom', class: 'btn btn-default btn-small', outlet: 'openAtom'
       @div id: 'panels', class: 'padded', outlet: 'panels'
 
   initialize: (@state) ->
     super
     @panelToShow = null
-    window.setTimeout (=> @activatePackages => @initializePanels()), 1
+
+    @iframe.load @setupInterface
+
+  setupInterface: =>
+    html = @iframe.contents().find('html')
+    body = html.find('body')
+    body[0].id = 'settings-view'
+
+    thisPackage = atom.packages.getLoadedPackage('settings-view') # it's self aware!!
+
+    atom.themes.requireStylesheet('bootstrap/less/bootstrap', 'bundled', html)
+    atom.themes.requireStylesheet('../static/editor', 'bundled', html)
+    for [stylesheetPath, content] in thisPackage.stylesheets
+      atom.themes.applyStylesheet(stylesheetPath, content, thisPackage.getStylesheetType(), html)
+
+    body.append(@menu)
+    body.append(@panels)
+
+    @activatePackages => @initializePanels()
 
   initializePanels: ->
     return if @panels.size > 0
@@ -34,10 +53,10 @@ class SettingsView extends ScrollView
     activePanelName = @panelToShow or activePanelName
 
     @panelsByName = {}
-    @on 'click', '#panels-menu li a', (e) =>
+    @menu.on 'click', '#panels-menu li a', (e) =>
       @showPanel($(e.target).closest('li').attr('name'))
 
-    @on 'click', '#open-dot-atom', ->
+    @menu.on 'click', '#open-dot-atom', ->
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
 
     @addPanel('General', new GeneralPanel)
