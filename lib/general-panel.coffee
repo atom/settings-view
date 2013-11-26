@@ -1,4 +1,4 @@
-{_, $, $$, Editor, View} = require 'atom'
+{_, $, $$, EditorView, View} = require 'atom'
 
 ###
 # Internal #
@@ -117,11 +117,11 @@ appendEditor = (namespace, name, value) ->
 
   @label class: 'control-label', englishName
   @div class: 'controls', =>
-    @subview keyPath.replace('.', ''), new Editor(mini: true, attributes: {id: keyPath, type: type})
+    @subview keyPath.replace('.', ''), new EditorView(mini: true, attributes: {id: keyPath, type: type})
 
 appendArray = (namespace, name, value) ->
   englishName = _.uncamelcase(name)
   keyPath = "#{namespace}.#{name}"
   @label class: 'control-label', englishName
   @div class: 'controls', =>
-    @subview keyPath.replace('.', ''), new Editor(mini: true, attributes: {id: keyPath, type: 'array'})
+    @subview keyPath.replace('.', ''), new EditorView(mini: true, attributes: {id: keyPath, type: 'array'})

@@ -1,4 +1,4 @@
-{_, $, $$$, View, Editor} = require 'atom'
+{_, $, $$$, View, EditorView} = require 'atom'
 path = require 'path'
 
 module.exports =
@@ -8,7 +8,7 @@ class KeybindingPanel extends View
       @h1 class: 'section-heading', 'Keybindings'
       @div class: 'block', =>
         @label 'Filter:'
-        @subview 'filter', new Editor(mini: true)
+        @subview 'filter', new EditorView(mini: true)
       @table =>
         @col class: 'keystroke'
         @col class: 'command'

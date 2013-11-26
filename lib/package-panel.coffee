@@ -1,4 +1,4 @@
-{_, $, $$, Editor, View} = require 'atom'
+{_, $, $$, EditorView, View} = require 'atom'
 {score} = require 'fuzzaldrin'
 {Emitter} = require 'emissary'
 PackageView = require './package-view'
@@ -29,7 +29,7 @@ class PackagePanel extends View
             @span class: 'badge pull-right', outlet: 'availableThemesCount'
 
       @div class: 'block', =>
-        @subview 'packageFilter', new Editor(mini: true)
+        @subview 'packageFilter', new EditorView(mini: true)
         @div class: 'errors', outlet: 'errors'
       @div class: 'package-container', outlet: 'installedPackages'
       @div class: 'package-container', outlet: 'availablePackages'
