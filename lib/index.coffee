@@ -13,7 +13,7 @@ createSettingsView = (state) ->
   settingsView = new SettingsView(state)
 
 openPanel = (panelName) ->
-  atom.rootView.open(configUri)
+  atom.workspaceView.open(configUri)
   settingsView.showPanel(panelName)
 
 deserializer =
@@ -28,14 +28,14 @@ module.exports =
     atom.project.registerOpener (filePath) ->
       createSettingsView({uri: configUri}) if filePath is configUri
 
-    atom.rootView.command 'settings-view:toggle', ->
+    atom.workspaceView.command 'settings-view:toggle', ->
       openPanel('General')
 
-    atom.rootView.command 'settings-view:show-keybindings', ->
+    atom.workspaceView.command 'settings-view:show-keybindings', ->
       openPanel('Keybindings')
 
-    atom.rootView.command 'settings-view:change-themes', ->
+    atom.workspaceView.command 'settings-view:change-themes', ->
       openPane('Themes')
 
-    atom.rootView.command 'settings-view:install-packages', ->
+    atom.workspaceView.command 'settings-view:install-packages', ->
       openPanel('Packages')
