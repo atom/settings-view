@@ -47,19 +47,20 @@ class GeneralPanel extends View
           atom.config.set(name, value)
 
   bindEditors: ->
-    for editor in @find('.editor[id]').views()
+    for editor in @find('input[type="text"]')
+      editor = $(editor)
       do (editor) =>
         name = editor.attr('id')
-        type = editor.attr('type')
+        type = editor.attr('data-type')
 
         @observeConfig name, (value) =>
           stringValue = @valueToString(value)
-          return if stringValue == editor.getText()
+          return if stringValue == editor.val()
           stringValue ?= ""
-          editor.setText(stringValue)
+          editor.val(stringValue)
 
-        editor.getBuffer().on 'contents-modified', =>
-          atom.config.set(name, @parseValue(type, editor.getText()))
+        editor.on 'keyup', =>
+          atom.config.set(name, @parseValue(type, editor.val()))
 
   valueToString: (value) ->
     if _.isArray(value)
@@ -117,11 +118,11 @@ appendEditor = (namespace, name, value) ->
 
   @label class: 'control-label', englishName
   @div class: 'controls', =>
-    @subview keyPath.replace('.', ''), new Editor(mini: true, attributes: {id: keyPath, type: type})
+    @input id: keyPath, type: 'text', value: keyPath.replace('.', ''), 'data-type': type, class: 'native-key-bindings'
 
 appendArray = (namespace, name, value) ->
   englishName = _.uncamelcase(name)
   keyPath = "#{namespace}.#{name}"
   @label class: 'control-label', englishName
   @div class: 'controls', =>
-    @subview keyPath.replace('.', ''), new Editor(mini: true, attributes: {id: keyPath, type: 'array'})
+    @input id: keyPath, type: 'text', value: keyPath.replace('.', ''), 'data-type': 'array', class: 'native-key-bindings'
