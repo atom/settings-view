@@ -35,7 +35,7 @@ module.exports =
       openPanel('Keybindings')
 
     atom.workspaceView.command 'settings-view:change-themes', ->
-      openPane('Themes')
+      openPanel('Themes')
 
     atom.workspaceView.command 'settings-view:install-packages', ->
       openPanel('Packages')
