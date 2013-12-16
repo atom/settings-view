@@ -27,8 +27,7 @@ class GeneralPanel extends View
     return if _.isEmpty(settings)
 
     @append $$ ->
-      @section class: 'bordered', =>
-        @h1 class: 'section-heading', "#{_.uncamelcase(namespace)} settings"
+        @h1 class: 'section-heading', "#{_.undasherize(_.uncamelcase(namespace))} Settings"
         for name in _.keys(settings).sort()
           appendSetting.call(this, namespace, name, settings[name])
 
