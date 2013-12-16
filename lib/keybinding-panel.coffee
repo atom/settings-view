@@ -9,7 +9,7 @@ class KeybindingPanel extends View
       @div class: 'block', =>
         @label 'Filter:'
         @subview 'filter', new EditorView(mini: true)
-      @table =>
+      @table class: 'native-key-bindings', tabindex: -1, =>
         @col class: 'keystroke'
         @col class: 'command'
         @col class: 'source'
