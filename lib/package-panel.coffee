@@ -37,6 +37,7 @@ class PackagePanel extends View
       @div class: 'package-container', outlet: 'availableThemes'
 
   initialize: ->
+    @packageFilter.setPlaceholderText('Search')
     @packageEventEmitter = new PackageEventEmitter()
 
     @availablePackages.hide()

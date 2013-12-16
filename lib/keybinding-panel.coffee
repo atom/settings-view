@@ -7,7 +7,6 @@ class KeybindingPanel extends View
     @div class: 'keybinding-panel section', =>
       @h1 class: 'section-heading', 'Keybindings'
       @div class: 'block', =>
-        @label 'Filter:'
         @subview 'filter', new EditorView(mini: true)
       @table class: 'native-key-bindings', tabindex: -1, =>
         @col class: 'keystroke'
@@ -23,6 +22,7 @@ class KeybindingPanel extends View
         @tbody outlet: 'keybindingRows'
 
   initialize: ->
+    @filter.setPlaceholderText('Search')
     @keyBindings = _.sortBy(atom.keymap.getKeyBindings(), (x) -> x.keystroke)
     @appendKeyBindings(@keyBindings)
 
