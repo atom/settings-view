@@ -53,7 +53,7 @@ class KeybindingPanel extends View
         @td class: 'source', source
         @td class: 'selector', selector
 
-    # Private: Returns a user friendly description of where a keybinding was
+  # Private: Returns a user friendly description of where a keybinding was
   # loaded from.
   #
   # * filePath:
