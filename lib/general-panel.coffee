@@ -29,7 +29,8 @@ class GeneralPanel extends View
     @append $$ ->
       @section class: 'bordered', =>
         @h1 class: 'section-heading', "#{_.uncamelcase(namespace)} settings"
-        appendSetting.call(this, namespace, name, value) for name, value of settings
+        for name in _.keys(settings).sort()
+          appendSetting.call(this, namespace, name, settings[name])
 
   bindFormFields: ->
     for input in @find('input[id]').toArray()
