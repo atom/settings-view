@@ -1,16 +1,10 @@
 {_, $, $$, View} = require 'atom'
 
-###
-# Internal #
-###
-
-window.jQuery = $
-require 'jqueryui-browser/ui/jquery.ui.core'
-require 'jqueryui-browser/ui/jquery.ui.widget'
-require 'jqueryui-browser/ui/jquery.ui.mouse'
-require 'jqueryui-browser/ui/jquery.ui.sortable'
-require 'jqueryui-browser/ui/jquery.ui.draggable'
-delete window.jQuery
+atom.requireWithGlobals require.resolve('jqueryui-browser/ui/jquery.ui.core'), {jQuery: $}
+atom.requireWithGlobals require.resolve('jqueryui-browser/ui/jquery.ui.widget'), {jQuery: $}
+atom.requireWithGlobals require.resolve('jqueryui-browser/ui/jquery.ui.mouse'), {jQuery: $}
+atom.requireWithGlobals require.resolve('jqueryui-browser/ui/jquery.ui.sortable'), {jQuery: $}
+atom.requireWithGlobals require.resolve('jqueryui-browser/ui/jquery.ui.draggable'), {jQuery: $}
 
 module.exports =
 class ThemeConfigPanel extends View
