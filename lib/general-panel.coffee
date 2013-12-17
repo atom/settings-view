@@ -29,8 +29,9 @@ class GeneralPanel extends View
     @append $$ ->
       @section class: 'config-section', =>
         @div class: 'block section-heading', "#{_.undasherize(_.uncamelcase(namespace))} Settings"
-        for name in _.keys(settings).sort()
-          appendSetting.call(this, namespace, name, settings[name])
+        @div class: 'section-body', =>
+          for name in _.keys(settings).sort()
+            appendSetting.call(this, namespace, name, settings[name])
 
   bindFormFields: ->
     for input in @find('input[id]').toArray()

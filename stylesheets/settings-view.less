@@ -9,17 +9,19 @@
   #config-menu {
     display: -webkit-flex;
     -webkit-flex-direction: column;
-    padding-left: @component-padding;
     padding-top: @component-padding;
-    padding-bottom: @component-padding;
+    border-right: 1px solid @tool-panel-border-color;
 
     #panels-menu {
-      width: @menu-width;
       -webkit-flex-grow: 1;
     }
 
     #open-dot-atom {
       width: @menu-width;
+    }
+
+    .nav > li > a {
+      border-radius: 0;
     }
   }
 
@@ -29,6 +31,7 @@
     display: -webkit-flex;
     position: relative;
     overflow-y: auto;
+    padding-left: @component-padding*2;
 
     > div {
       -webkit-flex: 1;
@@ -40,6 +43,10 @@
       padding-top: @component-padding;
       padding-bottom: @component-padding;
       border-bottom: 1px solid @tool-panel-border-color;
+    }
+
+    .section-body {
+      padding-left: @component-padding;
     }
 
     .config-section {
