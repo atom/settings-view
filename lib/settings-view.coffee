@@ -13,12 +13,12 @@ KeybindingPanel = require './keybinding-panel'
 module.exports =
 class SettingsView extends ScrollView
   @content: ->
-    @div id: 'settings-view', class: 'pane-item', tabindex: -1, =>
-      @div id: 'config-menu', =>
-        @ul id: 'panels-menu', class: 'nav nav-pills nav-stacked', outlet: 'panelMenu'
+    @div class: 'settings-view pane-item', tabindex: -1, =>
+      @div class: 'config-menu', =>
+        @ul class: 'panels-menu nav nav-pills nav-stacked', outlet: 'panelMenu'
         @div class: 'padded', =>
-          @button "Open ~/.atom", id: 'open-dot-atom', class: 'btn btn-default btn-small'
-      @div id: 'panels', class: 'padded', outlet: 'panels'
+          @button "Open ~/.atom", class: 'open-dot-atom btn btn-default btn-small'
+      @div class: 'panels padded', outlet: 'panels'
 
   initialize: ({@uri, @activePanelName}={}) ->
     super
@@ -31,10 +31,10 @@ class SettingsView extends ScrollView
     activePanelName = @panelToShow ? @activePanelName
 
     @panelsByName = {}
-    @on 'click', '#panels-menu li a', (e) =>
+    @on 'click', '.panels-menu li a', (e) =>
       @showPanel($(e.target).closest('li').attr('name'))
 
-    @on 'click', '#open-dot-atom', ->
+    @on 'click', '.open-dot-atom', ->
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
 
     @addPanel('General Settings', new GeneralPanel)

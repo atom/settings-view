@@ -15,17 +15,17 @@ delete window.jQuery
 module.exports =
 class ThemeConfigPanel extends View
   @content: ->
-    @div class: 'section', id: 'themes-config', =>
+    @div class: 'section themes-config', =>
       @h1 class: 'section-heading', "Themes"
       @p 'Drag themes between the Available Themes and the Enabled Themes sections'
-      @div id: 'theme-picker', =>
+      @div class: 'theme-picker', =>
         @div class: 'panel', =>
           @div class: 'panel-heading', "Enabled Themes"
-          @ol id: 'enabled-themes', class: 'list-group', outlet: 'enabledThemes'
+          @ol class: 'enabled-themes list-group', outlet: 'enabledThemes'
 
         @div class: 'panel', =>
           @div class: 'panel-heading', "Available Themes"
-          @ol id: 'available-themes', class: 'list-group', outlet: 'availableThemes'
+          @ol class: 'available-themes list-group', outlet: 'availableThemes'
 
   constructor: ->
     super
@@ -41,7 +41,7 @@ class ThemeConfigPanel extends View
       receive: (e, ui) => @enabledThemeReceived($(ui.helper))
       update: => @enabledThemesUpdated()
 
-    @on "click", "#enabled-themes .disable-theme", (e) =>
+    @on "click", ".enabled-themes .disable-theme", (e) =>
       $(e.target).closest('li').remove()
       @enabledThemesUpdated()
       false
@@ -53,8 +53,8 @@ class ThemeConfigPanel extends View
         @text name
     if draggable
       li.draggable
-        connectToSortable: '#enabled-themes'
-        appendTo: '#themes-config'
+        connectToSortable: '.enabled-themes'
+        appendTo: '.themes-config'
         helper: (e) ->
           target = $(e.target)
           target.clone().width(target.width())

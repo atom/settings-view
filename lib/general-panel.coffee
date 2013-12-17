@@ -7,7 +7,7 @@
 module.exports =
 class GeneralPanel extends View
   @content: ->
-    @form id: 'general-panel', =>
+    @form class: 'general-panel', =>
       @div outlet: "loadingElement", class: 'alert alert-info loading-area icon icon-hourglass', "Loading settings"
 
   initialize: ->
