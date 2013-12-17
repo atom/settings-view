@@ -10,7 +10,8 @@
     display: -webkit-flex;
     -webkit-flex-direction: column;
     padding-top: @component-padding;
-    border-right: 1px solid @tool-panel-border-color;
+    border-right: 1px solid aeaeae;
+    background-color: #e7e7e7;
 
     .panels-menu {
       -webkit-flex-grow: 1;
@@ -22,6 +23,12 @@
 
     .nav > li > a {
       border-radius: 0;
+      color: #434343;
+    }
+
+    .nav > li.active > a {
+      background-color: #3c76dd;
+      color: #f0f0f0;
     }
   }
 
