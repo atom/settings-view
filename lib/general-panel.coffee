@@ -126,11 +126,13 @@ appendEditor = (namespace, name, value) ->
 
   @label class: 'control-label', englishName
   @div class: 'controls', =>
-    @subview keyPath.replace('.', ''), new EditorView(mini: true, attributes: {id: keyPath, type: type})
+    @div class: 'editor-container', =>
+      @subview keyPath.replace('.', ''), new EditorView(mini: true, attributes: {id: keyPath, type: type})
 
 appendArray = (namespace, name, value) ->
   englishName = _.uncamelcase(name)
   keyPath = "#{namespace}.#{name}"
   @label class: 'control-label', englishName
   @div class: 'controls', =>
-    @subview keyPath.replace('.', ''), new EditorView(mini: true, attributes: {id: keyPath, type: 'array'})
+    @div class: 'editor-container', =>
+      @subview keyPath.replace('.', ''), new EditorView(mini: true, attributes: {id: keyPath, type: 'array'})
