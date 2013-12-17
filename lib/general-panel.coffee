@@ -27,9 +27,9 @@ class GeneralPanel extends View
     return if _.isEmpty(settings)
 
     @append $$ ->
-        @h1 class: 'section-heading', "#{_.undasherize(_.uncamelcase(namespace))} Settings"
-        for name in _.keys(settings).sort()
-          appendSetting.call(this, namespace, name, settings[name])
+      @h1 class: 'section-heading', "#{_.undasherize(_.uncamelcase(namespace))} Settings"
+      for name in _.keys(settings).sort()
+        appendSetting.call(this, namespace, name, settings[name])
 
   bindFormFields: ->
     for input in @find('input[id]').toArray()
