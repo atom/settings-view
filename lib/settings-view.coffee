@@ -37,7 +37,7 @@ class SettingsView extends ScrollView
     @on 'click', '#open-dot-atom', ->
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
 
-    @addPanel('General', new GeneralPanel)
+    @addPanel('General Settings', new GeneralPanel)
     @addPanel('Keybindings', new KeybindingPanel)
     @addPanel('Themes', new ThemePanel)
     @addPanel('Packages', new PackagePanel)
