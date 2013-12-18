@@ -59,8 +59,6 @@ class SettingsView extends ScrollView
   getPanelCount: ->
     _.values(@panelsByName).length
 
-  getActivePanelName: -> @activePanelName
-
   showPanel: (name) ->
     if @panelsByName?[name]
       @panels.children().hide()
