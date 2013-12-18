@@ -24,7 +24,7 @@ class SettingsView extends ScrollView
   initialize: ({@uri, @activePanelName}={}) ->
     super
     @panelToShow = null
-    window.setTimeout (=> @activatePackages => @initializePanels()), 1
+    process.nextTick => @activatePackages => @initializePanels()
 
   initializePanels: ->
     return if @panels.size > 0
