@@ -20,7 +20,7 @@
     display: -webkit-flex;
     -webkit-flex-direction: column;
     padding-top: @component-padding;
-    border-right: 1px solid aeaeae;
+    border-right: 1px solid #aeaeae;
     background-color: #e7e7e7;
 
     .panels-menu {
@@ -49,6 +49,7 @@
     position: relative;
     overflow-y: auto;
     padding-left: @component-padding*2;
+    background-color: #f2f2f2;
 
     > div {
       -webkit-flex: 1;
@@ -59,7 +60,8 @@
     .section-heading {
       padding-top: @component-padding;
       padding-bottom: @component-padding;
-      border-bottom: 1px solid @tool-panel-border-color;
+      border-bottom: 1px solid #858585;
+      color: #262626;
     }
 
     .section-body {
@@ -68,6 +70,23 @@
 
     .editor-container {
       margin-bottom: @component-padding;
+
+      .editor.mini {
+        color: #333;
+        background-color: #fff;
+
+        .cursor {
+          border-color: #000;
+        }
+
+        .selection .region {
+          background-color: rgba(0, 0, 0, .2);
+        }
+      }
+    }
+
+    label {
+      color: #333;
     }
   }
 
