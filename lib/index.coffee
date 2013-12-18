@@ -1,32 +1,29 @@
-{_, Document} = require 'atom'
+{_} = require 'atom'
 
 SettingsView = null
 settingsView = null
 
 configUri = 'atom://config'
 
-createSettingsView = (state) ->
+createSettingsView = (params) ->
   SettingsView ?= require './settings-view'
-  unless state instanceof Document
-    state = _.extend({deserializer: deserializer.name, version: deserializer.version}, state)
-    state = atom.site.createDocument(state)
-  settingsView = new SettingsView(state)
+  settingsView = new SettingsView(params)
 
 openPanel = (panelName) ->
   atom.workspaceView.open(configUri)
   settingsView.showPanel(panelName)
 
 deserializer =
-  acceptsDocuments: true
   name: 'SettingsView'
-  version: 1
-  deserialize: (state) -> createSettingsView(state)
+  version: 2
+  deserialize: (state) ->
+    createSettingsView(state) if state.constructor is Object
 atom.deserializers.add(deserializer)
 
 module.exports =
   activate: ->
-    atom.project.registerOpener (filePath) ->
-      createSettingsView({uri: configUri}) if filePath is configUri
+    atom.project.registerOpener (uri) ->
+      createSettingsView({uri: configUri}) if uri is configUri
 
     atom.workspaceView.command 'settings-view:toggle', ->
       openPanel('General')

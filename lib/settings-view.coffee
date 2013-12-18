@@ -19,7 +19,7 @@ class SettingsView extends ScrollView
         @button "Open ~/.atom", id: 'open-dot-atom', class: 'btn btn-default btn-small'
       @div id: 'panels', class: 'padded', outlet: 'panels'
 
-  initialize: (@state) ->
+  initialize: ({@uri, @activePanelName}) ->
     super
     @panelToShow = null
     window.setTimeout (=> @activatePackages => @initializePanels()), 1
@@ -27,11 +27,7 @@ class SettingsView extends ScrollView
   initializePanels: ->
     return if @panels.size > 0
 
-    if @state
-      activePanelName = @state.get('activePanelName')
-      @uri = @state.get('uri')
-
-    activePanelName = @panelToShow or activePanelName
+    activePanelName = @panelToShow ? @activePanelName
 
     @panelsByName = {}
     @on 'click', '#panels-menu li a', (e) =>
@@ -47,9 +43,10 @@ class SettingsView extends ScrollView
 
     @showPanel(activePanelName) if activePanelName
 
-  serialize: -> @state.clone()
-
-  getState: -> @state
+  serialize: ->
+    deserializer: 'SettingsView'
+    version: 2
+    activePanelName: @activePanelName
 
   addPanel: (name, panel) ->
     panelItem = $$ -> @li name: name, => @a name
@@ -62,8 +59,6 @@ class SettingsView extends ScrollView
   getPanelCount: ->
     _.values(@panelsByName).length
 
-  getActivePanelName: -> @state.get('activePanelName')
-
   showPanel: (name) ->
     if @panelsByName?[name]
       @panels.children().hide()
@@ -72,7 +67,7 @@ class SettingsView extends ScrollView
       for editorElement in @panelsByName[name].find(".editor")
         $(editorElement).view().redraw()
       @panelMenu.children("[name='#{name}']").addClass('active')
-      @state.set('activePanelName', name)
+      @activePanelName = name
       @panelToShow = null
     else
       @panelToShow = name
