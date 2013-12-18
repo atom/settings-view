@@ -15,6 +15,7 @@ class SettingsView extends ScrollView
   @content: ->
     @div class: 'settings-view pane-item', tabindex: -1, =>
       @div class: 'config-menu', =>
+        @div class: 'atom-banner'
         @ul class: 'panels-menu nav nav-pills nav-stacked', outlet: 'panelMenu'
         @div class: 'padded', =>
           @button "Open ~/.atom", class: 'open-dot-atom btn btn-default btn-small'
