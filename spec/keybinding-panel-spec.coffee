@@ -1,3 +1,4 @@
+path = require 'path'
 KeybindingPanel = require '../lib/keybinding-panel'
 
 describe "KeybindingPanel", ->
@@ -7,7 +8,7 @@ describe "KeybindingPanel", ->
     beforeEach ->
       expect(atom.keymap).toBeDefined()
       spyOn(atom.keymap, 'getKeyBindings').andReturn [
-        source: '/atom', keystroke: 'ctrl-a', command: 'core:select-all', selector: '.editor'
+        source: "#{path.sep}atom", keystroke: 'ctrl-a', command: 'core:select-all', selector: '.editor'
       ]
       panel = new KeybindingPanel
 
