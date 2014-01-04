@@ -5,7 +5,7 @@ describe "SettingsView", ->
   settingsView = null
 
   beforeEach ->
-    settingsView = new SettingsView(atom.site.createDocument({}))
+    settingsView = new SettingsView
     spyOn(settingsView, "initializePanels").andCallThrough()
     window.advanceClock(10000)
     waitsFor ->

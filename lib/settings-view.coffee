@@ -19,7 +19,7 @@ class SettingsView extends ScrollView
         @button "Open ~/.atom", id: 'open-dot-atom', class: 'btn btn-default btn-small'
       @div id: 'panels', class: 'padded', outlet: 'panels'
 
-  initialize: ({@uri, @activePanelName}) ->
+  initialize: ({@uri, @activePanelName}={}) ->
     super
     @panelToShow = null
     window.setTimeout (=> @activatePackages => @initializePanels()), 1
