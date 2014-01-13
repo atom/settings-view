@@ -73,7 +73,7 @@ class PackagePanel extends View
       else
         @removeInstalledPackage(pack)
 
-    @packageFilter.getBuffer().on 'contents-modified', =>
+    @packageFilter.getEditor().getBuffer().on 'contents-modified', =>
       @filterPackages(@packageFilter.getText())
 
   loadInstalledViews: ->

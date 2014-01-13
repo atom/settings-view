@@ -26,7 +26,7 @@ class KeybindingPanel extends View
     @keyBindings = _.sortBy(atom.keymap.getKeyBindings(), (x) -> x.keystroke)
     @appendKeyBindings(@keyBindings)
 
-    @filter.getBuffer().on 'contents-modified', =>
+    @filter.getEditor().getBuffer().on 'contents-modified', =>
       @filterKeyBindings(@keyBindings, @filter.getText())
 
   filterKeyBindings: (keyBindings, filterString) ->

@@ -55,19 +55,19 @@ class GeneralPanel extends View
           atom.config.set(name, value)
 
   bindEditors: ->
-    for editor in @find('.editor[id]').views()
-      do (editor) =>
-        name = editor.attr('id')
-        type = editor.attr('type')
+    for editorView in @find('.editor[id]').views()
+      do (editorView) =>
+        name = editorView.attr('id')
+        type = editorView.attr('type')
 
         @observeConfig name, (value) =>
           stringValue = @valueToString(value)
-          return if stringValue == editor.getText()
+          return if stringValue == editorView.getText()
           stringValue ?= ""
-          editor.setText(stringValue)
+          editorView.setText(stringValue)
 
-        editor.getBuffer().on 'contents-modified', =>
-          atom.config.set(name, @parseValue(type, editor.getText()))
+        editorView.getEditor().getBuffer().on 'contents-modified', =>
+          atom.config.set(name, @parseValue(type, editorView.getText()))
 
   valueToString: (value) ->
     if _.isArray(value)
