@@ -5,7 +5,7 @@ class SettingsPanel extends View
   @content: ->
     @div class: 'settings-panel'
 
-  initialize: (namespace) ->
+  initialize: (namespace, @options={}) ->
     settings = atom.config.getSettings()
     @appendSettings(namespace, settings[namespace])
 
@@ -15,9 +15,15 @@ class SettingsPanel extends View
   appendSettings: (namespace, settings) ->
     return if _.isEmpty(settings)
 
+    includeTitle = @options.includeTitle ? true
+    if includeTitle
+      title = "#{_.undasherize(_.uncamelcase(namespace))} Settings"
+    else
+      title = "Settings"
+
     @append $$ ->
       @section class: 'config-section', =>
-        @div class: 'block section-heading', "#{_.undasherize(_.uncamelcase(namespace))} Settings"
+        @div class: 'block section-heading', title
         @div class: 'section-body', =>
           for name in _.keys(settings).sort()
             appendSetting.call(this, namespace, name, settings[name])
