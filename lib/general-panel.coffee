@@ -11,10 +11,7 @@ class GeneralPanel extends View
 
     settings = atom.config.getSettings()
     @appendSettings('core', settings.core)
-    delete settings.core
     @appendSettings('editor', settings.editor)
-    delete settings.editor
-    @appendSettings(name, settings[name]) for name in _.keys(settings).sort()
 
     @bindFormFields()
     @bindEditors()
