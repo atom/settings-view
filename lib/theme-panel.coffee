@@ -23,7 +23,7 @@ class ThemeConfigPanel extends View
             @ul outlet: 'syntaxMenu', class: 'dropdown-menu theme-menu', role: 'menu'
 
   initialize: ->
-    atom.config.observe 'core.themes', =>
+    @observeConfig 'core.themes', =>
       @activeUiTheme = @getActiveUiTheme()
       @activeSyntaxTheme = @getActiveSyntaxTheme()
       @selectActiveThemes()
