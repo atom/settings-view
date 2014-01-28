@@ -23,7 +23,7 @@ class SettingsPanel extends View
 
     @append $$ ->
       @section class: 'config-section', =>
-        @div class: 'block section-heading', title
+        @div class: 'block section-heading icon icon-gear', title
         @div class: 'section-body', =>
           for name in _.keys(settings).sort()
             appendSetting.call(this, namespace, name, settings[name])
