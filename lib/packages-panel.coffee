@@ -4,14 +4,13 @@
 PackageView = require './package-view'
 packageManager = require './package-manager'
 
-
 class PackageEventEmitter
   Emitter.includeInto(this)
 
 module.exports =
 class PackagesPanel extends View
   @content: ->
-    @div class: 'package-panel section', =>
+    @div class: 'packages-panel section', =>
       @h1 class: 'section-heading', 'Packages'
       @ul class: 'nav nav-tabs block', =>
         @li class: 'active installed-packages', =>
