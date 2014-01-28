@@ -12,7 +12,7 @@ class PackagePanel extends View
         @span outlet: 'version', class: 'label label-primary'
       @p outlet: 'description', class: 'description'
       @div outlet: 'buttons', class: 'btn-group', =>
-        @button outlet: 'disableButton', class: 'btn btn-default icon icon-x', 'Disable'
+        @button outlet: 'disableButton', class: 'btn btn-default icon icon-playback-pause', 'Disable'
         @button outlet: 'homepageButton', class: 'btn btn-default icon icon-home', 'Visit Homepage'
         @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
 
