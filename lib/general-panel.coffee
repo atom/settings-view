@@ -1,9 +1,5 @@
 {_, $, $$, EditorView, View} = require 'atom'
 
-###
-# Internal #
-###
-
 module.exports =
 class GeneralPanel extends View
   @content: ->

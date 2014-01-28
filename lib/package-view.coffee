@@ -4,7 +4,6 @@ packageManager = require './package-manager'
 {_, $, $$, View} = require 'atom'
 atom.requireWithGlobals 'bootstrap/js/dropdown', jQuery: $
 
-### Internal ###
 module.exports =
 class PackageView extends View
   @content: ->
