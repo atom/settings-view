@@ -29,6 +29,7 @@ class PackagePanel extends View
         atom.packages.enablePackage(@pack.name)
       else
         atom.packages.disablePackage(@pack.name)
+      false
 
     @homepageButton.on 'click', =>
       if repoUrl = @getRepositoryUrl()
