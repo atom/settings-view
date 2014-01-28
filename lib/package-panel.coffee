@@ -1,5 +1,7 @@
 shell = require 'shell'
 {_, View} = require 'atom'
+
+PackageKeymapView = require './package-keymap-view'
 SettingsPanel = require './settings-panel'
 
 module.exports =
@@ -21,6 +23,7 @@ class PackagePanel extends View
     @description.text(@pack.metadata.description)
     @version.text(@pack.metadata.version)
     @append(new SettingsPanel(@pack.name, {includeTitle: false}))
+    @append(new PackageKeymapView(@pack.name))
     @handleButtonEvents()
 
   handleButtonEvents: ->
