@@ -20,7 +20,7 @@ class PackageKeymapView extends View
 
       @keybindingItems.append $$$ ->
         @tr class: 'package-keymap-item', =>
-          @td class: 'keystroke', _.humanizeKeystroke(keystroke)
+          @td class: 'keystroke', keystroke
           @td class: 'command', command
           @td class: 'selector', selector
 
