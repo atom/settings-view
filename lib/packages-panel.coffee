@@ -5,12 +5,11 @@ PackageView = require './package-view'
 packageManager = require './package-manager'
 
 
-### Internal ###
 class PackageEventEmitter
   Emitter.includeInto(this)
 
 module.exports =
-class PackagePanel extends View
+class PackagesPanel extends View
   @content: ->
     @div class: 'package-panel section', =>
       @h1 class: 'section-heading', 'Packages'

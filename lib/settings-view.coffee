@@ -3,7 +3,7 @@ async = require 'async'
 
 GeneralPanel = require './general-panel'
 ThemePanel = require './theme-panel'
-PackagePanel = require './package-panel'
+PackagesPanel = require './packages-panel'
 KeybindingPanel = require './keybinding-panel'
 
 ###
@@ -41,7 +41,7 @@ class SettingsView extends ScrollView
     @addPanel('General Settings', new GeneralPanel)
     @addPanel('Keybindings', new KeybindingPanel)
     @addPanel('Themes', new ThemePanel)
-    @addPanel('Packages', new PackagePanel)
+    @addPanel('Packages', new PackagesPanel)
 
     @showPanel(activePanelName) if activePanelName
 
