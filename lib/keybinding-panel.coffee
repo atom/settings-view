@@ -5,10 +5,10 @@ module.exports =
 class KeybindingPanel extends View
   @content: ->
     @div class: 'keybinding-panel section', =>
-      @h1 class: 'section-heading', 'Keybindings'
-      @div class: 'block', =>
+      @h2 class: 'section-heading icon icon-keyboard', 'Keybindings'
+      @div class: 'editor-container', =>
         @subview 'filter', new EditorView(mini: true)
-      @table class: 'native-key-bindings', tabindex: -1, =>
+      @table class: 'native-key-bindings table', tabindex: -1, =>
         @col class: 'keystroke'
         @col class: 'command'
         @col class: 'source'
