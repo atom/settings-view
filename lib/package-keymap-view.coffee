@@ -4,8 +4,8 @@
 module.exports =
 class PackageKeymapView extends View
   @content: ->
-    @div class: 'package-keymap', =>
-      @div class: 'package-keymap-heading icon icon-keyboard', 'Keybindings'
+    @section class: 'package-keymap', =>
+      @div class: 'section-heading package-keymap-heading icon icon-keyboard', 'Keybindings'
       @table outlet: 'keymapTable', class: 'package-keymap-table table', tabindex: -1, =>
         @thead =>
           @tr =>
