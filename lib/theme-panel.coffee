@@ -4,25 +4,39 @@ module.exports =
 class ThemeConfigPanel extends View
   @content: ->
     @div class: 'section themes', =>
-      @h2 class: 'section-heading icon icon-device-desktop', 'Themes'
+      @div class: 'section-heading theme-heading icon icon-device-desktop', 'Pick a Theme'
+      @div class: 'text padded', """
+        Atom supports two types of themes, UI and syntax. UI themes style
+        elements such as the tabs, status bar, and tree view.  Syntax themes
+        style the code inside the editor.
+      """
+
       @div =>
         @div class: 'ui-themes padded', =>
-          @span class: 'btn btn-lg themes-label', 'UI Theme:'
+          @span class: 'btn btn themes-label', 'UI Theme:'
           @div class: 'btn-group', =>
-            @button class: 'btn btn-lg dropdown-toggle theme-dropdown', 'data-toggle': 'dropdown', =>
+            @button class: 'btn btn dropdown-toggle theme-dropdown', 'data-toggle': 'dropdown', =>
               @span outlet: 'selectedUiTheme'
               @span class: 'caret'
             @ul outlet: 'uiMenu', class: 'dropdown-menu theme-menu'
 
         @div class: 'syntax-themes padded', =>
-          @span class: 'btn btn-lg themes-label', 'Syntax Theme:'
+          @span class: 'btn themes-label', 'Syntax Theme:'
           @div class: 'btn-group', =>
-            @button type: 'button', class: 'btn btn-lg dropdown-toggle theme-dropdown', 'data-toggle': 'dropdown', =>
+            @button type: 'button', class: 'btn dropdown-toggle theme-dropdown', 'data-toggle': 'dropdown', =>
               @span outlet: 'selectedSyntaxTheme'
               @span class: 'caret'
             @ul outlet: 'syntaxMenu', class: 'dropdown-menu theme-menu', role: 'menu'
 
+      @div class: 'text padded', =>
+        @span class: 'icon icon-question', 'You can also style Atom by editing '
+        @a outlet: 'openUserStysheet', 'your stylesheet'
+
   initialize: ->
+    @openUserStysheet.on 'click', =>
+      atom.workspaceView.trigger('application:open-your-stylesheet')
+      false
+
     @observeConfig 'core.themes', =>
       @activeUiTheme = @getActiveUiTheme()
       @activeSyntaxTheme = @getActiveSyntaxTheme()

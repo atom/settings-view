@@ -143,15 +143,30 @@
     display: -webkit-flex;
     -webkit-flex-flow: column;
 
-    .section-heading {
+    .theme-heading {
+      padding-top: @component-padding;
+      padding-bottom: @component-padding;
+      border-bottom: 1px solid #858585;
+      color: #262626;
+    }
+
+    .text {
       color: #333;
+    }
+
+    a {
+      color: #428bca;
+
+      &:hover, &:focus {
+        color: #2a6496;
+      }
     }
 
     .themes-label {
       color: #333;
       background: none;
       padding-left: 0;
-      min-width: 120px;
+      min-width: 110px;
       text-align: right;
 
       &:hover {
