@@ -12,9 +12,9 @@ class PackagePanel extends View
         @span outlet: 'version', class: 'label label-primary'
       @p outlet: 'description', class: 'description'
       @div outlet: 'buttons', class: 'btn-group', =>
-        @button outlet: 'disableButton', class: 'btn btn-default', 'Disable'
-        @button outlet: 'homepageButton', class: 'btn btn-default', 'Visit Homepage'
-        @button outlet: 'issueButton', class: 'btn btn-default', 'Report Issue'
+        @button outlet: 'disableButton', class: 'btn btn-default icon icon-x', 'Disable'
+        @button outlet: 'homepageButton', class: 'btn btn-default icon icon-home', 'Visit Homepage'
+        @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
 
   initialize: (@pack) ->
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")
