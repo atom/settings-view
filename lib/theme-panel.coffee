@@ -30,7 +30,7 @@ class ThemeConfigPanel extends View
 
       @div class: 'text padded', =>
         @span class: 'icon icon-question', 'You can also style Atom by editing '
-        @a outlet: 'openUserStysheet', 'your stylesheet'
+        @a class: 'stylesheet-link', outlet: 'openUserStysheet', 'your stylesheet'
 
   initialize: ->
     @openUserStysheet.on 'click', =>
