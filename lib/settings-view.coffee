@@ -3,12 +3,9 @@ async = require 'async'
 
 GeneralPanel = require './general-panel'
 ThemePanel = require './theme-panel'
+PackagePanel = require './package-panel'
 PackagesPanel = require './packages-panel'
 KeybindingPanel = require './keybinding-panel'
-
-###
-# Internal #
-###
 
 module.exports =
 class SettingsView extends ScrollView
@@ -42,6 +39,14 @@ class SettingsView extends ScrollView
     @addPanel('Keybindings', new KeybindingPanel)
     @addPanel('Themes', new ThemePanel)
     @addPanel('Packages', new PackagesPanel)
+
+    packages = atom.packages.getLoadedPackages().sort (pack1, pack2) ->
+      title1 = _.undasherize(_.uncamelcase(pack1.name))
+      title2 = _.undasherize(_.uncamelcase(pack2.name))
+      title1.localeCompare(title2)
+
+    for pack in packages when pack.getType() isnt 'theme'
+      @addPanel(_.undasherize(_.uncamelcase(pack.name)), new PackagePanel)
 
     @showPanel(activePanelName) if activePanelName
 
