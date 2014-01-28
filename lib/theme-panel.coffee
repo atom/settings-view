@@ -1,67 +1,99 @@
 {_, $, $$, View} = require 'atom'
 
-atom.requireWithGlobals require.resolve('jqueryui-browser/ui/jquery.ui.core'), {jQuery: $}
-atom.requireWithGlobals require.resolve('jqueryui-browser/ui/jquery.ui.widget'), {jQuery: $}
-atom.requireWithGlobals require.resolve('jqueryui-browser/ui/jquery.ui.mouse'), {jQuery: $}
-atom.requireWithGlobals require.resolve('jqueryui-browser/ui/jquery.ui.sortable'), {jQuery: $}
-atom.requireWithGlobals require.resolve('jqueryui-browser/ui/jquery.ui.draggable'), {jQuery: $}
-
 module.exports =
 class ThemeConfigPanel extends View
   @content: ->
-    @div class: 'section themes-config', =>
-      @h1 class: 'section-heading', "Themes"
-      @p 'Drag themes between the Available Themes and the Enabled Themes sections'
-      @div class: 'theme-picker', =>
-        @div class: 'panel', =>
-          @div class: 'panel-heading', "Enabled Themes"
-          @ol class: 'enabled-themes list-group', outlet: 'enabledThemes'
+    @div class: 'section themes', =>
+      @h2 class: 'section-heading icon icon-device-desktop', 'Themes'
+      @div =>
+        @div class: 'ui-themes padded', =>
+          @span class: 'btn btn-lg themes-label', 'UI Theme:'
+          @div class: 'btn-group', =>
+            @button class: 'btn btn-lg dropdown-toggle theme-dropdown', 'data-toggle': 'dropdown', =>
+              @span outlet: 'selectedUiTheme'
+              @span class: 'caret'
+            @ul outlet: 'uiMenu', class: 'dropdown-menu theme-menu'
 
-        @div class: 'panel', =>
-          @div class: 'panel-heading', "Available Themes"
-          @ol class: 'available-themes list-group', outlet: 'availableThemes'
+        @div class: 'syntax-themes padded', =>
+          @span class: 'btn btn-lg themes-label', 'Syntax Theme:'
+          @div class: 'btn-group', =>
+            @button type: 'button', class: 'btn btn-lg dropdown-toggle theme-dropdown', 'data-toggle': 'dropdown', =>
+              @span outlet: 'selectedSyntaxTheme'
+              @span class: 'caret'
+            @ul outlet: 'syntaxMenu', class: 'dropdown-menu theme-menu', role: 'menu'
 
-  constructor: ->
-    super
-    for name in atom.themes.getAvailableNames()
-      @availableThemes.append(@buildThemeLi(name, draggable: true))
+  initialize: ->
+    atom.config.observe 'core.themes', =>
+      @activeUiTheme = @getActiveUiTheme()
+      @activeSyntaxTheme = @getActiveSyntaxTheme()
+      @selectActiveThemes()
 
-    @observeConfig "core.themes", (enabledThemes) =>
-      @enabledThemes.empty()
-      for name in enabledThemes ? []
-        @enabledThemes.append(@buildThemeLi(name))
+      @uiMenu.empty()
+      @syntaxMenu.empty()
+      for name in atom.themes.getAvailableNames()
+        themeItem = @createThemeMenuItem(name)
+        if /-ui/.test(name)
+          themeItem.addClass('active-theme') if name is @activeUiTheme
+          @uiMenu.append(themeItem)
+        else
+          themeItem.addClass('active-theme') if name is @activeSyntaxTheme
+          @syntaxMenu.append(themeItem)
 
-    @enabledThemes.sortable
-      receive: (e, ui) => @enabledThemeReceived($(ui.helper))
-      update: => @enabledThemesUpdated()
-
-    @on "click", ".enabled-themes .disable-theme", (e) =>
-      $(e.target).closest('li').remove()
-      @enabledThemesUpdated()
+    @syntaxMenu.on 'click', ({target}) =>
+      @activeSyntaxTheme = $(target).data('themeName')
+      @changeThemes()
       false
 
-  buildThemeLi: (name, {draggable} = {}) ->
-    li = $$ ->
-      @li class: 'list-item', name: name, =>
-        @a href: '#', class: 'icon icon-x disable-theme pull-right'
-        @text name
-    if draggable
-      li.draggable
-        connectToSortable: '.enabled-themes'
-        appendTo: '.themes-config'
-        helper: (e) ->
-          target = $(e.target)
-          target.clone().width(target.width())
-    else
-      li
+    @uiMenu.on 'click', ({target}) =>
+      @activeUiTheme = $(target).data('themeName')
+      @changeThemes()
+      false
 
-  enabledThemeReceived: (helper) ->
-    name = helper.attr('name')
-    @enabledThemes.find("[name='#{name}']:not('.ui-draggable')").remove()
-    @enabledThemes.find(".ui-draggable").removeClass('ui-draggable')
+  # Get the name of the active ui theme.
+  getActiveUiTheme: ->
+    for name in atom.themes.getActiveNames()
+      return name if /-ui/.test(name)
+    null
 
-  enabledThemesUpdated: ->
-    atom.themes.setEnabledThemes(@getEnabledThemeNames())
+  # Get the name of the active syntax theme.
+  getActiveSyntaxTheme: ->
+    for name in atom.themes.getActiveNames()
+      return name unless /-ui/.test(name)
+    null
 
-  getEnabledThemeNames: ->
-    $(li).attr('name') for li in @enabledThemes.children().toArray()
+  # Update the UI and config with the newly selected themes.
+  changeThemes: ->
+    @closeDropdown()
+    @selectActiveThemes()
+
+    # Perform in a next tick so the dropdown and active theme buttons get
+    # a chance to update before the pause that occurs reloading the stylesheets.
+    process.nextTick => @updateThemeConfig()
+
+  # Close all dropdowns currently open.
+  closeDropdown: ->
+    @find('.open').removeClass('open')
+
+  # Update the config with the selected themes
+  updateThemeConfig: ->
+    themes = []
+    themes.push(@activeUiTheme) if @activeUiTheme
+    themes.push(@activeSyntaxTheme) if @activeSyntaxTheme
+    atom.themes.setEnabledThemes(themes) if themes.length > 0
+
+  # Populate the theme buttons with the active theme titles
+  selectActiveThemes: ->
+    @selectedSyntaxTheme.text(@getThemeTitle(@activeSyntaxTheme))
+    @selectedUiTheme.text(@getThemeTitle(@activeUiTheme))
+
+  # Create a menu item for the given theme name.
+  createThemeMenuItem: (themeName) ->
+    title = @getThemeTitle(themeName)
+    $$ ->
+      @li =>
+        @a class: 'icon icon-check hidden-icon', 'data-theme-name': themeName, href: '#', title
+
+  # Get a human readable title for the given theme name.
+  getThemeTitle: (themeName='') ->
+    title = themeName.replace(/-(ui|syntax)/g, '')
+    _.undasherize(_.uncamelcase(title))

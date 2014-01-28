@@ -138,10 +138,47 @@
     }
   }
 
-  .themes-config {
+  .themes {
     height: 100%;
     display: -webkit-flex;
     -webkit-flex-flow: column;
+
+    .section-heading {
+      color: #333;
+    }
+
+    .themes-label {
+      color: #333;
+      background: none;
+      padding-left: 0;
+      min-width: 120px;
+      text-align: right;
+
+      &:hover {
+        color: #333;
+      }
+    }
+
+    .theme-dropdown {
+      min-width: 200px;
+
+      .caret {
+        margin-left: 10px;
+        border-top-color: #333;
+      }
+    }
+
+    .theme-menu {
+      .icon:before {
+        visibility: hidden;
+      }
+
+      > .active-theme {
+        .icon:before {
+          visibility: visible;
+        }
+      }
+    }
 
     .theme-picker {
       -webkit-flex: 1;
