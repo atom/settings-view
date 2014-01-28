@@ -45,6 +45,8 @@ class SettingsView extends ScrollView
       title2 = _.undasherize(_.uncamelcase(pack2.name))
       title1.localeCompare(title2)
 
+    @addPanelMenuSeparator()
+
     for pack in packages when pack.getType() isnt 'theme'
       @addPanel(_.undasherize(_.uncamelcase(pack.name)), new PackagePanel)
 
@@ -54,6 +56,10 @@ class SettingsView extends ScrollView
     deserializer: 'SettingsView'
     version: 2
     activePanelName: @activePanelName
+
+  addPanelMenuSeparator: ->
+    @panelMenu.append $$ ->
+      @div class: 'panel-menu-separator'
 
   addPanel: (name, panel) ->
     panelItem = $$ -> @li name: name, => @a name
