@@ -1,4 +1,4 @@
-{$$, $$$, _, View} = require 'atom'
+{$$$, View} = require 'atom'
 
 # Displays the keybindings for a package namespace
 module.exports =
