@@ -57,7 +57,7 @@ class PackageManager
 
   install: (pack, callback) ->
     {name, version, theme} = pack
-    activateOnSuccess = !atom.packages.isPackageDisabled(name)
+    activateOnSuccess = not theme and not atom.packages.isPackageDisabled(name)
     activateOnFailure = atom.packages.isPackageActive(name)
     atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
     atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
