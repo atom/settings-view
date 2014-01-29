@@ -147,78 +147,9 @@
 
     .themes-label {
       color: #333;
-      border-width: 0px;
-      background: none;
-      padding-left: 0;
       min-width: 110px;
-      text-align: right;
-
-      &:hover {
-        color: #333;
-      }
-    }
-
-    .theme-dropdown {
-      min-width: 200px;
-
-      .caret {
-        margin-left: 10px;
-        border-top-color: #333;
-      }
-    }
-
-    .theme-menu {
-      .icon:before {
-        visibility: hidden;
-      }
-
-      > .active-theme {
-        .icon:before {
-          visibility: visible;
-        }
-      }
-    }
-
-    .theme-picker {
-      -webkit-flex: 1;
-      display: -webkit-flex;
-      min-height: 0;
-
-      .panel {
-        -webkit-flex: 1;
-        display: -webkit-flex;
-        -webkit-flex-flow: column;
-        min-height: 0;
-        &:first-child { margin-right: @component-padding / 2; }
-        &:last-child { margin-left: @component-padding / 2; }
-
-        .panel-heading {
-          border-radius: @component-border-radius @component-border-radius 0 0;
-        }
-
-        ol {
-          margin-top: 0;
-          -webkit-flex: 1;
-          min-height: 0;
-          overflow: auto;
-
-          li {
-            -webkit-user-select: none;
-            cursor: default;
-          }
-        }
-      }
-
-      a.disable-theme { display: none; }
-      .enabled-themes {
-        li:hover {
-          a.disable-theme { display: block; }
-        }
-      }
-    }
-
-    li.ui-draggable-dragging, li.ui-sortable-helper {
-      a.disable-theme { display: none !important; }
+      float: left;
+      font-weight: bold;
     }
   }
 

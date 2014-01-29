@@ -12,22 +12,16 @@ class ThemeConfigPanel extends View
         style the code inside the editor.
       """
 
-      @div =>
-        @div class: 'ui-themes padded', =>
-          @span class: 'btn btn themes-label', 'UI Theme:'
-          @div class: 'btn-group', =>
-            @button class: 'btn btn dropdown-toggle theme-dropdown', 'data-toggle': 'dropdown', =>
-              @span outlet: 'selectedUiTheme'
-              @span class: 'caret'
-            @ul outlet: 'uiMenu', class: 'dropdown-menu theme-menu'
+      @form class: 'form-horizontal', =>
+        @div class: 'form-group', =>
+          @label class: 'control-label themes-label', 'UI Theme'
+          @div class: 'col-lg-4', =>
+            @select outlet: 'uiMenu', class: 'form-control'
 
-        @div class: 'syntax-themes padded', =>
-          @span class: 'btn themes-label', 'Syntax Theme:'
-          @div class: 'btn-group', =>
-            @button type: 'button', class: 'btn dropdown-toggle theme-dropdown', 'data-toggle': 'dropdown', =>
-              @span outlet: 'selectedSyntaxTheme'
-              @span class: 'caret'
-            @ul outlet: 'syntaxMenu', class: 'dropdown-menu theme-menu', role: 'menu'
+        @div class: 'form-group', =>
+          @label class: 'control-label themes-label', 'Syntax Theme'
+          @div class: 'col-lg-4', =>
+            @select outlet: 'syntaxMenu', class: 'form-control'
 
       @div class: 'text padded', =>
         @span class: 'icon icon-question', 'You can also style Atom by editing '
@@ -41,28 +35,25 @@ class ThemeConfigPanel extends View
     @observeConfig 'core.themes', =>
       @activeUiTheme = @getActiveUiTheme()
       @activeSyntaxTheme = @getActiveSyntaxTheme()
-      @selectActiveThemes()
 
       @uiMenu.empty()
       @syntaxMenu.empty()
       for name in atom.themes.getAvailableNames()
         themeItem = @createThemeMenuItem(name)
         if /-ui/.test(name)
-          themeItem.addClass('active-theme') if name is @activeUiTheme
+          themeItem.prop('selected', true) if name is @activeUiTheme
           @uiMenu.append(themeItem)
         else
-          themeItem.addClass('active-theme') if name is @activeSyntaxTheme
+          themeItem.prop('selected', true) if name is @activeSyntaxTheme
           @syntaxMenu.append(themeItem)
 
-    @syntaxMenu.on 'click', ({target}) =>
-      @activeSyntaxTheme = $(target).data('themeName')
-      @changeThemes()
-      false
+    @syntaxMenu.change =>
+      @activeSyntaxTheme = @syntaxMenu.val()
+      @updateThemeConfig()
 
-    @uiMenu.on 'click', ({target}) =>
-      @activeUiTheme = $(target).data('themeName')
-      @changeThemes()
-      false
+    @uiMenu.change =>
+      @activeUiTheme = @uiMenu.val()
+      @updateThemeConfig()
 
   # Get the name of the active ui theme.
   getActiveUiTheme: ->
@@ -76,37 +67,19 @@ class ThemeConfigPanel extends View
       return name unless /-ui/.test(name)
     null
 
-  # Update the UI and config with the newly selected themes.
-  changeThemes: ->
-    @closeDropdown()
-    @selectActiveThemes()
-
-    # Perform in a next tick so the dropdown and active theme buttons get
-    # a chance to update before the pause that occurs reloading the stylesheets.
-    process.nextTick => @updateThemeConfig()
-
-  # Close all dropdowns currently open.
-  closeDropdown: ->
-    @find('.open').removeClass('open')
-
   # Update the config with the selected themes
   updateThemeConfig: ->
-    themes = []
-    themes.push(@activeUiTheme) if @activeUiTheme
-    themes.push(@activeSyntaxTheme) if @activeSyntaxTheme
-    atom.themes.setEnabledThemes(themes) if themes.length > 0
-
-  # Populate the theme buttons with the active theme titles
-  selectActiveThemes: ->
-    @selectedSyntaxTheme.text(@getThemeTitle(@activeSyntaxTheme))
-    @selectedUiTheme.text(@getThemeTitle(@activeUiTheme))
+    setTimeout =>
+      themes = []
+      themes.push(@activeUiTheme) if @activeUiTheme
+      themes.push(@activeSyntaxTheme) if @activeSyntaxTheme
+      atom.themes.setEnabledThemes(themes) if themes.length > 0
+    , 100
 
   # Create a menu item for the given theme name.
   createThemeMenuItem: (themeName) ->
     title = @getThemeTitle(themeName)
-    $$ ->
-      @li =>
-        @a class: 'icon icon-check hidden-icon', 'data-theme-name': themeName, href: '#', title
+    $$ -> @option value: themeName, title
 
   # Get a human readable title for the given theme name.
   getThemeTitle: (themeName='') ->
