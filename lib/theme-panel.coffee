@@ -1,11 +1,11 @@
 _ = require 'underscore-plus'
-{$, $$, View} = require 'atom'
+{$$, View} = require 'atom'
 
 module.exports =
 class ThemeConfigPanel extends View
   @content: ->
     @div class: 'section themes', =>
-      @div class: 'section-heading theme-heading icon icon-device-desktop', 'Pick a Theme'
+      @div class: 'section-heading theme-heading icon icon-device-desktop', 'Choose a Theme'
       @div class: 'text padded', """
         Atom supports two types of themes, UI and syntax. UI themes style
         elements such as the tabs, status bar, and tree view.  Syntax themes
