@@ -18,6 +18,22 @@
     }
   }
 
+  section .section-heading:first-child,
+  .section .section-heading:first-child {
+    padding-top: @component-padding;
+    padding-bottom: @component-padding;
+    border-bottom: 1px solid #858585;
+    color: #262626;
+  }
+
+  .link {
+    color: #428bca;
+
+    &:hover, &:focus {
+      color: #2a6496;
+    }
+  }
+
   .config-menu {
     .atom-banner {
       margin-left: 20px;
@@ -81,13 +97,6 @@
   }
 
   .settings-panel {
-    .section-heading {
-      padding-top: @component-padding;
-      padding-bottom: @component-padding;
-      border-bottom: 1px solid #858585;
-      color: #262626;
-    }
-
     .section-body {
       padding-top: @component-padding/2;
       padding-left: @component-padding;
@@ -124,13 +133,6 @@
       color: #666;
     }
 
-    .package-keymap-heading {
-      padding-top: @component-padding;
-      padding-bottom: @component-padding;
-      border-bottom: 1px solid #858585;
-      color: #262626;
-    }
-
     .package-keymap-table {
       padding-top: @component-padding;
       padding-left: @component-padding;
@@ -143,23 +145,8 @@
     display: -webkit-flex;
     -webkit-flex-flow: column;
 
-    .theme-heading {
-      padding-top: @component-padding;
-      padding-bottom: @component-padding;
-      border-bottom: 1px solid #858585;
-      color: #262626;
-    }
-
     .text {
       color: #333;
-    }
-
-    .stylesheet-link {
-      color: #428bca;
-
-      &:hover, &:focus {
-        color: #2a6496;
-      }
     }
 
     .themes-label {
@@ -281,10 +268,11 @@
   }
 
   .keybinding-panel {
-    .section-heading {
-      color: #333;
-    }
     color: #333;
+
+    .section-heading {
+      margin-bottom: @component-padding;
+    }
 
     .editor-container {
       margin-bottom: @component-padding;

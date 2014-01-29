@@ -5,7 +5,11 @@ module.exports =
 class KeybindingPanel extends View
   @content: ->
     @div class: 'keybinding-panel section', =>
-      @h2 class: 'section-heading icon icon-keyboard', 'Keybindings'
+      @div class: 'section-heading icon icon-keyboard', 'Keybindings'
+      @div class: 'text padded', =>
+        @span 'You can change these keybindings by editing '
+        @a class: 'link', outlet: 'openUserKeymap', 'your keymap file'
+
       @div class: 'editor-container', =>
         @subview 'filter', new EditorView(mini: true)
       @table class: 'native-key-bindings table', tabindex: -1, =>
@@ -22,6 +26,10 @@ class KeybindingPanel extends View
         @tbody outlet: 'keybindingRows'
 
   initialize: ->
+    @openUserKeymap.on 'click', =>
+      atom.workspaceView.trigger('application:open-your-keymap')
+      false
+
     @filter.setPlaceholderText('Search')
     @keyBindings = _.sortBy(atom.keymap.getKeyBindings(), (x) -> x.keystroke)
     @appendKeyBindings(@keyBindings)
