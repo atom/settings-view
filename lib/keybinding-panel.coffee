@@ -79,7 +79,7 @@ class KeybindingPanel extends View
     pathParts = filePath.split(path.sep)
     if _.contains(pathParts, 'node_modules') or _.contains(pathParts, 'atom') or _.contains(pathParts, 'src')
       'Core'
-    else if filePath is path.join(atom.getConfigDirPath(), 'keymap.json') or filePath is path.join(atom.getConfigDirPath(), 'keymap.cson')
+    else if filePath is atom.keymap.getUserKeymapPath()
       'User'
     else
       packageNameIndex = pathParts.length - 3
