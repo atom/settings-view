@@ -19,6 +19,7 @@ class PackagePanel extends View
         @span ' '
         @span outlet: 'disabledLabel', class: 'label label-warning', 'Disabled'
       @p outlet: 'description', class: 'description'
+      @p outlet: 'startupTime', class: 'startup-time icon icon-dashboard'
       @div outlet: 'buttons', class: 'btn-group', =>
         @button outlet: 'disableButton', class: 'btn btn-default icon'
         @button outlet: 'homepageButton', class: 'btn btn-default icon icon-home', 'Visit Homepage'
@@ -27,6 +28,8 @@ class PackagePanel extends View
 
   initialize: (@pack) ->
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")
+    if @pack.activateTime? and @pack.loadTime?
+      @startupTime.text("This package added #{@pack.activateTime + @pack.loadTime}ms to startup time.")
     @description.text(@pack.metadata.description)
     @version.text(@pack.metadata.version)
     @append(new SettingsPanel(@pack.name, {includeTitle: false}))
