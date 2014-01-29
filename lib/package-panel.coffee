@@ -20,7 +20,7 @@ class PackagePanel extends View
         @button outlet: 'disableButton', class: 'btn btn-default icon icon-playback-pause', 'Disable'
         @button outlet: 'homepageButton', class: 'btn btn-default icon icon-home', 'Visit Homepage'
         @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
-        @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'View README'
+        @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'Open README'
 
   initialize: (@pack) ->
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")
