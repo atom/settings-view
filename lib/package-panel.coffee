@@ -1,5 +1,8 @@
+path = require 'path'
+
+{_, fs, View} = require 'atom'
+roaster = require 'roaster'
 shell = require 'shell'
-{_, View} = require 'atom'
 
 PackageKeymapView = require './package-keymap-view'
 SettingsPanel = require './settings-panel'
@@ -17,6 +20,7 @@ class PackagePanel extends View
         @button outlet: 'disableButton', class: 'btn btn-default icon icon-playback-pause', 'Disable'
         @button outlet: 'homepageButton', class: 'btn btn-default icon icon-home', 'Visit Homepage'
         @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
+        @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'View README'
 
   initialize: (@pack) ->
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")
@@ -42,6 +46,15 @@ class PackagePanel extends View
     @issueButton.on 'click', =>
       if repoUrl = @getRepositoryUrl()
         shell.openExternal("#{repoUrl}/issues/new")
+      false
+
+    @readmeButton.on 'click', =>
+      for child in fs.listSync(@pack.path)
+        extension = path.extname(child)
+        name = path.basename(child, extension)
+        if name.toLowerCase() is 'readme'
+          atom.workspaceView.open(child)
+          break
       false
 
   getRepositoryUrl: ->
