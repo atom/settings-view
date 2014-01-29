@@ -6,22 +6,19 @@ class ThemeConfigPanel extends View
   @content: ->
     @div class: 'section themes', =>
       @div class: 'section-heading theme-heading icon icon-device-desktop', 'Choose a Theme'
-      @div class: 'text padded', """
-        Atom supports two types of themes, UI and syntax. UI themes style
-        elements such as the tabs, status bar, and tree view.  Syntax themes
-        style the code inside the editor.
-      """
 
-      @form class: 'form-horizontal', =>
+      @form class: 'form-horizontal theme-chooser', =>
         @div class: 'form-group', =>
           @label class: 'control-label themes-label', 'UI Theme'
           @div class: 'col-lg-4', =>
             @select outlet: 'uiMenu', class: 'form-control'
+            @div class: 'text theme-description', 'This styles the tabs, status bar, tree view, and dropdowns'
 
         @div class: 'form-group', =>
           @label class: 'control-label themes-label', 'Syntax Theme'
           @div class: 'col-lg-4', =>
             @select outlet: 'syntaxMenu', class: 'form-control'
+            @div class: 'text theme-description', 'This styles the code inside the editor'
 
       @div class: 'text padded', =>
         @span class: 'icon icon-question', 'You can also style Atom by editing '
