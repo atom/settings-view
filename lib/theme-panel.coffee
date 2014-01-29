@@ -26,7 +26,7 @@ class ThemeConfigPanel extends View
             @label class: 'control-label themes-label', 'Syntax Theme'
             @div class: 'col-lg-4', =>
               @select outlet: 'syntaxMenu', class: 'form-control'
-              @div class: 'text theme-description', 'This styles the code inside the editor'
+              @div class: 'text theme-description', 'This styles the text inside the editor'
 
       @div class: 'section themes', =>
         @div class: 'section-heading theme-heading icon icon-cloud-download', 'Install Themes'
