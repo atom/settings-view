@@ -56,7 +56,8 @@ class KeybindingPanel extends View
     {selector, keystroke, command, source} = keyBinding
     source = @determineSource(source)
     $$$ ->
-      @tr =>
+      rowClasses = if source is 'User' then 'success' else ''
+      @tr class: rowClasses, =>
         @td class: 'keystroke', keystroke
         @td class: 'command', command
         @td class: 'source', source
