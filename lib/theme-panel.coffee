@@ -1,6 +1,9 @@
 _ = require 'underscore-plus'
 {$$, View} = require 'atom'
 
+PackageManager = require './package-manager'
+ThemeView = require './theme-view'
+
 module.exports =
 class ThemeConfigPanel extends View
   @content: ->
@@ -26,7 +29,8 @@ class ThemeConfigPanel extends View
               @div class: 'text theme-description', 'This styles the code inside the editor'
 
       @div class: 'section themes', =>
-        @div class: 'section-heading theme-heading icon icon-cloud-download', 'Install More Themes'
+        @div class: 'section-heading theme-heading icon icon-cloud-download', 'Install Themes'
+        @div outlet: 'themeContainer', class: 'container theme-container'
 
   initialize: ->
     @openUserStysheet.on 'click', =>
@@ -55,6 +59,8 @@ class ThemeConfigPanel extends View
     @uiMenu.change =>
       @activeUiTheme = @uiMenu.val()
       @updateThemeConfig()
+
+    @loadAvailableThemes()
 
   # Get the name of the active ui theme.
   getActiveUiTheme: ->
@@ -86,3 +92,15 @@ class ThemeConfigPanel extends View
   getThemeTitle: (themeName='') ->
     title = themeName.replace(/-(ui|syntax)/g, '')
     _.undasherize(_.uncamelcase(title))
+
+  # Load and display themes available to install.
+  loadAvailableThemes: ->
+    PackageManager.getAvailable (error, packages=[]) =>
+      installedThemes = atom.themes.getAvailableNames()
+      themes = packages.filter ({name, theme}) ->
+        theme and not (name in installedThemes)
+
+      for theme in themes
+        @themeContainer.append $$ ->
+          @div class: 'row', =>
+            @subview 'themeView', new ThemeView(theme)
