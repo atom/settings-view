@@ -4,6 +4,7 @@ async = require 'async'
 
 GeneralPanel = require './general-panel'
 ThemePanel = require './theme-panel'
+PackageManager = require './package-manager'
 PackagePanel = require './package-panel'
 PackagesPanel = require './packages-panel'
 KeybindingPanel = require './keybinding-panel'
@@ -16,11 +17,12 @@ class SettingsView extends ScrollView
         @div class: 'atom-banner'
         @ul class: 'panels-menu nav nav-pills nav-stacked', outlet: 'panelMenu'
         @div class: 'button-area', =>
-          @button 'Open ~/.atom', class: 'btn btn-sm', outlet: 'openDotAtom'
+          @button 'Open ~/.atom', class: 'btn btn-sm btn-default', outlet: 'openDotAtom'
       @div class: 'panels padded', outlet: 'panels'
 
   initialize: ({@uri, @activePanelName}={}) ->
     super
+    @packageManager = new PackageManager()
     @panelToShow = null
     process.nextTick => @activatePackages => @initializePanels()
 
@@ -38,8 +40,7 @@ class SettingsView extends ScrollView
 
     @addPanel('General Settings', new GeneralPanel)
     @addPanel('Keybindings', new KeybindingPanel)
-    @addPanel('Themes', new ThemePanel)
-    @addPanel('Packages', new PackagesPanel)
+    @addPanel('Themes', new ThemePanel(@packageManager))
 
     packages = atom.packages.getLoadedPackages().sort (pack1, pack2) ->
       title1 = _.undasherize(_.uncamelcase(pack1.name))

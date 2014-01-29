@@ -30,9 +30,10 @@ class ThemeConfigPanel extends View
 
       @div class: 'section themes', =>
         @div class: 'section-heading theme-heading icon icon-cloud-download', 'Install Themes'
-        @div outlet: 'themeContainer', class: 'container theme-container'
+        @div outlet: 'themeContainer', class: 'container theme-container', =>
+          @div outlet: 'themeRow', class: 'row'
 
-  initialize: ->
+  initialize: (@packageManager) ->
     @openUserStysheet.on 'click', =>
       atom.workspaceView.trigger('application:open-your-stylesheet')
       false
@@ -95,12 +96,10 @@ class ThemeConfigPanel extends View
 
   # Load and display themes available to install.
   loadAvailableThemes: ->
-    PackageManager.getAvailable (error, packages=[]) =>
+    @packageManager.getAvailable (error, packages=[]) =>
       installedThemes = atom.themes.getAvailableNames()
       themes = packages.filter ({name, theme}) ->
         theme and not (name in installedThemes)
 
       for theme in themes
-        @themeContainer.append $$ ->
-          @div class: 'row', =>
-            @subview 'themeView', new ThemeView(theme)
+        @themeRow.append(new ThemeView(theme, @packageManager))
