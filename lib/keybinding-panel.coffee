@@ -8,7 +8,7 @@ class KeybindingPanel extends View
     @div class: 'keybinding-panel section', =>
       @div class: 'section-heading icon icon-keyboard', 'Keybindings'
       @div class: 'text padded', =>
-        @span 'You can change these keybindings by editing '
+        @span 'You can override these keybindings by editing '
         @a class: 'link', outlet: 'openUserKeymap', 'your keymap file'
 
       @div class: 'editor-container', =>
