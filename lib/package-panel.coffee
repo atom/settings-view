@@ -11,7 +11,7 @@ module.exports =
 class PackagePanel extends View
   @content: ->
     @form class: 'package-panel', =>
-      @h2 =>
+      @h3 =>
         @span outlet: 'title', class: 'title'
         @span ' '
         @span outlet: 'version', class: 'label label-primary'
