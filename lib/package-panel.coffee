@@ -16,9 +16,11 @@ class PackagePanel extends View
         @span outlet: 'title', class: 'title'
         @span ' '
         @span outlet: 'version', class: 'label label-primary'
+        @span ' '
+        @span outlet: 'disabledLabel', class: 'label label-warning', 'Disabled'
       @p outlet: 'description', class: 'description'
       @div outlet: 'buttons', class: 'btn-group', =>
-        @button outlet: 'disableButton', class: 'btn btn-default icon icon-playback-pause', 'Disable'
+        @button outlet: 'disableButton', class: 'btn btn-default icon'
         @button outlet: 'homepageButton', class: 'btn btn-default icon icon-home', 'Visit Homepage'
         @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
         @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'Open README'
@@ -30,6 +32,7 @@ class PackagePanel extends View
     @append(new SettingsPanel(@pack.name, {includeTitle: false}))
     @append(new PackageKeymapView(@pack.name))
     @handleButtonEvents()
+    @updateEnablement()
 
   handleButtonEvents: ->
     @disableButton.on 'click', =>
@@ -37,6 +40,7 @@ class PackagePanel extends View
         atom.packages.enablePackage(@pack.name)
       else
         atom.packages.disablePackage(@pack.name)
+      @updateEnablement()
       false
 
     @homepageButton.on 'click', =>
@@ -57,6 +61,18 @@ class PackagePanel extends View
           atom.workspaceView.open(child)
           break
       false
+
+  updateEnablement: ->
+    if atom.packages.isPackageDisabled(@pack.name)
+      @disableButton.text('Enable')
+      @disableButton.addClass('icon-playback-play')
+      @disableButton.removeClass('icon-playback-pause')
+      @disabledLabel.show()
+    else
+      @disableButton.text('Disable')
+      @disableButton.addClass('icon-playback-pause')
+      @disableButton.removeClass('icon-playback-play')
+      @disabledLabel.hide()
 
   getRepositoryUrl: ->
     repository = @pack.metadata.repository

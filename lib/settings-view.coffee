@@ -1,5 +1,8 @@
+path = require 'path'
+
 _ = require 'underscore-plus'
 async = require 'async'
+CSON = require 'season'
 {$, $$, ScrollView} = require 'atom'
 
 GeneralPanel = require './general-panel'
@@ -42,14 +45,24 @@ class SettingsView extends ScrollView
     @addPanel('Keybindings', new KeybindingPanel)
     @addPanel('Themes', new ThemePanel(@packageManager))
 
-    packages = atom.packages.getLoadedPackages().sort (pack1, pack2) ->
+    packages = atom.packages.getLoadedPackages()
+    # Include disabled packages so they can be re-enabled from the UI
+    for packageName in atom.config.get('core.disabledPackages') ? []
+      packagePath = atom.packages.resolvePackagePath(packageName)
+      if metadataPath = CSON.resolve(path.join(packagePath, 'package'))
+        try
+          metadata = CSON.readFileSync(metadataPath)
+          name = metadata?.name ? packageName
+          packages.push({name, metadata})
+
+    packages.sort (pack1, pack2) ->
       title1 = _.undasherize(_.uncamelcase(pack1.name))
       title2 = _.undasherize(_.uncamelcase(pack2.name))
       title1.localeCompare(title2)
 
     @addPanelMenuSeparator()
 
-    for pack in packages when pack.getType() isnt 'theme'
+    for pack in packages when not pack.metadata.theme
       @addPanel(_.undasherize(_.uncamelcase(pack.name)), new PackagePanel(pack))
 
     @showPanel(activePanelName) if activePanelName
