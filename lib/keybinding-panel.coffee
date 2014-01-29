@@ -76,11 +76,11 @@ class KeybindingPanel extends View
   determineSource: (filePath) ->
     return 'Unknown' unless filePath
 
-    pathParts = filePath.split(path.sep)
-    if _.contains(pathParts, 'node_modules') or _.contains(pathParts, 'atom') or _.contains(pathParts, 'src')
+    if filePath.indexOf(path.join(atom.getLoadSettings().resourcePath, 'keymaps')) is 0
       'Core'
     else if filePath is atom.keymap.getUserKeymapPath()
       'User'
     else
+      pathParts = filePath.split(path.sep)
       packageNameIndex = pathParts.length - 3
       pathParts[packageNameIndex]
