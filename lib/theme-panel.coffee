@@ -4,25 +4,29 @@ _ = require 'underscore-plus'
 module.exports =
 class ThemeConfigPanel extends View
   @content: ->
-    @div class: 'section themes', =>
-      @div class: 'section-heading theme-heading icon icon-device-desktop', 'Choose a Theme'
-
-      @form class: 'form-horizontal theme-chooser', =>
-        @div class: 'form-group', =>
-          @label class: 'control-label themes-label', 'UI Theme'
-          @div class: 'col-lg-4', =>
-            @select outlet: 'uiMenu', class: 'form-control'
-            @div class: 'text theme-description', 'This styles the tabs, status bar, tree view, and dropdowns'
-
-        @div class: 'form-group', =>
-          @label class: 'control-label themes-label', 'Syntax Theme'
-          @div class: 'col-lg-4', =>
-            @select outlet: 'syntaxMenu', class: 'form-control'
-            @div class: 'text theme-description', 'This styles the code inside the editor'
+    @div =>
+      @div class: 'section themes', =>
+        @div class: 'section-heading theme-heading icon icon-device-desktop', 'Choose a Theme'
 
         @div class: 'text padded', =>
           @span class: 'icon icon-question', 'You can also style Atom by editing '
           @a class: 'link', outlet: 'openUserStysheet', 'your stylesheet'
+
+        @form class: 'form-horizontal theme-chooser', =>
+          @div class: 'form-group', =>
+            @label class: 'control-label themes-label', 'UI Theme'
+            @div class: 'col-lg-4', =>
+              @select outlet: 'uiMenu', class: 'form-control'
+              @div class: 'text theme-description', 'This styles the tabs, status bar, tree view, and dropdowns'
+
+          @div class: 'form-group', =>
+            @label class: 'control-label themes-label', 'Syntax Theme'
+            @div class: 'col-lg-4', =>
+              @select outlet: 'syntaxMenu', class: 'form-control'
+              @div class: 'text theme-description', 'This styles the code inside the editor'
+
+      @div class: 'section themes', =>
+        @div class: 'section-heading theme-heading icon icon-cloud-download', 'Install More Themes'
 
   initialize: ->
     @openUserStysheet.on 'click', =>
