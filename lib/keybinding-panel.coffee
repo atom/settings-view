@@ -13,7 +13,6 @@ class KeybindingPanel extends View
         @span class: 'icon icon-clippy'
         @span 'and pasting them into '
         @a class: 'link', outlet: 'openUserKeymap', 'your keymap file'
-        @span '.'
 
       @div class: 'editor-container', =>
         @subview 'filter', new EditorView(mini: true)
