@@ -1,5 +1,3 @@
-_ = require 'underscore-plus'
-
 SettingsView = null
 settingsView = null
 

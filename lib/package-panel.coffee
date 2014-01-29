@@ -3,7 +3,6 @@ path = require 'path'
 {View} = require 'atom'
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
-roaster = require 'roaster'
 shell = require 'shell'
 
 PackageKeymapView = require './package-keymap-view'

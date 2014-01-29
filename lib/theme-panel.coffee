@@ -1,5 +1,5 @@
-{$, $$, View} = require 'atom'
 _ = require 'underscore-plus'
+{$, $$, View} = require 'atom'
 
 module.exports =
 class ThemeConfigPanel extends View
