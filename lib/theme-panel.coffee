@@ -20,9 +20,9 @@ class ThemeConfigPanel extends View
             @select outlet: 'syntaxMenu', class: 'form-control'
             @div class: 'text theme-description', 'This styles the code inside the editor'
 
-      @div class: 'text padded', =>
-        @span class: 'icon icon-question', 'You can also style Atom by editing '
-        @a class: 'link', outlet: 'openUserStysheet', 'your stylesheet'
+        @div class: 'text padded', =>
+          @span class: 'icon icon-question', 'You can also style Atom by editing '
+          @a class: 'link', outlet: 'openUserStysheet', 'your stylesheet'
 
   initialize: ->
     @openUserStysheet.on 'click', =>
