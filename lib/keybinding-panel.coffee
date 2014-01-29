@@ -32,7 +32,7 @@ class KeybindingPanel extends View
       false
 
     @filter.setPlaceholderText('Search')
-    @keyBindings = _.sortBy(atom.keymap.getKeyBindings(), (x) -> x.keystroke)
+    @keyBindings = _.sortBy(atom.keymap.getKeyBindings(), 'keystroke')
     @appendKeyBindings(@keyBindings)
 
     @filter.getEditor().getBuffer().on 'contents-modified', =>
