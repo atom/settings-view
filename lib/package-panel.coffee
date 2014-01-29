@@ -1,6 +1,8 @@
 path = require 'path'
 
-{_, fs, View} = require 'atom'
+{View} = require 'atom'
+_ = require 'underscore-plus'
+fs = require 'fs-plus'
 roaster = require 'roaster'
 shell = require 'shell'
 

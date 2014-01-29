@@ -1,4 +1,5 @@
-{_, $, $$$, View, EditorView} = require 'atom'
+{$, $$$, View, EditorView} = require 'atom'
+_ = require 'underscore-plus'
 path = require 'path'
 
 module.exports =

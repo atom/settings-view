@@ -9,7 +9,9 @@
     "async": "~0.2.9",
     "semver": "~1.1.4",
     "emissary": "1.x",
-    "fuzzaldrin": "~0.5.0"
+    "fuzzaldrin": "~0.5.0",
+    "fs-plus": "1.x",
+    "underscore-plus": "1.x"
   },
   "repository": "https://github.com/atom/settings-view",
   "engines": {

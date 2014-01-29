@@ -1,4 +1,5 @@
-{_, $, $$, EditorView, View} = require 'atom'
+{$, $$, EditorView, View} = require 'atom'
+_ = require 'underscore-plus'
 
 module.exports =
 class SettingsPanel extends View

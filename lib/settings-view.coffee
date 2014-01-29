@@ -1,5 +1,6 @@
 async = require 'async'
-{_, $, $$, ScrollView} = require 'atom'
+_ = require 'underscore-plus'
+{$, $$, ScrollView} = require 'atom'
 
 GeneralPanel = require './general-panel'
 ThemePanel = require './theme-panel'
