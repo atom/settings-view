@@ -15,8 +15,8 @@ class SettingsView extends ScrollView
       @div class: 'config-menu', =>
         @div class: 'atom-banner'
         @ul class: 'panels-menu nav nav-pills nav-stacked', outlet: 'panelMenu'
-        @div class: 'padded', =>
-          @button "Open ~/.atom", class: 'open-dot-atom btn btn-default btn-small'
+        @div class: 'button-area', =>
+          @button 'Open ~/.atom', class: 'btn btn-sm', outlet: 'openDotAtom'
       @div class: 'panels padded', outlet: 'panels'
 
   initialize: ({@uri, @activePanelName}={}) ->
@@ -33,7 +33,7 @@ class SettingsView extends ScrollView
     @on 'click', '.panels-menu li a', (e) =>
       @showPanel($(e.target).closest('li').attr('name'))
 
-    @on 'click', '.open-dot-atom', ->
+    @openDotAtom.on 'click', ->
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
 
     @addPanel('General Settings', new GeneralPanel)
