@@ -3,7 +3,6 @@
 roaster = require 'roaster'
 async = require 'async'
 
-
 module.exports =
 class PackageManager
   Emitter.includeInto(this)
