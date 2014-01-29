@@ -1,52 +1,53 @@
 {$} = require 'atom'
+PackageManager = require '../lib/package-manager'
 ThemePanel = require '../lib/theme-panel'
 
 describe "ThemePanel", ->
-  panel = null
+  [panel, packageManager] = []
 
   beforeEach ->
-    atom.packages.activatePackage('atom-light-ui')
-    atom.packages.activatePackage('atom-dark-ui')
-    atom.packages.activatePackage('atom-dark-syntax')
+    atom.packages.loadPackage('atom-light-ui')
+    atom.packages.loadPackage('atom-dark-ui')
+    atom.packages.loadPackage('atom-light-syntax')
+    atom.packages.loadPackage('atom-dark-syntax')
+    atom.themes.activatePackages()
     atom.config.set('core.themes', ['atom-dark-ui', 'atom-dark-syntax'])
-    panel = new ThemePanel
+    packageManager = new PackageManager
+    spyOn(packageManager, 'getAvailable').andReturn []
+    spyOn(atom.themes, 'setEnabledThemes').andCallThrough()
+    panel = new ThemePanel(packageManager)
 
-  describe "when an enabled theme is reloced in the themes list", ->
-    it "updates the 'core.themes' config key to reflect the new order", ->
-      li = panel.enabledThemes.children(':first').detach()
-      panel.enabledThemes.append(li)
-      panel.enabledThemes.sortable('option', 'update')()
-      expect(atom.config.get('core.themes')).toEqual ['atom-dark-syntax', 'atom-dark-ui']
+  afterEach ->
+    atom.themes.deactivateThemes()
 
-  describe "when a theme is dragged into the enabled themes list", ->
-    it "updates the 'core.themes' config key to reflect the themes in the enabled list", ->
-      dragHelper = panel.availableThemes.find("li[name='atom-light-ui']").clone()
-      panel.enabledThemes.prepend(dragHelper)
-      panel.enabledThemes.sortable('option', 'receive')(null, helper: dragHelper[0])
-      panel.enabledThemes.sortable('option', 'update')()
-      expect(atom.config.get('core.themes')).toEqual ['atom-light-ui', 'atom-dark-ui', 'atom-dark-syntax']
+  it "selects the active syntax and UI themes", ->
+    expect(panel.uiMenu.val()).toBe 'atom-dark-ui'
+    expect(panel.syntaxMenu.val()).toBe 'atom-dark-syntax'
 
-    describe "when the theme is already present in the enabled list", ->
-      it "removes the previous instance of the theme, updating the order based on the location of drag", ->
-        dragHelper = panel.availableThemes.find("li[name='atom-dark-ui']").clone()
-        panel.enabledThemes.append(dragHelper)
-        panel.enabledThemes.sortable('option', 'receive')(null, helper: dragHelper[0])
-        panel.enabledThemes.sortable('option', 'update')()
-        expect(atom.config.get('core.themes')).toEqual ['atom-dark-syntax', 'atom-dark-ui']
+  describe "when a UI theme is selected", ->
+    it "updates the 'core.themes' config key with the selected UI theme", ->
+      jasmine.unspy(window, 'setTimeout')
+      panel.uiMenu.val('atom-light-ui').trigger('change')
 
-        dragHelper = panel.availableThemes.find("li[name='atom-dark-ui']").clone()
-        panel.enabledThemes.prepend(dragHelper)
-        panel.enabledThemes.sortable('option', 'receive')(null, helper: dragHelper[0])
-        panel.enabledThemes.sortable('option', 'update')()
-        expect(atom.config.get('core.themes')).toEqual ['atom-dark-ui', 'atom-dark-syntax']
+      waitsFor ->
+        atom.themes.setEnabledThemes.callCount > 0
 
-  describe "when the disable icon is clicked on a theme li", ->
-    it "removes the theme from the list and the 'core.themes' array", ->
-      panel.enabledThemes.find('li:first .disable-theme').click()
-      expect(panel.getEnabledThemeNames()).toEqual ['atom-dark-syntax']
-      expect(atom.config.get('core.themes')).toEqual ['atom-dark-syntax']
+      runs ->
+        expect(atom.config.get('core.themes')).toEqual ['atom-light-ui', 'atom-dark-syntax']
 
-  describe "when the 'core.config' key is updated", ->
-    it "refreshes the enabled themes list", ->
+  describe "when a syntax theme is selected", ->
+    it "updates the 'core.themes' config key with the selected syntax theme", ->
+      jasmine.unspy(window, 'setTimeout')
+      panel.syntaxMenu.val('atom-light-syntax').trigger('change')
+
+      waitsFor ->
+        atom.themes.setEnabledThemes.callCount > 0
+
+      runs ->
+        expect(atom.config.get('core.themes')).toEqual ['atom-dark-ui', 'atom-light-syntax']
+
+  describe "when the 'core.config' key is changes", ->
+    it "refreshes the theme menus", ->
       atom.config.set('core.themes', ['atom-light-ui', 'atom-light-syntax'])
-      expect(panel.getEnabledThemeNames()).toEqual ['atom-light-ui', 'atom-light-syntax']
+      expect(panel.uiMenu.val()).toBe 'atom-light-ui'
+      expect(panel.syntaxMenu.val()).toBe 'atom-light-syntax'
