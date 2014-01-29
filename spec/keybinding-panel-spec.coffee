@@ -8,7 +8,7 @@ describe "KeybindingPanel", ->
     beforeEach ->
       expect(atom.keymap).toBeDefined()
       spyOn(atom.keymap, 'getKeyBindings').andReturn [
-        source: "#{path.sep}atom", keystroke: 'ctrl-a', command: 'core:select-all', selector: '.editor'
+        source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps", keystroke: 'ctrl-a', command: 'core:select-all', selector: '.editor'
       ]
       panel = new KeybindingPanel
 
@@ -16,7 +16,7 @@ describe "KeybindingPanel", ->
       expect(panel.keybindingRows.children().length).toBe 1
 
       row = panel.keybindingRows.find(':first')
-      expect(row.find(':nth-child(1)').text()).toBe 'ctrl-a'
-      expect(row.find(':nth-child(2)').text()).toBe 'core:select-all'
-      expect(row.find(':nth-child(3)').text()).toBe 'Core'
-      expect(row.find(':nth-child(4)').text()).toBe '.editor'
+      expect(row.find('.keystroke').text()).toBe 'ctrl-a'
+      expect(row.find('.command').text()).toBe 'core:select-all'
+      expect(row.find('.source').text()).toBe 'Core'
+      expect(row.find('.selector').text()).toBe '.editor'

@@ -112,4 +112,5 @@ class KeybindingPanel extends View
     else
       pathParts = filePath.split(path.sep)
       packageNameIndex = pathParts.length - 3
-      _.undasherize(_.uncamelcase(pathParts[packageNameIndex]))
+      packageName = pathParts[packageNameIndex] ? ''
+      _.undasherize(_.uncamelcase(packageName))
