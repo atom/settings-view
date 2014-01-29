@@ -6,15 +6,15 @@
 
   display: -webkit-flex;
 
-  .btn-group {
-    > .btn {
-      background: #fff;
-      color: #333;
-      border: 1px solid #ccc;
+  .btn,
+  .btn-group > .btn {
+    background: #fff;
+    color: #333;
+    border: 1px solid #ccc;
 
-      &:hover {
-        background: #ddd;
-      }
+    &:hover {
+      color: #333;
+      background: #ddd;
     }
   }
 
@@ -63,13 +63,6 @@
 
     .open-dot-atom {
       width: @menu-width;
-      background-image: -webkit-linear-gradient(#ccc, darken(#ccc, 8%));
-      color: #222;
-
-      &:hover {
-        color: #111;
-        background-image: -webkit-linear-gradient(#bbb, darken(#bbb, 8%));
-      }
     }
 
     .nav > li > a {
