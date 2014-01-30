@@ -2,7 +2,7 @@ _ = require 'underscore-plus'
 {$$, View} = require 'atom'
 
 PackageManager = require './package-manager'
-PackageInstallView = require './package-install-view'
+AvailablePackageView = require './available-package-view'
 
 module.exports =
 class ThemeConfigPanel extends View
@@ -115,6 +115,6 @@ class ThemeConfigPanel extends View
       @loadingMessage.hide()
       if themes.length > 0
         for theme in themes
-          @themeRow.append(new PackageInstallView(theme, @packageManager))
+          @themeRow.append(new AvailablePackageView(theme, @packageManager))
       else
         @emptyMessage.show()

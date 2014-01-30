@@ -2,7 +2,7 @@ _ = require 'underscore-plus'
 {$$, View} = require 'atom'
 
 PackageManager = require './package-manager'
-PackageInstallView = require './package-install-view'
+AvailablePackageView = require './available-package-view'
 
 module.exports =
 class PackagesPanel extends View
@@ -33,6 +33,6 @@ class PackagesPanel extends View
           if index % 4 is 0
             packageRow = $$ -> @div class: 'row'
             @packageContainer.append(packageRow)
-          packageRow.append(new PackageInstallView(pack, @packageManager))
+          packageRow.append(new AvailablePackageView(pack, @packageManager))
       else
         @emptyMessage.show()
