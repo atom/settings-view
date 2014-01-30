@@ -1,4 +1,3 @@
-async = require 'async'
 {BufferedNodeProcess} = require 'atom'
 {Emitter} = require 'emissary'
 
