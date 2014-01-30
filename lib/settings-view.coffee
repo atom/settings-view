@@ -34,7 +34,19 @@ class SettingsView extends ScrollView
   handlePackageEvents: ->
     @subscribe @packageManager, 'package-installed theme-installed', ({name}) =>
       if pack = atom.packages.getLoadedPackage(name)
-        @addPanel(name, new InstalledPackageView(pack, @packageManager))
+        title = @getPackageTitle(pack)
+        @addPackagePanel(pack)
+
+        # Move added package menu item to properly sorted location
+        for panelMenuItem in @panelMenu.children('[type=package]')
+          compare = title.localeCompare($(panelMenuItem).text())
+          if compare > 0
+            beforeElement = panelMenuItem
+          else if compare is 0
+            addedPackageElement = panelMenuItem
+
+        if beforeElement? and addedPackageElement?
+          $(addedPackageElement).insertAfter(beforeElement)
 
     @subscribe @packageManager, 'package-uninstalled theme-uninstalled', ({name}) =>
       @removePanel(name)
@@ -52,10 +64,10 @@ class SettingsView extends ScrollView
     @openDotAtom.on 'click', ->
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
 
-    @addPanel('General Settings', 'settings', new GeneralPanel)
-    @addPanel('Keybindings', 'keyboard', new KeybindingsPanel)
-    @addPanel('Packages', 'package', new PackagesPanel(@packageManager))
-    @addPanel('Themes', 'paintcan', new ThemesPanel(@packageManager))
+    @addCorePanel('General Settings', 'settings', new GeneralPanel)
+    @addCorePanel('Keybindings', 'keyboard', new KeybindingsPanel)
+    @addCorePanel('Packages', 'package', new PackagesPanel(@packageManager))
+    @addCorePanel('Themes', 'paintcan', new ThemesPanel(@packageManager))
 
     packages = atom.packages.getLoadedPackages()
     # Include disabled packages so they can be re-enabled from the UI
@@ -67,15 +79,12 @@ class SettingsView extends ScrollView
           name = metadata?.name ? packageName
           packages.push({name, metadata})
 
-    packages.sort (pack1, pack2) ->
-      title1 = _.undasherize(_.uncamelcase(pack1.name))
-      title2 = _.undasherize(_.uncamelcase(pack2.name))
-      title1.localeCompare(title2)
+    packages.sort (pack1, pack2) =>
+      @getPackageTitle(pack1).localeCompare(@getPackageTitle(pack2))
 
     @addPanelMenuSeparator()
 
-    for pack in packages
-      @addPanel(pack.name, new InstalledPackageView(pack, @packageManager))
+    @addPackagePanel(pack) for pack in packages
 
     @showPanel(activePanelName) if activePanelName
 
@@ -84,30 +93,39 @@ class SettingsView extends ScrollView
     version: 2
     activePanelName: @activePanelName
 
+  getPackageTitle: ({name}) ->
+    _.undasherize(_.uncamelcase(name))
+
   addPanelMenuSeparator: ->
     @panelMenu.append $$ ->
       @div class: 'panel-menu-separator'
 
-  addPanel: (name, iconName, panel) ->
-    if arguments.length is 2
-      panel = iconName
-      iconName = null
-
-    label = _.undasherize(_.uncamelcase(name))
-    panelItem = $$ ->
+  addCorePanel: (name, iconName, panel) ->
+    panelMenuItem = $$ ->
       @li name: name, =>
-        if iconName
-          @a class: "icon icon-#{iconName}", label
-        else
-          @a label
+        @a class: "icon icon-#{iconName}", name
+    @addPanel(name, panelMenuItem, panel)
 
-    @panelMenu.append(panelItem)
+  addPackagePanel: (pack) ->
+    panel = new InstalledPackageView(pack, @packageManager)
+    title = @getPackageTitle(pack)
+    panelMenuItem = $$ ->
+      @li name: pack.name, type: 'package', =>
+        @a title
+    @addPanel(pack.name, panelMenuItem, panel)
+
+  addPanel: (name, panelMenuItem, panel) ->
+    @panelMenu.append(panelMenuItem)
     panel.hide()
     @panelsByName[name] = panel
     @showPanel(name) if @getPanelCount() is 1 or @panelToShow is name
 
   getPanelCount: ->
     _.values(@panelsByName).length
+
+  makePanelMenuActive: (name) ->
+    @panelMenu.children('.active').removeClass('active')
+    @panelMenu.children("[name='#{name}']").addClass('active')
 
   showPanel: (name) ->
     if panel = @panelsByName?[name]
@@ -117,7 +135,7 @@ class SettingsView extends ScrollView
       panel.show()
       for editorElement in @panelsByName[name].find(".editor")
         $(editorElement).view().redraw()
-      @panelMenu.children("[name='#{name}']").addClass('active')
+      @makePanelMenuActive(name)
       @activePanelName = name
       @panelToShow = null
     else
