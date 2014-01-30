@@ -70,7 +70,7 @@ describe "ThemesPanel", ->
         themeView?
 
       runs ->
-        spyOn(packageManager, 'runCommand').andCallFake (command, args, callback) ->
+        spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
           process.nextTick -> callback(0)
         themeView.installButton.click()
         expect(themeView.installButton.prop('disabled')).toBe true
@@ -93,7 +93,7 @@ describe "ThemesPanel", ->
 
       runs ->
         spyOn(console, 'error')
-        spyOn(packageManager, 'runCommand').andCallFake (command, args, callback) ->
+        spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
           process.nextTick -> callback(-1, 'failed', 'failed')
         themeView.installButton.click()
         expect(themeView.installButton.prop('disabled')).toBe true
