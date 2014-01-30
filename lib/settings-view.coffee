@@ -23,12 +23,12 @@ class SettingsView extends ScrollView
           @button class: 'btn btn-default icon icon-link-external', outlet: 'openDotAtom', 'Open ~/.atom'
       @div class: 'panels padded', outlet: 'panels'
 
-  initialize: ({@uri, @activePanelName}={}) ->
+  initialize: ({@uri, activePanelName}={}) ->
     super
     @packageManager = new PackageManager()
     @handlePackageEvents()
 
-    @panelToShow = null
+    @panelToShow = activePanelName
     process.nextTick => @activatePackages => @initializePanels()
 
   handlePackageEvents: ->
@@ -55,8 +55,6 @@ class SettingsView extends ScrollView
   initializePanels: ->
     return if @panels.size > 0
 
-    activePanelName = @panelToShow ? @activePanelName
-
     @panelsByName = {}
     @on 'click', '.panels-menu li a', (e) =>
       @showPanel($(e.target).closest('li').attr('name'))
@@ -64,19 +62,20 @@ class SettingsView extends ScrollView
     @openDotAtom.on 'click', ->
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
 
-    @addCorePanel('General Settings', 'settings', new GeneralPanel)
-    @addCorePanel('Keybindings', 'keyboard', new KeybindingsPanel)
-    @addCorePanel('Packages', 'package', new PackagesPanel(@packageManager))
-    @addCorePanel('Themes', 'paintcan', new ThemesPanel(@packageManager))
+    @addCorePanel 'Settings', 'settings', -> new GeneralPanel
+    @addCorePanel 'Keybindings', 'keyboard', -> new KeybindingsPanel
+    @addCorePanel 'Packages', 'package', => new PackagesPanel(@packageManager)
+    @addCorePanel 'Themes', 'paintcan', => new ThemesPanel(@packageManager)
     @addPanelMenuSeparator()
     @addPackagePanel(pack) for pack in @getPackages()
 
-    @showPanel(activePanelName) if activePanelName
+    @showPanel(@panelToShow) if @panelToShow
+    @showPanel('Settings') unless @activePanelName
 
   serialize: ->
     deserializer: 'SettingsView'
     version: 2
-    activePanelName: @activePanelName
+    activePanelName: @activePanelName ? @panelToShow
 
   getPackages: ->
     packages = atom.packages.getLoadedPackages()
@@ -106,33 +105,40 @@ class SettingsView extends ScrollView
     @addPanel(name, panelMenuItem, panel)
 
   addPackagePanel: (pack) ->
-    panel = new InstalledPackageView(pack, @packageManager)
     title = @getPackageTitle(pack)
     panelMenuItem = $$ ->
       @li name: pack.name, type: 'package', =>
         @a title
-    @addPanel(pack.name, panelMenuItem, panel)
+    @addPanel pack.name, panelMenuItem, =>
+      new InstalledPackageView(pack, @packageManager)
 
-  addPanel: (name, panelMenuItem, panel) ->
+  addPanel: (name, panelMenuItem, panelCreateCallback) ->
     @panelMenu.append(panelMenuItem)
-    panel.hide()
-    @panelsByName[name] = panel
-    @showPanel(name) if @getPanelCount() is 1 or @panelToShow is name
+    @panelCreateCallbacks ?= {}
+    @panelCreateCallbacks[name] = panelCreateCallback
+    @showPanel(name) if @panelToShow is name
 
-  getPanelCount: ->
-    _.values(@panelsByName).length
+  getOrCreatePanel: (name) ->
+    panel = @panelsByName?[name]
+    unless panel?
+      if callback = @panelCreateCallbacks?[name]
+        panel = callback()
+        @panelsByName ?= {}
+        @panelsByName[name] = panel
+        delete @panelCreateCallbacks[name]
+    panel
 
   makePanelMenuActive: (name) ->
     @panelMenu.children('.active').removeClass('active')
     @panelMenu.children("[name='#{name}']").addClass('active')
 
   showPanel: (name) ->
-    if panel = @panelsByName?[name]
+    if panel = @getOrCreatePanel(name)
       @panels.children().hide()
       @panelMenu.children('.active').removeClass('active')
       @panels.append(panel) unless $.contains(@panels[0], panel[0])
       panel.show()
-      for editorElement in @panelsByName[name].find(".editor")
+      for editorElement in panel.find(".editor")
         $(editorElement).view().redraw()
       @makePanelMenuActive(name)
       @activePanelName = name

@@ -18,22 +18,39 @@ describe "SettingsView", ->
       newSettingsView = new SettingsView(settingsView.serialize())
       settingsView.remove()
       newSettingsView.attachToDom()
+      newSettingsView.initializePanels()
       expect(newSettingsView.activePanelName).toBe 'Themes'
 
     it "shows the previously active panel if it is added after deserialization", ->
-      settingsView.addCorePanel('Panel 1', 'panel1', $$ -> @div id: 'panel-1')
+      settingsView.addCorePanel('Panel 1', 'panel1', -> $$ -> @div id: 'panel-1')
       settingsView.showPanel('Panel 1')
       newSettingsView = new SettingsView(settingsView.serialize())
+      newSettingsView.addPanel('Panel 1', 'panel1', -> $$ -> @div id: 'panel-1')
       newSettingsView.initializePanels()
+      newSettingsView.attachToDom()
+      expect(newSettingsView.activePanelName).toBe 'Panel 1'
+
+    it "shows the Settings panel if the last saved active panel name no longer exists", ->
+      settingsView.addCorePanel('Panel 1', 'panel1', -> $$ -> @div id: 'panel-1')
+      settingsView.showPanel('Panel 1')
+      newSettingsView = new SettingsView(settingsView.serialize())
       settingsView.remove()
       newSettingsView.attachToDom()
-      newSettingsView.addPanel('Panel 1', 'panel1', $$ -> @div id: 'panel-1')
-      expect(newSettingsView.activePanelName).toBe 'Panel 1'
+      newSettingsView.initializePanels()
+      expect(newSettingsView.activePanelName).toBe 'Settings'
+
+    it "serializes the active panel name even when the panels were never initialized", ->
+      settingsView.showPanel('Themes')
+      settingsView2 = new SettingsView(settingsView.serialize())
+      settingsView3 = new SettingsView(settingsView2.serialize())
+      settingsView3.attachToDom()
+      settingsView3.initializePanels()
+      expect(settingsView3.activePanelName).toBe 'Themes'
 
   describe ".addCorePanel(name, iconName, view)", ->
     it "adds a menu entry to the left and a panel that can be activated by clicking it", ->
-      settingsView.addCorePanel('Panel 1', 'panel1', $$ -> @div id: 'panel-1')
-      settingsView.addCorePanel('Panel 2', 'panel2', $$ -> @div id: 'panel-2')
+      settingsView.addCorePanel('Panel 1', 'panel1', -> $$ -> @div id: 'panel-1')
+      settingsView.addCorePanel('Panel 2', 'panel2', -> $$ -> @div id: 'panel-2')
 
       expect(settingsView.panelMenu.find('li a:contains(Panel 1)')).toExist()
       expect(settingsView.panelMenu.find('li a:contains(Panel 2)')).toExist()
