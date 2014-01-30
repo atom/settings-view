@@ -7,7 +7,7 @@
   "dependencies": {
     "async": "~0.2.9",
     "emissary": "1.x",
-    "fuzzaldrin": "~0.5.0",
+    "fuzzaldrin": "1.x",
     "fs-plus": "1.x",
     "underscore-plus": "1.x",
     "season": "~0.14.0"
