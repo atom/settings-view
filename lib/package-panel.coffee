@@ -28,9 +28,10 @@ class PackagePanel extends View
 
   initialize: (@pack) ->
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")
-    if @pack.activateTime? and @pack.loadTime?
-      type = if @pack.metadata.theme then 'theme' else 'package'
-      @startupTime.text("This #{type} added #{@pack.activateTime + @pack.loadTime}ms to startup time.")
+
+    packageType = if @pack.metadata.theme then 'theme' else 'package'
+    @startupTime.text("This #{packageType} added #{@getStartupTime()}ms to startup time.")
+
     @description.text(@pack.metadata.description)
     @version.text(@pack.metadata.version)
     @disableButton.hide() if @pack.metadata.theme
@@ -78,6 +79,11 @@ class PackagePanel extends View
       @disableButton.addClass('icon-playback-pause')
       @disableButton.removeClass('icon-playback-play')
       @disabledLabel.hide()
+
+  getStartupTime: ->
+    loadTime = @pack.loadTime ? 0
+    activateTime = @pack.activateTime ? 0
+    loadTime + activateTime
 
   getRepositoryUrl: ->
     repository = @pack.metadata.repository
