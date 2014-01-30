@@ -22,7 +22,7 @@ describe "ThemesPanel", ->
     spyOn(packageManager, 'getAvailable').andCallFake (callback) ->
       process.nextTick -> callback(null, [themeMetadata])
     spyOn(atom.themes, 'setEnabledThemes').andCallThrough()
-    panel = new ThemePanel(packageManager)
+    panel = new ThemesPanel(packageManager)
 
   afterEach ->
     atom.packages.unloadPackage('a-theme') if atom.packages.isPackageLoaded('a-theme')

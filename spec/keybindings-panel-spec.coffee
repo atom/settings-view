@@ -9,7 +9,7 @@ describe "KeybindingsPanel", ->
     spyOn(atom.keymap, 'getKeyBindings').andReturn [
       source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps", keystroke: 'ctrl-a', command: 'core:select-all', selector: '.editor'
     ]
-    panel = new KeybindingPanel
+    panel = new KeybindingsPanel
 
   it "loads and displays core key bindings", ->
     expect(panel.keybindingRows.children().length).toBe 1
