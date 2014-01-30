@@ -1,18 +1,46 @@
 @import "octicon-mixins";
 @import "ui-variables";
 
+@text-color: #333;
+@text-color-subtle: #666;
+
 .settings-view {
   display: -webkit-flex;
 
   .btn-default,
   .btn-group > .btn-default {
     background: #fff;
-    color: #333;
+    color: @text-color;
     border: 1px solid #ccc;
 
     &:hover {
-      color: #333;
+      color: @text-color;
       background: #ddd;
+    }
+  }
+
+  .text {
+    color: @text-color;
+  }
+
+  .text-subtle {
+    color: @text-color-subtle;
+  }
+
+  .editor-container {
+    margin-bottom: @component-padding;
+
+    .editor.mini {
+      color: @text-color;
+      background-color: #fff;
+
+      .cursor {
+        border-color: #000;
+      }
+
+      .selection .region {
+        background-color: rgba(0, 0, 0, .2);
+      }
     }
   }
 
@@ -94,44 +122,17 @@
       padding-left: @component-padding;
     }
 
-    .editor-container {
-      margin-bottom: @component-padding;
-
-      .editor.mini {
-        color: #333;
-        background-color: #fff;
-
-        .cursor {
-          border-color: #000;
-        }
-
-        .selection .region {
-          background-color: rgba(0, 0, 0, .2);
-        }
-      }
-    }
-
     label {
-      color: #333;
+      color: @text-color;
     }
 
     padding-bottom: @component-padding;
   }
 
   .installed-package-view {
-    .title {
-      color: #333;
-    }
-
-    .description,
-    .startup-time {
-      color: #666;
-    }
-
     .package-keymap-table {
       padding-top: @component-padding;
       padding-left: @component-padding;
-      color: #333;
     }
   }
 
@@ -140,12 +141,7 @@
     display: -webkit-flex;
     -webkit-flex-flow: column;
 
-    .text {
-      color: #333;
-    }
-
     .themes-label {
-      color: #333;
       min-width: 110px;
       float: left;
       font-weight: bold;
@@ -238,27 +234,8 @@
   }
 
   .keybinding-panel {
-    color: #333;
-
     .section-heading {
       margin-bottom: @component-padding;
-    }
-
-    .editor-container {
-      margin-bottom: @component-padding;
-
-      .editor.mini {
-        color: #333;
-        background-color: #fff;
-
-        .cursor {
-          border-color: #000;
-        }
-
-        .selection .region {
-          background-color: rgba(0, 0, 0, .2);
-        }
-      }
     }
 
     table {

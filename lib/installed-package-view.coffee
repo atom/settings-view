@@ -13,13 +13,13 @@ class InstalledPackageView extends View
   @content: ->
     @form class: 'installed-package-view', =>
       @h3 =>
-        @span outlet: 'title', class: 'title'
+        @span outlet: 'title', class: 'text'
         @span ' '
         @span outlet: 'version', class: 'label label-primary'
         @span ' '
         @span outlet: 'disabledLabel', class: 'label label-warning', 'Disabled'
-      @p outlet: 'description', class: 'description'
-      @p outlet: 'startupTime', class: 'startup-time icon icon-dashboard'
+      @p outlet: 'description', class: 'text-subtle'
+      @p outlet: 'startupTime', class: 'text-subtle icon icon-dashboard'
       @div outlet: 'buttons', class: 'btn-group', =>
         @button outlet: 'disableButton', class: 'btn btn-default icon'
         @button outlet: 'homepageButton', class: 'btn btn-default icon icon-home', 'Visit Homepage'

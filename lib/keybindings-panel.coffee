@@ -16,7 +16,7 @@ class KeybindingsPanel extends View
 
       @div class: 'editor-container', =>
         @subview 'filter', new EditorView(mini: true)
-      @table class: 'native-key-bindings table', tabindex: -1, =>
+      @table class: 'native-key-bindings table text', tabindex: -1, =>
         @col class: 'keystroke'
         @col class: 'command'
         @col class: 'source'

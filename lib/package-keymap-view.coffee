@@ -6,7 +6,7 @@ class PackageKeymapView extends View
   @content: ->
     @section class: 'package-keymap', =>
       @div class: 'section-heading package-keymap-heading icon icon-keyboard', 'Keybindings'
-      @table outlet: 'keymapTable', class: 'package-keymap-table table native-key-bindings', tabindex: -1, =>
+      @table outlet: 'keymapTable', class: 'package-keymap-table table native-key-bindings text', tabindex: -1, =>
         @thead =>
           @tr =>
             @th 'Keystroke'
