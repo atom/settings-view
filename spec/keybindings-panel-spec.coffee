@@ -1,7 +1,7 @@
 path = require 'path'
-KeybindingPanel = require '../lib/keybinding-panel'
+KeybindingsPanel = require '../lib/keybindings-panel'
 
-describe "KeybindingPanel", ->
+describe "KeybindingsPanel", ->
   panel = null
 
   beforeEach ->

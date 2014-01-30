@@ -10,7 +10,7 @@ ThemesPanel = require './themes-panel'
 PackageManager = require './package-manager'
 InstalledPackageView = require './installed-package-view'
 PackagesPanel = require './packages-panel'
-KeybindingPanel = require './keybinding-panel'
+KeybindingsPanel = require './keybindings-panel'
 
 module.exports =
 class SettingsView extends ScrollView
@@ -42,7 +42,7 @@ class SettingsView extends ScrollView
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
 
     @addPanel('General Settings', 'settings', new GeneralPanel)
-    @addPanel('Keybindings', 'keyboard', new KeybindingPanel)
+    @addPanel('Keybindings', 'keyboard', new KeybindingsPanel)
     @addPanel('Packages', 'package', new PackagesPanel(@packageManager))
     @addPanel('Themes', 'paintcan', new ThemesPanel(@packageManager))
 

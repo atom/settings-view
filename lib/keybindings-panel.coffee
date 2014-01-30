@@ -3,7 +3,7 @@ _ = require 'underscore-plus'
 path = require 'path'
 
 module.exports =
-class KeybindingPanel extends View
+class KeybindingsPanel extends View
   @content: ->
     @div class: 'keybinding-panel section', =>
       @div class: 'section-heading icon icon-keyboard', 'Keybindings'
