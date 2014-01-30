@@ -117,4 +117,4 @@ class ThemesPanel extends View
         for theme in themes
           @themeRow.append(new AvailablePackageView(theme, @packageManager))
       else
-        @emptyMessage.show()
+        @emptyMessage.show() unless error?

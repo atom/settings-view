@@ -35,4 +35,4 @@ class PackagesPanel extends View
             @packageContainer.append(packageRow)
           packageRow.append(new AvailablePackageView(pack, @packageManager))
       else
-        @emptyMessage.show()
+        @emptyMessage.show() unless error?
