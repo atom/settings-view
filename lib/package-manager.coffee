@@ -16,11 +16,12 @@ class PackageManager
     exit = (code) ->
       callback(code, outputLines.join('\n'), errorLines.join('\n'))
 
+    args.push('--no-color')
     new BufferedNodeProcess({command, args, stdout, stderr, exit})
 
   getAvailable: (callback) ->
     command = @apmCommand
-    args = ['available', '--json', '--no-color']
+    args = ['available', '--json']
     exit = (code, stdout, stderr) =>
       if code is 0
         try
@@ -46,7 +47,7 @@ class PackageManager
     atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
 
     command = @apmCommand
-    args = ['install', "#{name}@#{version}", '--no-color']
+    args = ['install', "#{name}@#{version}"]
     exit = (code, stdout, stderr) =>
       if code is 0
         if activateOnSuccess
@@ -73,7 +74,7 @@ class PackageManager
     atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
 
     command = @apmCommand
-    args = ['uninstall', name, '--no-color']
+    args = ['uninstall', name]
     exit = (code, stdout, stderr) ->
       if code is 0
         atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
