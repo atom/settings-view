@@ -4,9 +4,9 @@ path = require 'path'
 CSON = require 'season'
 
 PackageManager = require '../lib/package-manager'
-ThemePanel = require '../lib/theme-panel'
+ThemesPanel = require '../lib/themes-panel'
 
-describe "ThemePanel", ->
+describe "ThemesPanel", ->
   [panel, packageManager] = []
 
   beforeEach ->

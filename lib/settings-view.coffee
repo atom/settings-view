@@ -6,7 +6,7 @@ CSON = require 'season'
 {$, $$, ScrollView} = require 'atom'
 
 GeneralPanel = require './general-panel'
-ThemePanel = require './theme-panel'
+ThemesPanel = require './themes-panel'
 PackageManager = require './package-manager'
 InstalledPackageView = require './installed-package-view'
 PackagesPanel = require './packages-panel'
@@ -44,7 +44,7 @@ class SettingsView extends ScrollView
     @addPanel('General Settings', 'settings', new GeneralPanel)
     @addPanel('Keybindings', 'keyboard', new KeybindingPanel)
     @addPanel('Packages', 'package', new PackagesPanel(@packageManager))
-    @addPanel('Themes', 'paintcan', new ThemePanel(@packageManager))
+    @addPanel('Themes', 'paintcan', new ThemesPanel(@packageManager))
 
     packages = atom.packages.getLoadedPackages()
     # Include disabled packages so they can be re-enabled from the UI

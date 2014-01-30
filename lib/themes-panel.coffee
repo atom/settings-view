@@ -5,7 +5,7 @@ PackageManager = require './package-manager'
 AvailablePackageView = require './available-package-view'
 
 module.exports =
-class ThemePanel extends View
+class ThemesPanel extends View
   @content: ->
     @div =>
       @div class: 'section packages', =>
