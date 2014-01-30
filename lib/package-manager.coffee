@@ -43,7 +43,7 @@ class PackageManager
     exit = (code, stdout, stderr) =>
       if code is 0
         try
-          packages = JSON.parse(outputLines.join('\n')) ? []
+          packages = JSON.parse(stdout) ? []
         catch error
           callback(error)
           return
