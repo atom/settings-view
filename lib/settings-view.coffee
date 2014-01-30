@@ -20,7 +20,7 @@ class SettingsView extends ScrollView
         @div class: 'atom-banner'
         @ul class: 'panels-menu nav nav-pills nav-stacked', outlet: 'panelMenu'
         @div class: 'button-area', =>
-          @button 'Open ~/.atom', class: 'btn btn-default icon icon-link-external', outlet: 'openDotAtom'
+          @button class: 'btn btn-default icon icon-link-external', outlet: 'openDotAtom', 'Open ~/.atom'
       @div class: 'panels padded', outlet: 'panels'
 
   initialize: ({@uri, @activePanelName}={}) ->
