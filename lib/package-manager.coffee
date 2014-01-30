@@ -61,6 +61,10 @@ class PackageManager
         error = new Error("Installing '#{name}' failed.")
         error.stdout = stdout
         error.stderr = stderr
+        if theme
+          @emit 'theme-install-failed', pack, error
+        else
+          @emit 'package-install-failed', pack, error
         callback(error)
 
     @runCommand(args, exit)
@@ -82,6 +86,10 @@ class PackageManager
         error = new Error("Uninstalling '#{name}' failed.")
         error.stdout = stdout
         error.stderr = stderr
+        if theme
+          @emit 'theme-uninstall-failed', pack, error
+        else
+          @emit 'package-uninstall-failed', pack, error
         callback(error)
 
     @runCommand(args, exit)

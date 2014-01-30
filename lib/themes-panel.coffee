@@ -39,6 +39,9 @@ class ThemesPanel extends View
           @div outlet: 'themeRow', class: 'row'
 
   initialize: (@packageManager) ->
+    @subscribe @packageManager, 'theme-install-failed', (pack, error) =>
+      @errors.append(new ErrorView(error))
+
     @openUserStysheet.on 'click', =>
       atom.workspaceView.trigger('application:open-your-stylesheet')
       false

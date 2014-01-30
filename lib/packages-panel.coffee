@@ -17,6 +17,9 @@ class PackagesPanel extends View
         @div outlet: 'packageContainer', class: 'container package-container', ->
 
   initialize: (@packageManager) ->
+    @subscribe @packageManager, 'package-install-failed', (pack, error) =>
+      @errors.append(new ErrorView(error))
+
     @loadAvailablePackages()
 
   # Load and display the packages that are available to install.
