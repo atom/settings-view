@@ -92,17 +92,17 @@ class SettingsView extends ScrollView
     @panelMenu.append(panelItem)
     panel.hide()
     @panelsByName[name] = panel
-    @panels.append(panel)
     @showPanel(name) if @getPanelCount() is 1 or @panelToShow is name
 
   getPanelCount: ->
     _.values(@panelsByName).length
 
   showPanel: (name) ->
-    if @panelsByName?[name]
+    if panel = @panelsByName?[name]
       @panels.children().hide()
       @panelMenu.children('.active').removeClass('active')
-      @panelsByName[name].show()
+      @panels.append(panel) unless $.contains(@panels[0], panel[0])
+      panel.show()
       for editorElement in @panelsByName[name].find(".editor")
         $(editorElement).view().redraw()
       @panelMenu.children("[name='#{name}']").addClass('active')

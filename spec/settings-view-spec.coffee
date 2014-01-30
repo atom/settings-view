@@ -43,7 +43,7 @@ describe "SettingsView", ->
       expect(settingsView.panelMenu.children('.active').length).toBe 1
       expect(settingsView.panelMenu.find('li:contains(Panel 1)')).toHaveClass('active')
       expect(settingsView.panels.find('#panel-1')).toBeVisible()
-      expect(settingsView.panels.find('#panel-2')).toBeHidden()
+      expect(settingsView.panels.find('#panel-2')).not.toExist()
       settingsView.panelMenu.find('li a:contains(Panel 2)').click()
       expect(settingsView.panelMenu.children('.active').length).toBe 1
       expect(settingsView.panelMenu.find('li:contains(Panel 2)')).toHaveClass('active')
