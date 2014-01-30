@@ -1,97 +1,95 @@
 {BufferedNodeProcess} = require 'atom'
-roaster = require 'roaster'
-async = require 'async'
+{Emitter} = require 'emissary'
 
-apmCommand = atom.packages.getApmPath()
+module.exports =
+class PackageManager
+  Emitter.includeInto(this)
 
-renderMarkdownInMetadata = (packages, callback) ->
-  queue = async.queue (pack, callback) ->
-    operations = []
-    if pack.description
-      operations.push (callback) ->
-        roaster pack.description, {}, (error, html) ->
-          pack.descriptionHtml = html
-          callback()
-    if pack.readme
-      operations.push (callback) ->
-        roaster pack.readme, {}, (error, html) ->
-          pack.readmeHtml = html
-          callback()
-    async.waterfall(operations, callback)
-  queue.push(pack) for pack in packages
-  queue.drain = callback
+  runCommand: (args, callback) ->
+    command = atom.packages.getApmPath()
+    outputLines = []
+    stdout = (lines) -> outputLines.push(lines)
+    errorLines = []
+    stderr = (lines) -> errorLines.push(lines)
+    exit = (code) ->
+      callback(code, outputLines.join('\n'), errorLines.join('\n'))
 
-getAvailable = (callback) ->
-  command = apmCommand
-  args = ['available', '--json', '--no-color']
-  outputLines = []
-  stdout = (lines) -> outputLines.push(lines)
-  errorLines = []
-  stderr = (lines) -> errorLines.push(lines)
-  exit = (code) ->
-    if code is 0
-      try
-        packages = JSON.parse(outputLines.join('\n')) ? []
-      catch error
-        callback(error)
-        return
+    args.push('--no-color')
+    new BufferedNodeProcess({command, args, stdout, stderr, exit})
 
-      if packages.length > 0
-        renderMarkdownInMetadata packages, -> callback(null, packages)
-      else
+  getAvailable: (callback) ->
+    args = ['available', '--json']
+    exit = (code, stdout, stderr) =>
+      if code is 0
+        try
+          packages = JSON.parse(stdout) ? []
+        catch error
+          callback(error)
+          return
+
         callback(null, packages)
-    else
-      error = new Error("apm failed with code: #{code}")
-      error.stdout = outputLines.join('\n')
-      error.stderr = errorLines.join('\n')
-      callback(error)
+      else
+        error = new Error("apm available failed with code: #{code}")
+        error.stdout = stdout
+        error.stderr = stderr
+        callback(error)
 
-  new BufferedNodeProcess({command, args, stdout, stderr, exit})
+    @runCommand(args, exit)
 
-install = ({name, version}, callback) ->
-  activateOnSuccess = !atom.packages.isPackageDisabled(name)
-  activateOnFailure = atom.packages.isPackageActive(name)
-  atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
-  atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
+  install: (pack, callback) ->
+    {name, version, theme} = pack
+    activateOnSuccess = not theme and not atom.packages.isPackageDisabled(name)
+    activateOnFailure = atom.packages.isPackageActive(name)
+    atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
+    atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
 
-  command = apmCommand
-  args = ['install', "#{name}@#{version}", '--no-color']
-  outputLines = []
-  stdout = (lines) -> outputLines.push(lines)
-  errorLines = []
-  stderr = (lines) -> errorLines.push(lines)
-  exit = (code) ->
-    if code is 0
-      atom.packages.activatePackage(name) if activateOnSuccess
-      callback()
-    else
-      atom.packages.activatePackage(name) if activateOnFailure
-      error = new Error("Installing '#{name}' failed.")
-      error.stdout = outputLines.join('\n')
-      error.stderr = errorLines.join('\n')
-      callback(error)
+    args = ['install', "#{name}@#{version}"]
+    exit = (code, stdout, stderr) =>
+      if code is 0
+        if activateOnSuccess
+          atom.packages.activatePackage(name)
+        else
+          atom.packages.loadPackage(name)
 
-  new BufferedNodeProcess({command, args, stdout, stderr, exit})
+        callback?()
+        if theme
+          @emit 'theme-installed', pack
+        else
+          @emit 'package-installed', pack
+      else
+        atom.packages.activatePackage(name) if activateOnFailure
+        error = new Error("Installing '#{name}' failed.")
+        error.stdout = stdout
+        error.stderr = stderr
+        if theme
+          @emit 'theme-install-failed', pack, error
+        else
+          @emit 'package-install-failed', pack, error
+        callback(error)
 
-uninstall = ({name}, callback) ->
-  atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
+    @runCommand(args, exit)
 
-  command = apmCommand
-  args = ['uninstall', name, '--no-color']
-  outputLines = []
-  stdout = (lines) -> outputLines.push(lines)
-  errorLines = []
-  stderr = (lines) -> errorLines.push(lines)
-  exit = (code) ->
-    if code is 0
-      atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
-      callback()
-    else
-      error = new Error("Uninstalling '#{name}' failed.")
-      error.stdout = outputLines.join('\n')
-      error.stderr = errorLines.join('\n')
-      callback(error)
+  uninstall: (pack, callback) ->
+    {name, theme} = pack
+    atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
 
-  new BufferedNodeProcess({command, args, stdout, stderr, exit})
+    args = ['uninstall', name]
+    exit = (code, stdout, stderr) =>
+      if code is 0
+        atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
+        callback?()
+        if theme
+          @emit 'theme-uninstalled', pack
+        else
+          @emit 'package-uninstalled', pack
+      else
+        error = new Error("Uninstalling '#{name}' failed.")
+        error.stdout = stdout
+        error.stderr = stderr
+        if theme
+          @emit 'theme-uninstall-failed', pack, error
+        else
+          @emit 'package-uninstall-failed', pack, error
+        callback(error)
 
-module.exports = {renderMarkdownInMetadata, install, uninstall, getAvailable}
+    @runCommand(args, exit)

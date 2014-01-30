@@ -5,12 +5,12 @@
   "description": "GUI pane for Atom settings",
   "private": true,
   "dependencies": {
-    "jqueryui-browser": "~1.10.2-1",
-    "roaster": "~0.1.0",
     "async": "~0.2.9",
-    "semver": "~1.1.4",
     "emissary": "1.x",
-    "fuzzaldrin": "~0.5.0"
+    "fuzzaldrin": "~0.5.0",
+    "fs-plus": "1.x",
+    "underscore-plus": "1.x",
+    "season": "~0.14.0"
   },
   "repository": "https://github.com/atom/settings-view",
   "engines": {

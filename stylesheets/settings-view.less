@@ -1,99 +1,209 @@
 @import "octicon-mixins";
 @import "ui-variables";
 
-#settings-view {
-  @menu-width: 150px;
+@text-color: #333;
+@text-color-subtle: #666;
 
+.settings-view {
   display: -webkit-flex;
 
-  #config-menu {
-    display: -webkit-flex;
-    -webkit-flex-direction: column;
-    padding-left: @component-padding;
-    padding-top: @component-padding;
-    padding-bottom: @component-padding;
+  .btn-default,
+  .btn-group > .btn-default {
+    background: #fff;
+    color: @text-color;
+    border: 1px solid #ccc;
 
-    #panels-menu {
-      width: @menu-width;
-      -webkit-flex-grow: 1;
-    }
-
-    #open-dot-atom {
-      width: @menu-width;
+    &:hover {
+      color: @text-color;
+      background: #ddd;
     }
   }
 
-  #panels {
+  .btn {
+    box-shadow: none;
+  }
+
+  .text {
+    color: @text-color;
+  }
+
+  .text-subtle {
+    color: @text-color-subtle;
+  }
+
+  .error-message {
+    .alert {
+      margin-bottom: 0;
+    }
+
+    .error-details {
+      background: #F7F7F9;
+      border: 1px solid #E1E1E8;
+    }
+  }
+
+  .editor-container {
+    margin-bottom: @component-padding;
+
+    .editor.mini,
+    .editor.mini.is-focused {
+      color: @text-color;
+      background-color: #fff;
+
+      .cursor {
+        border-color: #000;
+      }
+
+      .selection .region {
+        background-color: rgba(0, 0, 0, .2);
+      }
+    }
+  }
+
+  section .section-heading:first-child,
+  .section .section-heading:first-child {
+    padding-top: @component-padding;
+    padding-bottom: @component-padding;
+    border-bottom: 1px solid #858585;
+    color: #262626;
+  }
+
+  .link {
+    color: #428bca;
+
+    &:hover, &:focus {
+      color: #2a6496;
+    }
+  }
+
+  .config-menu {
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+    box-shadow: -1px 0px 1px -1px #aeaeae inset;
+    background-color: #e7e7e7;
+
+    .atom-banner {
+      margin-left: 20px;
+      margin-right: 20px;
+      min-height: 86px;
+      background-size: contain;
+      background-position: center center;
+      background-image: url(atom://settings-view/images/atom.png);
+      background-repeat: no-repeat;
+    }
+
+    .panels-menu {
+      -webkit-flex-grow: 1;
+      overflow: auto;
+      height: 0;
+
+      .panel-menu-separator {
+        border-bottom: 1px solid #ccc;
+        margin: @component-padding;
+      }
+    }
+
+    .button-area {
+      margin: @component-padding auto;
+    }
+
+    .nav > li > a {
+      border-radius: 0;
+      color: #434343;
+    }
+
+    .nav > li.active > a {
+      background-color: #3c76dd;
+      color: #f0f0f0;
+    }
+  }
+
+  .panels {
     -webkit-flex: 1;
     -webkit-flex-flow: column;
     display: -webkit-flex;
     position: relative;
     overflow-y: auto;
+    padding-left: @component-padding*2;
+    background-color: #f2f2f2;
 
     > div {
       -webkit-flex: 1;
     }
   }
 
-  #general-panel {
-    section:last-child {
-      padding-bottom: @component-padding;
+  .settings-panel {
+    .section-body {
+      padding-top: @component-padding/2;
+      padding-left: @component-padding;
+    }
+
+    label {
+      color: @text-color;
+    }
+
+    padding-bottom: @component-padding;
+  }
+
+  .installed-package-view {
+    .package-keymap-table {
+      padding-top: @component-padding;
+      padding-left: @component-padding;
     }
   }
 
-  #themes-config {
+  .packages {
     height: 100%;
     display: -webkit-flex;
     -webkit-flex-flow: column;
 
-    #theme-picker {
-      -webkit-flex: 1;
-      display: -webkit-flex;
-      min-height: 0;
-
-      .panel {
-        -webkit-flex: 1;
-        display: -webkit-flex;
-        -webkit-flex-flow: column;
-        min-height: 0;
-        &:first-child { margin-right: @component-padding / 2; }
-        &:last-child { margin-left: @component-padding / 2; }
-
-        .panel-heading {
-          border-radius: @component-border-radius @component-border-radius 0 0;
-        }
-
-        ol {
-          margin-top: 0;
-          -webkit-flex: 1;
-          min-height: 0;
-          overflow: auto;
-
-          li {
-            -webkit-user-select: none;
-            cursor: default;
-          }
-        }
-      }
-
-      a.disable-theme { display: none; }
-      #enabled-themes {
-        li:hover {
-          a.disable-theme { display: block; }
-        }
-      }
+    .themes-label {
+      min-width: 110px;
+      float: left;
+      font-weight: bold;
     }
 
-    li.ui-draggable-dragging, li.ui-sortable-helper {
-      a.disable-theme { display: none !important; }
+    .theme-chooser {
+      padding-top: @component-padding*2;
     }
-  }
 
-  #packages {
-    white-space: nowrap;
-    .package-enabled {
-      width: 30px;
-      text-align: center;
+    .theme-description {
+      margin-top: 5px;
+      padding-bottom: @component-padding;
+    }
+
+    .package-container {
+      padding-top: @component-padding;
+    }
+
+    .available-package-view {
+      .thumbnail {
+        height: 150px;
+      }
+
+      .description {
+        min-height: 40px;
+        max-height: 40px;
+        overflow: hidden;
+      }
+
+      .package-status {
+        position: absolute;
+        right: 15px;
+        top: 5px;
+
+        &.icon-cloud-download {
+          color: #428bca;
+        }
+
+        &.icon-check {
+          color: #6CC644;
+        }
+
+        &.icon-alert {
+          color: #BD2C00;
+        }
+      }
     }
   }
 
@@ -123,7 +233,7 @@
     margin: @component-padding 0 @component-padding 0;
   }
 
-  .package-panel {
+  .packages-panel {
     .nav {
       .badge {
         margin-left: @component-icon-padding;
@@ -131,32 +241,31 @@
     }
   }
 
-  .keybinding-panel {
-    label {
-      float: left;
-      padding-top: 4px;
-      padding-right: 10px;
+  .copy-icon {
+    cursor: pointer;
+
+    &:hover {
+      color: #2a6496;
     }
+  }
+
+  .keybinding-panel {
+    .section-heading {
+      margin-bottom: @component-padding;
+    }
+
     table {
       width: 100%;
       table-layout: fixed;
     }
     th {
-      height: 34px;
-
-      font-weight: normal;
-
-      border-top: 1px solid fadein(@background-color-highlight, 10%);
       padding: @component-padding - 2px @component-padding;
       padding-left: 0;
-
-      background-color: transparent;
-      background-image: -webkit-linear-gradient(@panel-heading-background-color, darken(@panel-heading-background-color, 10%));
     }
     td {
       height: @component-line-height;
     }
-    td,th {
+    td, th {
       padding-left: 1%;
       padding-right: 1%;
       white-space: nowrap;
@@ -173,9 +282,6 @@
     }
     col.selector {
       width: (35%  - 2%);
-    }
-    td.keystroke, td.command, td.source {
-      border-right: solid 1px @base-border-color;
     }
   }
 }

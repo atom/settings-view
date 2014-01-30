@@ -1,5 +1,3 @@
-{_} = require 'atom'
-
 SettingsView = null
 settingsView = null
 

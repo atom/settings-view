@@ -1,28 +1,56 @@
+path = require 'path'
+
+_ = require 'underscore-plus'
 async = require 'async'
-{_, $, $$, ScrollView} = require 'atom'
+CSON = require 'season'
+{$, $$, ScrollView} = require 'atom'
 
 GeneralPanel = require './general-panel'
-ThemePanel = require './theme-panel'
-PackagePanel = require './package-panel'
-KeybindingPanel = require './keybinding-panel'
-
-###
-# Internal #
-###
+ThemesPanel = require './themes-panel'
+PackageManager = require './package-manager'
+InstalledPackageView = require './installed-package-view'
+PackagesPanel = require './packages-panel'
+KeybindingsPanel = require './keybindings-panel'
 
 module.exports =
 class SettingsView extends ScrollView
   @content: ->
-    @div id: 'settings-view', class: 'pane-item', tabindex: -1, =>
-      @div id: 'config-menu', =>
-        @ul id: 'panels-menu', class: 'nav nav-pills nav-stacked', outlet: 'panelMenu'
-        @button "Open ~/.atom", id: 'open-dot-atom', class: 'btn btn-default btn-small'
-      @div id: 'panels', class: 'padded', outlet: 'panels'
+    @div class: 'settings-view pane-item', tabindex: -1, =>
+      @div class: 'config-menu', =>
+        @div class: 'atom-banner'
+        @ul class: 'panels-menu nav nav-pills nav-stacked', outlet: 'panelMenu'
+        @div class: 'button-area', =>
+          @button class: 'btn btn-default icon icon-link-external', outlet: 'openDotAtom', 'Open ~/.atom'
+      @div class: 'panels padded', outlet: 'panels'
 
   initialize: ({@uri, @activePanelName}={}) ->
     super
+    @packageManager = new PackageManager()
+    @handlePackageEvents()
+
     @panelToShow = null
-    window.setTimeout (=> @activatePackages => @initializePanels()), 1
+    process.nextTick => @activatePackages => @initializePanels()
+
+  handlePackageEvents: ->
+    @subscribe @packageManager, 'package-installed theme-installed', ({name}) =>
+      if pack = atom.packages.getLoadedPackage(name)
+        title = @getPackageTitle(pack)
+        @addPackagePanel(pack)
+
+        # Move added package menu item to properly sorted location
+        for panelMenuItem in @panelMenu.children('[type=package]')
+          compare = title.localeCompare($(panelMenuItem).text())
+          if compare > 0
+            beforeElement = panelMenuItem
+          else if compare is 0
+            addedPackageElement = panelMenuItem
+
+        if beforeElement? and addedPackageElement?
+          $(addedPackageElement).insertAfter(beforeElement)
+
+    @subscribe @packageManager, 'package-uninstalled theme-uninstalled', ({name}) =>
+      @removePanel(name)
+      @showPanel('Packages') if name is @activePanelName
 
   initializePanels: ->
     return if @panels.size > 0
@@ -30,16 +58,18 @@ class SettingsView extends ScrollView
     activePanelName = @panelToShow ? @activePanelName
 
     @panelsByName = {}
-    @on 'click', '#panels-menu li a', (e) =>
+    @on 'click', '.panels-menu li a', (e) =>
       @showPanel($(e.target).closest('li').attr('name'))
 
-    @on 'click', '#open-dot-atom', ->
+    @openDotAtom.on 'click', ->
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
 
-    @addPanel('General', new GeneralPanel)
-    @addPanel('Keybindings', new KeybindingPanel)
-    @addPanel('Themes', new ThemePanel)
-    @addPanel('Packages', new PackagePanel)
+    @addCorePanel('General Settings', 'settings', new GeneralPanel)
+    @addCorePanel('Keybindings', 'keyboard', new KeybindingsPanel)
+    @addCorePanel('Packages', 'package', new PackagesPanel(@packageManager))
+    @addCorePanel('Themes', 'paintcan', new ThemesPanel(@packageManager))
+    @addPanelMenuSeparator()
+    @addPackagePanel(pack) for pack in @getPackages()
 
     @showPanel(activePanelName) if activePanelName
 
@@ -48,29 +78,72 @@ class SettingsView extends ScrollView
     version: 2
     activePanelName: @activePanelName
 
-  addPanel: (name, panel) ->
-    panelItem = $$ -> @li name: name, => @a name
-    @panelMenu.append(panelItem)
+  getPackages: ->
+    packages = atom.packages.getLoadedPackages()
+    # Include disabled packages so they can be re-enabled from the UI
+    for packageName in atom.config.get('core.disabledPackages') ? []
+      packagePath = atom.packages.resolvePackagePath(packageName)
+      if metadataPath = CSON.resolve(path.join(packagePath, 'package'))
+        try
+          metadata = CSON.readFileSync(metadataPath)
+          name = metadata?.name ? packageName
+          packages.push({name, metadata})
+
+    packages.sort (pack1, pack2) =>
+      @getPackageTitle(pack1).localeCompare(@getPackageTitle(pack2))
+
+  getPackageTitle: ({name}) ->
+    _.undasherize(_.uncamelcase(name))
+
+  addPanelMenuSeparator: ->
+    @panelMenu.append $$ ->
+      @div class: 'panel-menu-separator'
+
+  addCorePanel: (name, iconName, panel) ->
+    panelMenuItem = $$ ->
+      @li name: name, =>
+        @a class: "icon icon-#{iconName}", name
+    @addPanel(name, panelMenuItem, panel)
+
+  addPackagePanel: (pack) ->
+    panel = new InstalledPackageView(pack, @packageManager)
+    title = @getPackageTitle(pack)
+    panelMenuItem = $$ ->
+      @li name: pack.name, type: 'package', =>
+        @a title
+    @addPanel(pack.name, panelMenuItem, panel)
+
+  addPanel: (name, panelMenuItem, panel) ->
+    @panelMenu.append(panelMenuItem)
     panel.hide()
     @panelsByName[name] = panel
-    @panels.append(panel)
     @showPanel(name) if @getPanelCount() is 1 or @panelToShow is name
 
   getPanelCount: ->
     _.values(@panelsByName).length
 
+  makePanelMenuActive: (name) ->
+    @panelMenu.children('.active').removeClass('active')
+    @panelMenu.children("[name='#{name}']").addClass('active')
+
   showPanel: (name) ->
-    if @panelsByName?[name]
+    if panel = @panelsByName?[name]
       @panels.children().hide()
       @panelMenu.children('.active').removeClass('active')
-      @panelsByName[name].show()
+      @panels.append(panel) unless $.contains(@panels[0], panel[0])
+      panel.show()
       for editorElement in @panelsByName[name].find(".editor")
         $(editorElement).view().redraw()
-      @panelMenu.children("[name='#{name}']").addClass('active')
+      @makePanelMenuActive(name)
       @activePanelName = name
       @panelToShow = null
     else
       @panelToShow = name
+
+  removePanel: (name) ->
+    if panel = @panelsByName?[name]
+      panel.remove()
+      @panelMenu.find("li[name=\"#{name}\"]").remove()
 
   getTitle: ->
     "Settings"
