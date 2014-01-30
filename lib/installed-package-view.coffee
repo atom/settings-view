@@ -9,9 +9,9 @@ PackageKeymapView = require './package-keymap-view'
 SettingsPanel = require './settings-panel'
 
 module.exports =
-class PackagePanel extends View
+class InstalledPackageView extends View
   @content: ->
-    @form class: 'package-panel', =>
+    @form class: 'installed-package-view', =>
       @h3 =>
         @span outlet: 'title', class: 'title'
         @span ' '

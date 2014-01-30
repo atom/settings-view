@@ -8,7 +8,7 @@ CSON = require 'season'
 GeneralPanel = require './general-panel'
 ThemePanel = require './theme-panel'
 PackageManager = require './package-manager'
-PackagePanel = require './package-panel'
+InstalledPackageView = require './installed-package-view'
 PackagesPanel = require './packages-panel'
 KeybindingPanel = require './keybinding-panel'
 
@@ -64,7 +64,7 @@ class SettingsView extends ScrollView
     @addPanelMenuSeparator()
 
     for pack in packages
-      @addPanel(_.undasherize(_.uncamelcase(pack.name)), new PackagePanel(pack))
+      @addPanel(_.undasherize(_.uncamelcase(pack.name)), new InstalledPackageView(pack))
 
     @showPanel(activePanelName) if activePanelName
 
