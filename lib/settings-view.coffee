@@ -26,8 +26,19 @@ class SettingsView extends ScrollView
   initialize: ({@uri, @activePanelName}={}) ->
     super
     @packageManager = new PackageManager()
+    @handlePackageEvents()
+
     @panelToShow = null
     process.nextTick => @activatePackages => @initializePanels()
+
+  handlePackageEvents: ->
+    @subscribe @packageManager, 'package-installed theme-installed', ({name}) =>
+      if pack = atom.packages.getLoadedPackage(name)
+        @addPanel(name, new InstalledPackageView(pack, @packageManager))
+
+    @subscribe @packageManager, 'package-uninstalled theme-uninstalled', ({name}) =>
+      @removePanel(name)
+      @showPanel('Packages') if name is @activePanelName
 
   initializePanels: ->
     return if @panels.size > 0
@@ -64,8 +75,7 @@ class SettingsView extends ScrollView
     @addPanelMenuSeparator()
 
     for pack in packages
-      title = _.undasherize(_.uncamelcase(pack.name))
-      @addPanel(title, new InstalledPackageView(pack, @packageManager))
+      @addPanel(pack.name, new InstalledPackageView(pack, @packageManager))
 
     @showPanel(activePanelName) if activePanelName
 
@@ -83,12 +93,13 @@ class SettingsView extends ScrollView
       panel = iconName
       iconName = null
 
+    label = _.undasherize(_.uncamelcase(name))
     panelItem = $$ ->
       @li name: name, =>
         if iconName
-          @a class: "icon icon-#{iconName}", name
+          @a class: "icon icon-#{iconName}", label
         else
-          @a name
+          @a label
 
     @panelMenu.append(panelItem)
     panel.hide()
@@ -111,6 +122,11 @@ class SettingsView extends ScrollView
       @panelToShow = null
     else
       @panelToShow = name
+
+  removePanel: (name) ->
+    if panel = @panelsByName?[name]
+      panel.remove()
+      @panelMenu.find("li[name=\"#{name}\"]").remove()
 
   getTitle: ->
     "Settings"
