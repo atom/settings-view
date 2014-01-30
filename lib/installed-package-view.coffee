@@ -5,6 +5,7 @@ fs = require 'fs-plus'
 shell = require 'shell'
 {View} = require 'atom'
 
+ErrorView = require './error-view'
 PackageKeymapView = require './package-keymap-view'
 SettingsPanel = require './settings-panel'
 
@@ -26,6 +27,7 @@ class InstalledPackageView extends View
         @button outlet: 'homepageButton', class: 'btn btn-default icon icon-home', 'Visit Homepage'
         @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
         @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'Open README'
+      @div outlet: 'errors'
 
   initialize: (@pack, @packageManager) ->
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")
@@ -55,6 +57,7 @@ class InstalledPackageView extends View
       @uninstallButton.prop('disabled', true)
       @packageManager.uninstall @pack, (error) =>
         if error?
+          @errors.append(new ErrorView(error))
           @uninstallButton.prop('disabled', false)
           console.error("Uninstalling #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
       false

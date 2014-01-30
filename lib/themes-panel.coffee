@@ -1,8 +1,10 @@
 _ = require 'underscore-plus'
 {$$, View} = require 'atom'
 
-PackageManager = require './package-manager'
+
 AvailablePackageView = require './available-package-view'
+ErrorView = require './error-view'
+PackageManager = require './package-manager'
 
 module.exports =
 class ThemesPanel extends View
@@ -32,6 +34,7 @@ class ThemesPanel extends View
         @div class: 'section-heading theme-heading icon icon-cloud-download', 'Install Themes'
         @div outlet: 'loadingMessage', class: 'padded text icon icon-hourglass', 'Loading themes\u2026'
         @div outlet: 'emptyMessage', class: 'padded text icon icon-heart', 'You have every theme installed already!'
+        @div outlet: 'errors'
         @div outlet: 'themeContainer', class: 'container package-container', =>
           @div outlet: 'themeRow', class: 'row'
 
@@ -113,8 +116,10 @@ class ThemesPanel extends View
         theme and not (name in installedThemes)
 
       @loadingMessage.hide()
-      if themes.length > 0
+      if error?
+        @errors.append(new ErrorView(error))
+      else if themes.length > 0
         for theme in themes
           @themeRow.append(new AvailablePackageView(theme, @packageManager))
       else
-        @emptyMessage.show() unless error?
+        @emptyMessage.show()

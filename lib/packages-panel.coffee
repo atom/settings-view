@@ -1,6 +1,7 @@
 _ = require 'underscore-plus'
 {$$, View} = require 'atom'
 
+ErrorView = require './error-view'
 PackageManager = require './package-manager'
 AvailablePackageView = require './available-package-view'
 
@@ -12,6 +13,7 @@ class PackagesPanel extends View
         @div class: 'section-heading theme-heading icon icon-cloud-download', 'Install Packages'
         @div outlet: 'loadingMessage', class: 'padded text icon icon-hourglass', 'Loading packages\u2026'
         @div outlet: 'emptyMessage', class: 'padded text icon icon-heart', 'You have every package installed already!'
+        @div outlet: 'errors'
         @div outlet: 'packageContainer', class: 'container package-container', ->
 
   initialize: (@packageManager) ->
@@ -28,11 +30,13 @@ class PackagesPanel extends View
         not theme and not (name in installedPackages)
 
       @loadingMessage.hide()
-      if packages.length > 0
+      if error?
+        @errors.append(new ErrorView(error))
+      else if packages.length > 0
         for pack,index in packages
           if index % 4 is 0
             packageRow = $$ -> @div class: 'row'
             @packageContainer.append(packageRow)
           packageRow.append(new AvailablePackageView(pack, @packageManager))
       else
-        @emptyMessage.show() unless error?
+        @emptyMessage.show()
