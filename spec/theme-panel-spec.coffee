@@ -25,6 +25,7 @@ describe "ThemePanel", ->
     panel = new ThemePanel(packageManager)
 
   afterEach ->
+    atom.packages.unloadPackage('a-theme') if atom.packages.isPackageLoaded('a-theme')
     atom.themes.deactivateThemes()
 
   it "selects the active syntax and UI themes", ->
