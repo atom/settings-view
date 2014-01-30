@@ -1,5 +1,6 @@
-SettingsView = require '../lib/settings-view'
+path = require 'path'
 {$$} = require 'atom'
+SettingsView = require '../lib/settings-view'
 
 describe "SettingsView", ->
   settingsView = null
@@ -49,3 +50,18 @@ describe "SettingsView", ->
       expect(settingsView.panelMenu.find('li:contains(Panel 2)')).toHaveClass('active')
       expect(settingsView.panels.find('#panel-1')).toBeHidden()
       expect(settingsView.panels.find('#panel-2')).toBeVisible()
+
+  describe ".addPackagePanel(package)", ->
+    it "adds a menu entry to the left and a panel that can be activated by clicking it", ->
+      pack = atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'a-theme'))
+
+      settingsView.addPackagePanel(pack)
+      expect(settingsView.panelMenu.find('li a:contains(A Theme)')).toExist()
+
+      settingsView.attachToDom()
+      expect(settingsView.panels.find('.installed-package-view')).not.toExist()
+
+      settingsView.panelMenu.find('li a:contains(A Theme)').click()
+      expect(settingsView.panelMenu.children('.active').length).toBe 1
+      expect(settingsView.panelMenu.find('li:contains(A Theme)')).toHaveClass('active')
+      expect(settingsView.panels.find('.installed-package-view')).toBeVisible()
