@@ -66,7 +66,7 @@ describe "ThemesPanel", ->
 
       themeView = null
       waitsFor ->
-        themeView = panel.find('.package-view').view()
+        themeView = panel.find('.available-package-view').view()
         themeView?
 
       runs ->
@@ -88,7 +88,7 @@ describe "ThemesPanel", ->
 
       themeView = null
       waitsFor ->
-        themeView = panel.find('.package-view').view()
+        themeView = panel.find('.available-package-view').view()
         themeView?
 
       runs ->
