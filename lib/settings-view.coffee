@@ -62,7 +62,7 @@ class SettingsView extends ScrollView
 
     @addPanelMenuSeparator()
 
-    for pack in packages when not pack.metadata.theme
+    for pack in packages
       @addPanel(_.undasherize(_.uncamelcase(pack.name)), new PackagePanel(pack))
 
     @showPanel(activePanelName) if activePanelName

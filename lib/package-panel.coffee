@@ -29,9 +29,11 @@ class PackagePanel extends View
   initialize: (@pack) ->
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")
     if @pack.activateTime? and @pack.loadTime?
-      @startupTime.text("This package added #{@pack.activateTime + @pack.loadTime}ms to startup time.")
+      type = if @pack.metadata.theme then 'theme' else 'package'
+      @startupTime.text("This #{type} added #{@pack.activateTime + @pack.loadTime}ms to startup time.")
     @description.text(@pack.metadata.description)
     @version.text(@pack.metadata.version)
+    @disableButton.hide() if @pack.metadata.theme
     @append(new SettingsPanel(@pack.name, {includeTitle: false}))
     @append(new PackageKeymapView(@pack.name))
     @handleButtonEvents()
