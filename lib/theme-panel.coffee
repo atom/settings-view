@@ -38,20 +38,13 @@ class ThemeConfigPanel extends View
       atom.workspaceView.trigger('application:open-your-stylesheet')
       false
 
+    @subscribe @packageManager, 'theme-installed', =>
+      @populateThemeMenus()
+
     @observeConfig 'core.themes', =>
       @activeUiTheme = @getActiveUiTheme()
       @activeSyntaxTheme = @getActiveSyntaxTheme()
-
-      @uiMenu.empty()
-      @syntaxMenu.empty()
-      for name in atom.themes.getAvailableNames()
-        themeItem = @createThemeMenuItem(name)
-        if /-ui/.test(name)
-          themeItem.prop('selected', true) if name is @activeUiTheme
-          @uiMenu.append(themeItem)
-        else
-          themeItem.prop('selected', true) if name is @activeSyntaxTheme
-          @syntaxMenu.append(themeItem)
+      @populateThemeMenus()
 
     @syntaxMenu.change =>
       @activeSyntaxTheme = @syntaxMenu.val()
@@ -62,6 +55,19 @@ class ThemeConfigPanel extends View
       @updateThemeConfig()
 
     @loadAvailableThemes()
+
+  # Populate the theme menus from the theme manager's active themes
+  populateThemeMenus: ->
+    @uiMenu.empty()
+    @syntaxMenu.empty()
+    for name in atom.themes.getAvailableNames().sort()
+      themeItem = @createThemeMenuItem(name)
+      if /-ui/.test(name)
+        themeItem.prop('selected', true) if name is @activeUiTheme
+        @uiMenu.append(themeItem)
+      else
+        themeItem.prop('selected', true) if name is @activeSyntaxTheme
+        @syntaxMenu.append(themeItem)
 
   # Get the name of the active ui theme.
   getActiveUiTheme: ->
