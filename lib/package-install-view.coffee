@@ -28,6 +28,7 @@ class PackageInstallView extends View
           console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
         else
           @setStatusIcon('check')
+          @installButton.text('Installed')
 
     @learnMoreButton.on 'click', =>
       shell.openExternal "https://www.atom.io/packages/#{@pack.name}"
