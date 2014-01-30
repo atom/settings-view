@@ -64,7 +64,8 @@ class SettingsView extends ScrollView
     @addPanelMenuSeparator()
 
     for pack in packages
-      @addPanel(_.undasherize(_.uncamelcase(pack.name)), new InstalledPackageView(pack))
+      title = _.undasherize(_.uncamelcase(pack.name))
+      @addPanel(title, new InstalledPackageView(pack, @packageManager))
 
     @showPanel(activePanelName) if activePanelName
 

@@ -70,7 +70,7 @@ class PackageManager
     atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
 
     args = ['uninstall', name]
-    exit = (code, stdout, stderr) ->
+    exit = (code, stdout, stderr) =>
       if code is 0
         atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
         callback?()
