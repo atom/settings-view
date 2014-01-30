@@ -1,9 +1,9 @@
 path = require 'path'
 
-{View} = require 'atom'
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
 shell = require 'shell'
+{View} = require 'atom'
 
 PackageKeymapView = require './package-keymap-view'
 SettingsPanel = require './settings-panel'
