@@ -68,7 +68,17 @@ class SettingsView extends ScrollView
     @addCorePanel('Keybindings', 'keyboard', new KeybindingsPanel)
     @addCorePanel('Packages', 'package', new PackagesPanel(@packageManager))
     @addCorePanel('Themes', 'paintcan', new ThemesPanel(@packageManager))
+    @addPanelMenuSeparator()
+    @addPackagePanel(pack) for pack in @getPackages()
 
+    @showPanel(activePanelName) if activePanelName
+
+  serialize: ->
+    deserializer: 'SettingsView'
+    version: 2
+    activePanelName: @activePanelName
+
+  getPackages: ->
     packages = atom.packages.getLoadedPackages()
     # Include disabled packages so they can be re-enabled from the UI
     for packageName in atom.config.get('core.disabledPackages') ? []
@@ -81,17 +91,6 @@ class SettingsView extends ScrollView
 
     packages.sort (pack1, pack2) =>
       @getPackageTitle(pack1).localeCompare(@getPackageTitle(pack2))
-
-    @addPanelMenuSeparator()
-
-    @addPackagePanel(pack) for pack in packages
-
-    @showPanel(activePanelName) if activePanelName
-
-  serialize: ->
-    deserializer: 'SettingsView'
-    version: 2
-    activePanelName: @activePanelName
 
   getPackageTitle: ({name}) ->
     _.undasherize(_.uncamelcase(name))
