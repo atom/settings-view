@@ -137,7 +137,7 @@
     }
   }
 
-  .themes {
+  .packages {
     height: 100%;
     display: -webkit-flex;
     -webkit-flex-flow: column;
@@ -162,12 +162,22 @@
       padding-bottom: @component-padding;
     }
 
-    .theme-container {
+    .package-container {
       padding-top: @component-padding;
     }
 
-    .theme-view {
-      .theme-status {
+    .package-view {
+      .thumbnail {
+        height: 150px;
+      }
+
+      p {
+        min-height: 40px;
+        max-height: 40px;
+        overflow: hidden;
+      }
+
+      .package-status {
         position: absolute;
         right: 15px;
         top: 5px;
@@ -184,14 +194,6 @@
           color: #BD2C00;
         }
       }
-    }
-  }
-
-  .packages {
-    white-space: nowrap;
-    .package-enabled {
-      width: 30px;
-      text-align: center;
     }
   }
 

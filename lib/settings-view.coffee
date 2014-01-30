@@ -43,6 +43,7 @@ class SettingsView extends ScrollView
 
     @addPanel('General Settings', new GeneralPanel)
     @addPanel('Keybindings', new KeybindingPanel)
+    @addPanel('Packages', new PackagesPanel(@packageManager))
     @addPanel('Themes', new ThemePanel(@packageManager))
 
     packages = atom.packages.getLoadedPackages()

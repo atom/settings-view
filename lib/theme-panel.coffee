@@ -2,13 +2,13 @@ _ = require 'underscore-plus'
 {$$, View} = require 'atom'
 
 PackageManager = require './package-manager'
-ThemeView = require './theme-view'
+PackageInstallView = require './package-install-view'
 
 module.exports =
 class ThemeConfigPanel extends View
   @content: ->
     @div =>
-      @div class: 'section themes', =>
+      @div class: 'section packages', =>
         @div class: 'section-heading theme-heading icon icon-device-desktop', 'Choose a Theme'
 
         @div class: 'text padded', =>
@@ -28,11 +28,11 @@ class ThemeConfigPanel extends View
               @select outlet: 'syntaxMenu', class: 'form-control'
               @div class: 'text theme-description', 'This styles the text inside the editor'
 
-      @div class: 'section themes', =>
+      @div class: 'section packages', =>
         @div class: 'section-heading theme-heading icon icon-cloud-download', 'Install Themes'
         @div outlet: 'loadingMessage', class: 'padded text icon icon-hourglass', 'Loading themes\u2026'
         @div outlet: 'emptyMessage', class: 'padded text icon icon-heart', 'You have every theme installed already!'
-        @div outlet: 'themeContainer', class: 'container theme-container', =>
+        @div outlet: 'themeContainer', class: 'container package-container', =>
           @div outlet: 'themeRow', class: 'row'
 
   initialize: (@packageManager) ->
@@ -115,6 +115,6 @@ class ThemeConfigPanel extends View
       @loadingMessage.hide()
       if themes.length > 0
         for theme in themes
-          @themeRow.append(new ThemeView(theme, @packageManager))
+          @themeRow.append(new PackageInstallView(theme, @packageManager))
       else
         @emptyMessage.show()

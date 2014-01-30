@@ -3,38 +3,43 @@ _ = require 'underscore-plus'
 shell = require 'shell'
 
 module.exports =
-class ThemeView extends View
+class PackageInstallView extends View
   @content: ({name, description}) ->
-    @div class: 'col-lg-3 theme-view', =>
+    @div class: 'col-lg-3 package-view', =>
       @div class: 'thumbnail text', =>
         @div class: 'caption', =>
-          @span outlet: 'status', class: 'theme-status icon'
+          @span outlet: 'status', class: 'package-status icon'
           @h4 _.undasherize(_.uncamelcase(name))
           @p description
           @div class: 'btn-toolbar', =>
             @button outlet: 'installButton', class: 'btn btn-primary', 'Install'
             @button outlet: 'learnMoreButton', class: 'btn btn-default', 'Learn More'
 
-  initialize: (@theme, @packageManager) ->
+  initialize: (@pack, @packageManager) ->
+    @type = if @pack.theme then 'theme' else 'package'
+
     @installButton.on 'click', =>
       @installButton.prop('disabled', true)
       @setStatusIcon('cloud-download')
-      @packageManager.install @theme, (error) =>
+      @packageManager.install @pack, (error) =>
         if error?
           @setStatusIcon('alert')
           @installButton.prop('disabled', false)
-          console.error("Installing theme #{@theme.name} failed", error.stack ? error)
+          console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
         else
           @setStatusIcon('check')
 
     @learnMoreButton.on 'click', =>
-      shell.openExternal "https://www.atom.io/packages/#{@theme.name}"
+      shell.openExternal "https://www.atom.io/packages/#{@pack.name}"
 
   setStatusIcon: (iconName) ->
     @status.removeClass('icon-check icon-alert icon-cloud-download')
     @status.addClass("icon-#{iconName}")
     @status.destroyTooltip()
     switch iconName
-      when 'check' then @status.setTooltip('Theme installed')
-      when 'alert' then @status.setTooltip('Theme failed to install')
-      when 'cloud-download' then @status.setTooltip('Theme installing')
+      when 'check'
+        @status.setTooltip(_.capitalize("#{@type} installed"))
+      when 'alert'
+        @status.setTooltip(_.capitalize("#{@type} failed to install"))
+      when 'cloud-download'
+        @status.setTooltip(_.capitalize("#{@type} installing"))
