@@ -1,6 +1,6 @@
+async = require 'async'
 {BufferedNodeProcess} = require 'atom'
 {Emitter} = require 'emissary'
-async = require 'async'
 
 module.exports =
 class PackageManager
@@ -69,7 +69,8 @@ class PackageManager
 
     @runCommand(command, args, exit)
 
-  uninstall: ({name}, callback) ->
+  uninstall: (pack, callback) ->
+    {name, theme} = pack
     atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
 
     command = @apmCommand
@@ -77,7 +78,11 @@ class PackageManager
     exit = (code, stdout, stderr) ->
       if code is 0
         atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
-        callback()
+        callback?()
+        if theme
+          @emit 'theme-uninstalled', pack
+        else
+          @emit 'package-uninstalled', pack
       else
         error = new Error("Uninstalling '#{name}' failed.")
         error.stdout = stdout
