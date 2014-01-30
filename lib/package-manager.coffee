@@ -5,10 +5,8 @@ module.exports =
 class PackageManager
   Emitter.includeInto(this)
 
-  constructor: ->
-    @apmCommand = atom.packages.getApmPath()
-
-  runCommand: (command, args, callback) ->
+  runCommand: (args, callback) ->
+    command = atom.packages.getApmPath()
     outputLines = []
     stdout = (lines) -> outputLines.push(lines)
     errorLines = []
@@ -20,7 +18,6 @@ class PackageManager
     new BufferedNodeProcess({command, args, stdout, stderr, exit})
 
   getAvailable: (callback) ->
-    command = @apmCommand
     args = ['available', '--json']
     exit = (code, stdout, stderr) =>
       if code is 0
@@ -37,7 +34,7 @@ class PackageManager
         error.stderr = stderr
         callback(error)
 
-    @runCommand(command, args, exit)
+    @runCommand(args, exit)
 
   install: (pack, callback) ->
     {name, version, theme} = pack
@@ -46,7 +43,6 @@ class PackageManager
     atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
     atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
 
-    command = @apmCommand
     args = ['install', "#{name}@#{version}"]
     exit = (code, stdout, stderr) =>
       if code is 0
@@ -67,13 +63,12 @@ class PackageManager
         error.stderr = stderr
         callback(error)
 
-    @runCommand(command, args, exit)
+    @runCommand(args, exit)
 
   uninstall: (pack, callback) ->
     {name, theme} = pack
     atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
 
-    command = @apmCommand
     args = ['uninstall', name]
     exit = (code, stdout, stderr) ->
       if code is 0
@@ -89,4 +84,4 @@ class PackageManager
         error.stderr = stderr
         callback(error)
 
-    @runCommand(command, args, exit)
+    @runCommand(args, exit)
