@@ -41,10 +41,10 @@ class SettingsView extends ScrollView
     @openDotAtom.on 'click', ->
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
 
-    @addPanel('General Settings', new GeneralPanel)
-    @addPanel('Keybindings', new KeybindingPanel)
-    @addPanel('Packages', new PackagesPanel(@packageManager))
-    @addPanel('Themes', new ThemePanel(@packageManager))
+    @addPanel('General Settings', 'settings', new GeneralPanel)
+    @addPanel('Keybindings', 'keyboard', new KeybindingPanel)
+    @addPanel('Packages', 'package', new PackagesPanel(@packageManager))
+    @addPanel('Themes', 'paintcan', new ThemePanel(@packageManager))
 
     packages = atom.packages.getLoadedPackages()
     # Include disabled packages so they can be re-enabled from the UI
@@ -77,8 +77,18 @@ class SettingsView extends ScrollView
     @panelMenu.append $$ ->
       @div class: 'panel-menu-separator'
 
-  addPanel: (name, panel) ->
-    panelItem = $$ -> @li name: name, => @a name
+  addPanel: (name, iconName, panel) ->
+    if arguments.length is 2
+      panel = iconName
+      iconName = null
+
+    panelItem = $$ ->
+      @li name: name, =>
+        if iconName
+          @a class: "icon icon-#{iconName}", name
+        else
+          @a name
+
     @panelMenu.append(panelItem)
     panel.hide()
     @panelsByName[name] = panel
