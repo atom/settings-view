@@ -2,7 +2,7 @@
   "name": "settings-view",
   "version": "0.63.0",
   "main": "./lib/index",
-  "description": "GUI pane for Atom settings",
+  "description": "Edit settings and install packages and themes in Atom",
   "private": true,
   "dependencies": {
     "async": "~0.2.9",
