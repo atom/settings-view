@@ -55,7 +55,7 @@ class PackageSnippetsView extends View
           @tr =>
             @td class: 'snippet-prefix', prefix
             @td name
-            @td class: 'snippet-body', rawBody
+            @td class: 'snippet-body', bodyText
 
       if @snippets.children().length > 0
         @show()
