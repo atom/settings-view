@@ -6,6 +6,7 @@ shell = require 'shell'
 {View} = require 'atom'
 
 ErrorView = require './error-view'
+PackageGrammarsView = require './package-grammars-view'
 PackageKeymapView = require './package-keymap-view'
 SettingsPanel = require './settings-panel'
 
@@ -41,6 +42,7 @@ class InstalledPackageView extends View
     @disableButton.hide() if @pack.metadata.theme
     @append(new SettingsPanel(@pack.name, {includeTitle: false}))
     @append(new PackageKeymapView(@pack.name))
+    @append(new PackageGrammarsView(@pack.path))
     @handleButtonEvents()
     @updateEnablement()
 
