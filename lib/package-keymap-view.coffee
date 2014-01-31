@@ -6,7 +6,7 @@ class PackageKeymapView extends View
   @content: ->
     @section =>
       @div class: 'section-heading icon icon-keyboard', 'Keybindings'
-      @table outlet: 'keymapTable', class: 'package-keymap-table table native-key-bindings text', tabindex: -1, =>
+      @table class: 'package-keymap-table table native-key-bindings text', tabindex: -1, =>
         @thead =>
           @tr =>
             @th 'Keystroke'
@@ -19,9 +19,9 @@ class PackageKeymapView extends View
       continue unless command.indexOf("#{namespace}:") is 0
 
       @keybindingItems.append $$$ ->
-        @tr class: 'package-keymap-item', =>
-          @td class: 'keystroke', keystroke
-          @td class: 'command', command
-          @td class: 'selector', selector
+        @tr =>
+          @td keystroke
+          @td command
+          @td selector
 
     @hide() unless @keybindingItems.children().length > 0
