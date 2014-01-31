@@ -1,4 +1,5 @@
 path = require 'path'
+{WorkspaceView} = require 'atom'
 InstalledPackageView = require '../lib/installed-package-view'
 PackageManager = require '../lib/package-manager'
 
@@ -19,3 +20,22 @@ describe "InstalledPackageView", ->
       expect(grammarTable.find('tr:eq(1) td:eq(0)').text()).toBe 'B Grammar'
       expect(grammarTable.find('tr:eq(1) td:eq(1)').text()).toBe ''
       expect(grammarTable.find('tr:eq(1) td:eq(2)').text()).toBe 'source.b'
+
+  it "displays the snippets registered by the package", ->
+    atom.workspaceView = new WorkspaceView()
+    atom.packages.activatePackage('snippets')
+    pack = atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+    view = new InstalledPackageView(pack, new PackageManager())
+    snippetsTable = view.find('.package-snippets-table tbody')
+
+    waitsFor ->
+      snippetsTable.children().length is 2
+
+    runs ->
+      expect(snippetsTable.find('tr:eq(0) td:eq(0)').text()).toBe 'b'
+      expect(snippetsTable.find('tr:eq(0) td:eq(1)').text()).toBe 'BAR'
+      expect(snippetsTable.find('tr:eq(0) td:eq(2)').text()).toBe 'bar?'
+
+      expect(snippetsTable.find('tr:eq(1) td:eq(0)').text()).toBe 'f'
+      expect(snippetsTable.find('tr:eq(1) td:eq(1)').text()).toBe 'FOO'
+      expect(snippetsTable.find('tr:eq(1) td:eq(2)').text()).toBe 'foo!'

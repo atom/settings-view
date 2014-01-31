@@ -151,9 +151,19 @@
 
   .installed-package-view {
     .package-keymap-table,
-    .package-grammars-table, {
+    .package-grammars-table,
+    .package-snippets-table {
       padding-top: @component-padding;
       padding-left: @component-padding;
+
+      td {
+        white-space: nowrap;
+      }
+
+      .snippet-body,
+      .snippet-prefix {
+        font-family: monospace;
+      }
     }
   }
 

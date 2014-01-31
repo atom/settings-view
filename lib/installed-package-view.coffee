@@ -8,6 +8,7 @@ shell = require 'shell'
 ErrorView = require './error-view'
 PackageGrammarsView = require './package-grammars-view'
 PackageKeymapView = require './package-keymap-view'
+PackageSnippetsView = require './package-snippets-view'
 SettingsPanel = require './settings-panel'
 
 module.exports =
@@ -43,6 +44,7 @@ class InstalledPackageView extends View
     @append(new SettingsPanel(@pack.name, {includeTitle: false}))
     @append(new PackageKeymapView(@pack.name))
     @append(new PackageGrammarsView(@pack.path))
+    @append(new PackageSnippetsView(@pack.path))
     @handleButtonEvents()
     @updateEnablement()
 

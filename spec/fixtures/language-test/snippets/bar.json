@@ -1,0 +1,6 @@
+{
+  "content": "bar?",
+  "name": "BAR",
+  "scope": "source.b",
+  "tabTrigger": "b"
+}
