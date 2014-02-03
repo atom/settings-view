@@ -25,7 +25,7 @@ describe "KeybindingsPanel", ->
       it "writes a CSON snippet to the clipboard", ->
         spyOn(atom.keymap, 'getUserKeymapPath').andReturn 'keymap.cson'
         panel.find('.copy-icon').click()
-        expect(atom.pasteboard.read()[0]).toBe """
+        expect(atom.clipboard.read()).toBe """
           '.editor':
             'ctrl-a': 'core:select-all'
         """
@@ -34,7 +34,7 @@ describe "KeybindingsPanel", ->
       it "writes a JSON snippet to the clipboard", ->
         spyOn(atom.keymap, 'getUserKeymapPath').andReturn 'keymap.json'
         panel.find('.copy-icon').click()
-        expect(atom.pasteboard.read()[0]).toBe """
+        expect(atom.clipboard.read()).toBe """
           ".editor": {
             "ctrl-a": "core:select-all"
           }

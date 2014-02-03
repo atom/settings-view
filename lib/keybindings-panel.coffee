@@ -89,7 +89,7 @@ class KeybindingsPanel extends View
           "#{keystroke}": "#{command}"
         }
       """
-    atom.pasteboard.write(content)
+    atom.clipboard.write(content)
 
   # Private: Returns a user friendly description of where a keybinding was
   # loaded from.
