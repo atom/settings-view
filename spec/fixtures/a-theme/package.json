@@ -1,5 +1,5 @@
 {
-  "theme": true,
+  "theme": "syntax",
   "name": "a-theme",
   "version": "1.0"
 }

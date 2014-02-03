@@ -68,25 +68,28 @@ class ThemesPanel extends View
   populateThemeMenus: ->
     @uiMenu.empty()
     @syntaxMenu.empty()
-    for name in atom.themes.getAvailableNames().sort()
-      themeItem = @createThemeMenuItem(name)
-      if /-ui/.test(name)
-        themeItem.prop('selected', true) if name is @activeUiTheme
-        @uiMenu.append(themeItem)
-      else
-        themeItem.prop('selected', true) if name is @activeSyntaxTheme
-        @syntaxMenu.append(themeItem)
+    availableThemes = _.sortBy(atom.themes.getLoadedThemes(), 'name')
+    for {name, metadata} in availableThemes
+      switch metadata.theme
+        when 'ui'
+          themeItem = @createThemeMenuItem(name)
+          themeItem.prop('selected', true) if name is @activeUiTheme
+          @uiMenu.append(themeItem)
+        when 'syntax'
+          themeItem = @createThemeMenuItem(name)
+          themeItem.prop('selected', true) if name is @activeSyntaxTheme
+          @syntaxMenu.append(themeItem)
 
   # Get the name of the active ui theme.
   getActiveUiTheme: ->
-    for name in atom.themes.getActiveNames()
-      return name if /-ui/.test(name)
+    for {name, metadata} in atom.themes.getActiveThemes()
+      return name if metadata.theme is 'ui'
     null
 
   # Get the name of the active syntax theme.
   getActiveSyntaxTheme: ->
-    for name in atom.themes.getActiveNames()
-      return name unless /-ui/.test(name)
+    for {name, metadata} in atom.themes.getActiveThemes()
+      return name if metadata.theme is 'syntax'
     null
 
   # Update the config with the selected themes
