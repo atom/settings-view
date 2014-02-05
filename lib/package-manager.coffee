@@ -29,7 +29,7 @@ class PackageManager
 
         callback(null, @packages)
       else
-        error = new Error("apm available failed with code: #{code}")
+        error = new Error('Fetching available packages and themes failed.')
         error.stdout = stdout
         error.stderr = stderr
         callback(error)
