@@ -17,6 +17,7 @@ class PackageSnippetsView extends View
 
   initialize: (packagePath) ->
     @packagePath = path.join(packagePath, path.sep)
+    @hide()
     @addSnippets()
 
   getSnippetProperties: ->
