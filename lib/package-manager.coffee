@@ -42,6 +42,40 @@ class PackageManager
     else
       Q.nbind(@loadAvailable, this)()
 
+  update: (pack, newVersion, callback) ->
+    {name, theme} = pack
+
+    activateOnSuccess = not theme and not atom.packages.isPackageDisabled(name)
+    activateOnFailure = atom.packages.isPackageActive(name)
+    atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
+    atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
+
+    args = ['install', "#{name}@#{newVersion}"]
+    exit = (code, stdout, stderr) =>
+      if code is 0
+        if activateOnSuccess
+          atom.packages.activatePackage(name)
+        else
+          atom.packages.loadPackage(name)
+
+        callback?()
+        if theme
+          @emit 'theme-updated', pack
+        else
+          @emit 'package-updated', pack
+      else
+        atom.packages.activatePackage(name) if activateOnFailure
+        error = new Error("Updating to '#{name}@#{newVersion}' failed.")
+        error.stdout = stdout
+        error.stderr = stderr
+        if theme
+          @emit 'theme-update-failed', pack, error
+        else
+          @emit 'package-update-failed', pack, error
+        callback(error)
+
+    @runCommand(args, exit)
+
   install: (pack, callback) ->
     {name, version, theme} = pack
     activateOnSuccess = not theme and not atom.packages.isPackageDisabled(name)

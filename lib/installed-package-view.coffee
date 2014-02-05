@@ -39,7 +39,15 @@ class InstalledPackageView extends View
 
       @div outlet: 'errors'
 
+      @div outlet: 'sections'
+
   initialize: (@pack, @packageManager) ->
+    @populate()
+    @handleButtonEvents()
+    @updateEnablement()
+    @checkForUpdate()
+
+  populate: ->
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")
     @uninstallButton.hide() if atom.packages.isBundledPackage(@pack.name)
 
@@ -49,13 +57,12 @@ class InstalledPackageView extends View
     @description.text(@pack.metadata.description)
     @version.text(@pack.metadata.version)
     @disableButton.hide() if @pack.metadata.theme
-    @append(new SettingsPanel(@pack.name, {includeTitle: false}))
-    @append(new PackageKeymapView(@pack.name))
-    @append(new PackageGrammarsView(@pack.path))
-    @append(new PackageSnippetsView(@pack.path))
-    @handleButtonEvents()
-    @updateEnablement()
-    @checkForUpdate()
+
+    @sections.empty()
+    @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
+    @sections.append(new PackageKeymapView(@pack.name))
+    @sections.append(new PackageGrammarsView(@pack.path))
+    @sections.append(new PackageSnippetsView(@pack.path))
 
   handleButtonEvents: ->
     @disableButton.on 'click', =>
@@ -116,23 +123,44 @@ class InstalledPackageView extends View
     url = repository.url ? repository ? ''
     url.replace(/\.git$/, '').replace(/\/$/, '')
 
+  installUpdate: ->
+    return if @updateLink.prop('disabled')
+    return unless @availableVersion
+
+    @disableButton.prop('disabled', true)
+    @uninstallButton.prop('disabled', true)
+    @updateLink.prop('disabled', true)
+    @updateLink.text('Installing\u2026')
+
+    @packageManager.update @pack, @availableVersion, (error) =>
+      @disableButton.prop('disabled', false)
+      @uninstallButton.prop('disabled', false)
+
+      if error?
+        @updateLink.prop('disabled', false)
+        @updateLink.text('Install')
+        @errors.append(new ErrorView(error))
+      else
+        @updateArea.hide()
+        if updatedPackage = atom.packages.getLoadedPackage(@pack.name)
+          @pack = updatedPackage
+          @populate()
+
   checkForUpdate: ->
     @updateArea.hide()
+    @updateLink.on 'click', => @installUpdate()
 
-    @packageManager.getAvailable()
-      .then (packages) =>
-        for pack in packages when @pack.name is pack.name
-          available = pack
-        return unless available?
+    @packageManager.getAvailable().then (packages) =>
+      for pack in packages when @pack.name is pack.name
+        available = pack
+      return unless available?
 
-        installedVersion = @pack.metadata.version
-        return unless semver.valid(installedVersion)
+      installedVersion = @pack.metadata.version
+      return unless semver.valid(installedVersion)
 
-        availableVersion = available.version
-        return unless semver.valid(availableVersion)
+      @availableVersion = available.version
+      return unless semver.valid(@availableVersion)
 
-        if semver.gt(availableVersion, installedVersion)
-          @updateLabel.text ("Version #{availableVersion} is now available!")
-          @updateArea.show()
-
-      .catch ->
+      if semver.gt(@availableVersion, installedVersion)
+        @updateLabel.text ("Version #{@availableVersion} is now available!")
+        @updateArea.show()
