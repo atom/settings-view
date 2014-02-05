@@ -2,6 +2,8 @@
 {Emitter} = require 'emissary'
 Q = require 'q'
 
+Q.stopUnhandledRejectionTracking()
+
 module.exports =
 class PackageManager
   Emitter.includeInto(this)
