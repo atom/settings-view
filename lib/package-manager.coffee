@@ -19,8 +19,7 @@ class PackageManager
     new BufferedNodeProcess({command, args, stdout, stderr, exit})
 
   loadAvailable: (callback) ->
-    args = ['available', '--json']
-    exit = (code, stdout, stderr) =>
+    @runCommand ['available', '--json'], (code, stdout, stderr) =>
       if code is 0
         try
           @packages = JSON.parse(stdout) ? []
@@ -34,8 +33,6 @@ class PackageManager
         error.stdout = stdout
         error.stderr = stderr
         callback(error)
-
-    @runCommand(args, exit)
 
   getAvailable: ->
     if @packages?
@@ -80,8 +77,7 @@ class PackageManager
     {name, theme} = pack
     atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
 
-    args = ['uninstall', name]
-    exit = (code, stdout, stderr) =>
+    @runCommand ['uninstall', name], (code, stdout, stderr) =>
       if code is 0
         atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
         callback?()
@@ -98,5 +94,3 @@ class PackageManager
         else
           @emit 'package-uninstall-failed', pack, error
         callback(error)
-
-    @runCommand(args, exit)
