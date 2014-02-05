@@ -64,7 +64,7 @@ class PackageManager
           @emit 'package-installed', pack
       else
         atom.packages.activatePackage(name) if activateOnFailure
-        error = new Error("Installing '#{name}' failed.")
+        error = new Error("Installing '#{name}@#{version}' failed.")
         error.stdout = stdout
         error.stderr = stderr
         if theme
