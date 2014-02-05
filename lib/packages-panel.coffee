@@ -42,6 +42,6 @@ class PackagesPanel extends View
             packageRow.append(new AvailablePackageView(pack, @packageManager))
         else
           @emptyMessage.show()
-      .catch (error) ->
+      .catch (error) =>
         @loadingMessage.hide()
         @errors.append(new ErrorView(error))

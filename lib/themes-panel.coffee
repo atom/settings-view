@@ -128,6 +128,6 @@ class ThemesPanel extends View
             @themeRow.append(new AvailablePackageView(theme, @packageManager))
         else
           @emptyMessage.show()
-      .catch (error) ->
+      .catch (error) =>
         @loadingMessage.hide()
         @errors.append(new ErrorView(error))
