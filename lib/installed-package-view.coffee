@@ -2,6 +2,7 @@ path = require 'path'
 
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
+semver = require 'semver'
 shell = require 'shell'
 {View} = require 'atom'
 
@@ -15,20 +16,27 @@ module.exports =
 class InstalledPackageView extends View
   @content: ->
     @form class: 'installed-package-view', =>
+      @div outlet: 'updateArea', class: 'alert alert-success package-update', =>
+        @span outlet: 'updateLabel', class: 'icon icon-squirrel update-message'
+        @span outlet: 'updateLink', class: 'alert-link update-link icon icon-cloud-download', 'Install'
+
       @h3 =>
         @span outlet: 'title', class: 'text'
         @span ' '
         @span outlet: 'version', class: 'label label-primary'
         @span ' '
         @span outlet: 'disabledLabel', class: 'label label-warning', 'Disabled'
+
       @p outlet: 'description', class: 'text-subtle'
       @p outlet: 'startupTime', class: 'text-subtle icon icon-dashboard'
+
       @div outlet: 'buttons', class: 'btn-group', =>
         @button outlet: 'disableButton', class: 'btn btn-default icon'
         @button outlet: 'uninstallButton', class: 'btn btn-default icon icon-trashcan', 'Uninstall'
         @button outlet: 'homepageButton', class: 'btn btn-default icon icon-home', 'Visit Homepage'
         @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
         @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'Open README'
+
       @div outlet: 'errors'
 
   initialize: (@pack, @packageManager) ->
@@ -47,6 +55,7 @@ class InstalledPackageView extends View
     @append(new PackageSnippetsView(@pack.path))
     @handleButtonEvents()
     @updateEnablement()
+    @checkForUpdate()
 
   handleButtonEvents: ->
     @disableButton.on 'click', =>
@@ -106,3 +115,24 @@ class InstalledPackageView extends View
     repository = @pack.metadata.repository
     url = repository.url ? repository ? ''
     url.replace(/\.git$/, '').replace(/\/$/, '')
+
+  checkForUpdate: ->
+    @updateArea.hide()
+
+    @packageManager.getAvailable()
+      .then (packages) =>
+        for pack in packages when @pack.name is pack.name
+          available = pack
+        return unless available?
+
+        installedVersion = @pack.metadata.version
+        return unless semver.valid(installedVersion)
+
+        availableVersion = available.version
+        return unless semver.valid(availableVersion)
+
+        if semver.gt(availableVersion, installedVersion)
+          @updateLabel.text ("Version #{availableVersion} is now available!")
+          @updateArea.show()
+
+      .catch ->

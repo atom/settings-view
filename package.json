@@ -11,6 +11,7 @@
     "fs-plus": "1.x",
     "q": "~1.0.0",
     "season": "1.x",
+    "semver": "~2.2.1",
     "underscore-plus": "1.x"
   },
   "repository": "https://github.com/atom/settings-view",
