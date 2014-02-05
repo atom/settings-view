@@ -116,16 +116,18 @@ class ThemesPanel extends View
     @loadingMessage.show()
     @emptyMessage.hide()
 
-    @packageManager.getAvailable (error, packages=[]) =>
-      installedThemes = atom.themes.getAvailableNames()
-      themes = packages.filter ({name, theme}) ->
-        theme and not (name in installedThemes)
+    @packageManager.getAvailable()
+      .then (packages) =>
+        installedThemes = atom.themes.getAvailableNames()
+        themes = packages.filter ({name, theme}) ->
+          theme and not (name in installedThemes)
 
-      @loadingMessage.hide()
-      if error?
+        @loadingMessage.hide()
+        if themes.length > 0
+          for theme in themes
+            @themeRow.append(new AvailablePackageView(theme, @packageManager))
+        else
+          @emptyMessage.show()
+      .catch (error) ->
+        @loadingMessage.hide()
         @errors.append(new ErrorView(error))
-      else if themes.length > 0
-        for theme in themes
-          @themeRow.append(new AvailablePackageView(theme, @packageManager))
-      else
-        @emptyMessage.show()

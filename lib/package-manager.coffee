@@ -1,5 +1,6 @@
 {BufferedNodeProcess} = require 'atom'
 {Emitter} = require 'emissary'
+Q = require 'q'
 
 module.exports =
 class PackageManager
@@ -17,17 +18,17 @@ class PackageManager
     args.push('--no-color')
     new BufferedNodeProcess({command, args, stdout, stderr, exit})
 
-  getAvailable: (callback) ->
+  loadAvailable: (callback) ->
     args = ['available', '--json']
     exit = (code, stdout, stderr) =>
       if code is 0
         try
-          packages = JSON.parse(stdout) ? []
+          @packages = JSON.parse(stdout) ? []
         catch error
           callback(error)
           return
 
-        callback(null, packages)
+        callback(null, @packages)
       else
         error = new Error("apm available failed with code: #{code}")
         error.stdout = stdout
@@ -35,6 +36,12 @@ class PackageManager
         callback(error)
 
     @runCommand(args, exit)
+
+  getAvailable: ->
+    if @packages?
+      Q(@packages)
+    else
+      Q.nbind(@loadAvailable, this)()
 
   install: (pack, callback) ->
     {name, version, theme} = pack

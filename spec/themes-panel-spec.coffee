@@ -2,6 +2,7 @@ path = require 'path'
 
 {$} = require 'atom'
 CSON = require 'season'
+Q = require 'q'
 
 PackageManager = require '../lib/package-manager'
 ThemesPanel = require '../lib/themes-panel'
@@ -20,7 +21,7 @@ describe "ThemesPanel", ->
     packageManager = new PackageManager
     themeMetadata = CSON.readFileSync(path.join(__dirname, 'fixtures', 'a-theme', 'package.json'))
     spyOn(packageManager, 'getAvailable').andCallFake (callback) ->
-      process.nextTick -> callback(null, [themeMetadata])
+      Q([themeMetadata])
     spyOn(atom.themes, 'setEnabledThemes').andCallThrough()
     panel = new ThemesPanel(packageManager)
 

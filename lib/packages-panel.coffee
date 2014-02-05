@@ -27,19 +27,21 @@ class PackagesPanel extends View
     @loadingMessage.show()
     @emptyMessage.hide()
 
-    @packageManager.getAvailable (error, packages=[]) =>
-      installedPackages = atom.packages.getAvailablePackageNames()
-      packages = packages.filter ({name, theme}) ->
-        not theme and not (name in installedPackages)
+    @packageManager.getAvailable()
+      .then (packages) =>
+        installedPackages = atom.packages.getAvailablePackageNames()
+        packages = packages.filter ({name, theme}) ->
+          not theme and not (name in installedPackages)
 
-      @loadingMessage.hide()
-      if error?
+        @loadingMessage.hide()
+        if packages.length > 0
+          for pack,index in packages
+            if index % 4 is 0
+              packageRow = $$ -> @div class: 'row'
+              @packageContainer.append(packageRow)
+            packageRow.append(new AvailablePackageView(pack, @packageManager))
+        else
+          @emptyMessage.show()
+      .catch (error) ->
+        @loadingMessage.hide()
         @errors.append(new ErrorView(error))
-      else if packages.length > 0
-        for pack,index in packages
-          if index % 4 is 0
-            packageRow = $$ -> @div class: 'row'
-            @packageContainer.append(packageRow)
-          packageRow.append(new AvailablePackageView(pack, @packageManager))
-      else
-        @emptyMessage.show()
