@@ -32,5 +32,8 @@ module.exports =
     atom.workspaceView.command 'settings-view:change-themes', ->
       openPanel('Themes')
 
+    atom.workspaceView.command 'settings-view:install-themes', ->
+      openPanel('Themes')
+
     atom.workspaceView.command 'settings-view:install-packages', ->
       openPanel('Packages')
