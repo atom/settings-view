@@ -77,6 +77,7 @@ class SettingsView extends ScrollView
     deserializer: 'SettingsView'
     version: 2
     activePanelName: @activePanelName ? @panelToShow
+    uri: @uri
 
   getPackages: ->
     return @packages if @packages?
