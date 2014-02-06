@@ -1,5 +1,5 @@
 '.platform-darwin':
-  'cmd-,': 'settings-view:toggle'
+  'cmd-,': 'settings-view:open'
 
 '.platform-win32':
-  'ctrl-,': 'settings-view:toggle'
+  'ctrl-,': 'settings-view:open'

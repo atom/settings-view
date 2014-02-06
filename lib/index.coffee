@@ -23,7 +23,7 @@ module.exports =
     atom.project.registerOpener (uri) ->
       createSettingsView({uri}) if uri is configUri
 
-    atom.workspaceView.command 'settings-view:toggle', ->
+    atom.workspaceView.command 'settings-view:open', ->
       openPanel('General')
 
     atom.workspaceView.command 'settings-view:show-keybindings', ->
