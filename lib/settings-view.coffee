@@ -1,17 +1,17 @@
 path = require 'path'
 
 _ = require 'underscore-plus'
+{$, $$, ScrollView} = require 'atom'
 async = require 'async'
 CSON = require 'season'
-{$, $$, ScrollView} = require 'atom'
 
 GeneralPanel = require './general-panel'
-ThemesPanel = require './themes-panel'
+InstalledPackageView = require './installed-package-view'
+KeybindingsPanel = require './keybindings-panel'
 PackageManager = require './package-manager'
 PackageMenuView = require './package-menu-view'
-InstalledPackageView = require './installed-package-view'
 PackagesPanel = require './packages-panel'
-KeybindingsPanel = require './keybindings-panel'
+ThemesPanel = require './themes-panel'
 
 module.exports =
 class SettingsView extends ScrollView
