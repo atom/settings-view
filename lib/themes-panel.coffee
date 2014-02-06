@@ -19,14 +19,14 @@ class ThemesPanel extends View
 
         @form class: 'form-horizontal theme-chooser', =>
           @div class: 'form-group', =>
-            @label class: 'control-label themes-label text', 'UI Theme'
-            @div class: 'col-lg-4', =>
+            @label class: 'col-sm-2 col-lg-2 control-label themes-label text', 'UI Theme'
+            @div class: 'col-sm-10 col-lg-4 col-md-4', =>
               @select outlet: 'uiMenu', class: 'form-control'
               @div class: 'text theme-description', 'This styles the tabs, status bar, tree view, and dropdowns'
 
           @div class: 'form-group', =>
-            @label class: 'control-label themes-label text', 'Syntax Theme'
-            @div class: 'col-lg-4', =>
+            @label class: 'col-sm-2 col-lg-2 control-label themes-label text', 'Syntax Theme'
+            @div class: 'col-sm-10 col-lg-4 col-md-4', =>
               @select outlet: 'syntaxMenu', class: 'form-control'
               @div class: 'text theme-description', 'This styles the text inside the editor'
 
