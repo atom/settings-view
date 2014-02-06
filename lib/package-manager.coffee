@@ -1,3 +1,4 @@
+_ = require 'underscore-plus'
 {BufferedNodeProcess} = require 'atom'
 {Emitter} = require 'emissary'
 Q = require 'q'
@@ -139,3 +140,6 @@ class PackageManager
     return false unless semver.valid(availableVersion)
 
     semver.gt(availableVersion, installedVersion)
+
+  getPackageTitle: ({name}) ->
+    _.undasherize(_.uncamelcase(name))

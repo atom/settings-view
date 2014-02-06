@@ -11,7 +11,7 @@ class PackageMenuView extends View
   initialize: (@pack, @packageManager) ->
     @attr('name', @pack.name)
     @attr('type', 'package')
-    @link.text(_.undasherize(_.uncamelcase(@pack.name)))
+    @link.text(@packageManager.getPackageTitle(@pack))
 
     @checkForUpdates()
 

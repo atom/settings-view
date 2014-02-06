@@ -35,7 +35,7 @@ class SettingsView extends ScrollView
   handlePackageEvents: ->
     @subscribe @packageManager, 'package-installed theme-installed', ({name}) =>
       if pack = atom.packages.getLoadedPackage(name)
-        title = @getPackageTitle(pack)
+        title = @packageManager.getPackageTitle(pack)
         @addPackagePanel(pack)
 
         # Move added package menu item to properly sorted location
@@ -93,10 +93,11 @@ class SettingsView extends ScrollView
           @packages.push({name, metadata})
 
     @packages.sort (pack1, pack2) =>
-      @getPackageTitle(pack1).localeCompare(@getPackageTitle(pack2))
+      title1 = @packageManager.getPackageTitle(pack1)
+      title2 = @packageManager.getPackageTitle(pack2)
+      title1.localeCompare(title2)
 
-  getPackageTitle: ({name}) ->
-    _.undasherize(_.uncamelcase(name))
+    @packages
 
   addPanelMenuSeparator: ->
     @panelMenu.append $$ ->
@@ -109,7 +110,7 @@ class SettingsView extends ScrollView
     @addPanel(name, panelMenuItem, panel)
 
   addPackagePanel: (pack) ->
-    title = @getPackageTitle(pack)
+    title = @packageManager.getPackageTitle(pack)
     panelMenuItem = new PackageMenuView(pack, @packageManager)
     @addPanel pack.name, panelMenuItem, =>
       new InstalledPackageView(pack, @packageManager)
