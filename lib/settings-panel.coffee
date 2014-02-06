@@ -36,7 +36,7 @@ class SettingsPanel extends View
         name = input.attr('id')
         type = input.attr('type')
 
-        @observeConfig name, (value) ->
+        @subscribe atom.config.observe name, (value) ->
           if type is 'checkbox'
             input.prop('checked', value)
           else
@@ -57,7 +57,7 @@ class SettingsPanel extends View
         name = editorView.attr('id')
         type = editorView.attr('type')
 
-        @observeConfig name, (value) =>
+        @subscribe atom.config.observe name, (value) =>
           stringValue = @valueToString(value)
           return if stringValue == editorView.getText()
           stringValue ?= ""

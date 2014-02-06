@@ -49,7 +49,7 @@ class ThemesPanel extends View
     @subscribe @packageManager, 'theme-installed', =>
       @populateThemeMenus()
 
-    @observeConfig 'core.themes', =>
+    @subscribe atom.config.observe 'core.themes', =>
       @activeUiTheme = @getActiveUiTheme()
       @activeSyntaxTheme = @getActiveSyntaxTheme()
       @populateThemeMenus()
