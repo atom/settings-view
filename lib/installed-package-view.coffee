@@ -2,7 +2,6 @@ path = require 'path'
 
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
-semver = require 'semver'
 shell = require 'shell'
 {View} = require 'atom'
 
@@ -154,13 +153,8 @@ class InstalledPackageView extends View
       for pack in packages when @pack.name is pack.name
         available = pack
       return unless available?
-
-      installedVersion = @pack.metadata.version
-      return unless semver.valid(installedVersion)
+      return unless @packageManager.canUpgrade(@pack, available)
 
       @availableVersion = available.version
-      return unless semver.valid(@availableVersion)
-
-      if semver.gt(@availableVersion, installedVersion)
-        @updateLabel.text ("Version #{@availableVersion} is now available!")
-        @updateArea.show()
+      @updateLabel.text ("Version #{@availableVersion} is now available!")
+      @updateArea.show()

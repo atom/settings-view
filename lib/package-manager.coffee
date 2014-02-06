@@ -1,6 +1,7 @@
 {BufferedNodeProcess} = require 'atom'
 {Emitter} = require 'emissary'
 Q = require 'q'
+semver = require 'semver'
 
 Q.stopUnhandledRejectionTracking()
 
@@ -21,15 +22,15 @@ class PackageManager
     new BufferedNodeProcess({command, args, stdout, stderr, exit})
 
   loadAvailable: (callback) ->
-    @runCommand ['available', '--json'], (code, stdout, stderr) =>
+    @runCommand ['available', '--json'], (code, stdout, stderr) ->
       if code is 0
         try
-          @packages = JSON.parse(stdout) ? []
+          packages = JSON.parse(stdout) ? []
         catch error
           callback(error)
           return
 
-        callback(null, @packages)
+        callback(null, packages)
       else
         error = new Error('Fetching available packages and themes failed.')
         error.stdout = stdout
@@ -37,10 +38,7 @@ class PackageManager
         callback(error)
 
   getAvailable: ->
-    if @packages?
-      Q(@packages)
-    else
-      Q.nbind(@loadAvailable, this)()
+    @availablePromise ?= Q.nbind(@loadAvailable, this)()
 
   update: (pack, newVersion, callback) ->
     {name, theme} = pack
@@ -130,3 +128,14 @@ class PackageManager
         else
           @emit 'package-uninstall-failed', pack, error
         callback(error)
+
+  canUpgrade: (installedPackage, availablePackage) ->
+    return false unless installedPackage? and availablePackage?
+
+    installedVersion = installedPackage.metadata.version
+    return false unless semver.valid(installedVersion)
+
+    availableVersion = availablePackage.version
+    return false unless semver.valid(availableVersion)
+
+    semver.gt(availableVersion, installedVersion)

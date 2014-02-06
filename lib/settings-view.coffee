@@ -8,6 +8,7 @@ CSON = require 'season'
 GeneralPanel = require './general-panel'
 ThemesPanel = require './themes-panel'
 PackageManager = require './package-manager'
+PackageMenuView = require './package-menu-view'
 InstalledPackageView = require './installed-package-view'
 PackagesPanel = require './packages-panel'
 KeybindingsPanel = require './keybindings-panel'
@@ -78,7 +79,9 @@ class SettingsView extends ScrollView
     activePanelName: @activePanelName ? @panelToShow
 
   getPackages: ->
-    packages = atom.packages.getLoadedPackages()
+    return @packages if @packages?
+
+    @packages = atom.packages.getLoadedPackages()
     # Include disabled packages so they can be re-enabled from the UI
     for packageName in atom.config.get('core.disabledPackages') ? []
       packagePath = atom.packages.resolvePackagePath(packageName)
@@ -86,9 +89,9 @@ class SettingsView extends ScrollView
         try
           metadata = CSON.readFileSync(metadataPath)
           name = metadata?.name ? packageName
-          packages.push({name, metadata})
+          @packages.push({name, metadata})
 
-    packages.sort (pack1, pack2) =>
+    @packages.sort (pack1, pack2) =>
       @getPackageTitle(pack1).localeCompare(@getPackageTitle(pack2))
 
   getPackageTitle: ({name}) ->
@@ -106,9 +109,7 @@ class SettingsView extends ScrollView
 
   addPackagePanel: (pack) ->
     title = @getPackageTitle(pack)
-    panelMenuItem = $$ ->
-      @li name: pack.name, type: 'package', =>
-        @a title
+    panelMenuItem = new PackageMenuView(pack, @packageManager)
     @addPanel pack.name, panelMenuItem, =>
       new InstalledPackageView(pack, @packageManager)
 
