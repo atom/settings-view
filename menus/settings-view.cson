@@ -1,0 +1,13 @@
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'Settings View'
+      'submenu': [
+        { 'label': 'Change Themes', 'command': 'settings-view:change-themes' }
+        { 'label': 'Install Themes', 'command': 'settings-view:install-themes' }
+        { 'label': 'Install Packages', 'command': 'settings-view:install-packages' }
+      ]
+    ]
+  }
+]
