@@ -21,7 +21,7 @@ atom.deserializers.add(deserializer)
 module.exports =
   activate: ->
     atom.project.registerOpener (uri) ->
-      createSettingsView({uri: configUri}) if uri is configUri
+      createSettingsView({uri}) if uri is configUri
 
     atom.workspaceView.command 'settings-view:toggle', ->
       openPanel('General')
