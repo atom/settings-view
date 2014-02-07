@@ -23,7 +23,11 @@ class PackageManager
     new BufferedNodeProcess({command, args, stdout, stderr, exit})
 
   loadAvailable: (callback) ->
-    @runCommand ['available', '--json'], (code, stdout, stderr) ->
+    args = ['available', '--json']
+    version = atom.getVersion()
+    args.push('--compatible', version) if semver.valid(version)
+
+    @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
