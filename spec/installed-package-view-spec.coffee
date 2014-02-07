@@ -5,9 +5,15 @@ PackageManager = require '../lib/package-manager'
 
 describe "InstalledPackageView", ->
   it "display the grammars registered by the package", ->
-    pack = atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
-    view = new InstalledPackageView(pack, new PackageManager())
-    grammarTable = view.find('.package-grammars-table tbody')
+    grammarTable = null
+
+    waitsForPromise ->
+      atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+
+    runs ->
+      pack = atom.packages.getActivePackage('language-test')
+      view = new InstalledPackageView(pack, new PackageManager())
+      grammarTable = view.find('.package-grammars-table tbody')
 
     waitsFor ->
       grammarTable.children().length is 2
@@ -22,11 +28,19 @@ describe "InstalledPackageView", ->
       expect(grammarTable.find('tr:eq(1) td:eq(2)').text()).toBe 'source.b'
 
   it "displays the snippets registered by the package", ->
+    snippetsTable = null
     atom.workspaceView = new WorkspaceView()
-    atom.packages.activatePackage('snippets')
-    pack = atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
-    view = new InstalledPackageView(pack, new PackageManager())
-    snippetsTable = view.find('.package-snippets-table tbody')
+
+    waitsForPromise ->
+      atom.packages.activatePackage('snippets')
+
+    waitsForPromise ->
+      atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+
+    runs ->
+      pack = atom.packages.getActivePackage('language-test')
+      view = new InstalledPackageView(pack, new PackageManager())
+      snippetsTable = view.find('.package-snippets-table tbody')
 
     waitsFor ->
       snippetsTable.children().length is 2

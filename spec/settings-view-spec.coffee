@@ -70,15 +70,18 @@ describe "SettingsView", ->
 
   describe ".addPackagePanel(package)", ->
     it "adds a menu entry to the left and a panel that can be activated by clicking it", ->
-      pack = atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'a-theme'))
+      waitsForPromise ->
+        atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'a-theme'))
 
-      settingsView.addPackagePanel(pack)
-      expect(settingsView.panelMenu.find('li a:contains(A Theme)')).toExist()
+      runs ->
+        pack = atom.packages.getActivePackage('a-theme')
+        settingsView.addPackagePanel(pack)
+        expect(settingsView.panelMenu.find('li a:contains(A Theme)')).toExist()
 
-      settingsView.attachToDom()
-      expect(settingsView.panels.find('.installed-package-view')).not.toExist()
+        settingsView.attachToDom()
+        expect(settingsView.panels.find('.installed-package-view')).not.toExist()
 
-      settingsView.panelMenu.find('li a:contains(A Theme)').click()
-      expect(settingsView.panelMenu.children('.active').length).toBe 1
-      expect(settingsView.panelMenu.find('li:contains(A Theme)')).toHaveClass('active')
-      expect(settingsView.panels.find('.installed-package-view')).toBeVisible()
+        settingsView.panelMenu.find('li a:contains(A Theme)').click()
+        expect(settingsView.panelMenu.children('.active').length).toBe 1
+        expect(settingsView.panelMenu.find('li:contains(A Theme)')).toHaveClass('active')
+        expect(settingsView.panels.find('.installed-package-view')).toBeVisible()

@@ -8,7 +8,7 @@ PackageManager = require '../lib/package-manager'
 ThemesPanel = require '../lib/themes-panel'
 
 describe "ThemesPanel", ->
-  [panel, packageManager] = []
+  [panel, packageManager, reloadedHandler] = []
 
   beforeEach ->
     atom.packages.loadPackage('atom-light-ui')
@@ -16,14 +16,21 @@ describe "ThemesPanel", ->
     atom.packages.loadPackage('atom-light-syntax')
     atom.packages.loadPackage('atom-dark-syntax')
     atom.packages.packageDirPaths.push(path.join(__dirname, 'fixtures'))
-    atom.themes.activatePackages()
     atom.config.set('core.themes', ['atom-dark-ui', 'atom-dark-syntax'])
-    packageManager = new PackageManager
-    themeMetadata = CSON.readFileSync(path.join(__dirname, 'fixtures', 'a-theme', 'package.json'))
-    spyOn(packageManager, 'getAvailable').andCallFake (callback) ->
-      Q([themeMetadata])
-    spyOn(atom.themes, 'setEnabledThemes').andCallThrough()
-    panel = new ThemesPanel(packageManager)
+    reloadedHandler = jasmine.createSpy('reloadedHandler')
+    atom.themes.on 'reloaded', reloadedHandler
+    atom.themes.activatePackages()
+
+    waitsFor ->
+      reloadedHandler.callCount is 1
+
+    runs ->
+      packageManager = new PackageManager
+      themeMetadata = CSON.readFileSync(path.join(__dirname, 'fixtures', 'a-theme', 'package.json'))
+      spyOn(packageManager, 'getAvailable').andCallFake (callback) ->
+        Q([themeMetadata])
+      spyOn(atom.themes, 'setEnabledThemes').andCallThrough()
+      panel = new ThemesPanel(packageManager)
 
   afterEach ->
     atom.packages.unloadPackage('a-theme') if atom.packages.isPackageLoaded('a-theme')
@@ -57,9 +64,15 @@ describe "ThemesPanel", ->
 
   describe "when the 'core.config' key is changes", ->
     it "refreshes the theme menus", ->
+      reloadedHandler.reset()
       atom.config.set('core.themes', ['atom-light-ui', 'atom-light-syntax'])
-      expect(panel.uiMenu.val()).toBe 'atom-light-ui'
-      expect(panel.syntaxMenu.val()).toBe 'atom-light-syntax'
+
+      waitsFor ->
+        reloadedHandler.callCount is 1
+
+      runs ->
+        expect(panel.uiMenu.val()).toBe 'atom-light-ui'
+        expect(panel.syntaxMenu.val()).toBe 'atom-light-syntax'
 
   describe "when a theme is installed", ->
     it "adds it to the menu", ->

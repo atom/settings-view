@@ -49,10 +49,8 @@ class ThemesPanel extends View
     @subscribe @packageManager, 'theme-installed', =>
       @populateThemeMenus()
 
-    @subscribe atom.config.observe 'core.themes', =>
-      @activeUiTheme = @getActiveUiTheme()
-      @activeSyntaxTheme = @getActiveSyntaxTheme()
-      @populateThemeMenus()
+    @subscribe atom.themes, 'reloaded', => @updateActiveThemes()
+    @updateActiveThemes()
 
     @syntaxMenu.change =>
       @activeSyntaxTheme = @syntaxMenu.val()
@@ -63,6 +61,12 @@ class ThemesPanel extends View
       @updateThemeConfig()
 
     @loadAvailableThemes()
+
+  # Update the active UI and syntax themes and populate the menu
+  updateActiveThemes: ->
+    @activeUiTheme = @getActiveUiTheme()
+    @activeSyntaxTheme = @getActiveSyntaxTheme()
+    @populateThemeMenus()
 
   # Populate the theme menus from the theme manager's active themes
   populateThemeMenus: ->
