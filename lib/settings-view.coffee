@@ -86,6 +86,8 @@ class SettingsView extends ScrollView
     # Include disabled packages so they can be re-enabled from the UI
     for packageName in atom.config.get('core.disabledPackages') ? []
       packagePath = atom.packages.resolvePackagePath(packageName)
+      continue unless packagePath
+
       if metadataPath = CSON.resolve(path.join(packagePath, 'package'))
         try
           metadata = CSON.readFileSync(metadataPath)
