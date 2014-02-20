@@ -1,4 +1,7 @@
+path = require 'path'
+
 _ = require 'underscore-plus'
+fs = require 'fs-plus'
 {$$, EditorView, View} = require 'atom'
 
 ErrorView = require './error-view'
@@ -12,10 +15,16 @@ class PackagesPanel extends View
       @div class: 'section packages', =>
         @div class: 'section-heading theme-heading icon icon-cloud-download', 'Install Packages'
 
-        @div class: 'editor-container padded', =>
-          @subview 'searchEditorView', new EditorView(mini: true)
+        @div class: 'text padded', =>
+          @span class: 'icon icon-question'
+          @span 'Packages are hosted on  '
+          @a class: 'link', outlet: "openAtomIo", "atom.io"
+          @span " and are installed to #{path.join(fs.getHomeDirectory(), '.atom', 'packages')}"
 
         @div outlet: 'errors'
+
+        @div class: 'editor-container padded', =>
+          @subview 'searchEditorView', new EditorView(mini: true)
 
         @div outlet: 'results', =>
           @div outlet: 'searchMessage', class: 'icon icon-search text'
@@ -28,6 +37,10 @@ class PackagesPanel extends View
           @div outlet: 'featuredContainer', class: 'container package-container'
 
   initialize: (@packageManager) ->
+    @openAtomIo.on 'click', =>
+      require('shell').openExternal('https://atom.io/packages')
+      false
+
     @results.hide()
     @emptyMessage.hide()
 
