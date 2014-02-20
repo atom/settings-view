@@ -7,6 +7,7 @@ class KeybindingsPanel extends View
   @content: ->
     @div class: 'keybinding-panel section', =>
       @div class: 'section-heading icon icon-keyboard', 'Keybindings'
+
       @div class: 'text padded', =>
         @span class: 'icon icon-question'
         @span 'You can override these keybindings by copying '
@@ -14,8 +15,9 @@ class KeybindingsPanel extends View
         @span 'and pasting them into '
         @a class: 'link', outlet: 'openUserKeymap', 'your keymap file'
 
-      @div class: 'editor-container', =>
+      @div class: 'editor-container padded', =>
         @subview 'filter', new EditorView(mini: true)
+
       @table class: 'native-key-bindings table text', tabindex: -1, =>
         @col class: 'keystroke'
         @col class: 'command'
