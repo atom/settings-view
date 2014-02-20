@@ -41,16 +41,17 @@ class ThemesPanel extends View
           @a class: 'link', outlet: "openAtomIo", "atom.io"
           @span " and are installed to #{path.join(fs.getHomeDirectory(), '.atom', 'packages')}"
 
-        @div outlet: 'errors'
 
         @div class: 'editor-container padded', =>
           @subview 'searchEditorView', new EditorView(mini: true)
 
+        @div outlet: 'searchErrors'
         @div outlet: 'searchMessage', class: 'alert alert-info icon icon-search search-message'
         @div outlet: 'resultsContainer', class: 'container package-container'
 
       @div class: 'section packages', =>
         @div class: 'section-heading icon icon-star', 'Featured Themes'
+        @div outlet: 'featuredErrors'
         @div outlet: 'loadingMessage', class: 'alert alert-info icon icon-hourglass featured-message', 'Loading featured themes\u2026'
         @div outlet: 'emptyMessage', class: 'alert alert-info icon icon-heart featured-message', 'You have every featured theme installed already!'
         @div outlet: 'featuredContainer', class: 'container package-container'
@@ -69,7 +70,7 @@ class ThemesPanel extends View
         @search(query)
 
     @subscribe @packageManager, 'theme-install-failed', (pack, error) =>
-      @errors.append(new ErrorView(error))
+      @searchErrors.append(new ErrorView(error))
 
     @openUserStysheet.on 'click', =>
       atom.workspaceView.trigger('application:open-your-stylesheet')
@@ -181,7 +182,7 @@ class ThemesPanel extends View
           @emptyMessage.show() if themes.length is 0
       .catch (error) =>
         @loadingMessage.hide()
-        @errors.append(new ErrorView(error))
+        @featuredErrors.append(new ErrorView(error))
 
   search: (query) ->
     if @resultsContainer.children().length is 0
@@ -196,4 +197,5 @@ class ThemesPanel extends View
           @searchMessage.hide()
         @addThemeViews(@resultsContainer, themes)
       .catch (error) =>
-        @errors.append(new ErrorView(error))
+        @searchMessage.hide()
+        @searchErrors.append(new ErrorView(error))

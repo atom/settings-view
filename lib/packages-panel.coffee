@@ -21,17 +21,16 @@ class PackagesPanel extends View
           @a class: 'link', outlet: "openAtomIo", "atom.io"
           @span " and are installed to #{path.join(fs.getHomeDirectory(), '.atom', 'packages')}"
 
-        @div outlet: 'errors'
-
         @div class: 'editor-container padded', =>
           @subview 'searchEditorView', new EditorView(mini: true)
 
-        @div outlet: 'results', =>
-          @div outlet: 'searchMessage', class: 'alert alert-info search-message icon icon-search'
-          @div outlet: 'resultsContainer', class: 'container package-container'
+        @div outlet: 'searchErrors'
+        @div outlet: 'searchMessage', class: 'alert alert-info search-message icon icon-search'
+        @div outlet: 'resultsContainer', class: 'container package-container'
 
       @div class: 'section packages', =>
         @div class: 'section-heading icon icon-star', 'Featured Packages'
+        @div outlet: 'featuredErrors'
         @div outlet: 'loadingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Loading featured packages\u2026'
         @div outlet: 'emptyMessage', class: 'alert alert-info featured-message icon icon-heart', 'You have every featured package installed already!'
         @div outlet: 'featuredContainer', class: 'container package-container'
@@ -50,7 +49,7 @@ class PackagesPanel extends View
         @search(query)
 
     @subscribe @packageManager, 'package-install-failed', (pack, error) =>
-      @errors.append(new ErrorView(error))
+      @searchErrors.append(new ErrorView(error))
 
     @loadFeaturedPackages()
 
@@ -68,10 +67,10 @@ class PackagesPanel extends View
           @searchMessage.text("No package results for '#{query}'").show()
         else
           @searchMessage.hide()
-        @results.show()
         @addPackageViews(@resultsContainer, packages)
       .catch (error) =>
-        @errors.append(new ErrorView(error))
+        @searchMessage.hide()
+        @searchErrors.append(new ErrorView(error))
 
   addPackageViews: (container, packages) ->
     container.empty()
@@ -99,4 +98,4 @@ class PackagesPanel extends View
         @addPackageViews(@featuredContainer, packages)
       .catch (error) =>
         @loadingMessage.hide()
-        @errors.append(new ErrorView(error))
+        @featuredErrors.append(new ErrorView(error))

@@ -203,13 +203,18 @@
       padding-top: @component-padding;
     }
 
-    .search-message {
-      margin-bottom: 0;
+    .search-message,
+    .featured-message {
+      margin: @component-padding @component-padding 0 @component-padding;
     }
 
-    .featured-message {
-      margin-top: @component-padding * 2;
+    .error-message {
+      padding: @component-padding @component-padding 0 @component-padding;
+    }
+
+    .editor-container {
       margin-bottom: 0;
+      padding-bottom: 0;
     }
 
     .available-package-view {
