@@ -26,8 +26,5 @@ class PackageMenuView extends View
         @link.addClass('icon-squirrel')
 
   getAvailablePackage: (callback) ->
-    @packageManager.getAvailable().then (packages) =>
-      for pack in packages when pack.name is @pack.name
-        return callback(pack)
-
-      callback()
+    @packageManager.getPackage(@pack.name).then (availablePackage) =>
+      callback(availablePackage)

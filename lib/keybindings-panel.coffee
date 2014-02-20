@@ -45,6 +45,9 @@ class KeybindingsPanel extends View
       keyBinding = $(target).closest('tr').data('keyBinding')
       @writeKeyBindingToClipboard(keyBinding)
 
+  focus: ->
+    @filter.focus()
+
   filterKeyBindings: (keyBindings, filterString) ->
     @keybindingRows.empty()
     for keyBinding in keyBindings

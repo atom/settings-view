@@ -27,7 +27,7 @@ describe "ThemesPanel", ->
     runs ->
       packageManager = new PackageManager
       themeMetadata = CSON.readFileSync(path.join(__dirname, 'fixtures', 'a-theme', 'package.json'))
-      spyOn(packageManager, 'getAvailable').andCallFake (callback) ->
+      spyOn(packageManager, 'getFeatured').andCallFake (callback) ->
         Q([themeMetadata])
       spyOn(atom.themes, 'setEnabledThemes').andCallThrough()
       panel = new ThemesPanel(packageManager)

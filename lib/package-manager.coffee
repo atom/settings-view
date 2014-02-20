@@ -10,6 +10,9 @@ module.exports =
 class PackageManager
   Emitter.includeInto(this)
 
+  constructor: ->
+    @packagePromises = []
+
   runCommand: (args, callback) ->
     command = atom.packages.getApmPath()
     outputLines = []
@@ -22,8 +25,8 @@ class PackageManager
     args.push('--no-color')
     new BufferedNodeProcess({command, args, stdout, stderr, exit})
 
-  loadAvailable: (callback) ->
-    args = ['available', '--json']
+  loadFeatured: (callback) ->
+    args = ['featured', '--json']
     version = atom.getVersion()
     args.push('--compatible', version) if semver.valid(version)
 
@@ -37,13 +40,53 @@ class PackageManager
 
         callback(null, packages)
       else
-        error = new Error('Fetching available packages and themes failed.')
+        error = new Error('Fetching featured packages and themes failed.')
         error.stdout = stdout
         error.stderr = stderr
         callback(error)
 
-  getAvailable: ->
-    @availablePromise ?= Q.nbind(@loadAvailable, this)()
+  loadPackage: (packageName, callback) ->
+    args = ['view', packageName, '--json']
+
+    @runCommand args, (code, stdout, stderr) ->
+      if code is 0
+        try
+          packages = JSON.parse(stdout) ? []
+        catch error
+          callback(error)
+          return
+
+        callback(null, packages)
+      else
+        error = new Error("Fetching package '#{packageName}' failed.")
+        error.stdout = stdout
+        error.stderr = stderr
+        callback(error)
+
+  getFeatured: ->
+    @featuredPromise ?= Q.nbind(@loadFeatured, this)()
+
+  getPackage: (packageName) ->
+    @packagePromises[packageName] ?= Q.nbind(@loadPackage, this, packageName)()
+
+  search: (query) ->
+    deferred = Q.defer()
+
+    args = ['search', query, '--json']
+    @runCommand args, (code, stdout, stderr) ->
+      if code is 0
+        try
+          packages = JSON.parse(stdout) ? []
+          deferred.resolve(packages)
+        catch error
+          deferred.reject(error)
+      else
+        error = new Error("Searching for '#{query}' failed.")
+        error.stdout = stdout
+        error.stderr = stderr
+        deferred.reject(error)
+
+    deferred.promise
 
   update: (pack, newVersion, callback) ->
     {name, theme} = pack
@@ -116,7 +159,7 @@ class PackageManager
     {name, theme} = pack
     atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
 
-    @runCommand ['uninstall', name], (code, stdout, stderr) =>
+    @runCommand ['uninstall', '--hard', name], (code, stdout, stderr) =>
       if code is 0
         atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
         callback?()
