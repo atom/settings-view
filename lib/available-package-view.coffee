@@ -9,7 +9,7 @@ class AvailablePackageView extends View
       @div class: 'thumbnail text', =>
         @div class: 'caption', =>
           @span outlet: 'status', class: 'package-status icon'
-          @h4 _.undasherize(_.uncamelcase(name))
+          @h4 class: 'package-name', _.undasherize(_.uncamelcase(name))
           @p class: 'description', description ? ''
           @div class: 'btn-toolbar', =>
             @button outlet: 'installButton', class: 'btn btn-primary', 'Install'
