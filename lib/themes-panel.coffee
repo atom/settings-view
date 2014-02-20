@@ -1,6 +1,5 @@
 _ = require 'underscore-plus'
-{$$, View} = require 'atom'
-
+{$$, EditorView, View} = require 'atom'
 
 AvailablePackageView = require './available-package-view'
 ErrorView = require './error-view'
@@ -32,13 +31,30 @@ class ThemesPanel extends View
 
       @div class: 'section packages', =>
         @div class: 'section-heading theme-heading icon icon-cloud-download', 'Install Themes'
-        @div outlet: 'loadingMessage', class: 'padded text icon icon-hourglass', 'Loading themes\u2026'
-        @div outlet: 'emptyMessage', class: 'padded text icon icon-heart', 'You have every theme installed already!'
+
+        @div class: 'editor-container padded', =>
+          @subview 'searchEditorView', new EditorView(mini: true)
+
         @div outlet: 'errors'
-        @div outlet: 'themeContainer', class: 'container package-container', =>
-          @div outlet: 'themeRow', class: 'row'
+
+        @div outlet: 'results', =>
+          @div outlet: 'searchMessage', class: 'icon icon-search text'
+          @div outlet: 'resultsContainer', class: 'container package-container'
+
+        @div outlet: 'featured', =>
+          @div class: 'icon icon-star text', 'Featured Themes'
+          @div outlet: 'loadingMessage', class: 'padded text icon icon-hourglass', 'Loading featured themes\u2026'
+          @div outlet: 'emptyMessage', class: 'padded text icon icon-heart', 'You have every featured theme installed already!'
+          @div outlet: 'featuredContainer', class: 'container package-container'
 
   initialize: (@packageManager) ->
+    @results.hide()
+    @emptyMessage.hide()
+
+    @searchEditorView.setPlaceholderText('Search themes')
+    @searchEditorView.on 'core:confirm', =>
+      @search(@searchEditorView.getText().trim())
+
     @subscribe @packageManager, 'theme-install-failed', (pack, error) =>
       @errors.append(new ErrorView(error))
 
@@ -115,23 +131,54 @@ class ThemesPanel extends View
     title = themeName.replace(/-(ui|syntax)/g, '')
     _.undasherize(_.uncamelcase(title))
 
+  addThemeViews: (container, themes) ->
+    container.empty()
+
+    for theme, index in themes
+      if index % 4 is 0
+        themeRow = $$ -> @div class: 'row'
+        container.append(themeRow)
+      themeRow.append(new AvailablePackageView(theme, @packageManager))
+
+  filterThemes: (themes) ->
+    themes.filter ({theme}) -> theme
+
+  filterInstalledThemes: (themes) ->
+    installedThemes = atom.themes.getAvailableNames()
+    @filterThemes(themes).filter ({name}) ->
+      not (name in installedThemes)
+
   # Load and display themes available to install.
   loadAvailableThemes: ->
     @loadingMessage.show()
     @emptyMessage.hide()
 
-    @packageManager.getAvailable()
-      .then (packages) =>
-        installedThemes = atom.themes.getAvailableNames()
-        themes = packages.filter ({name, theme}) ->
-          theme and not (name in installedThemes)
-
-        @loadingMessage.hide()
-        if themes.length > 0
-          for theme in themes
-            @themeRow.append(new AvailablePackageView(theme, @packageManager))
-        else
+    @packageManager.getFeatured()
+      .then (themes) =>
+        themes = @filterThemes(themes)
+        if themes.length is 0
+          @loadingMessage.hide()
+          @emptyMessage.removeClass('icon-heart').addClass('icon-rocket')
+          @emptyMessage.text('No featured themes, create and publish one!')
           @emptyMessage.show()
+        else
+          themes = @filterInstalledThemes(themes)
+          @loadingMessage.hide()
+          @addThemeViews(@featuredContainer, themes)
+          @emptyMessage.show() if themes.length is 0
       .catch (error) =>
         @loadingMessage.hide()
+        @errors.append(new ErrorView(error))
+
+  search: (query) ->
+    @results.show()
+    @searchMessage.text("Searching for '#{query}'\u2026").show()
+
+    @packageManager.search(query)
+      .then (themes) =>
+        themes = @filterInstalledThemes(themes)
+        @searchMessage.text("Search results for '#{query}' (#{themes.length})")
+        @results.show()
+        @addThemeViews(@resultsContainer, themes)
+      .catch (error) =>
         @errors.append(new ErrorView(error))

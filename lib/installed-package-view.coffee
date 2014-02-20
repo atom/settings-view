@@ -149,9 +149,7 @@ class InstalledPackageView extends View
     @updateArea.hide()
     @updateLink.on 'click', => @installUpdate()
 
-    @packageManager.getAvailable().then (packages) =>
-      for pack in packages when @pack.name is pack.name
-        available = pack
+    @packageManager.getPackage(@pack.name).then (available) =>
       return unless available?
       return unless @packageManager.canUpgrade(@pack, available)
 
