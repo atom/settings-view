@@ -13,7 +13,7 @@ class PackagesPanel extends View
   @content: ->
     @div =>
       @div class: 'section packages', =>
-        @div class: 'section-heading theme-heading icon icon-cloud-download', 'Install Packages'
+        @div class: 'section-heading icon icon-cloud-download', 'Install Packages'
 
         @div class: 'text padded', =>
           @span class: 'icon icon-question'
@@ -27,21 +27,21 @@ class PackagesPanel extends View
           @subview 'searchEditorView', new EditorView(mini: true)
 
         @div outlet: 'results', =>
-          @div outlet: 'searchMessage', class: 'icon icon-search text'
+          @div outlet: 'searchMessage', class: 'alert alert-info search-message icon icon-search'
           @div outlet: 'resultsContainer', class: 'container package-container'
 
-        @div outlet: 'featured', =>
-          @div class: 'icon icon-star text', 'Featured Packages'
-          @div outlet: 'loadingMessage', class: 'padded text icon icon-hourglass', 'Loading featured packages\u2026'
-          @div outlet: 'emptyMessage', class: 'padded text icon icon-heart', 'You have every featured package installed already!'
-          @div outlet: 'featuredContainer', class: 'container package-container'
+      @div class: 'section packages', =>
+        @div class: 'section-heading icon icon-star', 'Featured Packages'
+        @div outlet: 'loadingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Loading featured packages\u2026'
+        @div outlet: 'emptyMessage', class: 'alert alert-info featured-message icon icon-heart', 'You have every featured package installed already!'
+        @div outlet: 'featuredContainer', class: 'container package-container'
 
   initialize: (@packageManager) ->
     @openAtomIo.on 'click', =>
       require('shell').openExternal('https://atom.io/packages')
       false
 
-    @results.hide()
+    @searchMessage.hide()
     @emptyMessage.hide()
 
     @searchEditorView.setPlaceholderText('Search packages')
@@ -58,16 +58,16 @@ class PackagesPanel extends View
     @searchEditorView.focus()
 
   search: (query) ->
-    @results.show()
-    @searchMessage.text("Searching for '#{query}'\u2026").show()
+    if @resultsContainer.children().length is 0
+      @searchMessage.text("Searching for '#{query}'\u2026").show()
 
     @packageManager.search(query)
       .then (packages=[]) =>
         packages = @filterInstalledPackages(packages)
         if packages.length is 0
-          @searchMessage.text("No package results for '#{query}'")
+          @searchMessage.text("No package results for '#{query}'").show()
         else
-          @searchMessage.text("Package results for '#{query}'")
+          @searchMessage.hide()
         @results.show()
         @addPackageViews(@resultsContainer, packages)
       .catch (error) =>

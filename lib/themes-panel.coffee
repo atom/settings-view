@@ -13,7 +13,7 @@ class ThemesPanel extends View
   @content: ->
     @div =>
       @div class: 'section packages', =>
-        @div class: 'section-heading theme-heading icon icon-device-desktop', 'Choose a Theme'
+        @div class: 'section-heading icon icon-device-desktop', 'Choose a Theme'
 
         @div class: 'text padded', =>
           @span class: 'icon icon-question', 'You can also style Atom by editing '
@@ -33,7 +33,7 @@ class ThemesPanel extends View
               @div class: 'text theme-description', 'This styles the text inside the editor'
 
       @div class: 'section packages', =>
-        @div class: 'section-heading theme-heading icon icon-cloud-download', 'Install Themes'
+        @div class: 'section-heading icon icon-cloud-download', 'Install Themes'
 
         @div class: 'text padded', =>
           @span class: 'icon icon-question'
@@ -46,22 +46,21 @@ class ThemesPanel extends View
         @div class: 'editor-container padded', =>
           @subview 'searchEditorView', new EditorView(mini: true)
 
-        @div outlet: 'results', =>
-          @div outlet: 'searchMessage', class: 'icon icon-search text'
-          @div outlet: 'resultsContainer', class: 'container package-container'
+        @div outlet: 'searchMessage', class: 'alert alert-info icon icon-search search-message'
+        @div outlet: 'resultsContainer', class: 'container package-container'
 
-        @div outlet: 'featured', =>
-          @div class: 'icon icon-star text', 'Featured Themes'
-          @div outlet: 'loadingMessage', class: 'padded text icon icon-hourglass', 'Loading featured themes\u2026'
-          @div outlet: 'emptyMessage', class: 'padded text icon icon-heart', 'You have every featured theme installed already!'
-          @div outlet: 'featuredContainer', class: 'container package-container'
+      @div class: 'section packages', =>
+        @div class: 'section-heading icon icon-star', 'Featured Themes'
+        @div outlet: 'loadingMessage', class: 'alert alert-info icon icon-hourglass featured-message', 'Loading featured themes\u2026'
+        @div outlet: 'emptyMessage', class: 'alert alert-info icon icon-heart featured-message', 'You have every featured theme installed already!'
+        @div outlet: 'featuredContainer', class: 'container package-container'
 
   initialize: (@packageManager) ->
     @openAtomIo.on 'click', =>
       require('shell').openExternal('https://atom.io/packages')
       false
 
-    @results.hide()
+    @searchMessage.hide()
     @emptyMessage.hide()
 
     @searchEditorView.setPlaceholderText('Search themes')
@@ -90,7 +89,7 @@ class ThemesPanel extends View
       @activeUiTheme = @uiMenu.val()
       @updateThemeConfig()
 
-    @loadAvailableThemes()
+    @loadFeaturedThemes()
 
   # Update the active UI and syntax themes and populate the menu
   updateActiveThemes: ->
@@ -162,8 +161,8 @@ class ThemesPanel extends View
     @filterThemes(themes).filter ({name}) ->
       not (name in installedThemes)
 
-  # Load and display themes available to install.
-  loadAvailableThemes: ->
+  # Load and display the featured themes available to install.
+  loadFeaturedThemes: ->
     @loadingMessage.show()
     @emptyMessage.hide()
 
@@ -185,17 +184,16 @@ class ThemesPanel extends View
         @errors.append(new ErrorView(error))
 
   search: (query) ->
-    @results.show()
-    @searchMessage.text("Searching for '#{query}'\u2026").show()
+    if @resultsContainer.children().length is 0
+      @searchMessage.text("Searching for '#{query}'\u2026").show()
 
     @packageManager.search(query)
       .then (themes) =>
         themes = @filterInstalledThemes(themes)
         if themes.length is 0
-          @searchMessage.text("No theme results for '#{query}'")
+          @searchMessage.text("No theme results for '#{query}'").show()
         else
-          @searchMessage.text("Theme results for '#{query}'")
-        @results.show()
+          @searchMessage.hide()
         @addThemeViews(@resultsContainer, themes)
       .catch (error) =>
         @errors.append(new ErrorView(error))
