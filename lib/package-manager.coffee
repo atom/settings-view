@@ -159,7 +159,7 @@ class PackageManager
     {name, theme} = pack
     atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
 
-    @runCommand ['uninstall', name], (code, stdout, stderr) =>
+    @runCommand ['uninstall', '--hard', name], (code, stdout, stderr) =>
       if code is 0
         atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
         callback?()
