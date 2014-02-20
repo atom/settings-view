@@ -46,7 +46,8 @@ class PackagesPanel extends View
 
     @searchEditorView.setPlaceholderText('Search packages')
     @searchEditorView.on 'core:confirm', =>
-      @search(@searchEditorView.getText().trim())
+      if query = @searchEditorView.getText().trim()
+        @search(query)
 
     @subscribe @packageManager, 'package-install-failed', (pack, error) =>
       @errors.append(new ErrorView(error))
