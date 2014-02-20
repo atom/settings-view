@@ -40,6 +40,9 @@ class PackagesPanel extends View
 
     @loadFeaturedPackages()
 
+  focus: ->
+    @searchEditorView.focus()
+
   search: (query) ->
     @results.show()
     @searchMessage.text("Searching for '#{query}'\u2026").show()

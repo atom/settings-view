@@ -143,8 +143,9 @@ class SettingsView extends ScrollView
       @panelMenu.children('.active').removeClass('active')
       @panels.append(panel) unless $.contains(@panels[0], panel[0])
       panel.show()
-      for editorElement in panel.find(".editor")
+      for editorElement, index in panel.find(".editor")
         $(editorElement).view().redraw()
+      panel.focus()
       @makePanelMenuActive(name)
       @activePanelName = name
       @panelToShow = null
