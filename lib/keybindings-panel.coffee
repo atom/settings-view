@@ -16,7 +16,7 @@ class KeybindingsPanel extends View
         @a class: 'link', outlet: 'openUserKeymap', 'your keymap file'
 
       @div class: 'editor-container padded', =>
-        @subview 'filter', new EditorView(mini: true)
+        @subview 'searchEditorView', new EditorView(mini: true)
 
       @table class: 'native-key-bindings table text', tabindex: -1, =>
         @col class: 'keystroke'
@@ -36,19 +36,19 @@ class KeybindingsPanel extends View
       atom.workspaceView.trigger('application:open-your-keymap')
       false
 
-    @filter.setPlaceholderText('Search keybindings')
+    @searchEditorView.setPlaceholderText('Search keybindings')
     @keyBindings = _.sortBy(atom.keymap.getKeyBindings(), 'keystroke')
     @appendKeyBindings(@keyBindings)
 
-    @filter.getEditor().getBuffer().on 'contents-modified', =>
-      @filterKeyBindings(@keyBindings, @filter.getText())
+    @searchEditorView.getEditor().getBuffer().on 'contents-modified', =>
+      @filterKeyBindings(@keyBindings, @searchEditorView.getText())
 
     @on 'click', '.copy-icon', ({target}) =>
       keyBinding = $(target).closest('tr').data('keyBinding')
       @writeKeyBindingToClipboard(keyBinding)
 
   focus: ->
-    @filter.focus()
+    @searchEditorView.focus()
 
   filterKeyBindings: (keyBindings, filterString) ->
     @keybindingRows.empty()
