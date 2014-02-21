@@ -36,7 +36,7 @@ class KeybindingsPanel extends View
       atom.workspaceView.trigger('application:open-your-keymap')
       false
 
-    @filter.setPlaceholderText('Search')
+    @filter.setPlaceholderText('Search keybindings')
     @keyBindings = _.sortBy(atom.keymap.getKeyBindings(), 'keystroke')
     @appendKeyBindings(@keyBindings)
 
