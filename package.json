@@ -1,6 +1,6 @@
 {
   "name": "settings-view",
-  "version": "0.79.0",
+  "version": "0.80.0",
   "main": "./lib/index",
   "description": "Edit settings and install packages and themes in Atom",
   "license": "MIT",
