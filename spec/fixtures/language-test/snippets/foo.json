@@ -1,6 +1,8 @@
 {
-  "content": "foo!",
-  "name": "FOO",
-  "scope": "source.a",
-  "tabTrigger": "f"
+  ".source.a": {
+    "FOO": {
+      "prefix": "f",
+      "body": "foo!"
+    }
+  }
 }

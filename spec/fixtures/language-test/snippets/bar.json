@@ -1,6 +1,8 @@
 {
-  "content": "bar?",
-  "name": "BAR",
-  "scope": "source.b",
-  "tabTrigger": "b"
+  ".source.b": {
+    "BAR": {
+      "prefix": "b",
+      "body": "bar?"
+    }
+  }
 }
