@@ -1,4 +1,5 @@
 path = require 'path'
+url = require 'url'
 
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
@@ -26,13 +27,13 @@ class InstalledPackageView extends View
         @span ' '
         @span outlet: 'disabledLabel', class: 'label label-warning', 'Disabled'
 
+      @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
       @p outlet: 'description', class: 'text-subtle'
       @p outlet: 'startupTime', class: 'text-subtle icon icon-dashboard'
 
       @div outlet: 'buttons', class: 'btn-group', =>
         @button outlet: 'disableButton', class: 'btn btn-default icon'
         @button outlet: 'uninstallButton', class: 'btn btn-default icon icon-trashcan', 'Uninstall'
-        @button outlet: 'homepageButton', class: 'btn btn-default icon icon-home', 'Visit Homepage'
         @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
         @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'Open README'
 
@@ -52,6 +53,11 @@ class InstalledPackageView extends View
 
     @type = if @pack.metadata.theme then 'theme' else 'package'
     @startupTime.text("This #{@type} added #{@getStartupTime()}ms to startup time.")
+
+    if repoUrl = @getRepositoryUrl()
+      @packageRepo.text(url.parse(repoUrl).pathname.substring(1)).show()
+    else
+      @packageRepo.hide()
 
     @description.text(@pack.metadata.description)
     @version.text(@pack.metadata.version)
@@ -81,7 +87,7 @@ class InstalledPackageView extends View
           console.error("Uninstalling #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
       false
 
-    @homepageButton.on 'click', =>
+    @packageRepo.on 'click', =>
       if repoUrl = @getRepositoryUrl()
         shell.openExternal(repoUrl)
       false
@@ -118,9 +124,9 @@ class InstalledPackageView extends View
     loadTime + activateTime
 
   getRepositoryUrl: ->
-    repository = @pack.metadata.repository
-    url = repository.url ? repository ? ''
-    url.replace(/\.git$/, '').replace(/\/$/, '')
+    {repository} = @pack.metadata
+    repoUrl = repository?.url ? repository ? ''
+    repoUrl.replace(/\.git$/, '').replace(/\/+$/, '')
 
   installUpdate: ->
     return if @updateLink.prop('disabled')
