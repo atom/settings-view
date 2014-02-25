@@ -31,7 +31,7 @@ class AvailablePackageView extends View
           @installButton.text('Installed')
 
     @learnMoreButton.on 'click', =>
-      shell.openExternal "https://www.atom.io/packages/#{@pack.name}"
+      shell.openExternal "https://atom.io/packages/#{@pack.name}"
 
   setStatusIcon: (iconName) ->
     @status.removeClass('icon-check icon-alert icon-cloud-download')
