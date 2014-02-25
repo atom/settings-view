@@ -37,7 +37,7 @@ class ThemesPanel extends View
 
         @div class: 'text padded', =>
           @span class: 'icon icon-question'
-          @span 'Themes are hosted on  '
+          @span 'Themes are published to  '
           @a class: 'link', outlet: "openAtomIo", "atom.io"
           @span " and are installed to #{path.join(fs.getHomeDirectory(), '.atom', 'packages')}"
 

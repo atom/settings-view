@@ -17,7 +17,7 @@ class PackagesPanel extends View
 
         @div class: 'text padded', =>
           @span class: 'icon icon-question'
-          @span 'Packages are hosted on  '
+          @span 'Packages are published to  '
           @a class: 'link', outlet: "openAtomIo", "atom.io"
           @span " and are installed to #{path.join(fs.getHomeDirectory(), '.atom', 'packages')}"
 
