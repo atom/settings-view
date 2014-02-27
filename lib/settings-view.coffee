@@ -92,7 +92,7 @@ class SettingsView extends ScrollView
         try
           metadata = CSON.readFileSync(metadataPath)
           name = metadata?.name ? packageName
-          @packages.push({name, metadata})
+          @packages.push({name, metadata, path: packagePath})
 
     @packages.sort (pack1, pack2) =>
       title1 = @packageManager.getPackageTitle(pack1)
