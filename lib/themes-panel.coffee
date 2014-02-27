@@ -186,13 +186,13 @@ class ThemesPanel extends View
 
   search: (query) ->
     if @resultsContainer.children().length is 0
-      @searchMessage.text("Searching for '#{query}'\u2026").show()
+      @searchMessage.text("Searching for \u201C#{query}\u201D\u2026").show()
 
     @packageManager.search(query)
       .then (themes) =>
         themes = @filterInstalledThemes(themes)
         if themes.length is 0
-          @searchMessage.text("No theme results for '#{query}'").show()
+          @searchMessage.text("No theme results for \u201C#{query}\u201D").show()
         else
           @searchMessage.hide()
         @addThemeViews(@resultsContainer, themes)

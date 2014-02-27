@@ -171,7 +171,7 @@ class SettingsView extends ScrollView
       try
         pack.activateConfig()
       catch error
-        console.error "Error activating package config for '#{pack.name}'", error
+        console.error "Error activating package config for \u201C#{pack.name}\u201D", error
       finally
         callback()
 
