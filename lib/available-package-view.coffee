@@ -1,5 +1,5 @@
 _ = require 'underscore-plus'
-{View} = require 'atom'
+{$, View} = require 'atom'
 shell = require 'shell'
 
 module.exports =
@@ -18,20 +18,36 @@ class AvailablePackageView extends View
   initialize: (@pack, @packageManager) ->
     @type = if @pack.theme then 'theme' else 'package'
 
+    @eventName = @pack.name + "-event"
+    @document = $(atom.workspaceView)
+
+    @document.on @eventName, (event, status, error) =>
+      @setInstallStatus(error, status)
+
     @installButton.on 'click', =>
-      @installButton.prop('disabled', true)
-      @setStatusIcon('cloud-download')
+      @document.trigger @eventName, ['installing']
+
       @packageManager.install @pack, (error) =>
         if error?
-          @setStatusIcon('alert')
-          @installButton.prop('disabled', false)
-          console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
+          @document.trigger @eventName, ['failed', error]
         else
-          @setStatusIcon('check')
-          @installButton.text('Installed')
+          @document.trigger @eventName, ['installed']
 
     @learnMoreButton.on 'click', =>
       shell.openExternal "https://atom.io/packages/#{@pack.name}"
+
+  setInstallStatus: (error, status) ->
+    switch status
+      when 'installing'
+        @installButton.prop('disabled', true)
+        @setStatusIcon('cloud-download')
+      when 'installed'
+        @setStatusIcon('check')
+        @installButton.text('Installed')
+      when 'failed'
+        @setStatusIcon('alert')
+        @installButton.prop('disabled', false)
+        console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
 
   setStatusIcon: (iconName) ->
     @status.removeClass('icon-check icon-alert icon-cloud-download')
