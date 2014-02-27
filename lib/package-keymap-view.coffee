@@ -16,7 +16,7 @@ class PackageKeymapView extends View
 
   initialize: (namespace) ->
     for {command, keystroke, selector} in atom.keymap.getKeyBindings()
-      continue unless command.indexOf("#{namespace}:") is 0
+      continue unless command?.indexOf?("#{namespace}:") is 0
 
       @keybindingItems.append $$$ ->
         @tr =>
