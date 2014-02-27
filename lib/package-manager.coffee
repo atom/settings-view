@@ -81,7 +81,7 @@ class PackageManager
         catch error
           deferred.reject(error)
       else
-        error = new Error("Searching for '#{query}' failed.")
+        error = new Error("Searching for \u201C#{query}\u201D failed.")
         error.stdout = stdout
         error.stderr = stderr
         deferred.reject(error)
@@ -111,7 +111,7 @@ class PackageManager
           @emit 'package-updated', pack
       else
         atom.packages.activatePackage(name) if activateOnFailure
-        error = new Error("Updating to '#{name}@#{newVersion}' failed.")
+        error = new Error("Updating to \u201C#{name}@#{newVersion}\u201D failed.")
         error.stdout = stdout
         error.stderr = stderr
         if theme
@@ -144,7 +144,7 @@ class PackageManager
           @emit 'package-installed', pack
       else
         atom.packages.activatePackage(name) if activateOnFailure
-        error = new Error("Installing '#{name}@#{version}' failed.")
+        error = new Error("Installing \u201C#{name}@#{version}\u201D failed.")
         error.stdout = stdout
         error.stderr = stderr
         if theme
@@ -168,7 +168,7 @@ class PackageManager
         else
           @emit 'package-uninstalled', pack
       else
-        error = new Error("Uninstalling '#{name}' failed.")
+        error = new Error("Uninstalling \u201C#{name}\u201D failed.")
         error.stdout = stdout
         error.stderr = stderr
         if theme
