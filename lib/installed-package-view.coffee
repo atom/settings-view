@@ -153,6 +153,8 @@ class InstalledPackageView extends View
 
   checkForUpdate: ->
     @updateArea.hide()
+    return if atom.packages.isBundledPackage(@pack.name)
+
     @updateLink.on 'click', => @installUpdate()
 
     @packageManager.getPackage(@pack.name).then (available) =>
