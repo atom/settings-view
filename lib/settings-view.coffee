@@ -1,7 +1,7 @@
 path = require 'path'
 
 _ = require 'underscore-plus'
-{$, $$, ScrollView} = require 'atom'
+{$, $$, ScrollView, EditorView} = require 'atom'
 async = require 'async'
 CSON = require 'season'
 
@@ -19,7 +19,10 @@ class SettingsView extends ScrollView
     @div class: 'settings-view pane-item', tabindex: -1, =>
       @div class: 'config-menu', =>
         @div class: 'atom-banner'
-        @ul class: 'panels-menu nav nav-pills nav-stacked', outlet: 'panelMenu'
+        @ul class: 'panels-menu nav nav-pills nav-stacked', outlet: 'panelMenu', =>
+          @div class: 'panel-menu-separator'
+          @div class: 'editor-container settings-filter', =>
+            @subview 'filterEditor', new EditorView(mini: true, placeholderText: 'Filter packages')
         @div class: 'button-area', =>
           @button class: 'btn btn-default icon icon-link-external', outlet: 'openDotAtom', 'Open ~/.atom'
       @div class: 'panels padded', outlet: 'panels'
@@ -63,13 +66,16 @@ class SettingsView extends ScrollView
     @openDotAtom.on 'click', ->
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
 
+    @filterEditor.getEditor().on 'contents-modified', =>
+      @filterPackages()
+
+    # add core packages in inverse order
     @addCorePanel 'Settings', 'settings', -> new GeneralPanel
     @addCorePanel 'Keybindings', 'keyboard', -> new KeybindingsPanel
     @addCorePanel 'Packages', 'package', => new PackagesPanel(@packageManager)
     @addCorePanel 'Themes', 'paintcan', => new ThemesPanel(@packageManager)
-    @addPanelMenuSeparator()
-    @addPackagePanel(pack) for pack in @getPackages()
 
+    @addPackagePanel(pack) for pack in @getPackages()
     @showPanel(@panelToShow) if @panelToShow
     @showPanel('Settings') unless @activePanelName
 
@@ -109,16 +115,17 @@ class SettingsView extends ScrollView
     panelMenuItem = $$ ->
       @li name: name, =>
         @a class: "icon icon-#{iconName}", name
-    @addPanel(name, panelMenuItem, panel)
+    @addPanel name, panelMenuItem, true, panel
 
   addPackagePanel: (pack) ->
     title = @packageManager.getPackageTitle(pack)
     panelMenuItem = new PackageMenuView(pack, @packageManager)
-    @addPanel pack.name, panelMenuItem, =>
+    @addPanel pack.name, panelMenuItem, false, =>
       new InstalledPackageView(pack, @packageManager)
 
-  addPanel: (name, panelMenuItem, panelCreateCallback) ->
-    @panelMenu.append(panelMenuItem)
+  addPanel: (name, panelMenuItem, isCorePanel, panelCreateCallback) ->
+    @panelMenu.prepend(panelMenuItem) if isCorePanel
+    @panelMenu.append(panelMenuItem) unless isCorePanel
     @panelCreateCallbacks ?= {}
     @panelCreateCallbacks[name] = panelCreateCallback
     @showPanel(name) if @panelToShow is name
@@ -151,6 +158,15 @@ class SettingsView extends ScrollView
       @panelToShow = null
     else
       @panelToShow = name
+
+  filterPackages: ->
+    filter = @filterEditor.getEditor().getText()
+    $('li[type=package] a').each ->
+      item = $(@)
+      if not filter or item.text().match new RegExp(filter, "i")
+        item.parent().show()
+      else
+        item.parent().hide()
 
   removePanel: (name) ->
     if panel = @panelsByName?[name]
