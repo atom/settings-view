@@ -137,5 +137,5 @@ appendArray = (namespace, name, value) ->
       @subview keyPath.replace(/\./g, ''), new EditorView(mini: true, attributes: {id: keyPath, type: 'array'})
 
 appendObject = (namespace, name, value) ->
-  for childName, childValue of value
-    appendSetting.call(this, namespace, "#{name}.#{childName}", childValue)
+  for key in _.keys(value).sort()
+    appendSetting.call(this, namespace, "#{name}.#{key}", value[key])
