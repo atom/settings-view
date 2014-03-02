@@ -36,6 +36,7 @@ class AvailablePackageView extends View
     if atom.packages.isPackageLoaded(@pack.name)
       @installButton.prop('disabled', true)
       @installButton.text('Installed')
+      @setStatusIcon('check')
     else if atom.packages.isPackageDisabled(@pack.name)
       @installButton.prop('disabled', true)
 
