@@ -1,5 +1,5 @@
 _ = require 'underscore-plus'
-{$, View} = require 'atom'
+{View} = require 'atom'
 shell = require 'shell'
 
 module.exports =
@@ -18,36 +18,32 @@ class AvailablePackageView extends View
   initialize: (@pack, @packageManager) ->
     @type = if @pack.theme then 'theme' else 'package'
 
-    @eventName = @pack.name + "-event"
-    @document = $(atom.workspaceView)
-
-    @document.on @eventName, (event, status, error) =>
-      @setInstallStatus(error, status)
+    @handlePackageEvents()
 
     @installButton.on 'click', =>
-      @document.trigger @eventName, ['installing']
+      @packageManager.emit('package-installing', @pack)
 
       @packageManager.install @pack, (error) =>
-        if error?
-          @document.trigger @eventName, ['failed', error]
-        else
-          @document.trigger @eventName, ['installed']
+        if error
+          console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
 
     @learnMoreButton.on 'click', =>
       shell.openExternal "https://atom.io/packages/#{@pack.name}"
 
-  setInstallStatus: (error, status) ->
-    switch status
-      when 'installing'
+  handlePackageEvents: ->
+    @subscribe @packageManager, 'package-installed package-install-failed theme-installed', (pack, error) =>
+      if pack.name == @pack.name
+        if error
+          @setStatusIcon('alert')
+          @installButton.prop('disabled', false)
+        else
+          @setStatusIcon('check')
+          @installButton.text('Installed')
+
+    @subscribe @packageManager, 'package-installing', (pack) =>
+      if pack.name == @pack.name
         @installButton.prop('disabled', true)
         @setStatusIcon('cloud-download')
-      when 'installed'
-        @setStatusIcon('check')
-        @installButton.text('Installed')
-      when 'failed'
-        @setStatusIcon('alert')
-        @installButton.prop('disabled', false)
-        console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
 
   setStatusIcon: (iconName) ->
     @status.removeClass('icon-check icon-alert icon-cloud-download')
