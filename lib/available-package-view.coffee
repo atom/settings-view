@@ -31,7 +31,7 @@ class AvailablePackageView extends View
       shell.openExternal "https://atom.io/packages/#{@pack.name}"
 
   handlePackageEvents: ->
-    @subscribe @packageManager, 'package-installed package-install-failed theme-installed', (pack, error) =>
+    @subscribe @packageManager, 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
       if pack.name == @pack.name
         if error
           @setStatusIcon('alert')
