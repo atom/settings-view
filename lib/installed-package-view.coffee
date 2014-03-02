@@ -20,7 +20,7 @@ class InstalledPackageView extends View
         @span outlet: 'updateLabel', class: 'icon icon-squirrel update-message'
         @span outlet: 'updateLink', class: 'alert-link update-link icon icon-cloud-download', 'Install'
 
-      @h3 =>
+      @h3 class: 'native-key-bindings', tabindex: -1, =>
         @span outlet: 'title', class: 'text'
         @span ' '
         @span outlet: 'version', class: 'label label-primary'
@@ -28,8 +28,8 @@ class InstalledPackageView extends View
         @span outlet: 'disabledLabel', class: 'label label-warning', 'Disabled'
 
       @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
-      @p outlet: 'description', class: 'text-subtle'
-      @p outlet: 'startupTime', class: 'text-subtle icon icon-dashboard'
+      @p outlet: 'description', class: 'text-subtle native-key-bindings', tabindex: -1
+      @p outlet: 'startupTime', class: 'text-subtle icon icon-dashboard native-key-bindings', tabindex: -1
 
       @div outlet: 'buttons', class: 'btn-group', =>
         @button outlet: 'disableButton', class: 'btn btn-default icon'
