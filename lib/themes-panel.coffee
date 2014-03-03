@@ -15,7 +15,7 @@ class ThemesPanel extends View
       @div class: 'section packages', =>
         @div class: 'section-heading icon icon-device-desktop', 'Choose a Theme'
 
-        @div class: 'text padded', =>
+        @div class: 'text padded native-key-bindings', tabindex: -1, =>
           @span class: 'icon icon-question', 'You can also style Atom by editing '
           @a class: 'link', outlet: 'openUserStysheet', 'your stylesheet'
 
@@ -35,7 +35,7 @@ class ThemesPanel extends View
       @div class: 'section packages', =>
         @div class: 'section-heading icon icon-cloud-download', 'Install Themes'
 
-        @div class: 'text padded', =>
+        @div class: 'text padded native-key-bindings', tabindex: -1, =>
           @span class: 'icon icon-question'
           @span 'Themes are published to  '
           @a class: 'link', outlet: "openAtomIo", "atom.io"

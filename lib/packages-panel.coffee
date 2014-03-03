@@ -15,7 +15,7 @@ class PackagesPanel extends View
       @div class: 'section packages', =>
         @div class: 'section-heading icon icon-cloud-download', 'Install Packages'
 
-        @div class: 'text padded', =>
+        @div class: 'text padded native-key-bindings', tabindex: -1, =>
           @span class: 'icon icon-question'
           @span 'Packages are published to  '
           @a class: 'link', outlet: "openAtomIo", "atom.io"
