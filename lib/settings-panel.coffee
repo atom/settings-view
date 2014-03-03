@@ -107,7 +107,7 @@ appendSetting = (namespace, name, value) ->
       else
         appendEditor.call(this, namespace, name, value)
 
-getSettingTitle = (name) ->
+getSettingTitle = (name='') ->
   _.uncamelcase(name).split('.').map(_.capitalize).join(' ')
 
 appendCheckbox = (namespace, name, value) ->
