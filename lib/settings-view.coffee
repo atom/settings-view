@@ -2,6 +2,7 @@ path = require 'path'
 
 _ = require 'underscore-plus'
 {$, $$, ScrollView, EditorView} = require 'atom'
+{filter} = require 'fuzzaldrin'
 async = require 'async'
 CSON = require 'season'
 
@@ -160,13 +161,13 @@ class SettingsView extends ScrollView
       @panelToShow = name
 
   filterPackages: ->
-    filter = @filterEditor.getEditor().getText()
-    $('li[type=package] a').each ->
-      item = $(@)
-      if not filter or item.text().match new RegExp(filter, "i")
-        item.parent().show()
-      else
-        item.parent().hide()
+    filterText = @filterEditor.getEditor().getText()
+    all = _.map $('li[type=package] a'), (item) ->
+      element: $(item).parent()
+      text: $(item).text()
+    active = filter all, filterText, key: 'text'
+    _.each all, (item) -> item.element.hide()
+    _.each active, (item) -> item.element.show()
 
   removePanel: (name) ->
     if panel = @panelsByName?[name]
