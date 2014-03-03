@@ -53,3 +53,15 @@ describe "InstalledPackageView", ->
       expect(snippetsTable.find('tr:eq(1) td:eq(0)').text()).toBe 'f'
       expect(snippetsTable.find('tr:eq(1) td:eq(1)').text()).toBe 'FOO'
       expect(snippetsTable.find('tr:eq(1) td:eq(2)').text()).toBe 'foo!'
+
+  it "does not display keybindings from other platforms", ->
+    keybindingsTable = null
+
+    waitsForPromise ->
+      atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+
+    runs ->
+      pack = atom.packages.getActivePackage('language-test')
+      view = new InstalledPackageView(pack, new PackageManager())
+      keybindingsTable = view.find('.package-keymap-table tbody')
+      expect(keybindingsTable.children().length).toBe 0
