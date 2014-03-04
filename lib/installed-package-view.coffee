@@ -27,7 +27,12 @@ class InstalledPackageView extends View
         @span ' '
         @span outlet: 'disabledLabel', class: 'label label-warning', 'Disabled'
 
-      @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
+      @div class: 'author-info', =>
+        @img outlet: 'avatar', class: 'avatar-image'
+        @div class: 'name-container' ,=>
+          @span outlet: 'authorFullName', class:'full-name', ''
+          @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
+
       @p outlet: 'description', class: 'text-subtle native-key-bindings', tabindex: -1
       @p outlet: 'startupTime', class: 'text-subtle icon icon-dashboard native-key-bindings', tabindex: -1
 
@@ -56,10 +61,16 @@ class InstalledPackageView extends View
     @startupTime.text("This #{@type} added #{@getStartupTime()}ms to startup time.")
 
     if repoUrl = @getRepositoryUrl()
-      @packageRepo.text(url.parse(repoUrl).pathname.substring(1)).show()
+      repoName = url.parse(repoUrl).pathname
+      @packageRepo.text(repoName.substring(1)).show()
     else
       @packageRepo.hide()
+      @isCorePackageLabel.hide()
 
+    authorUsername = @getAuthorUserName()
+    authorName = @pack.metadata?.author?.name or @pack.metadata?.author or authorUsername
+    @authorFullName.text authorName
+    @avatar.attr 'src', "http://github.com/#{authorUsername}.png"
     @description.text(@pack.metadata.description)
     @version.text(@pack.metadata.version)
     @disableButton.hide() if @pack.metadata.theme
@@ -69,6 +80,16 @@ class InstalledPackageView extends View
     @sections.append(new PackageKeymapView(@pack.name))
     @sections.append(new PackageGrammarsView(@pack.path))
     @sections.append(new PackageSnippetsView(@pack.path))
+
+  getAuthorUserName: ->
+    return null unless repoUrl = @getRepositoryUrl()
+    repoName = url.parse(repoUrl).pathname
+    chunks = repoName.match '/(.+?)/'
+    return null unless chunks
+    chunks[1]
+
+  isCorePackage: ->
+    @getAuthorUserName() is 'atom'
 
   handleButtonEvents: ->
     @disableButton.on 'click', =>

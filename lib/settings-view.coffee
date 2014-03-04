@@ -1,5 +1,4 @@
 path = require 'path'
-
 _ = require 'underscore-plus'
 {$, $$, ScrollView, EditorView} = require 'atom'
 async = require 'async'
@@ -130,10 +129,10 @@ class SettingsView extends ScrollView
 
   addPackagePanel: (pack) ->
     title = @packageManager.getPackageTitle(pack)
-    panelMenuItem = new PackageMenuView(pack, @packageManager)
+    packageView = new InstalledPackageView(pack, @packageManager)
+    panelMenuItem = new PackageMenuView(pack, @packageManager, packageView.isCorePackage())
     @panelMenu.append(panelMenuItem)
-    @addPanel pack.name, panelMenuItem, =>
-      new InstalledPackageView(pack, @packageManager)
+    @addPanel pack.name, panelMenuItem, -> packageView
 
   addPanel: (name, panelMenuItem, panelCreateCallback) ->
     @panelCreateCallbacks ?= {}

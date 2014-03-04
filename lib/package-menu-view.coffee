@@ -1,4 +1,5 @@
 _ = require 'underscore-plus'
+url = require 'url'
 {View} = require 'atom'
 
 # Menu item view for an installed package
@@ -6,12 +7,15 @@ module.exports =
 class PackageMenuView extends View
   @content: ->
     @li =>
-      @a outlet: 'link', class: 'icon'
+      @a outlet: 'link', class: 'icon', =>
+        @span outlet:'nameLabel'
+        @span outlet:'corePackageLabel', class: 'core-package', 'Core package'
 
-  initialize: (@pack, @packageManager) ->
+  initialize: (@pack, @packageManager, isCorePackage) ->
     @attr('name', @pack.name)
     @attr('type', 'package')
-    @link.text(@packageManager.getPackageTitle(@pack))
+    @nameLabel.text(@packageManager.getPackageTitle(@pack))
+    @corePackageLabel.hide() unless isCorePackage
 
     @checkForUpdates()
 
@@ -26,5 +30,5 @@ class PackageMenuView extends View
         @link.addClass('icon-squirrel')
 
   getAvailablePackage: (callback) ->
-    @packageManager.getPackage(@pack.name).then (availablePackage) =>
+    @packageManager.getPackage(@pack.name).then (availablePackage) ->
       callback(availablePackage)
