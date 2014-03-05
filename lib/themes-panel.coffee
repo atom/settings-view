@@ -15,7 +15,7 @@ class ThemesPanel extends View
       @div class: 'section packages', =>
         @div class: 'section-heading icon icon-device-desktop', 'Choose a Theme'
 
-        @div class: 'text padded', =>
+        @div class: 'text padded native-key-bindings', tabindex: -1, =>
           @span class: 'icon icon-question', 'You can also style Atom by editing '
           @a class: 'link', outlet: 'openUserStysheet', 'your stylesheet'
 
@@ -35,7 +35,7 @@ class ThemesPanel extends View
       @div class: 'section packages', =>
         @div class: 'section-heading icon icon-cloud-download', 'Install Themes'
 
-        @div class: 'text padded', =>
+        @div class: 'text padded native-key-bindings', tabindex: -1, =>
           @span class: 'icon icon-question'
           @span 'Themes are published to  '
           @a class: 'link', outlet: "openAtomIo", "atom.io"
@@ -157,11 +157,6 @@ class ThemesPanel extends View
   filterThemes: (themes) ->
     themes.filter ({theme}) -> theme
 
-  filterInstalledThemes: (themes) ->
-    installedThemes = atom.themes.getAvailableNames()
-    @filterThemes(themes).filter ({name}) ->
-      not (name in installedThemes)
-
   # Load and display the featured themes available to install.
   loadFeaturedThemes: ->
     @loadingMessage.show()
@@ -176,7 +171,7 @@ class ThemesPanel extends View
           @emptyMessage.text('No featured themes, create and publish one!')
           @emptyMessage.show()
         else
-          themes = @filterInstalledThemes(themes)
+          themes = @filterThemes(themes)
           @loadingMessage.hide()
           @addThemeViews(@featuredContainer, themes)
           @emptyMessage.show() if themes.length is 0
@@ -190,7 +185,7 @@ class ThemesPanel extends View
 
     @packageManager.search(query)
       .then (themes) =>
-        themes = @filterInstalledThemes(themes)
+        themes = @filterThemes(themes)
         if themes.length is 0
           @searchMessage.text("No theme results for \u201C#{query}\u201D").show()
         else

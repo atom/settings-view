@@ -1,0 +1,2 @@
+'.platform-n64':
+  'cmd-g': 'language-test:run'

@@ -1,5 +1,5 @@
 _ = require 'underscore-plus'
-{BufferedNodeProcess} = require 'atom'
+{BufferedProcess} = require 'atom'
 {Emitter} = require 'emissary'
 Q = require 'q'
 semver = require 'semver'
@@ -23,7 +23,7 @@ class PackageManager
       callback(code, outputLines.join('\n'), errorLines.join('\n'))
 
     args.push('--no-color')
-    new BufferedNodeProcess({command, args, stdout, stderr, exit})
+    new BufferedProcess({command, args, stdout, stderr, exit})
 
   loadFeatured: (callback) ->
     args = ['featured', '--json']

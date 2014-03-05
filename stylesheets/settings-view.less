@@ -73,6 +73,13 @@
     color: #262626;
     font-size: 16px;
     margin: 10px 0;
+    -webkit-user-select: none;
+    cursor: default;
+  }
+
+  .control-label {
+    -webkit-user-select: none;
+    cursor: default;
   }
 
   .link {
@@ -88,6 +95,7 @@
     -webkit-flex-direction: column;
     box-shadow: -1px 0px 1px -1px #aeaeae inset;
     background-color: #e7e7e7;
+    -webkit-user-select: none;
 
     .atom-banner {
       margin-left: 20px;
@@ -124,6 +132,11 @@
     .nav > li > a {
       border-radius: 0;
       color: #434343;
+
+      &:hover {
+        background-color: #f2f2f2;
+        box-shadow: -1px 0px 1px -1px #aeaeae inset;
+      }
     }
 
     .nav > li.active > a {
@@ -204,6 +217,8 @@
     .theme-description {
       margin-top: 5px;
       padding-bottom: @component-padding;
+      -webkit-user-select: none;
+      cursor: default;
     }
 
     .package-container {
@@ -235,6 +250,8 @@
     .available-package-view {
       min-width: 190px;
       border-radius: 1px;
+      padding-left: @component-padding;
+      padding-right: @component-padding;
 
       .thumbnail {
         border-radius: 3px;

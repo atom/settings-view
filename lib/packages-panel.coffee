@@ -15,7 +15,7 @@ class PackagesPanel extends View
       @div class: 'section packages', =>
         @div class: 'section-heading icon icon-cloud-download', 'Install Packages'
 
-        @div class: 'text padded', =>
+        @div class: 'text padded native-key-bindings', tabindex: -1, =>
           @span class: 'icon icon-question'
           @span 'Packages are published to  '
           @a class: 'link', outlet: "openAtomIo", "atom.io"
@@ -62,7 +62,7 @@ class PackagesPanel extends View
 
     @packageManager.search(query)
       .then (packages=[]) =>
-        packages = @filterInstalledPackages(packages)
+        packages = @filterPackages(packages)
         if packages.length is 0
           @searchMessage.text("No package results for \u201C#{query}\u201D").show()
         else
@@ -81,10 +81,8 @@ class PackagesPanel extends View
         container.append(packageRow)
       packageRow.append(new AvailablePackageView(pack, @packageManager))
 
-  filterInstalledPackages: (packages) ->
-    installedPackages = atom.packages.getAvailablePackageNames()
-    packages.filter ({name, theme}) ->
-      not theme and not (name in installedPackages)
+  filterPackages: (packages) ->
+    packages.filter ({theme}) -> not theme
 
   # Load and display the featured packages that are available to install.
   loadFeaturedPackages: ->
@@ -92,7 +90,7 @@ class PackagesPanel extends View
 
     @packageManager.getFeatured()
       .then (packages) =>
-        packages = @filterInstalledPackages(packages)
+        packages = @filterPackages(packages)
         @loadingMessage.hide()
         @emptyMessage.show() if packages.length is 0
         @addPackageViews(@featuredContainer, packages)

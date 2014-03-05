@@ -92,8 +92,9 @@ class SettingsPanel extends View
 ###
 
 appendSetting = (namespace, name, value) ->
-  return if namespace is 'core' and name is 'themes' # Handled in the Themes panel
-  return if namespace is 'core' and name is 'disabledPackages' # Handled in the Packages panel
+  if namespace is 'core'
+    return if name is 'themes' # Handled in the Themes panel
+    return if name is 'disabledPackages' # Handled in the Packages panel
 
   @div class: 'control-group', =>
     @div class: 'controls', =>
@@ -101,34 +102,40 @@ appendSetting = (namespace, name, value) ->
         appendCheckbox.call(this, namespace, name, value)
       else if _.isArray(value)
         appendArray.call(this, namespace, name, value)
+      else if _.isObject(value)
+        appendObject.call(this, namespace, name, value)
       else
         appendEditor.call(this, namespace, name, value)
 
+getSettingTitle = (name='') ->
+  _.uncamelcase(name).split('.').map(_.capitalize).join(' ')
+
 appendCheckbox = (namespace, name, value) ->
-  englishName = _.uncamelcase(name)
   keyPath = "#{namespace}.#{name}"
   @div class: 'checkbox', =>
     @label for: keyPath, =>
       @input id: keyPath, type: 'checkbox'
-      @text englishName
+      @text getSettingTitle(name)
 
 appendEditor = (namespace, name, value) ->
-  englishName = _.uncamelcase(name)
   keyPath = "#{namespace}.#{name}"
   if _.isNumber(value)
     type = if value % 1 == 0 then 'int' else 'float'
   else
     type = 'string'
 
-  @label class: 'control-label', englishName
+  @label class: 'control-label', getSettingTitle(name)
   @div class: 'controls', =>
     @div class: 'editor-container', =>
-      @subview keyPath.replace('.', ''), new EditorView(mini: true, attributes: {id: keyPath, type: type})
+      @subview keyPath.replace(/\./g, ''), new EditorView(mini: true, attributes: {id: keyPath, type: type})
 
 appendArray = (namespace, name, value) ->
-  englishName = _.uncamelcase(name)
   keyPath = "#{namespace}.#{name}"
-  @label class: 'control-label', englishName
+  @label class: 'control-label', getSettingTitle(name)
   @div class: 'controls', =>
     @div class: 'editor-container', =>
-      @subview keyPath.replace('.', ''), new EditorView(mini: true, attributes: {id: keyPath, type: 'array'})
+      @subview keyPath.replace(/\./g, ''), new EditorView(mini: true, attributes: {id: keyPath, type: 'array'})
+
+appendObject = (namespace, name, value) ->
+  for key in _.keys(value).sort()
+    appendSetting.call(this, namespace, "#{name}.#{key}", value[key])

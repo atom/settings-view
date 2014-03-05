@@ -8,7 +8,7 @@ class KeybindingsPanel extends View
     @div class: 'keybinding-panel section', =>
       @div class: 'section-heading icon icon-keyboard', 'Keybindings'
 
-      @div class: 'text padded', =>
+      @div class: 'text padded native-key-bindings', tabindex: -1, =>
         @span class: 'icon icon-question'
         @span 'You can override these keybindings by copying '
         @span class: 'icon icon-clippy'
