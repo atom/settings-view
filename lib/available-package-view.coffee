@@ -5,7 +5,7 @@ shell = require 'shell'
 module.exports =
 class AvailablePackageView extends View
   @content: ({name, description}) ->
-    @div class: 'col-lg-3 available-package-view', =>
+    @div class: 'col-lg-4 available-package-view', =>
       @div class: 'thumbnail text', =>
         @div class: 'caption', =>
           @span outlet: 'status', class: 'package-status icon'

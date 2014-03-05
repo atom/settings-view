@@ -49,6 +49,7 @@
     .editor.mini.is-focused {
       color: @text-color;
       background-color: #fff;
+      padding: 6px 12px;
 
       .cursor {
         border-color: #000;
@@ -60,12 +61,18 @@
     }
   }
 
+  .section {
+    max-width: 1024px;
+  }
+
   section .section-heading:first-child,
   .section .section-heading:first-child {
     padding-top: @component-padding;
     padding-bottom: @component-padding;
     border-bottom: 1px solid #858585;
     color: #262626;
+    font-size: 16px;
+    margin: 10px 0;
   }
 
   .link {
@@ -131,7 +138,7 @@
     display: -webkit-flex;
     position: relative;
     overflow-y: auto;
-    padding-left: @component-padding*2;
+    padding: @component-padding*2;
     background-color: #f2f2f2;
 
     > div {
@@ -142,7 +149,6 @@
   .settings-panel {
     .section-body {
       padding-top: @component-padding/2;
-      padding-left: @component-padding;
     }
 
     label {
@@ -202,6 +208,7 @@
 
     .package-container {
       padding-top: @component-padding;
+      max-width: 100%;
     }
 
     .search-message,
@@ -218,15 +225,25 @@
       padding-bottom: 0;
     }
 
-    .available-package-view {
-      .thumbnail {
-        height: 150px;
-      }
+    .col-lg-4 {
+      padding: 0;
+      padding: 1% 1.6% 1% 0;
+    }
 
-      .description {
-        min-height: 40px;
-        max-height: 40px;
-        overflow: hidden;
+    .available-package-view {
+      min-width: 190px;
+      border-radius: 1px;
+      box-shadow: 0 1px 2px rgba(0,0,0, 2%);
+
+      .thumbnail {
+        border-radius: 3px;
+        margin: 0;
+        height: 140px;
+
+        .caption {
+          width: 100%;
+          position: relative;
+        }
       }
 
       .package-name {
@@ -234,12 +251,28 @@
         white-space: nowrap;
         width: 100%;
         overflow: hidden;
+        line-height: 20px;
+        margin: 5px 0;
+      }
+
+      .description {
+        font-size: 12px;
+        color: #999;
+        overflow: hidden;
+        min-height: 38px;
+        max-height: 38px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* number of lines to show */
+        -webkit-box-orient: vertical;
       }
 
       .package-status {
         position: absolute;
-        right: 15px;
+        right: 0px;
         top: 5px;
+        text-align: center;
 
         &.icon-cloud-download {
           color: #428bca;
