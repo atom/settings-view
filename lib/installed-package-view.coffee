@@ -15,7 +15,7 @@ SettingsPanel = require './settings-panel'
 module.exports =
 class InstalledPackageView extends View
   @content: ->
-    @form class: 'installed-package-view', =>
+    @form class: 'installed-package-view section', =>
       @div outlet: 'updateArea', class: 'alert alert-success package-update', =>
         @span outlet: 'updateLabel', class: 'icon icon-squirrel update-message'
         @span outlet: 'updateLink', class: 'alert-link update-link icon icon-cloud-download', 'Install'

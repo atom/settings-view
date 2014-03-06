@@ -149,7 +149,7 @@ class ThemesPanel extends View
     container.empty()
 
     for theme, index in themes
-      if index % 4 is 0
+      if index % 3 is 0
         themeRow = $$ -> @div class: 'row'
         container.append(themeRow)
       themeRow.append(new AvailablePackageView(theme, @packageManager))

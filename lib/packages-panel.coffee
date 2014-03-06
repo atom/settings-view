@@ -76,7 +76,7 @@ class PackagesPanel extends View
     container.empty()
 
     for pack, index in packages
-      if index % 4 is 0
+      if index % 3 is 0
         packageRow = $$ -> @div class: 'row'
         container.append(packageRow)
       packageRow.append(new AvailablePackageView(pack, @packageManager))
