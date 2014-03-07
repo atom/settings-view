@@ -91,6 +91,11 @@ class SettingsPanel extends View
 # Space Pen Helpers
 ###
 
+isEditableArray = (array) ->
+  for item in array
+    return false unless _.isString(item)
+  true
+
 appendSetting = (namespace, name, value) ->
   if namespace is 'core'
     return if name is 'themes' # Handled in the Themes panel
@@ -101,7 +106,7 @@ appendSetting = (namespace, name, value) ->
       if _.isBoolean(value)
         appendCheckbox.call(this, namespace, name, value)
       else if _.isArray(value)
-        appendArray.call(this, namespace, name, value)
+        appendArray.call(this, namespace, name, value) if isEditableArray(value)
       else if _.isObject(value)
         appendObject.call(this, namespace, name, value)
       else

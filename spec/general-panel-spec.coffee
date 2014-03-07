@@ -8,7 +8,7 @@ describe "GeneralPanel", ->
     if element.is("input")
       element.prop('checked')
     else
-      element.view().getText()
+      element.view()?.getText()
 
   setValueForId = (id, value) ->
     element = panel.find("##{id.replace(/\./g, '\\.')}")
@@ -25,6 +25,8 @@ describe "GeneralPanel", ->
     atom.config.set('editor.boolean', true)
     atom.config.set('editor.string', 'hey')
     atom.config.set('editor.object', {boolean: true, int: 3, string: 'test'})
+    atom.config.set('editor.simpleArray', ['a', 'b', 'c'])
+    atom.config.set('editor.complexArray', ['a', 'b', {c: true}])
 
     panel = new GeneralPanel()
 
@@ -95,3 +97,12 @@ describe "GeneralPanel", ->
 
     setValueForId('core.int', 2)
     expect(observeHandler).not.toHaveBeenCalled()
+
+  it "only adds editors for arrays when all the values in the array are strings", ->
+    expect(getValueForId('editor.simpleArray')).toBe 'a, b, c'
+    expect(getValueForId('editor.complexArray')).toBeUndefined()
+
+    setValueForId('editor.simpleArray', 'a, d')
+
+    expect(atom.config.get('editor.simpleArray')).toEqual ['a', 'd']
+    expect(atom.config.get('editor.complexArray')).toEqual ['a', 'b', {c: true}]
