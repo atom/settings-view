@@ -155,6 +155,7 @@ class SettingsView extends ScrollView
   removePanel: (name) ->
     if panel = @panelsByName?[name]
       panel.remove()
+      delete @panelsByName[name]
       @panelMenu.find("li[name=\"#{name}\"]").remove()
 
   getTitle: ->
