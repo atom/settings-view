@@ -37,8 +37,6 @@ class AvailablePackageView extends View
       @installButton.prop('disabled', true)
       @installButton.text('Installed')
       @setStatusIcon('check')
-    else if atom.packages.isPackageDisabled(@pack.name)
-      @installButton.prop('disabled', true)
 
   setStatusIcon: (iconName) ->
     @status.removeClass('icon-check icon-alert icon-cloud-download')
