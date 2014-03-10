@@ -24,7 +24,7 @@ class AvailablePackageView extends View
       @packageManager.emit('package-installing', @pack)
 
       @packageManager.install @pack, (error) =>
-        if error
+        if error?
           console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
 
     @learnMoreButton.on 'click', =>
@@ -32,8 +32,8 @@ class AvailablePackageView extends View
 
   handlePackageEvents: ->
     @subscribe @packageManager, 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
-      if pack.name == @pack.name
-        if error
+      if pack.name is @pack.name
+        if error?
           @setStatusIcon('alert')
           @installButton.prop('disabled', false)
         else
@@ -41,7 +41,7 @@ class AvailablePackageView extends View
           @installButton.text('Installed')
 
     @subscribe @packageManager, 'package-installing', (pack) =>
-      if pack.name == @pack.name
+      if pack.name is @pack.name
         @installButton.prop('disabled', true)
         @setStatusIcon('cloud-download')
 
