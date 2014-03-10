@@ -34,6 +34,7 @@ class SettingsView extends ScrollView
     @handlePackageEvents()
 
     @panelToShow = activePanelName
+    @filterEditor.hide()
     process.nextTick => @activatePackages => @initializePanels()
 
   handlePackageEvents: ->
@@ -79,6 +80,8 @@ class SettingsView extends ScrollView
     @addPackagePanel(pack) for pack in @getPackages()
     @showPanel(@panelToShow) if @panelToShow
     @showPanel('Settings') unless @activePanelName
+    @filterEditor.show()
+    @filterEditor.redraw()
 
   serialize: ->
     deserializer: 'SettingsView'
