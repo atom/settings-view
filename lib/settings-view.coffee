@@ -21,7 +21,7 @@ class SettingsView extends ScrollView
       @div class: 'config-menu', =>
         @div class: 'atom-banner'
         @ul class: 'panels-menu nav nav-pills nav-stacked', outlet: 'panelMenu', =>
-          @div class: 'panel-menu-separator'
+          @div class: 'panel-menu-separator', outlet: 'menuSeparator'
           @div class: 'editor-container settings-filter', =>
             @subview 'filterEditor', new EditorView(mini: true, placeholderText: 'Filter packages')
         @div class: 'button-area', =>
@@ -119,17 +119,17 @@ class SettingsView extends ScrollView
     panelMenuItem = $$ ->
       @li name: name, =>
         @a class: "icon icon-#{iconName}", name
-    @addPanel name, panelMenuItem, true, panel
+    @menuSeparator.before(panelMenuItem)
+    @addPanel(name, panelMenuItem, panel)
 
   addPackagePanel: (pack) ->
     title = @packageManager.getPackageTitle(pack)
     panelMenuItem = new PackageMenuView(pack, @packageManager)
-    @addPanel pack.name, panelMenuItem, false, =>
+    @panelMenu.append(panelMenuItem)
+    @addPanel pack.name, panelMenuItem, =>
       new InstalledPackageView(pack, @packageManager)
 
-  addPanel: (name, panelMenuItem, isCorePanel, panelCreateCallback) ->
-    @panelMenu.prepend(panelMenuItem) if isCorePanel
-    @panelMenu.append(panelMenuItem) unless isCorePanel
+  addPanel: (name, panelMenuItem, panelCreateCallback) ->
     @panelCreateCallbacks ?= {}
     @panelCreateCallbacks[name] = panelCreateCallback
     @showPanel(name) if @panelToShow is name
