@@ -166,7 +166,7 @@ class SettingsView extends ScrollView
   filterPackages: ->
     filterText = @filterEditor.getEditor().getText()
     all = _.map @panelMenu.children('[type=package]'), (item) ->
-      element: $(item).parent()
+      element: $(item)
       text: $(item).text()
     active = fuzzaldrin.filter(all, filterText, key: 'text')
     _.each all, ({element}) -> element.hide()
