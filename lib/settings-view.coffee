@@ -82,6 +82,7 @@ class SettingsView extends ScrollView
     @showPanel('Settings') unless @activePanelName
     @filterEditor.show()
     @filterEditor.redraw()
+    @redrawEditorsWhenActivated()
 
   serialize: ->
     deserializer: 'SettingsView'
@@ -114,6 +115,11 @@ class SettingsView extends ScrollView
   addPanelMenuSeparator: ->
     @panelMenu.append $$ ->
       @div class: 'panel-menu-separator'
+
+  redrawEditorsWhenActivated: ->
+    @subscribe atom.workspaceView, 'pane-container:active-pane-item-changed', =>
+      if this is atom.workspaceView.getActivePaneItem()
+        $(element).view().redraw() for element in @find('.editor')
 
   addCorePanel: (name, iconName, panel) ->
     panelMenuItem = $$ ->
