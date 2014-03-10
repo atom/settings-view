@@ -18,20 +18,32 @@ class AvailablePackageView extends View
   initialize: (@pack, @packageManager) ->
     @type = if @pack.theme then 'theme' else 'package'
 
+    @handlePackageEvents()
+
     @installButton.on 'click', =>
-      @installButton.prop('disabled', true)
-      @setStatusIcon('cloud-download')
+      @packageManager.emit('package-installing', @pack)
+
       @packageManager.install @pack, (error) =>
-        if error?
+        if error
+          console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
+
+    @learnMoreButton.on 'click', =>
+      shell.openExternal "https://atom.io/packages/#{@pack.name}"
+
+  handlePackageEvents: ->
+    @subscribe @packageManager, 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
+      if pack.name == @pack.name
+        if error
           @setStatusIcon('alert')
           @installButton.prop('disabled', false)
-          console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
         else
           @setStatusIcon('check')
           @installButton.text('Installed')
 
-    @learnMoreButton.on 'click', =>
-      shell.openExternal "https://atom.io/packages/#{@pack.name}"
+    @subscribe @packageManager, 'package-installing', (pack) =>
+      if pack.name == @pack.name
+        @installButton.prop('disabled', true)
+        @setStatusIcon('cloud-download')
 
     if atom.packages.isPackageLoaded(@pack.name)
       @installButton.prop('disabled', true)
