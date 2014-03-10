@@ -36,6 +36,7 @@ class InstalledPackageView extends View
         @button outlet: 'uninstallButton', class: 'btn btn-default icon icon-trashcan', 'Uninstall'
         @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
         @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'Open README'
+        @button outlet: 'openButton', class: 'btn btn-default icon icon-link-external', 'Open in Atom'
 
       @div outlet: 'errors'
 
@@ -104,6 +105,10 @@ class InstalledPackageView extends View
         if name.toLowerCase() is 'readme'
           atom.workspaceView.open(child)
           break
+      false
+
+    @openButton.on 'click', =>
+      atom.open(pathsToOpen: [@pack.path]) if fs.existsSync(@pack.path)
       false
 
   updateEnablement: ->
