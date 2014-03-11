@@ -1,11 +1,12 @@
 path = require 'path'
-{$$} = require 'atom'
+{$$, WorkspaceView} = require 'atom'
 SettingsView = require '../lib/settings-view'
 
 describe "SettingsView", ->
   settingsView = null
 
   beforeEach ->
+    atom.workspaceView = new WorkspaceView()
     settingsView = new SettingsView
     spyOn(settingsView, "initializePanels").andCallThrough()
     window.advanceClock(10000)
