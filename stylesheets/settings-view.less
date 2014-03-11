@@ -253,7 +253,6 @@
     }
 
     .available-package-view {
-      min-width: 190px;
       border-radius: 1px;
       padding-left: @component-padding;
       padding-right: @component-padding;
@@ -261,14 +260,13 @@
       .thumbnail {
         border-radius: 3px;
         margin: 0;
-        height: 140px;
+        min-height: 140px;
 
         .caption {
           width: 100%;
           position: relative;
         }
       }
-
       .package-name {
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -385,6 +383,15 @@
     }
     col.selector {
       width: (35%  - 2%);
+    }
+  }
+}
+
+@media all and (max-width: 800px) {
+  .thumbnail .btn-toolbar {
+    .btn {
+      width: 100%;
+      margin: 2px 0;
     }
   }
 }
