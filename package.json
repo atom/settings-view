@@ -10,7 +10,7 @@
     "emissary": "1.x",
     "fuzzaldrin": "1.x",
     "fs-plus": "2.x",
-    "q": "~1.0.0",
+    "q": "~1.0.1",
     "season": "1.x",
     "semver": "~2.2.1",
     "underscore-plus": "1.x"
