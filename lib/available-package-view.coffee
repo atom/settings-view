@@ -45,6 +45,15 @@ class AvailablePackageView extends View
         @installButton.prop('disabled', true)
         @setStatusIcon('cloud-download')
 
+    @subscribe @packageManager, 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', (pack, error) =>
+      if pack.name is @pack.name
+        if error?
+          @setStatusIcon('alert')
+        else
+          @installButton.prop('disabled', false)
+          @installButton.text('Install')
+          @setStatusIcon()
+
     if atom.packages.isPackageLoaded(@pack.name)
       @installButton.prop('disabled', true)
       @installButton.text('Installed')
@@ -54,7 +63,7 @@ class AvailablePackageView extends View
 
   setStatusIcon: (iconName) ->
     @status.removeClass('icon-check icon-alert icon-cloud-download')
-    @status.addClass("icon-#{iconName}")
+    @status.addClass("icon-#{iconName}") if iconName
     @status.destroyTooltip()
     switch iconName
       when 'check'
