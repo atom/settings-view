@@ -37,3 +37,7 @@ module.exports =
 
     atom.workspaceView.command 'settings-view:install-packages', ->
       openPanel('Packages')
+
+    atom.workspaceView.on 'pane-container:active-pane-item-changed', ->
+      if settingsView is atom.workspaceView.getActivePaneItem()
+        settingsView?.redrawEditors()
