@@ -60,9 +60,8 @@ class PackagesPanel extends View
     if @resultsContainer.children().length is 0
       @searchMessage.text("Searching for \u201C#{query}\u201D\u2026").show()
 
-    @packageManager.search(query)
+    @packageManager.search(query, {packages: true})
       .then (packages=[]) =>
-        packages = @filterPackages(packages)
         if packages.length is 0
           @searchMessage.text("No package results for \u201C#{query}\u201D").show()
         else

@@ -69,10 +69,17 @@ class PackageManager
   getPackage: (packageName) ->
     @packagePromises[packageName] ?= Q.nbind(@loadPackage, this, packageName)()
 
-  search: (query) ->
+  search: (query, options = {}) ->
     deferred = Q.defer()
 
     args = ['search', query, '--json']
+    if options.themes
+      args.push '--themes'
+    else if options.packages
+      args.push '--packages'
+
+    console.error args
+
     @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
