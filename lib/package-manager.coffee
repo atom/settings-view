@@ -78,8 +78,6 @@ class PackageManager
     else if options.packages
       args.push '--packages'
 
-    console.error args
-
     @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
