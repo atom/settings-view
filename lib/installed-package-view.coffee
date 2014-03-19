@@ -65,7 +65,6 @@ class InstalledPackageView extends View
       @packageRepo.text(repoName.substring(1)).show()
     else
       @packageRepo.hide()
-      @isCorePackageLabel.hide()
 
     authorUsername = @getAuthorUserName()
     authorName = @pack.metadata?.author?.name or @pack.metadata?.author or authorUsername
