@@ -130,7 +130,7 @@ class SettingsView extends ScrollView
   addPackagePanel: (pack) ->
     title = @packageManager.getPackageTitle(pack)
     packageView = new InstalledPackageView(pack, @packageManager)
-    panelMenuItem = new PackageMenuView(pack, @packageManager, packageView.isCorePackage())
+    panelMenuItem = new PackageMenuView(pack, @packageManager, packageView.getAuthorUserName())
     @panelMenu.append(panelMenuItem)
     @addPanel pack.name, panelMenuItem, -> packageView
 

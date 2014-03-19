@@ -9,13 +9,13 @@ class PackageMenuView extends View
     @li =>
       @a outlet: 'link', class: 'icon', =>
         @span outlet:'nameLabel'
-        @span outlet:'corePackageLabel', class: 'core-package', 'Core package'
+        @span outlet:'packageAuthorLabel', class: 'package-author', ''
 
-  initialize: (@pack, @packageManager, isCorePackage) ->
+  initialize: (@pack, @packageManager, packageAuthor) ->
     @attr('name', @pack.name)
     @attr('type', 'package')
     @nameLabel.text(@packageManager.getPackageTitle(@pack))
-    @corePackageLabel.hide() unless isCorePackage
+    @packageAuthorLabel.text packageAuthor
 
     @checkForUpdates()
 
