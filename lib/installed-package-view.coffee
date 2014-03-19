@@ -86,9 +86,6 @@ class InstalledPackageView extends View
     chunks = repoName.match '/(.+?)/'
     chunks?[1]
 
-  isCorePackage: ->
-    @getAuthorUserName() is 'atom'
-
   handleButtonEvents: ->
     @disableButton.on 'click', =>
       if atom.packages.isPackageDisabled(@pack.name)
