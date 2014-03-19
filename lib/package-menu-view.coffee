@@ -9,7 +9,7 @@ class PackageMenuView extends View
     @li =>
       @a outlet: 'link', class: 'icon', =>
         @span outlet:'nameLabel'
-        @span outlet:'packageAuthorLabel', class: 'package-author', ''
+        @span outlet:'packageAuthorLabel', class: 'package-author'
 
   initialize: (@pack, @packageManager, packageAuthor) ->
     @attr('name', @pack.name)

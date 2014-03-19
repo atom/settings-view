@@ -84,8 +84,7 @@ class InstalledPackageView extends View
     return null unless repoUrl = @getRepositoryUrl()
     repoName = url.parse(repoUrl).pathname
     chunks = repoName.match '/(.+?)/'
-    return null unless chunks
-    chunks[1]
+    chunks?[1]
 
   isCorePackage: ->
     @getAuthorUserName() is 'atom'
