@@ -4,12 +4,14 @@ shell = require 'shell'
 
 module.exports =
 class AvailablePackageView extends View
-  @content: ({name, description}) ->
+  @content: ({name, description, downloads}) ->
     @div class: 'col-lg-4 available-package-view', =>
       @div class: 'thumbnail text', =>
         @div class: 'caption', =>
           @span outlet: 'status', class: 'package-status icon'
           @h4 class: 'package-name native-key-bindings', tabindex: -1, _.undasherize(_.uncamelcase(name))
+          if downloads >= 0
+            @p class: 'downloads native-key-bindings', tabindex: -1, _.pluralize(downloads, 'download')
           @p class: 'description native-key-bindings', tabindex: -1, description ? ''
           @div class: 'btn-toolbar', =>
             @button outlet: 'installButton', class: 'btn btn-primary', 'Install'

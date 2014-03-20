@@ -283,10 +283,20 @@
         overflow: hidden;
         min-height: 38px;
         max-height: 38px;
-        overflow: hidden;
         text-overflow: ellipsis;
         display: -webkit-box;
         -webkit-line-clamp: 2; /* number of lines to show */
+        -webkit-box-orient: vertical;
+      }
+
+      .downloads {
+        font-size: 12px;
+        line-height: 12px;
+        color: #999;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 1; /* number of lines to show */
         -webkit-box-orient: vertical;
       }
 
