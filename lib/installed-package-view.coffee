@@ -27,11 +27,7 @@ class InstalledPackageView extends View
         @span ' '
         @span outlet: 'disabledLabel', class: 'label label-warning', 'Disabled'
 
-      @div class: 'author-info', =>
-        @img outlet: 'avatar', class: 'avatar-image'
-        @div class: 'name-container' ,=>
-          @span outlet: 'authorFullName', class:'full-name', ''
-          @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
+      @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
 
       @p outlet: 'description', class: 'text-subtle native-key-bindings', tabindex: -1
       @p outlet: 'startupTime', class: 'text-subtle icon icon-dashboard native-key-bindings', tabindex: -1
@@ -66,10 +62,6 @@ class InstalledPackageView extends View
     else
       @packageRepo.hide()
 
-    authorUsername = @getAuthorUserName()
-    authorName = @pack.metadata?.author?.name or @pack.metadata?.author or authorUsername
-    @authorFullName.text authorName
-    @avatar.attr 'src', "http://github.com/#{authorUsername}.png"
     @description.text(@pack.metadata.description)
     @version.text(@pack.metadata.version)
     @disableButton.hide() if @pack.metadata.theme
