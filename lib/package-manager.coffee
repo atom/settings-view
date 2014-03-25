@@ -202,7 +202,7 @@ class PackageManager
     repoUrl = repository?.url ? repository ? ''
     repoUrl.replace(/\.git$/, '').replace(/\/+$/, '')
 
-  getAuthorUserName:(pack) ->
+  getAuthorUserName: (pack) ->
     return null unless repoUrl = @getRepositoryUrl(pack)
     repoName = url.parse(repoUrl).pathname
     chunks = repoName.match '/(.+?)/'
