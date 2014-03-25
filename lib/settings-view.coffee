@@ -126,11 +126,10 @@ class SettingsView extends ScrollView
     @addPanel(name, panelMenuItem, panel)
 
   addPackagePanel: (pack) ->
-    title = @packageManager.getPackageTitle(pack)
-    packageView = new InstalledPackageView(pack, @packageManager)
     panelMenuItem = new PackageMenuView(pack, @packageManager)
     @panelMenu.append(panelMenuItem)
-    @addPanel pack.name, panelMenuItem, -> packageView
+    @addPanel pack.name, panelMenuItem, =>
+      new InstalledPackageView(pack, @packageManager)
 
   addPanel: (name, panelMenuItem, panelCreateCallback) ->
     @panelCreateCallbacks ?= {}
