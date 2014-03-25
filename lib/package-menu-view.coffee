@@ -6,15 +6,16 @@ module.exports =
 class PackageMenuView extends View
   @content: ->
     @li =>
-      @a outlet: 'link', class: 'icon'
+      @a outlet: 'link', class: 'icon', =>
+        @span outlet:'nameLabel'
+        @span outlet:'packageAuthorLabel', class: 'package-author'
 
-  initialize: (@pack, @packageManager) ->
+  initialize: (@pack, @packageManager, packageAuthor) ->
     @attr('name', @pack.name)
     @attr('type', 'package')
-    @link.text(@packageManager.getPackageTitle(@pack))
-
+    @nameLabel.text(@packageManager.getPackageTitle(@pack))
+    @packageAuthorLabel.text(@packageManager.getAuthorUserName(@pack))
     @checkForUpdates()
-
     @subscribe @packageManager, 'package-updated theme-updated', ({name}) =>
       @link.removeClass('icon-squirrel') if @pack.name is name
 
@@ -26,5 +27,5 @@ class PackageMenuView extends View
         @link.addClass('icon-squirrel')
 
   getAvailablePackage: (callback) ->
-    @packageManager.getPackage(@pack.name).then (availablePackage) =>
+    @packageManager.getPackage(@pack.name).then (availablePackage) ->
       callback(availablePackage)

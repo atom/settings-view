@@ -28,6 +28,7 @@ class InstalledPackageView extends View
         @span outlet: 'disabledLabel', class: 'label label-warning', 'Disabled'
 
       @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
+
       @p outlet: 'description', class: 'text-subtle native-key-bindings', tabindex: -1
       @p outlet: 'startupTime', class: 'text-subtle icon icon-dashboard native-key-bindings', tabindex: -1
 
@@ -55,8 +56,9 @@ class InstalledPackageView extends View
     @type = if @pack.metadata.theme then 'theme' else 'package'
     @startupTime.text("This #{@type} added #{@getStartupTime()}ms to startup time.")
 
-    if repoUrl = @getRepositoryUrl()
-      @packageRepo.text(url.parse(repoUrl).pathname.substring(1)).show()
+    if repoUrl = @packageManager.getRepositoryUrl(@pack)
+      repoName = url.parse(repoUrl).pathname
+      @packageRepo.text(repoName.substring(1)).show()
     else
       @packageRepo.hide()
 
@@ -127,11 +129,6 @@ class InstalledPackageView extends View
     loadTime = @pack.loadTime ? 0
     activateTime = @pack.activateTime ? 0
     loadTime + activateTime
-
-  getRepositoryUrl: ->
-    {repository} = @pack.metadata
-    repoUrl = repository?.url ? repository ? ''
-    repoUrl.replace(/\.git$/, '').replace(/\/+$/, '')
 
   installUpdate: ->
     return if @updateLink.prop('disabled')

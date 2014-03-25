@@ -3,6 +3,7 @@ _ = require 'underscore-plus'
 {Emitter} = require 'emissary'
 Q = require 'q'
 semver = require 'semver'
+url = require 'url'
 
 Q.stopUnhandledRejectionTracking()
 
@@ -195,3 +196,14 @@ class PackageManager
 
   getPackageTitle: ({name}) ->
     _.undasherize(_.uncamelcase(name))
+
+  getRepositoryUrl: ({metadata}) ->
+    {repository} = metadata
+    repoUrl = repository?.url ? repository ? ''
+    repoUrl.replace(/\.git$/, '').replace(/\/+$/, '')
+
+  getAuthorUserName:(pack) ->
+    return null unless repoUrl = @getRepositoryUrl(pack)
+    repoName = url.parse(repoUrl).pathname
+    chunks = repoName.match '/(.+?)/'
+    chunks?[1]

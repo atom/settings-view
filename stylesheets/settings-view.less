@@ -137,10 +137,16 @@
     .nav > li > a {
       border-radius: 0;
       color: #434343;
+      white-space: nowrap;
 
       &:hover {
         background-color: #f2f2f2;
         box-shadow: -1px 0px 1px -1px #aeaeae inset;
+      }
+
+      .package-author {
+        display: block;
+        font-size: @font-size / 1.5;
       }
     }
 
