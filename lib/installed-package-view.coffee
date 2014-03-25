@@ -56,7 +56,7 @@ class InstalledPackageView extends View
     @type = if @pack.metadata.theme then 'theme' else 'package'
     @startupTime.text("This #{@type} added #{@getStartupTime()}ms to startup time.")
 
-    if repoUrl = @getRepositoryUrl()
+    if repoUrl = @packageManager.getRepositoryUrl(@pack)
       repoName = url.parse(repoUrl).pathname
       @packageRepo.text(repoName.substring(1)).show()
     else
@@ -71,12 +71,6 @@ class InstalledPackageView extends View
     @sections.append(new PackageKeymapView(@pack.name))
     @sections.append(new PackageGrammarsView(@pack.path))
     @sections.append(new PackageSnippetsView(@pack.path))
-
-  getAuthorUserName: ->
-    return null unless repoUrl = @getRepositoryUrl()
-    repoName = url.parse(repoUrl).pathname
-    chunks = repoName.match '/(.+?)/'
-    chunks?[1]
 
   handleButtonEvents: ->
     @disableButton.on 'click', =>
@@ -135,11 +129,6 @@ class InstalledPackageView extends View
     loadTime = @pack.loadTime ? 0
     activateTime = @pack.activateTime ? 0
     loadTime + activateTime
-
-  getRepositoryUrl: ->
-    {repository} = @pack.metadata
-    repoUrl = repository?.url ? repository ? ''
-    repoUrl.replace(/\.git$/, '').replace(/\/+$/, '')
 
   installUpdate: ->
     return if @updateLink.prop('disabled')

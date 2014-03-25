@@ -1,5 +1,4 @@
 _ = require 'underscore-plus'
-url = require 'url'
 {View} = require 'atom'
 
 # Menu item view for an installed package
@@ -15,10 +14,8 @@ class PackageMenuView extends View
     @attr('name', @pack.name)
     @attr('type', 'package')
     @nameLabel.text(@packageManager.getPackageTitle(@pack))
-    @packageAuthorLabel.text packageAuthor
-
+    @packageAuthorLabel.text(@packageManager.getAuthorUserName(@pack))
     @checkForUpdates()
-
     @subscribe @packageManager, 'package-updated theme-updated', ({name}) =>
       @link.removeClass('icon-squirrel') if @pack.name is name
 
