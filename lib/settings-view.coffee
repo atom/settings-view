@@ -17,12 +17,13 @@ module.exports =
 class SettingsView extends ScrollView
   @content: ->
     @div class: 'settings-view pane-item', tabindex: -1, =>
-      @div class: 'config-menu', =>
+      @div class: 'config-menu', outlet: 'sidebar', =>
         @div class: 'atom-banner'
         @ul class: 'panels-menu nav nav-pills nav-stacked', outlet: 'panelMenu', =>
           @div class: 'panel-menu-separator', outlet: 'menuSeparator'
           @div class: 'editor-container settings-filter', =>
             @subview 'filterEditor', new EditorView(mini: true, placeholderText: 'Filter packages')
+        @ul class: 'panels-packages nav nav-pills nav-stacked', outlet: 'panelPackages', =>
         @div class: 'button-area', =>
           @button class: 'btn btn-default icon icon-link-external', outlet: 'openDotAtom', 'Open ~/.atom'
       @div class: 'panels padded', outlet: 'panels'
@@ -43,7 +44,7 @@ class SettingsView extends ScrollView
         @addPackagePanel(pack)
 
         # Move added package menu item to properly sorted location
-        for panelMenuItem in @panelMenu.children('[type=package]')
+        for panelMenuItem in @panelPackages.children('[type=package]')
           compare = title.localeCompare($(panelMenuItem).text())
           if compare > 0
             beforeElement = panelMenuItem
@@ -61,7 +62,7 @@ class SettingsView extends ScrollView
     return if @panels.size > 0
 
     @panelsByName = {}
-    @on 'click', '.panels-menu li a', (e) =>
+    @on 'click', '.panels-menu li a, .panels-packages li a', (e) =>
       @showPanel($(e.target).closest('li').attr('name'))
 
     @openDotAtom.on 'click', ->
@@ -70,7 +71,6 @@ class SettingsView extends ScrollView
     @filterEditor.getEditor().on 'contents-modified', =>
       @filterPackages()
 
-    # add core packages in inverse order
     @addCorePanel 'Settings', 'settings', -> new GeneralPanel
     @addCorePanel 'Keybindings', 'keyboard', -> new KeybindingsPanel
     @addCorePanel 'Packages', 'package', => new PackagesPanel(@packageManager)
@@ -111,12 +111,8 @@ class SettingsView extends ScrollView
 
     @packages
 
-  addPanelMenuSeparator: ->
-    @panelMenu.append $$ ->
-      @div class: 'panel-menu-separator'
-
   redrawEditors: ->
-        $(element).view().redraw() for element in @find('.editor')
+    $(element).view().redraw() for element in @find('.editor')
 
   addCorePanel: (name, iconName, panel) ->
     panelMenuItem = $$ ->
@@ -127,7 +123,7 @@ class SettingsView extends ScrollView
 
   addPackagePanel: (pack) ->
     panelMenuItem = new PackageMenuView(pack, @packageManager)
-    @panelMenu.append(panelMenuItem)
+    @panelPackages.append(panelMenuItem)
     @addPanel pack.name, panelMenuItem, =>
       new InstalledPackageView(pack, @packageManager)
 
@@ -147,13 +143,12 @@ class SettingsView extends ScrollView
     panel
 
   makePanelMenuActive: (name) ->
-    @panelMenu.children('.active').removeClass('active')
-    @panelMenu.children("[name='#{name}']").addClass('active')
+    @sidebar.find('.active').removeClass('active')
+    @sidebar.find("[name='#{name}']").addClass('active')
 
   showPanel: (name) ->
     if panel = @getOrCreatePanel(name)
       @panels.children().hide()
-      @panelMenu.children('.active').removeClass('active')
       @panels.append(panel) unless $.contains(@panels[0], panel[0])
       panel.show()
       for editorElement, index in panel.find(".editor")
@@ -167,7 +162,7 @@ class SettingsView extends ScrollView
 
   filterPackages: ->
     filterText = @filterEditor.getEditor().getText()
-    all = _.map @panelMenu.children('[type=package]'), (item) ->
+    all = _.map @panelPackages.children('[type=package]'), (item) ->
       element: $(item)
       text: $(item).text()
     active = fuzzaldrin.filter(all, filterText, key: 'text')
@@ -178,7 +173,7 @@ class SettingsView extends ScrollView
     if panel = @panelsByName?[name]
       panel.remove()
       delete @panelsByName[name]
-      @panelMenu.find("li[name=\"#{name}\"]").remove()
+      @panelPackages.find("li[name=\"#{name}\"]").remove()
 
   getTitle: ->
     "Settings"
