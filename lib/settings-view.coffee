@@ -44,8 +44,8 @@ class SettingsView extends ScrollView
         @addPackagePanel(pack)
 
         # Move added package menu item to properly sorted location
-        for panelMenuItem in @panelPackages.children('[type=package]')
-          compare = title.localeCompare($(panelMenuItem).text())
+        for panelMenuItem in @panelPackages.children()
+          compare = title.localeCompare($(panelMenuItem).view().nameLabel.text())
           if compare > 0
             beforeElement = panelMenuItem
           else if compare is 0
@@ -162,7 +162,7 @@ class SettingsView extends ScrollView
 
   filterPackages: ->
     filterText = @filterEditor.getEditor().getText()
-    all = _.map @panelPackages.children('[type=package]'), (item) ->
+    all = _.map @panelPackages.children(), (item) ->
       element: $(item)
       text: $(item).text()
     active = fuzzaldrin.filter(all, filterText, key: 'text')
