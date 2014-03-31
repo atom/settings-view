@@ -91,12 +91,12 @@ class InstalledPackageView extends View
       false
 
     @packageRepo.on 'click', =>
-      if repoUrl = @packageManager.getRepositoryUrl()
+      if repoUrl = @packageManager.getRepositoryUrl(@pack)
         shell.openExternal(repoUrl)
       false
 
     @issueButton.on 'click', =>
-      if repoUrl = @packageManager.getRepositoryUrl()
+      if repoUrl = @packageManager.getRepositoryUrl(@pack)
         shell.openExternal("#{repoUrl}/issues/new")
       false
 
