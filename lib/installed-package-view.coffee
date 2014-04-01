@@ -112,7 +112,7 @@ class InstalledPackageView extends View
       for child in fs.listSync(@pack.path)
         extension = path.extname(child)
         name = path.basename(child, extension)
-        if name.toLowerCase() is 'changelog' | 'history'
+        if name.toLowerCase() in ['changelog', 'history']
           atom.workspaceView.open(child)
           break
       false
