@@ -48,6 +48,7 @@ class InstalledPackageView extends View
     @populate()
     @handleButtonEvents()
     @updateEnablement()
+    @updateFileButtons()
     @checkForUpdate()
 
   populate: ->
@@ -102,26 +103,30 @@ class InstalledPackageView extends View
       false
 
     @readmeButton.on 'click', =>
-      for child in fs.listSync(@pack.path)
-        extension = path.extname(child)
-        name = path.basename(child, extension)
-        if name.toLowerCase() is 'readme'
-          atom.workspaceView.open(child)
-          break
+      atom.workspaceView.open(@readmePath) if @readmePath
       false
 
     @changelogButton.on 'click', =>
-      for child in fs.listSync(@pack.path)
-        extension = path.extname(child)
-        name = path.basename(child, extension)
-        if name.toLowerCase() in ['changelog', 'history']
-          atom.workspaceView.open(child)
-          break
+      atom.workspaceView.open(@changelogPath) if @changelogPath
       false
 
     @openButton.on 'click', =>
       atom.open(pathsToOpen: [@pack.path]) if fs.existsSync(@pack.path)
       false
+
+  updateFileButtons: ->
+    @changelogPath = null
+    @readmePath = null
+
+    for child in fs.listSync(@pack.path)
+      switch path.basename(child, path.extname(child)).toLowerCase()
+        when 'changelog', 'history' then @changelogPath = child
+        when 'readme' then @readmePath = child
+
+      break if @readmePath and @changelogPath
+
+    if @changelogPath then @changelogButton.show() else @changelogButton.hide()
+    if @readmePath then @readmeButton.show() else @readmeButton.hide()
 
   updateEnablement: ->
     if atom.packages.isPackageDisabled(@pack.name)
@@ -158,6 +163,7 @@ class InstalledPackageView extends View
         @updateLink.text('Install')
         @errors.append(new ErrorView(error))
       else
+        @updateFileButtons()
         @updateArea.hide()
         if updatedPackage = atom.packages.getLoadedPackage(@pack.name)
           @pack = updatedPackage
