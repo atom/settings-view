@@ -1,4 +1,5 @@
 path = require 'path'
+_ = require 'underscore-plus'
 {$$$, View} = require 'atom'
 
 # View to display the snippets that a package has registered.
@@ -21,13 +22,14 @@ class PackageSnippetsView extends View
     @addSnippets()
 
   getSnippetProperties: ->
-    packageProperties = []
+    packageProperties = {}
     for {name, properties} in atom.syntax.scopedProperties
       continue unless name?.indexOf?(@packagePath) is 0
       for name, snippet of properties.snippets ? {} when snippet?
-        packageProperties.push(snippet)
+        packageProperties[name] ?= snippet
 
-    packageProperties.sort (snippet1, snippet2) ->
+
+    _.values(packageProperties).sort (snippet1, snippet2) ->
       prefix1 = snippet1.prefix ? ''
       prefix2 = snippet2.prefix ? ''
       prefix1.localeCompare(prefix2)
