@@ -4,7 +4,6 @@ url = require 'url'
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
 shell = require 'shell'
-roaster = require 'roaster'
 {View} = require 'atom'
 
 ErrorView = require './error-view'
@@ -119,14 +118,7 @@ class InstalledPackageView extends View
 
   openMarkdownFile: (path) ->
     if atom.packages.isPackageActive('markdown-preview')
-      content = fs.readFileSync(path, {encoding: 'UTF-8'})
-      sanitize = true
-      roaster content, {sanitize}, (error, html) =>
-        if error
-          console.error(error)
-        else
-          atom.workspace.open("markdown-preview://" + path).done (markdown) ->
-            markdown.html(html)
+      atom.workspace.open("markdown-preview://" + path)
     else
       atom.workspaceView.open(path)
 
