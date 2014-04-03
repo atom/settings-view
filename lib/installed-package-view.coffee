@@ -118,14 +118,17 @@ class InstalledPackageView extends View
       false
 
   openMarkdownFile: (path) ->
-    content = fs.readFileSync(path, {encoding: 'UTF-8'})
-    sanitize = true
-    roaster content, {sanitize}, (error, html) =>
-      if error
-        console.error(error)
-      else
-        atom.workspace.open("markdown-preview://" + path).done (markdown) ->
-          markdown.html(html)
+    if atom.packages.isPackageActive('markdown-preview')
+      content = fs.readFileSync(path, {encoding: 'UTF-8'})
+      sanitize = true
+      roaster content, {sanitize}, (error, html) =>
+        if error
+          console.error(error)
+        else
+          atom.workspace.open("markdown-preview://" + path).done (markdown) ->
+            markdown.html(html)
+    else
+      atom.workspaceView.open(path)
 
   updateFileButtons: ->
     @changelogPath = null
