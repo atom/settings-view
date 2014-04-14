@@ -116,9 +116,9 @@ class InstalledPackageView extends View
 
   openMarkdownFile: (path) ->
     if atom.packages.isPackageActive('markdown-preview')
-      atom.workspace.open("markdown-preview://" + path)
+      atom.workspace.open("markdown-preview://#{encodeURI(path)}")
     else
-      atom.workspaceView.open(path)
+      atom.workspaceView.open(encodeURI(path))
 
   updateFileButtons: ->
     @changelogPath = null
