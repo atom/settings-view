@@ -103,13 +103,11 @@ class InstalledPackageView extends View
       false
 
     @readmeButton.on 'click', =>
-      if @readmePath
-        @openMarkdownFile(@readmePath)
+      @openMarkdownFile(@readmePath) if @readmePath
       false
 
     @changelogButton.on 'click', =>
-      if @changelogPath
-        @openMarkdownFile(@changelogPath)
+      @openMarkdownFile(@changelogPath) if @changelogPath
       false
 
     @openButton.on 'click', =>
