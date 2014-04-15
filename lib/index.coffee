@@ -20,7 +20,7 @@ atom.deserializers.add(deserializer)
 
 module.exports =
   activate: ->
-    atom.project.registerOpener (uri) ->
+    atom.workspace.registerOpener (uri) ->
       createSettingsView({uri}) if uri is configUri
 
     atom.workspaceView.command 'settings-view:open', ->
