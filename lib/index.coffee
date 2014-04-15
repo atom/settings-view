@@ -39,5 +39,5 @@ module.exports =
       openPanel('Packages')
 
     atom.workspaceView.on 'pane-container:active-pane-item-changed', ->
-      if settingsView is atom.workspaceView.getActivePaneItem()
+      if settingsView is atom.workspace.getActivePaneItem()
         settingsView?.redrawEditors()
