@@ -53,6 +53,7 @@ class SettingsView extends ScrollView
 
         if beforeElement? and addedPackageElement?
           $(addedPackageElement).insertAfter(beforeElement)
+          @filterPackages()
 
     @subscribe @packageManager, 'package-uninstalled theme-uninstalled', ({name}) =>
       @removePanel(name)
