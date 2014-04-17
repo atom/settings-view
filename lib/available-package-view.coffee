@@ -23,45 +23,65 @@ class AvailablePackageView extends View
     @handlePackageEvents()
 
     @installButton.on 'click', =>
-      @packageManager.emit('package-installing', @pack)
-
-      @packageManager.install @pack, (error) =>
-        if error?
-          console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
+      if @isInstalled()
+        @uninstall()
+      else
+        @install()
 
     @learnMoreButton.on 'click', =>
       shell.openExternal "https://atom.io/packages/#{@pack.name}"
 
   handlePackageEvents: ->
-    @subscribe @packageManager, 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
-      if pack.name is @pack.name
-        if error?
-          @setStatusIcon('alert')
-          @installButton.prop('disabled', false)
-        else
-          @setStatusIcon('check')
-          @installButton.text('Installed')
+    @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
+      @installButton.prop('disabled', false)
+      if error?
+        @setStatusIcon('alert')
+      else
+        @setStatusIcon('check')
+        @installButton.text('Uninstall')
 
-    @subscribe @packageManager, 'package-installing', (pack) =>
-      if pack.name is @pack.name
-        @installButton.prop('disabled', true)
-        @setStatusIcon('cloud-download')
-
-    @subscribe @packageManager, 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', (pack, error) =>
-      if pack.name is @pack.name
-        if error?
-          @setStatusIcon('alert')
-        else
-          @installButton.prop('disabled', false)
-          @installButton.text('Install')
-          @setStatusIcon()
-
-    if atom.packages.isPackageLoaded(@pack.name)
+    @subscribeToPackageEvent 'package-installing', (pack) =>
       @installButton.prop('disabled', true)
-      @installButton.text('Installed')
+      @installButton.text('Installing')
+      @setStatusIcon('cloud-download')
+
+    @subscribeToPackageEvent 'package-uninstalling', (pack) =>
+      @installButton.prop('disabled', true)
+      @setStatusIcon()
+
+    @subscribeToPackageEvent 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', (pack, error) =>
+      @installButton.prop('disabled', false)
+      if error?
+        @setStatusIcon('alert')
+      else
+        @installButton.text('Install')
+        @setStatusIcon()
+
+    if @isInstalled()
+      @installButton.text('Uninstall')
       @setStatusIcon('check')
-    else if atom.packages.isPackageDisabled(@pack.name)
+    else if @isDisabled()
       @installButton.prop('disabled', true)
+
+  isInstalled: -> atom.packages.isPackageLoaded(@pack.name)
+
+  isDisabled: -> atom.packages.isPackageDisabled(@pack.name)
+
+  subscribeToPackageEvent: (event, callback) ->
+    @subscribe @packageManager, event, (pack, error) =>
+      callback(pack, error) if pack.name is @pack.name
+
+  install: ->
+    @packageManager.emit('package-installing', @pack)
+    @packageManager.install @pack, (error) =>
+      if error?
+        console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
+
+  uninstall: ->
+    @packageManager.emit('package-uninstalling', @pack)
+    @packageManager.uninstall @pack, (error) =>
+      if error?
+        console.error("Uninstalling #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
 
   setStatusIcon: (iconName) ->
     @status.removeClass('icon-check icon-alert icon-cloud-download')

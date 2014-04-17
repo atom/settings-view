@@ -94,7 +94,7 @@ describe "ThemesPanel", ->
 
       runs ->
         expect(themeView.status).toHaveClass 'icon-check'
-        expect(themeView.installButton.prop('disabled')).toBe true
+        expect(themeView.installButton.prop('disabled')).toBe false
 
   describe "when a theme fails to install", ->
     it "displays an error", ->
