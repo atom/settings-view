@@ -6,7 +6,9 @@
       'submenu': [
         { 'label': 'Change Themes', 'command': 'settings-view:change-themes' }
         { 'label': 'Install Themes', 'command': 'settings-view:install-themes' }
+        { 'label': 'Uninstall Themes', 'command': 'settings-view:uninstall-themes' }
         { 'label': 'Install Packages', 'command': 'settings-view:install-packages' }
+        { 'label': 'Uninstall Packages', 'command': 'settings-view:uninstall-packages' }
       ]
     ]
   }

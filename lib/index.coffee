@@ -38,6 +38,12 @@ module.exports =
     atom.workspaceView.command 'settings-view:install-packages', ->
       openPanel('Packages')
 
+    atom.workspaceView.command 'settings-view:uninstall-themes', ->
+      atom.workspaceView.open(configUri)
+
+    atom.workspaceView.command 'settings-view:uninstall-packages', ->
+      atom.workspaceView.open(configUri)
+
     atom.workspaceView.on 'pane-container:active-pane-item-changed', ->
       if settingsView is atom.workspace.getActivePaneItem()
         settingsView?.redrawEditors()
