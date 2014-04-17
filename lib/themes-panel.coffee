@@ -2,11 +2,12 @@ path = require 'path'
 
 fs = require 'fs-plus'
 _ = require 'underscore-plus'
-{$$, EditorView, View} = require 'atom'
+{$$, View} = require 'atom'
 
 AvailablePackageView = require './available-package-view'
 ErrorView = require './error-view'
 PackageManager = require './package-manager'
+SettingEditorView = require './setting-editor-view'
 
 module.exports =
 class ThemesPanel extends View
@@ -43,7 +44,7 @@ class ThemesPanel extends View
 
 
         @div class: 'editor-container padded', =>
-          @subview 'searchEditorView', new EditorView(mini: true)
+          @subview 'searchEditorView', new SettingEditorView()
 
         @div outlet: 'searchErrors'
         @div outlet: 'searchMessage', class: 'alert alert-info icon icon-search search-message'

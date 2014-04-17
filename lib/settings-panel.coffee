@@ -1,5 +1,6 @@
-{$, $$, EditorView, View} = require 'atom'
+{$, $$, View} = require 'atom'
 _ = require 'underscore-plus'
+SettingEditorView = require './setting-editor-view'
 
 module.exports =
 class SettingsPanel extends View
@@ -132,14 +133,14 @@ appendEditor = (namespace, name, value) ->
   @label class: 'control-label', getSettingTitle(name)
   @div class: 'controls', =>
     @div class: 'editor-container', =>
-      @subview keyPath.replace(/\./g, ''), new EditorView(mini: true, attributes: {id: keyPath, type: type})
+      @subview keyPath.replace(/\./g, ''), new SettingEditorView(attributes: {id: keyPath, type: type})
 
 appendArray = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
   @label class: 'control-label', getSettingTitle(name)
   @div class: 'controls', =>
     @div class: 'editor-container', =>
-      @subview keyPath.replace(/\./g, ''), new EditorView(mini: true, attributes: {id: keyPath, type: 'array'})
+      @subview keyPath.replace(/\./g, ''), new SettingEditorView(attributes: {id: keyPath, type: 'array'})
 
 appendObject = (namespace, name, value) ->
   for key in _.keys(value).sort()
