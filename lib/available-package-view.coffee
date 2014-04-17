@@ -16,6 +16,7 @@ class AvailablePackageView extends View
           @div class: 'btn-toolbar', =>
             @button outlet: 'installButton', class: 'btn btn-primary', 'Install'
             @button outlet: 'learnMoreButton', class: 'btn btn-default', 'Learn More'
+            @button outlet: 'settingsButton', class: 'btn btn-default', 'Settings'
 
   initialize: (@pack, @packageManager) ->
     @type = if @pack.theme then 'theme' else 'package'
@@ -28,6 +29,9 @@ class AvailablePackageView extends View
       else
         @install()
 
+    @settingsButton.on 'click', =>
+      @parents('.settings-view').view()?.showPanel(@pack.name)
+
     @learnMoreButton.on 'click', =>
       shell.openExternal "https://atom.io/packages/#{@pack.name}"
 
@@ -38,11 +42,12 @@ class AvailablePackageView extends View
         @setStatusIcon('alert')
       else
         @setStatusIcon('check')
+        @settingsButton.show()
         @installButton.text('Uninstall')
 
     @subscribeToPackageEvent 'package-installing', (pack) =>
       @installButton.prop('disabled', true)
-      @installButton.text('Installing')
+      @installButton.text('Install')
       @setStatusIcon('cloud-download')
 
     @subscribeToPackageEvent 'package-uninstalling', (pack) =>
@@ -55,13 +60,15 @@ class AvailablePackageView extends View
         @setStatusIcon('alert')
       else
         @installButton.text('Install')
+        @settingsButton.hide()
         @setStatusIcon()
 
     if @isInstalled()
       @installButton.text('Uninstall')
       @setStatusIcon('check')
-    else if @isDisabled()
-      @installButton.prop('disabled', true)
+    else
+      @settingsButton.hide()
+      @installButton.prop('disabled', true) if @isDisabled()
 
   isInstalled: -> atom.packages.isPackageLoaded(@pack.name)
 

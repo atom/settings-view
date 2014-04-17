@@ -84,6 +84,7 @@ describe "ThemesPanel", ->
         themeView?
 
       runs ->
+        expect(themeView.settingsButton.css('display')).toBe 'none'
         spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
           process.nextTick -> callback(0)
         themeView.installButton.click()
@@ -95,6 +96,7 @@ describe "ThemesPanel", ->
       runs ->
         expect(themeView.status).toHaveClass 'icon-check'
         expect(themeView.installButton.prop('disabled')).toBe false
+        expect(themeView.settingsButton.css('display')).not.toBe 'none'
 
   describe "when a theme fails to install", ->
     it "displays an error", ->
