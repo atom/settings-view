@@ -376,30 +376,37 @@
   .keybinding-panel {
     table {
       width: 100%;
-      table-layout: fixed;
+      table-layout: initial;
     }
+
     th {
       padding: @component-padding - 2px @component-padding;
       padding-left: 0;
     }
+
     td {
       height: @component-line-height;
     }
+
     td, th {
       padding-left: 1%;
       padding-right: 1%;
       white-space: nowrap;
       overflow: hidden;
     }
+
     col.keystroke {
       width: (15% - 2%);
     }
+
     col.command {
       width: (40% - 2%);
     }
+
     col.source {
       width: (10% - 2%);
     }
+
     col.selector {
       width: (35%  - 2%);
     }
