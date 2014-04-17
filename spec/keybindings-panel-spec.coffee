@@ -2,19 +2,20 @@ path = require 'path'
 KeybindingsPanel = require '../lib/keybindings-panel'
 
 describe "KeybindingsPanel", ->
-  panel = null
+  [keyBindings, panel] = []
 
   beforeEach ->
     expect(atom.keymap).toBeDefined()
-    spyOn(atom.keymap, 'getKeyBindings').andReturn [
+    keyBindings = [
       source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps", keystroke: 'ctrl-a', command: 'core:select-all', selector: '.editor'
     ]
+    spyOn(atom.keymap, 'getKeyBindings').andReturn(keyBindings)
     panel = new KeybindingsPanel
 
   it "loads and displays core key bindings", ->
     expect(panel.keybindingRows.children().length).toBe 1
 
-    row = panel.keybindingRows.find(':first')
+    row = panel.keybindingRows.children(':first')
     expect(row.find('.keystroke').text()).toBe 'ctrl-a'
     expect(row.find('.command').text()).toBe 'core:select-all'
     expect(row.find('.source').text()).toBe 'Core'
@@ -39,3 +40,19 @@ describe "KeybindingsPanel", ->
             "ctrl-a": "core:select-all"
           }
         """
+
+  describe "when the key bindings change", ->
+    it "reloads the key bindings", ->
+      keyBindings.push
+        source: atom.keymap.getUserKeymapPath(), keystroke: 'ctrl-b', command: 'core:undo', selector: '.editor'
+      atom.keymap.emit 'reloaded-key-bindings'
+
+      waitsFor ->
+        panel.keybindingRows.children().length is 2
+
+      runs ->
+        row = panel.keybindingRows.children(':last')
+        expect(row.find('.keystroke').text()).toBe 'ctrl-b'
+        expect(row.find('.command').text()).toBe 'core:undo'
+        expect(row.find('.source').text()).toBe 'User'
+        expect(row.find('.selector').text()).toBe '.editor'

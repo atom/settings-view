@@ -37,8 +37,6 @@ class KeybindingsPanel extends View
       false
 
     @searchEditorView.setPlaceholderText('Search keybindings')
-    @keyBindings = _.sortBy(atom.keymap.getKeyBindings(), 'keystroke')
-    @appendKeyBindings(@keyBindings)
 
     @searchEditorView.getEditor().getBuffer().on 'contents-modified', =>
       @filterKeyBindings(@keyBindings, @searchEditorView.getText())
@@ -46,6 +44,17 @@ class KeybindingsPanel extends View
     @on 'click', '.copy-icon', ({target}) =>
       keyBinding = $(target).closest('tr').data('keyBinding')
       @writeKeyBindingToClipboard(keyBinding)
+
+    @subscribe atom.keymap, 'reloaded-key-bindings unloaded-key-bindings', =>
+      @loadKeyBindings()
+
+    @loadKeyBindings()
+
+  loadKeyBindings: ->
+    @keybindingRows.empty()
+    @keyBindings = _.sortBy(atom.keymap.getKeyBindings(), 'keystroke')
+    @appendKeyBindings(@keyBindings)
+    @filterKeyBindings(@keyBindings, @searchEditorView.getText())
 
   focus: ->
     @searchEditorView.focus()
