@@ -98,6 +98,11 @@ describe "GeneralPanel", ->
     setValueForId('core.int', 2)
     expect(observeHandler).not.toHaveBeenCalled()
 
+  it "does not update the editor text unless the value it parses to changes", ->
+    setValueForId('core.int', "2.")
+    expect(atom.config.get('core.int')).toBe 2
+    expect(getValueForId('core.int')).toBe '2.'
+
   it "only adds editors for arrays when all the values in the array are strings", ->
     expect(getValueForId('editor.simpleArray')).toBe 'a, b, c'
     expect(getValueForId('editor.complexArray')).toBeUndefined()

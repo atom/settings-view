@@ -67,8 +67,10 @@ class SettingsPanel extends View
           else
             stringValue = @valueToString(value) ? ''
 
-          if stringValue isnt editorView.getText()
-            editorView.setText(stringValue)
+          return if stringValue is editorView.getText()
+          return if value is @parseValue(type, editorView.getText())
+
+          editorView.setText(stringValue)
 
         editorView.getEditor().getBuffer().on 'contents-modified', =>
           atom.config.set(name, @parseValue(type, editorView.getText()))
