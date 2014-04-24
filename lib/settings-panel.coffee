@@ -58,10 +58,18 @@ class SettingsPanel extends View
         name = editorView.attr('id')
         type = editorView.attr('type')
 
+        if defaultValue = @valueToString(atom.config.getDefault(name))
+          editorView.setPlaceholderText("Default: #{defaultValue}")
+
         @subscribe atom.config.observe name, (value) =>
-          stringValue = @valueToString(value)
-          return if stringValue == editorView.getText()
-          stringValue ?= ""
+          if atom.config.isDefault(name)
+            stringValue = ''
+          else
+            stringValue = @valueToString(value) ? ''
+
+          return if stringValue is editorView.getText()
+          return if value is @parseValue(type, editorView.getText())
+
           editorView.setText(stringValue)
 
         editorView.getEditor().getBuffer().on 'contents-modified', =>
