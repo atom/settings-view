@@ -79,8 +79,8 @@ class PackageUpdateView extends View
     @status.destroyTooltip()
     switch iconName
       when 'check'
-        @status.setTooltip(_.capitalize("#{@type} upgrade"))
+        @status.setTooltip(_.capitalize("#{@type} updated"))
       when 'alert'
-        @status.setTooltip(_.capitalize("#{@type} failed to upgrade"))
+        @status.setTooltip(_.capitalize("#{@type} failed to updated"))
       when 'cloud-download'
-        @status.setTooltip(_.capitalize("#{@type} upgraded"))
+        @status.setTooltip(_.capitalize("#{@type} updating"))
