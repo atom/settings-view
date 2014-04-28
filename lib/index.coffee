@@ -47,3 +47,14 @@ module.exports =
     atom.workspaceView.on 'pane-container:active-pane-item-changed', ->
       if settingsView is atom.workspace.getActivePaneItem()
         settingsView?.redrawEditors()
+
+    atom.packages.once('activated', checkForUpdates)
+
+checkForUpdates = ->
+  if atom.workspaceView?.statusBar?
+    PackageManager = require './package-manager'
+    packageManager = new PackageManager()
+    packageManager.getOutdated().then (packages) ->
+      if packages.length > 0
+        PackageUpdatesStatusView = require './package-updates-status-view'
+        packageUpdatesStatusView = new PackageUpdatesStatusView(atom.workspaceView.statusBar, packages)
