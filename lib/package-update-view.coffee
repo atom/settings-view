@@ -8,11 +8,8 @@ class PackageUpdateView extends View
       @div class: 'thumbnail text', =>
         @div class: 'caption', =>
           @span outlet: 'status', class: 'package-status icon'
-          @h4 class: 'package-name native-key-bindings', tabindex: -1, =>
-            @span _.undasherize(_.uncamelcase(name))
-            @span ' '
-            @span outlet: 'latestVersion', class: 'label label-primary'
-          @p class: 'description native-key-bindings', tabindex: -1, description ? ''
+          @h4 class: 'package-name native-key-bindings', tabindex: -1, _.undasherize(_.uncamelcase(name))
+          @p outlet: 'latestVersion', class: 'description native-key-bindings', tabindex: -1
           @div class: 'btn-toolbar', =>
             @button outlet: 'upgradeButton', class: 'btn btn-primary', 'Upgrade'
             @button outlet: 'uninstallButton', class: 'btn btn-default', 'Uninstall'
@@ -21,7 +18,7 @@ class PackageUpdateView extends View
   initialize: (@pack, @packageManager) ->
     @type = if @pack.theme then 'theme' else 'package'
 
-    @latestVersion.text(@pack.latestVersion)
+    @latestVersion.text("An update from #{@pack.version} to #{@pack.latestVersion} is available")
 
     @handlePackageEvents()
 
