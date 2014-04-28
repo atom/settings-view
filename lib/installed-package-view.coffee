@@ -186,10 +186,9 @@ class InstalledPackageView extends View
 
     @updateLink.on 'click', => @installUpdate()
 
-    @packageManager.getPackage(@pack.name).then (available) =>
-      return unless available?
-      return unless @packageManager.canUpgrade(@pack, available)
-
-      @availableVersion = available.version
-      @updateLabel.text("Version #{@availableVersion} is now available!")
-      @updateArea.show()
+    @packageManager.getOutdated().then (packages) =>
+      for pack in packages when pack.name is @pack.name
+        if @packageManager.canUpgrade(@pack, pack.latestVersion)
+          @availableVersion = pack.latestVersion
+          @updateLabel.text("Version #{@availableVersion} is now available!")
+          @updateArea.show()

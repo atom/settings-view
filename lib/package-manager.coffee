@@ -209,13 +209,11 @@ class PackageManager
           @emit 'package-uninstall-failed', pack, error
         callback(error)
 
-  canUpgrade: (installedPackage, availablePackage) ->
-    return false unless installedPackage? and availablePackage?
+  canUpgrade: (installedPackage, availableVersion) ->
+    return false unless installedPackage?
 
     installedVersion = installedPackage.metadata.version
     return false unless semver.valid(installedVersion)
-
-    availableVersion = availablePackage.version
     return false unless semver.valid(availableVersion)
 
     semver.gt(availableVersion, installedVersion)
