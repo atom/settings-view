@@ -104,6 +104,7 @@ class PackagesPanel extends View
       packageRow.append(new AvailablePackageView(pack, @packageManager))
 
   addUpdateViews: ->
+    @updateAllButton.prop('disabled', @availableUpdates.length is 0)
     @checkingMessage.hide()
     @updatesContainer.empty()
     @noUpdatesMessage.show() if @availableUpdates.length is 0
@@ -138,7 +139,6 @@ class PackagesPanel extends View
     @packageManager.getOutdated()
       .then (@availableUpdates) =>
         @addUpdateViews()
-        @updateAllButton.prop('disabled', false)
       .catch (error) =>
         @checkingMessage.hide()
         @updateErrors.append(new ErrorView(error))
