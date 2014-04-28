@@ -3,14 +3,15 @@ _ = require 'underscore-plus'
 
 module.exports =
 class PackageUpdateView extends View
-  @content: ({name, description, downloads}) ->
+  @content: ({name, description}) ->
     @div class: 'col-lg-4 available-package-view', =>
       @div class: 'thumbnail text', =>
         @div class: 'caption', =>
           @span outlet: 'status', class: 'package-status icon'
-          @h4 class: 'package-name native-key-bindings', tabindex: -1, _.undasherize(_.uncamelcase(name))
-          if downloads >= 0
-            @p class: 'downloads native-key-bindings', tabindex: -1, _.pluralize(downloads, 'download')
+          @h4 class: 'package-name native-key-bindings', tabindex: -1, =>
+            @span _.undasherize(_.uncamelcase(name))
+            @span ' '
+            @span outlet: 'latestVersion', class: 'label label-success'
           @p class: 'description native-key-bindings', tabindex: -1, description ? ''
           @div class: 'btn-toolbar', =>
             @button outlet: 'upgradeButton', class: 'btn btn-primary', 'Upgrade'
@@ -19,6 +20,8 @@ class PackageUpdateView extends View
 
   initialize: (@pack, @packageManager) ->
     @type = if @pack.theme then 'theme' else 'package'
+
+    @latestVersion.text("#{@pack.latestVersion} Available")
 
     @handlePackageEvents()
 
