@@ -62,6 +62,9 @@ class PackagesPanel extends View
     @subscribe @packageManager, 'package-install-failed', (pack, error) =>
       @searchErrors.append(new ErrorView(error))
 
+    @subscribe @packageManager, 'package-update-failed theme-update-failed', (pack, error) =>
+      @updateErrors.append(new ErrorView(error))
+
     @loadFeaturedPackages()
     @checkForUpdates()
 
