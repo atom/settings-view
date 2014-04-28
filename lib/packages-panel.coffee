@@ -67,7 +67,7 @@ class PackagesPanel extends View
     @subscribe @packageManager, 'package-update-failed theme-update-failed', (pack, error) =>
       @updateErrors.append(new ErrorView(error))
 
-    @updateAllButton.prop('disabled', true)
+    @updateAllButton.hide()
     @updateAllButton.on 'click', =>
       @updateAllButton.prop('disabled', true)
       for pack in @availableUpdates
@@ -104,7 +104,7 @@ class PackagesPanel extends View
       packageRow.append(new AvailablePackageView(pack, @packageManager))
 
   addUpdateViews: ->
-    @updateAllButton.prop('disabled', @availableUpdates.length is 0)
+    @updateAllButton.show() if @availableUpdates.length > 0
     @checkingMessage.hide()
     @updatesContainer.empty()
     @noUpdatesMessage.show() if @availableUpdates.length is 0
