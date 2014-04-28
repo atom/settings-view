@@ -15,7 +15,9 @@ class PackagesPanel extends View
   @content: ->
     @div =>
       @div class: 'section packages', =>
-        @div class: 'section-heading icon icon-squirrel', 'Available Updates'
+        @div class: 'section-heading icon icon-squirrel', =>
+          @span 'Available Updates'
+          @button outlet: 'updateAllButton', class: 'pull-right btn btn-primary', 'Update All'
 
         @div outlet: 'updateErrors'
         @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
@@ -65,6 +67,12 @@ class PackagesPanel extends View
     @subscribe @packageManager, 'package-update-failed theme-update-failed', (pack, error) =>
       @updateErrors.append(new ErrorView(error))
 
+    @updateAllButton.prop('disabled', true)
+    @updateAllButton.on 'click', =>
+      @updateAllButton.prop('disabled', true)
+      for pack in @availableUpdates
+        @packageManager.update(pack, pack.latestVersion)
+
     @loadFeaturedPackages()
     @checkForUpdates()
 
@@ -95,12 +103,12 @@ class PackagesPanel extends View
         container.append(packageRow)
       packageRow.append(new AvailablePackageView(pack, @packageManager))
 
-  addUpdateViews: (packages) ->
+  addUpdateViews: ->
     @checkingMessage.hide()
     @updatesContainer.empty()
-    @noUpdatesMessage.show() if packages.length is 0
+    @noUpdatesMessage.show() if @availableUpdates.length is 0
 
-    for pack, index in packages
+    for pack, index in @availableUpdates
       if index % 3 is 0
         packageRow = $$ -> @div class: 'row'
         @updatesContainer.append(packageRow)
@@ -128,8 +136,9 @@ class PackagesPanel extends View
     @checkingMessage.show()
 
     @packageManager.getOutdated()
-      .then (packages) =>
-        @addUpdateViews(packages)
+      .then (@availableUpdates) =>
+        @addUpdateViews()
+        @updateAllButton.prop('disabled', false)
       .catch (error) =>
         @checkingMessage.hide()
         @updateErrors.append(new ErrorView(error))

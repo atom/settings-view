@@ -149,6 +149,7 @@ class PackageManager
           @emit 'package-update-failed', pack, error
         callback(error)
 
+    @emit('package-updating', pack)
     @runCommand(args, exit)
 
   install: (pack, callback) ->
