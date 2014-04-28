@@ -50,6 +50,7 @@ class InstalledPackageView extends View
     @updateEnablement()
     @updateFileButtons()
     @checkForUpdate()
+    @subscribeToPackageManager()
 
   populate: ->
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")
@@ -73,6 +74,16 @@ class InstalledPackageView extends View
     @sections.append(new PackageKeymapView(@pack.name))
     @sections.append(new PackageGrammarsView(@pack.path))
     @sections.append(new PackageSnippetsView(@pack.path))
+
+  subscribeToPackageManager: ->
+    @subscribe @packageManager, 'theme-updated package-updated', (pack, newVersion) =>
+      return unless @pack.name is pack.name
+
+      @updateFileButtons()
+      @updateArea.hide()
+      if updatedPackage = atom.packages.getLoadedPackage(@pack.name)
+        @pack = updatedPackage
+        @populate()
 
   handleButtonEvents: ->
     @disableButton.on 'click', =>
@@ -168,12 +179,6 @@ class InstalledPackageView extends View
         @updateLink.prop('disabled', false)
         @updateLink.text('Install')
         @errors.append(new ErrorView(error))
-      else
-        @updateFileButtons()
-        @updateArea.hide()
-        if updatedPackage = atom.packages.getLoadedPackage(@pack.name)
-          @pack = updatedPackage
-          @populate()
 
   checkForUpdate: ->
     @updateArea.hide()
@@ -186,5 +191,5 @@ class InstalledPackageView extends View
       return unless @packageManager.canUpgrade(@pack, available)
 
       @availableVersion = available.version
-      @updateLabel.text ("Version #{@availableVersion} is now available!")
+      @updateLabel.text("Version #{@availableVersion} is now available!")
       @updateArea.show()
