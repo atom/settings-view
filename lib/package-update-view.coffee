@@ -11,7 +11,7 @@ class PackageUpdateView extends View
           @h4 class: 'package-name native-key-bindings', tabindex: -1, _.undasherize(_.uncamelcase(name))
           @p outlet: 'latestVersion', class: 'description native-key-bindings', tabindex: -1
           @div class: 'btn-toolbar', =>
-            @button outlet: 'upgradeButton', class: 'btn btn-primary', 'Upgrade'
+            @button outlet: 'upgradeButton', class: 'btn btn-primary', 'Update'
             @button outlet: 'uninstallButton', class: 'btn btn-default', 'Uninstall'
             @button outlet: 'settingsButton', class: 'btn btn-default', 'Settings'
 
