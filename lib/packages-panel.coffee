@@ -15,7 +15,7 @@ class PackagesPanel extends View
   @content: ->
     @div =>
       @div class: 'section packages', =>
-        @div class: 'section-heading icon icon-squirrel', 'Package Updates'
+        @div class: 'section-heading icon icon-squirrel', 'Available Updates'
 
         @div outlet: 'updateErrors'
         @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
