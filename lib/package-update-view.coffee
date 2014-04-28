@@ -51,8 +51,6 @@ class PackageUpdateView extends View
       if error?
         @setButtonsEnabled(true)
         @setStatusIcon('alert')
-      else
-        @remove()
 
   setButtonsEnabled: (enabled) ->
     @upgradeButton.prop('disabled', not enabled)
