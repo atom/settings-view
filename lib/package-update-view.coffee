@@ -18,7 +18,7 @@ class PackageUpdateView extends View
   initialize: (@pack, @packageManager) ->
     @type = if @pack.theme then 'theme' else 'package'
 
-    @latestVersion.text("An update from #{@pack.version} to #{@pack.latestVersion} is available")
+    @latestVersion.text("Version #{@pack.latestVersion} is now available. #{@pack.version} is currently installed.")
 
     @handlePackageEvents()
 
