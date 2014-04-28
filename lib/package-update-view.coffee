@@ -33,8 +33,8 @@ class PackageUpdateView extends View
 
   handlePackageEvents: ->
     @subscribeToPackageEvent 'package-updated theme-updated package-update-failed theme-update-failed', (pack, error) =>
+      @uninstallButton.prop('disabled', false)
       if error?
-        @uninstallButton.prop('disabled', false)
         @setStatusIcon('alert')
       else
         @setStatusIcon('check')
