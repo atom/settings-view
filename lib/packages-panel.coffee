@@ -21,7 +21,7 @@ class PackagesPanel extends View
 
         @div outlet: 'updateErrors'
         @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
-        @div outlet: 'noUpdatesMessage', class: 'alert alert-info featured-message icon icon-heart', 'All your packages are up to date!'
+        @div outlet: 'noUpdatesMessage', class: 'alert alert-info featured-message icon icon-heart', 'All of your installed packages are up to date!'
         @div outlet: 'updatesContainer', class: 'container package-container'
 
       @div class: 'section packages', =>
