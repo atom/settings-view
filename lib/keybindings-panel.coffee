@@ -53,7 +53,7 @@ class KeybindingsPanel extends View
 
   loadKeyBindings: ->
     @keybindingRows.empty()
-    @keyBindings = _.sortBy(atom.keymap.getKeyBindings(), 'keystroke')
+    @keyBindings = _.sortBy(atom.keymap.getKeyBindings(), 'keystrokes')
     @appendKeyBindings(@keyBindings)
     @filterKeyBindings(@keyBindings, @searchEditorView.getText())
 
@@ -63,8 +63,8 @@ class KeybindingsPanel extends View
   filterKeyBindings: (keyBindings, filterString) ->
     @keybindingRows.empty()
     for keyBinding in keyBindings
-      {selector, keystroke, command, source} = keyBinding
-      searchString = "#{selector}#{keystroke}#{command}#{source}"
+      {selector, keystrokes, command, source} = keyBinding
+      searchString = "#{selector}#{keystrokes}#{command}#{source}"
       continue unless searchString
 
       if /^\s*$/.test(filterString) or searchString.indexOf(filterString) != -1
@@ -79,29 +79,29 @@ class KeybindingsPanel extends View
     @keybindingRows.append(view)
 
   elementForKeyBinding: (keyBinding) ->
-    {selector, keystroke, command, source} = keyBinding
+    {selector, keystrokes, command, source} = keyBinding
     source = @determineSource(source)
     $$$ ->
       rowClasses = if source is 'User' then 'success' else ''
       @tr class: rowClasses, =>
         @td class: 'keystroke', =>
           @span class: 'icon icon-clippy copy-icon'
-          @span keystroke
+          @span keystrokes
         @td class: 'command', command
         @td class: 'source', source
         @td class: 'selector', selector
 
-  writeKeyBindingToClipboard: ({selector, keystroke, command}) ->
+  writeKeyBindingToClipboard: ({selector, keystrokes, command}) ->
     keymapExtension = path.extname(atom.keymap.getUserKeymapPath())
     if keymapExtension is '.cson'
       content = """
         '#{selector}':
-          '#{keystroke}': '#{command}'
+          '#{keystrokes}': '#{command}'
       """
     else
       content = """
         "#{selector}": {
-          "#{keystroke}": "#{command}"
+          "#{keystrokes}": "#{command}"
         }
       """
     atom.clipboard.write(content)

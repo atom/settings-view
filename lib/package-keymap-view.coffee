@@ -18,13 +18,13 @@ class PackageKeymapView extends View
   initialize: (namespace) ->
     otherPlatformPattern = new RegExp("\\.platform-(?!#{_.escapeRegExp(process.platform)}\\b)")
 
-    for {command, keystroke, selector} in atom.keymap.getKeyBindings()
+    for {command, keystrokes, selector} in atom.keymap.getKeyBindings()
       continue unless command?.indexOf?("#{namespace}:") is 0
       continue if otherPlatformPattern.test(selector)
 
       @keybindingItems.append $$$ ->
         @tr =>
-          @td keystroke
+          @td keystrokes
           @td command
           @td selector
 

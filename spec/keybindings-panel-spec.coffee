@@ -7,7 +7,7 @@ describe "KeybindingsPanel", ->
   beforeEach ->
     expect(atom.keymap).toBeDefined()
     keyBindings = [
-      source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps", keystroke: 'ctrl-a', command: 'core:select-all', selector: '.editor'
+      source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps", keystrokes: 'ctrl-a', command: 'core:select-all', selector: '.editor'
     ]
     spyOn(atom.keymap, 'getKeyBindings').andReturn(keyBindings)
     panel = new KeybindingsPanel
@@ -44,7 +44,7 @@ describe "KeybindingsPanel", ->
   describe "when the key bindings change", ->
     it "reloads the key bindings", ->
       keyBindings.push
-        source: atom.keymap.getUserKeymapPath(), keystroke: 'ctrl-b', command: 'core:undo', selector: '.editor'
+        source: atom.keymap.getUserKeymapPath(), keystrokes: 'ctrl-b', command: 'core:undo', selector: '.editor'
       atom.keymap.emit 'reloaded-key-bindings'
 
       waitsFor ->
