@@ -2,7 +2,7 @@ path = require 'path'
 
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
-{$$, View} = require 'atom'
+{$, $$, View} = require 'atom'
 
 AvailablePackageView = require './available-package-view'
 ErrorView = require './error-view'
@@ -70,8 +70,8 @@ class PackagesPanel extends View
     @updateAllButton.hide()
     @updateAllButton.on 'click', =>
       @updateAllButton.prop('disabled', true)
-      for pack in @availableUpdates
-        @packageManager.update(pack, pack.latestVersion)
+      for updateView in @updatesContainer.find('.available-package-view')
+        $(updateView).view()?.upgrade?()
 
     @loadFeaturedPackages()
     @checkForUpdates()

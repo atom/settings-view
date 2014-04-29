@@ -68,6 +68,8 @@ class PackageUpdateView extends View
         console.error("Uninstalling #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
 
   upgrade: ->
+    return if @upgradeButton.prop('disabled')
+
     @packageManager.update @pack, @pack.latestVersion, (error) =>
       if error?
         console.error("Upgrading #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
