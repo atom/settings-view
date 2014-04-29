@@ -37,6 +37,7 @@ class PackageUpdateView extends View
       if error?
         @setStatusIcon('alert')
       else
+        @latestVersion.text("Version #{@pack.latestVersion} is now installed.")
         @setStatusIcon('check')
 
     @subscribeToPackageEvent 'package-updating', (pack) =>
