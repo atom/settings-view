@@ -84,10 +84,7 @@ class SettingsPanel extends View
   parseValue: (type, value) ->
     if value == ''
       value = undefined
-    else if type == 'int'
-      intValue = parseInt(value)
-      value = intValue unless isNaN(intValue)
-    else if type == 'float'
+    else if type == 'number'
       floatValue = parseFloat(value)
       value = floatValue unless isNaN(floatValue)
     else if type == 'array'
@@ -134,7 +131,7 @@ appendCheckbox = (namespace, name, value) ->
 appendEditor = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
   if _.isNumber(value)
-    type = if value % 1 == 0 then 'int' else 'float'
+    type = 'number'
   else
     type = 'string'
 
