@@ -10,8 +10,8 @@ class PackageUpdatesStatusView extends View
 
   initialize: (statusBar, packages) ->
     @countLabel.text(packages.length)
-    statusBar.appendRight(this)
     @setTooltip("#{_.pluralize(packages.length, 'package update')} available")
+    statusBar.appendRight(this)
 
     @subscribe this, 'click', =>
       @trigger('settings-view:install-packages')
