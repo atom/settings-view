@@ -5,8 +5,8 @@ module.exports =
 class PackageUpdatesStatusView extends View
   @content: ->
     @div class: 'inline-block text text-info', =>
-        @span class: 'icon icon-package'
-        @span outlet: 'countLabel', class: 'available-updates-status'
+      @span class: 'icon icon-package'
+      @span outlet: 'countLabel', class: 'available-updates-status'
 
   initialize: (statusBar, packages) ->
     @countLabel.text(packages.length)
