@@ -4,7 +4,6 @@
   "main": "./lib/main",
   "description": "Edit config settings, install packages, and change themes",
   "license": "MIT",
-  "private": true,
   "dependencies": {
     "async": "~0.2.9",
     "emissary": "1.x",
