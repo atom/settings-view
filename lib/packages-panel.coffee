@@ -2,17 +2,28 @@ path = require 'path'
 
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
-{$$, View} = require 'atom'
+{$, $$, View} = require 'atom'
 
+AvailablePackageView = require './available-package-view'
 ErrorView = require './error-view'
 PackageManager = require './package-manager'
-AvailablePackageView = require './available-package-view'
+PackageUpdateView = require './package-update-view'
 SettingEditorView = require './setting-editor-view'
 
 module.exports =
 class PackagesPanel extends View
   @content: ->
     @div =>
+      @div class: 'section packages', =>
+        @div class: 'section-heading icon icon-squirrel', =>
+          @span 'Available Updates'
+          @button outlet: 'updateAllButton', class: 'pull-right btn btn-primary', 'Update All'
+
+        @div outlet: 'updateErrors'
+        @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
+        @div outlet: 'noUpdatesMessage', class: 'alert alert-info featured-message icon icon-heart', 'All of your installed packages are up to date!'
+        @div outlet: 'updatesContainer', class: 'container package-container'
+
       @div class: 'section packages', =>
         @div class: 'section-heading icon icon-cloud-download', 'Install Packages'
 
@@ -41,6 +52,7 @@ class PackagesPanel extends View
       require('shell').openExternal('https://atom.io/packages')
       false
 
+    @noUpdatesMessage.hide()
     @searchMessage.hide()
     @emptyMessage.hide()
 
@@ -52,7 +64,17 @@ class PackagesPanel extends View
     @subscribe @packageManager, 'package-install-failed', (pack, error) =>
       @searchErrors.append(new ErrorView(error))
 
+    @subscribe @packageManager, 'package-update-failed theme-update-failed', (pack, error) =>
+      @updateErrors.append(new ErrorView(error))
+
+    @updateAllButton.hide()
+    @updateAllButton.on 'click', =>
+      @updateAllButton.prop('disabled', true)
+      for updateView in @updatesContainer.find('.available-package-view')
+        $(updateView).view()?.upgrade?()
+
     @loadFeaturedPackages()
+    @checkForUpdates()
 
   focus: ->
     @searchEditorView.focus()
@@ -81,6 +103,18 @@ class PackagesPanel extends View
         container.append(packageRow)
       packageRow.append(new AvailablePackageView(pack, @packageManager))
 
+  addUpdateViews: ->
+    @updateAllButton.show() if @availableUpdates.length > 0
+    @checkingMessage.hide()
+    @updatesContainer.empty()
+    @noUpdatesMessage.show() if @availableUpdates.length is 0
+
+    for pack, index in @availableUpdates
+      if index % 3 is 0
+        packageRow = $$ -> @div class: 'row'
+        @updatesContainer.append(packageRow)
+      packageRow.append(new PackageUpdateView(pack, @packageManager))
+
   filterPackages: (packages) ->
     packages.filter ({theme}) -> not theme
 
@@ -97,3 +131,14 @@ class PackagesPanel extends View
       .catch (error) =>
         @loadingMessage.hide()
         @featuredErrors.append(new ErrorView(error))
+
+  # Check for updates and display them
+  checkForUpdates: ->
+    @checkingMessage.show()
+
+    @packageManager.getOutdated()
+      .then (@availableUpdates) =>
+        @addUpdateViews()
+      .catch (error) =>
+        @checkingMessage.hide()
+        @updateErrors.append(new ErrorView(error))

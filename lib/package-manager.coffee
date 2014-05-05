@@ -46,6 +46,26 @@ class PackageManager
         error.stderr = stderr
         callback(error)
 
+  loadOutdated: (callback) ->
+    args = ['outdated', '--json']
+    version = atom.getVersion()
+    args.push('--compatible', version) if semver.valid(version)
+
+    @runCommand args, (code, stdout, stderr) ->
+      if code is 0
+        try
+          packages = JSON.parse(stdout) ? []
+        catch error
+          callback(error)
+          return
+
+        callback(null, packages)
+      else
+        error = new Error('Fetching outdated packages and themes failed.')
+        error.stdout = stdout
+        error.stderr = stderr
+        callback(error)
+
   loadPackage: (packageName, callback) ->
     args = ['view', packageName, '--json']
 
@@ -66,6 +86,9 @@ class PackageManager
 
   getFeatured: ->
     @featuredPromise ?= Q.nbind(@loadFeatured, this)()
+
+  getOutdated: ->
+    @outdatedPromise ?= Q.nbind(@loadOutdated, this)()
 
   getPackage: (packageName) ->
     @packagePromises[packageName] ?= Q.nbind(@loadPackage, this, packageName)()
@@ -126,6 +149,7 @@ class PackageManager
           @emit 'package-update-failed', pack, error
         callback(error)
 
+    @emit('package-updating', pack)
     @runCommand(args, exit)
 
   install: (pack, callback) ->
@@ -185,13 +209,11 @@ class PackageManager
           @emit 'package-uninstall-failed', pack, error
         callback(error)
 
-  canUpgrade: (installedPackage, availablePackage) ->
-    return false unless installedPackage? and availablePackage?
+  canUpgrade: (installedPackage, availableVersion) ->
+    return false unless installedPackage?
 
     installedVersion = installedPackage.metadata.version
     return false unless semver.valid(installedVersion)
-
-    availableVersion = availablePackage.version
     return false unless semver.valid(availableVersion)
 
     semver.gt(availableVersion, installedVersion)
