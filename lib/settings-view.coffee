@@ -152,6 +152,14 @@ class SettingsView extends ScrollView
     @sidebar.find('.active').removeClass('active')
     @sidebar.find("[name='#{name}']").addClass('active')
 
+  focus: ->
+    # Pass focus to panel that is currently visible
+    for panel in @panels.children() when $(panel).isVisible()
+      $(panel).view().focus()
+      return
+
+    super
+
   showPanel: (name) ->
     if panel = @getOrCreatePanel(name)
       @panels.children().hide()
