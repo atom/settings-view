@@ -1,4 +1,5 @@
 path = require 'path'
+_ = require 'underscore-plus'
 {$$$, View} = require 'atom'
 
 # View to display the grammars that a package has registered.
@@ -25,7 +26,10 @@ class PackageGrammarsView extends View
     grammars = atom.syntax.grammars ? []
     for grammar in grammars when grammar.path
       packageGrammars.push(grammar) if grammar.path.indexOf(@packagePath) is 0
-    packageGrammars
+    packageGrammars.sort (grammar1, grammar2) ->
+      name1 = grammar1.name ? grammar1.scopeName ? ''
+      name2 = grammar2.name ? grammar2.scopeName ? ''
+      name1.localeCompare(name2)
 
   addGrammars: ->
     @grammarItems.empty()
