@@ -59,7 +59,7 @@ class ThemesPanel extends View
 
   initialize: (@packageManager) ->
     @openAtomIo.on 'click', =>
-      require('shell').openExternal('https://atom.io/packages')
+      require('shell').openExternal('https://atom.io/themes')
       false
 
     @searchMessage.hide()
