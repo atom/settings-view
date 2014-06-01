@@ -93,6 +93,9 @@ class ThemesPanel extends View
 
     @loadFeaturedThemes()
 
+  focus: ->
+    @searchEditorView.focus()
+
   # Update the active UI and syntax themes and populate the menu
   updateActiveThemes: ->
     @activeUiTheme = @getActiveUiTheme()
