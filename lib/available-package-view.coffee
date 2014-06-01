@@ -68,7 +68,6 @@ class AvailablePackageView extends View
       @setStatusIcon('check')
     else
       @settingsButton.hide()
-      @installButton.prop('disabled', true) if @isDisabled()
 
   isInstalled: -> atom.packages.isPackageLoaded(@pack.name)
 
@@ -83,6 +82,10 @@ class AvailablePackageView extends View
     @packageManager.install @pack, (error) =>
       if error?
         console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
+      else
+        # if a package was disabled before installing it, re-enable it
+        if @isDisabled()
+          atom.packages.enablePackage(@pack.name)
 
   uninstall: ->
     @packageManager.emit('package-uninstalling', @pack)
