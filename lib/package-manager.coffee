@@ -223,7 +223,8 @@ class PackageManager
   # eventName - The event name suffix {String} of the event to emit.
   # pack - The package for which the event is being emitted.
   # error - Any error information to be included in the case of an error.
-  emitPackageEvent: (eventName, {theme}, error) ->
+  emitPackageEvent: (eventName, pack, error) ->
+    {theme} = pack
     theme ?= pack.metadata?.theme
-    eventName = theme ? "theme-#{eventName}" : "package-#{eventName}"
+    eventName = if theme then "theme-#{eventName}" else "package-#{eventName}"
     @emit eventName, pack, error
