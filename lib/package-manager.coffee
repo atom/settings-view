@@ -134,19 +134,13 @@ class PackageManager
           atom.packages.loadPackage(name)
 
         callback?()
-        if theme
-          @emit 'theme-updated', pack
-        else
-          @emit 'package-updated', pack
+        @emitPackageEvent 'updated', pack
       else
         atom.packages.activatePackage(name) if activateOnFailure
         error = new Error("Updating to \u201C#{name}@#{newVersion}\u201D failed.")
         error.stdout = stdout
         error.stderr = stderr
-        if theme
-          @emit 'theme-update-failed', pack, error
-        else
-          @emit 'package-update-failed', pack, error
+        @emitPackageEvent 'update-failed', pack, error
         callback(error)
 
     @emit('package-updating', pack)
@@ -168,26 +162,19 @@ class PackageManager
           atom.packages.loadPackage(name)
 
         callback?()
-        if theme
-          @emit 'theme-installed', pack
-        else
-          @emit 'package-installed', pack
+        @emitPackageEvent 'installed', pack
       else
         atom.packages.activatePackage(name) if activateOnFailure
         error = new Error("Installing \u201C#{name}@#{version}\u201D failed.")
         error.stdout = stdout
         error.stderr = stderr
-        if theme
-          @emit 'theme-install-failed', pack, error
-        else
-          @emit 'package-install-failed', pack, error
+        @emitPackageEvent 'install-failed', pack, error
         callback(error)
 
     @runCommand(args, exit)
 
   uninstall: (pack, callback) ->
-    {name, theme} = pack
-    theme ?= pack.metadata?.theme
+    {name} = pack
 
     atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
 
@@ -195,18 +182,12 @@ class PackageManager
       if code is 0
         atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
         callback?()
-        if theme
-          @emit 'theme-uninstalled', pack
-        else
-          @emit 'package-uninstalled', pack
+        @emitPackageEvent 'uninstalled', pack
       else
         error = new Error("Uninstalling \u201C#{name}\u201D failed.")
         error.stdout = stdout
         error.stderr = stderr
-        if theme
-          @emit 'theme-uninstall-failed', pack, error
-        else
-          @emit 'package-uninstall-failed', pack, error
+        @emitPackageEvent 'uninstall-failed', pack, error
         callback(error)
 
   canUpgrade: (installedPackage, availableVersion) ->
@@ -231,3 +212,18 @@ class PackageManager
     repoName = url.parse(repoUrl).pathname
     chunks = repoName.match '/(.+?)/'
     chunks?[1]
+
+  # Emits the appropriate event for the given package.
+  #
+  # All events are either of the form `theme-foo` or `package-foo` depending on
+  # whether the event is for a theme or a normal package. This method standardizes
+  # the logic to determine if a package is a theme or not and formats the event
+  # name appropriately.
+  #
+  # eventName - The event name suffix {String} of the event to emit.
+  # pack - The package for which the event is being emitted.
+  # error - Any error information to be included in the case of an error.
+  emitPackageEvent: (eventName, {theme}, error) ->
+    theme ?= pack.metadata?.theme
+    eventName = theme ? "theme-#{eventName}" : "package-#{eventName}"
+    @emit eventName, pack, error
