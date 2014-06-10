@@ -224,7 +224,6 @@ class PackageManager
   # pack - The package for which the event is being emitted.
   # error - Any error information to be included in the case of an error.
   emitPackageEvent: (eventName, pack, error) ->
-    {theme} = pack
-    theme ?= pack.metadata?.theme
+    theme = pack.theme ? pack.metadata?.theme
     eventName = if theme then "theme-#{eventName}" else "package-#{eventName}"
     @emit eventName, pack, error
