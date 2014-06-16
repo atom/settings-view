@@ -53,7 +53,6 @@ describe "ThemesPanel", ->
 
   describe "when a syntax theme is selected", ->
     it "updates the 'core.themes' config key with the selected syntax theme", ->
-      window.debugWindowsCi = process.platform is 'win32' and process.env.JANKY_SHA1
       jasmine.unspy(window, 'setTimeout')
       panel.syntaxMenu.val('atom-light-syntax').trigger('change')
 

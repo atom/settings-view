@@ -85,9 +85,6 @@ class ThemesPanel extends View
 
     @syntaxMenu.change =>
       @activeSyntaxTheme = @syntaxMenu.val()
-
-      expect('sytax menu changed').toBe @syntaxMenu.val() if window.debugWindowsCi
-
       @updateThemeConfig()
 
     @uiMenu.change =>
@@ -139,10 +136,6 @@ class ThemesPanel extends View
       themes = []
       themes.push(@activeUiTheme) if @activeUiTheme
       themes.push(@activeSyntaxTheme) if @activeSyntaxTheme
-
-      if window.debugWindowsCi
-        expect('updateThemeConfig').toBe [themes.length, @activeUiTheme, @activeSyntaxTheme]
-
       atom.themes.setEnabledThemes(themes) if themes.length > 0
     , 100
 
