@@ -85,11 +85,11 @@ class ThemesPanel extends View
 
     @syntaxMenu.change =>
       @activeSyntaxTheme = @syntaxMenu.val()
-      @updateThemeConfig()
+      @scheduleUpdateThemeConfig()
 
     @uiMenu.change =>
       @activeUiTheme = @uiMenu.val()
-      @updateThemeConfig()
+      @scheduleUpdateThemeConfig()
 
     @loadFeaturedThemes()
 
@@ -132,12 +132,13 @@ class ThemesPanel extends View
 
   # Update the config with the selected themes
   updateThemeConfig: ->
-    setTimeout =>
-      themes = []
-      themes.push(@activeUiTheme) if @activeUiTheme
-      themes.push(@activeSyntaxTheme) if @activeSyntaxTheme
-      atom.themes.setEnabledThemes(themes) if themes.length > 0
-    , 100
+    themes = []
+    themes.push(@activeUiTheme) if @activeUiTheme
+    themes.push(@activeSyntaxTheme) if @activeSyntaxTheme
+    atom.themes.setEnabledThemes(themes) if themes.length > 0
+
+  scheduleUpdateThemeConfig: ->
+    setTimeout((=> @updateThemeConfig()), 100)
 
   # Create a menu item for the given theme name.
   createThemeMenuItem: (themeName) ->

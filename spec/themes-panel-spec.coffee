@@ -33,6 +33,9 @@ describe "ThemesPanel", ->
       spyOn(atom.themes, 'setEnabledThemes').andCallThrough()
       panel = new ThemesPanel(packageManager)
 
+      # Make updates synchronous
+      spyOn(panel, 'scheduleUpdateThemeConfig').andCallFake -> @updateThemeConfig()
+
   afterEach ->
     atom.packages.unloadPackage('a-theme') if atom.packages.isPackageLoaded('a-theme')
     atom.themes.deactivateThemes()
@@ -43,19 +46,13 @@ describe "ThemesPanel", ->
 
   describe "when a UI theme is selected", ->
     it "updates the 'core.themes' config key with the selected UI theme", ->
-      jasmine.unspy(window, 'setTimeout')
       panel.uiMenu.val('atom-light-ui').trigger('change')
-
-      waitsFor "config to update", ->
-        _.isEqual(atom.config.get('core.themes'), ['atom-light-ui', 'atom-dark-syntax'])
+      expect(atom.config.get('core.themes')).toEqual ['atom-light-ui', 'atom-dark-syntax']
 
   describe "when a syntax theme is selected", ->
     it "updates the 'core.themes' config key with the selected syntax theme", ->
-      jasmine.unspy(window, 'setTimeout')
       panel.syntaxMenu.val('atom-light-syntax').trigger('change')
-
-      waitsFor "config to update", ->
-        _.isEqual(atom.config.get('core.themes'), ['atom-dark-ui', 'atom-light-syntax'])
+      expect(atom.config.get('core.themes')).toEqual ['atom-dark-ui', 'atom-light-syntax']
 
   describe "when the 'core.config' key is changes", ->
     it "refreshes the theme menus", ->
