@@ -1,6 +1,7 @@
 path = require 'path'
 
 {$} = require 'atom'
+_ = require 'underscore-plus'
 CSON = require 'season'
 Q = require 'q'
 
@@ -45,22 +46,16 @@ describe "ThemesPanel", ->
       jasmine.unspy(window, 'setTimeout')
       panel.uiMenu.val('atom-light-ui').trigger('change')
 
-      waitsFor ->
-        atom.themes.setEnabledThemes.callCount > 0
-
-      runs ->
-        expect(atom.config.get('core.themes')).toEqual ['atom-light-ui', 'atom-dark-syntax']
+      waitsFor "config to update", ->
+        _.isEqual(atom.config.get('core.themes'), ['atom-light-ui', 'atom-dark-syntax'])
 
   describe "when a syntax theme is selected", ->
     it "updates the 'core.themes' config key with the selected syntax theme", ->
       jasmine.unspy(window, 'setTimeout')
       panel.syntaxMenu.val('atom-light-syntax').trigger('change')
 
-      waitsFor ->
-        atom.themes.setEnabledThemes.callCount > 0
-
-      runs ->
-        expect(atom.config.get('core.themes')).toEqual ['atom-dark-ui', 'atom-light-syntax']
+      waitsFor "config to update", ->
+        _.isEqual(atom.config.get('core.themes'), ['atom-dark-ui', 'atom-light-syntax'])
 
   describe "when the 'core.config' key is changes", ->
     it "refreshes the theme menus", ->
