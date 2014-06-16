@@ -85,6 +85,10 @@ class ThemesPanel extends View
 
     @syntaxMenu.change =>
       @activeSyntaxTheme = @syntaxMenu.val()
+
+      if process.platform is 'win32' and process.env.JANKY_SHA1
+        expect('sytax menu changed').toBe @syntaxMenu.val()
+
       @updateThemeConfig()
 
     @uiMenu.change =>
@@ -136,6 +140,10 @@ class ThemesPanel extends View
       themes = []
       themes.push(@activeUiTheme) if @activeUiTheme
       themes.push(@activeSyntaxTheme) if @activeSyntaxTheme
+
+      if process.platform is 'win32' and process.env.JANKY_SHA1
+        expect('updateThemeConfig').toBe [themes.length, @activeUiTheme, @activeSyntaxTheme]
+
       atom.themes.setEnabledThemes(themes) if themes.length > 0
     , 100
 
