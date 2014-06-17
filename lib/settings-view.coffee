@@ -156,9 +156,14 @@ class SettingsView extends ScrollView
     super
 
     # Pass focus to panel that is currently visible
-    for panel in @panels.children() when $(panel).isVisible()
-      $(panel).view().focus()
-      return
+    for panel in @panels.children()
+      child = $(panel)
+      if child.isVisible()
+        if view = child.view()
+          view.focus()
+        else
+          child.focus()
+        return
 
   showPanel: (name) ->
     if panel = @getOrCreatePanel(name)
