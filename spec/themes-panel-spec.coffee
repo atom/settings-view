@@ -54,7 +54,7 @@ describe "ThemesPanel", ->
       panel.syntaxMenu.val('atom-light-syntax').trigger('change')
       expect(atom.config.get('core.themes')).toEqual ['atom-dark-ui', 'atom-light-syntax']
 
-  describe "when the 'core.config' key is changes", ->
+  describe "when the 'core.config' key changes", ->
     it "refreshes the theme menus", ->
       reloadedHandler.reset()
       atom.config.set('core.themes', ['atom-light-ui', 'atom-light-syntax'])
