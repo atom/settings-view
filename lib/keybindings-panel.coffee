@@ -33,6 +33,8 @@ class KeybindingsPanel extends View
         @tbody outlet: 'keybindingRows'
 
   initialize: ->
+    @otherPlatformPattern = new RegExp("\\.platform-(?!#{_.escapeRegExp(process.platform)}\\b)")
+
     @openUserKeymap.on 'click', =>
       atom.workspaceView.trigger('application:open-your-keymap')
       false
@@ -74,6 +76,8 @@ class KeybindingsPanel extends View
     @appendKeyBinding(keyBinding) for keyBinding in keyBindings
 
   appendKeyBinding: (keyBinding) ->
+    return if @otherPlatformPattern.test(keyBinding.selector)
+
     view = $(@elementForKeyBinding(keyBinding))
     view.data('keyBinding', keyBinding)
     @keybindingRows.append(view)
