@@ -80,8 +80,7 @@ class PackagesPanel extends View
     @searchEditorView.focus()
 
   search: (query) ->
-    if @resultsContainer.children().length is 0
-      @searchMessage.text("Searching for \u201C#{query}\u201D\u2026").show()
+    @searchMessage.text("Searching for \u201C#{query}\u201D\u2026").show()
 
     @packageManager.search(query, {packages: true})
       .then (packages=[]) =>
