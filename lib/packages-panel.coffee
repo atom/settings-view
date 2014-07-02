@@ -150,7 +150,7 @@ class PackagesPanel extends View
 
     @packageManager.checkNativeBuildTools().catch (error) =>
       @prepend $$ ->
-        @div outlet: 'checkingMessage', class: 'alert alert-warning', =>
+        @div outlet: 'checkingMessage', class: 'alert alert-warning compile-tools-area', =>
           @div class: 'icon icon-alert compile-tools-heading', 'Compiler tools not found'
           @div class: 'compile-tools-message', 'Packages that depend on modules that contain C/C++ code will fail to install.'
           @div class: 'compile-tools-message', =>
