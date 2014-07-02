@@ -62,10 +62,10 @@ class PackagesPanel extends View
         @search(query)
 
     @subscribe @packageManager, 'package-install-failed', (pack, error) =>
-      @searchErrors.append(new ErrorView(error))
+      @searchErrors.append(new ErrorView(@packageManager, error))
 
     @subscribe @packageManager, 'package-update-failed theme-update-failed', (pack, error) =>
-      @updateErrors.append(new ErrorView(error))
+      @updateErrors.append(new ErrorView(@packageManager, error))
 
     @updateAllButton.hide()
     @updateAllButton.on 'click', =>
@@ -75,7 +75,6 @@ class PackagesPanel extends View
 
     @loadFeaturedPackages()
     @checkForUpdates()
-    @checkForNativeBuildTools()
 
   focus: ->
     @searchEditorView.focus()
@@ -93,7 +92,7 @@ class PackagesPanel extends View
         @addPackageViews(@resultsContainer, packages)
       .catch (error) =>
         @searchMessage.hide()
-        @searchErrors.append(new ErrorView(error))
+        @searchErrors.append(new ErrorView(@packageManager, error))
 
   addPackageViews: (container, packages) ->
     container.empty()
@@ -131,7 +130,7 @@ class PackagesPanel extends View
         @addPackageViews(@featuredContainer, packages)
       .catch (error) =>
         @loadingMessage.hide()
-        @featuredErrors.append(new ErrorView(error))
+        @featuredErrors.append(new ErrorView(@packageManager, error))
 
   # Check for updates and display them
   checkForUpdates: ->
@@ -142,22 +141,4 @@ class PackagesPanel extends View
         @addUpdateViews()
       .catch (error) =>
         @checkingMessage.hide()
-        @updateErrors.append(new ErrorView(error))
-
-  # Check for native build tools and show warning if missing.
-  checkForNativeBuildTools: ->
-    return unless process.platform is 'win32'
-
-    @packageManager.checkNativeBuildTools().catch (error) =>
-      @prepend $$ ->
-        @div outlet: 'checkingMessage', class: 'alert alert-warning compile-tools-area', =>
-          @div class: 'icon icon-alert compile-tools-heading', 'Compiler tools not found'
-          @div class: 'compile-tools-message', 'Packages that depend on modules that contain C/C++ code will fail to install.'
-          @div class: 'compile-tools-message', =>
-            @span 'Read '
-            @a class: 'link', href: 'https://atom.io/docs/latest/build-instructions/windows', 'here'
-            @span ' for instructions on installing Python and Visual Studio.'
-          @div class: 'compile-tools-message', =>
-            @span 'Run '
-            @code 'apm install --check'
-            @span ' after installing to test compiling a native module.'
+        @updateErrors.append(new ErrorView(@packageManager, error))

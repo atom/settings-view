@@ -1,10 +1,11 @@
 {View} = require 'atom'
+CompileToolsErrorView = require './compile-tools-error-view'
 
 module.exports =
 class ErrorView extends View
   @content: ->
     @div class: 'padded error-message', =>
-      @div class: 'alert alert-danger alert-dismissable native-key-bindings', tabindex: -1, =>
+      @div outlet: 'alert', class: 'alert alert-danger alert-dismissable native-key-bindings', tabindex: -1, =>
         @button outlet: 'close', class: 'close icon icon-x'
         @span outlet: 'message', class: 'native-key-bindings'
         @span ' '
@@ -12,7 +13,7 @@ class ErrorView extends View
         @div outlet: 'detailsArea', class: 'padded', =>
           @pre outlet: 'details', class: 'error-details text'
 
-  initialize: ({message, stderr}) ->
+  initialize: (@packageManager, {message, stderr, packageInstallError}) ->
     @message.text(message)
 
     @detailsArea.hide()
@@ -29,3 +30,11 @@ class ErrorView extends View
       false
 
     @close.on 'click', => @remove()
+    @checkForNativeBuildTools() if packageInstallError
+
+  # Check for native build tools and show warning if missing.
+  checkForNativeBuildTools: ->
+    return unless process.platform is 'win32'
+
+    @packageManager.checkNativeBuildTools().catch (error) =>
+      @alert.append(new CompileToolsErrorView(error))

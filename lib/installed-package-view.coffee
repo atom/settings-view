@@ -98,7 +98,7 @@ class InstalledPackageView extends View
       @uninstallButton.prop('disabled', true)
       @packageManager.uninstall @pack, (error) =>
         if error?
-          @errors.append(new ErrorView(error))
+          @errors.append(new ErrorView(@packageManager, error))
           @uninstallButton.prop('disabled', false)
           console.error("Uninstalling #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
       false
@@ -178,7 +178,7 @@ class InstalledPackageView extends View
       if error?
         @updateLink.prop('disabled', false)
         @updateLink.text('Install')
-        @errors.append(new ErrorView(error))
+        @errors.append(new ErrorView(@packageManager, error))
 
   checkForUpdate: ->
     @updateArea.hide()
