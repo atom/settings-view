@@ -157,3 +157,7 @@ class PackagesPanel extends View
             @span 'Read '
             @a class: 'link', href: 'https://atom.io/docs/latest/build-instructions/windows', 'here'
             @span ' for instructions on installing Python and Visual Studio.'
+          @div class: 'compile-tools-message', =>
+            @span 'Run '
+            @code 'apm install --check'
+            @span ' after installing to test compiling a native module.'
