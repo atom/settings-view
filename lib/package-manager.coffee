@@ -213,6 +213,17 @@ class PackageManager
     chunks = repoName.match '/(.+?)/'
     chunks?[1]
 
+  checkNativeBuildTools: ->
+    deferred = Q.defer()
+
+    @runCommand ['install', '--check'], (code, stdout, stderr) =>
+      if code is 0
+        deferred.resolve()
+      else
+        deferred.reject(new Error())
+
+    deferred.promise
+
   # Emits the appropriate event for the given package.
   #
   # All events are either of the form `theme-foo` or `package-foo` depending on

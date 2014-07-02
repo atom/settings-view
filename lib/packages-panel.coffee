@@ -75,6 +75,7 @@ class PackagesPanel extends View
 
     @loadFeaturedPackages()
     @checkForUpdates()
+    @checkForNativeBuildTools()
 
   focus: ->
     @searchEditorView.focus()
@@ -142,3 +143,17 @@ class PackagesPanel extends View
       .catch (error) =>
         @checkingMessage.hide()
         @updateErrors.append(new ErrorView(error))
+
+  # Check for native build tools and show warning if missing.
+  checkForNativeBuildTools: ->
+    return unless process.platform is 'win32'
+
+    @packageManager.checkNativeBuildTools().catch (error) =>
+      @prepend $$ ->
+        @div outlet: 'checkingMessage', class: 'alert alert-warning', =>
+          @div class: 'icon icon-alert compile-tools-heading', 'Compiler tools not found'
+          @div class: 'compile-tools-message', 'Packages that depend on modules that contain C/C++ code will fail to install.'
+          @div class: 'compile-tools-message', =>
+            @span 'Read '
+            @a class: 'link', href: 'https://atom.io/docs/latest/build-instructions/windows', 'here'
+            @span ' for instructions on installing Python and Visual Studio.'
