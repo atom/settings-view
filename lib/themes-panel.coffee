@@ -71,7 +71,7 @@ class ThemesPanel extends View
         @search(query)
 
     @subscribe @packageManager, 'theme-install-failed', (pack, error) =>
-      @searchErrors.append(new ErrorView(error))
+      @searchErrors.append(new ErrorView(@packageManager, error))
 
     @openUserStysheet.on 'click', =>
       atom.workspaceView.trigger('application:open-your-stylesheet')
@@ -182,7 +182,7 @@ class ThemesPanel extends View
           @emptyMessage.show() if themes.length is 0
       .catch (error) =>
         @loadingMessage.hide()
-        @featuredErrors.append(new ErrorView(error))
+        @featuredErrors.append(new ErrorView(@packageManager, error))
 
   search: (query) ->
     if @resultsContainer.children().length is 0
@@ -197,4 +197,4 @@ class ThemesPanel extends View
         @addThemeViews(@resultsContainer, themes)
       .catch (error) =>
         @searchMessage.hide()
-        @searchErrors.append(new ErrorView(error))
+        @searchErrors.append(new ErrorView(@packageManager, error))

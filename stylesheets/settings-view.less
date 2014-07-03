@@ -40,6 +40,10 @@
       background: #F7F7F9;
       border: 1px solid #E1E1E8;
     }
+
+    .error-link {
+      margin-left: @component-padding/2;
+    }
   }
 
   .editor-container {
@@ -184,6 +188,7 @@
 
     label {
       color: @text-color;
+      font-size: 13px;
     }
 
     padding-bottom: @component-padding;
@@ -413,6 +418,20 @@
 
     col.selector {
       width: (35%  - 2%);
+    }
+  }
+
+  .compile-tools-heading {
+    font-weight: bold;
+  }
+
+  .compile-tools-message {
+    padding-top: @component-padding;
+
+    code {
+      text-shadow: none;
+      border-width: 1px;
+      border-style: solid;
     }
   }
 }

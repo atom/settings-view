@@ -140,6 +140,7 @@ class PackageManager
         error = new Error("Updating to \u201C#{name}@#{newVersion}\u201D failed.")
         error.stdout = stdout
         error.stderr = stderr
+        error.packageInstallError = not theme
         @emitPackageEvent 'update-failed', pack, error
         callback(error)
 
@@ -168,6 +169,7 @@ class PackageManager
         error = new Error("Installing \u201C#{name}@#{version}\u201D failed.")
         error.stdout = stdout
         error.stderr = stderr
+        error.packageInstallError = not theme
         @emitPackageEvent 'install-failed', pack, error
         callback(error)
 
@@ -212,6 +214,17 @@ class PackageManager
     repoName = url.parse(repoUrl).pathname
     chunks = repoName.match '/(.+?)/'
     chunks?[1]
+
+  checkNativeBuildTools: ->
+    deferred = Q.defer()
+
+    @runCommand ['install', '--check'], (code, stdout, stderr) =>
+      if code is 0
+        deferred.resolve()
+      else
+        deferred.reject(new Error())
+
+    deferred.promise
 
   # Emits the appropriate event for the given package.
   #
