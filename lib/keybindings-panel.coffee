@@ -86,14 +86,23 @@ class KeybindingsPanel extends View
     {selector, keystrokes, command, source} = keyBinding
     source = @determineSource(source)
     $$$ ->
+      unset = command.contains 'unset!'
       rowClasses = if source is 'User' then 'success' else ''
       @tr class: rowClasses, =>
         @td class: 'keystroke', =>
           @span class: 'icon icon-clippy copy-icon'
-          @span keystrokes
-        @td class: 'command', command
-        @td class: 'source', source
-        @td class: 'selector', selector
+          if unset
+            @span keystrokes, class: 'unset'
+          else
+            @span keystrokes
+        if unset
+          @td class: 'command unset' , command
+          @td class: 'source unset', source
+          @td class: 'selector unset', selector
+        else
+          @td class: 'command' , command
+          @td class: 'source', source
+          @td class: 'selector', selector
 
   writeKeyBindingToClipboard: ({selector, keystrokes, command}) ->
     keymapExtension = path.extname(atom.keymap.getUserKeymapPath())
