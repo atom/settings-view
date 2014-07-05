@@ -22,7 +22,7 @@ describe "ThemesPanel", ->
     atom.themes.on 'reloaded', reloadedHandler
     atom.themes.activatePackages()
 
-    waitsFor ->
+    waitsFor "themes to be reloaded", ->
       reloadedHandler.callCount is 1
 
     runs ->
