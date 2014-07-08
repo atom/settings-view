@@ -103,6 +103,10 @@ describe "GeneralPanel", ->
     expect(atom.config.get('core.int')).toBe 2
     expect(getValueForId('core.int')).toBe '2.'
 
+    setValueForId('editor.simpleArray', "a, b,")
+    expect(atom.config.get('editor.simpleArray')).toEqual ['a', 'b']
+    expect(getValueForId('editor.simpleArray')).toBe 'a, b,'
+
   it "only adds editors for arrays when all the values in the array are strings", ->
     expect(getValueForId('editor.simpleArray')).toBe 'a, b, c'
     expect(getValueForId('editor.complexArray')).toBeUndefined()

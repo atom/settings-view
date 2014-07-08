@@ -68,7 +68,7 @@ class SettingsPanel extends View
             stringValue = @valueToString(value) ? ''
 
           return if stringValue is editorView.getText()
-          return if value is @parseValue(type, editorView.getText())
+          return if _.isEqual(value, @parseValue(type, editorView.getText()))
 
           editorView.setText(stringValue)
 
