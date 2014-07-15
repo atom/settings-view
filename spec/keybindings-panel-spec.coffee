@@ -7,7 +7,24 @@ describe "KeybindingsPanel", ->
   beforeEach ->
     expect(atom.keymap).toBeDefined()
     keyBindings = [
-      source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps", keystrokes: 'ctrl-a', command: 'core:select-all', selector: '.editor'
+      {
+        source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps"
+        keystrokes: 'ctrl-a'
+        command: 'core:select-all'
+        selector: '.editor, .platform-test'
+      }
+      {
+        source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps"
+        keystrokes: 'ctrl-u'
+        command: 'core:undo'
+        selector: ".platform-test"
+      }
+      {
+        source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps"
+        keystrokes: 'ctrl-u'
+        command: 'core:undo'
+        selector: ".platform-a, .platform-b"
+      }
     ]
     spyOn(atom.keymap, 'getKeyBindings').andReturn(keyBindings)
     panel = new KeybindingsPanel
@@ -19,7 +36,7 @@ describe "KeybindingsPanel", ->
     expect(row.find('.keystroke').text()).toBe 'ctrl-a'
     expect(row.find('.command').text()).toBe 'core:select-all'
     expect(row.find('.source').text()).toBe 'Core'
-    expect(row.find('.selector').text()).toBe '.editor'
+    expect(row.find('.selector').text()).toBe '.editor, .platform-test'
 
   describe "when a keybinding is copied", ->
     describe "when the keybinding file ends in .cson", ->
@@ -27,7 +44,7 @@ describe "KeybindingsPanel", ->
         spyOn(atom.keymap, 'getUserKeymapPath').andReturn 'keymap.cson'
         panel.find('.copy-icon').click()
         expect(atom.clipboard.read()).toBe """
-          '.editor':
+          '.editor, .platform-test':
             'ctrl-a': 'core:select-all'
         """
 
@@ -36,7 +53,7 @@ describe "KeybindingsPanel", ->
         spyOn(atom.keymap, 'getUserKeymapPath').andReturn 'keymap.json'
         panel.find('.copy-icon').click()
         expect(atom.clipboard.read()).toBe """
-          ".editor": {
+          ".editor, .platform-test": {
             "ctrl-a": "core:select-all"
           }
         """
