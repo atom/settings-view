@@ -147,7 +147,7 @@ class ThemesPanel extends View
 
   # Get a human readable title for the given theme name.
   getThemeTitle: (themeName='') ->
-    title = themeName.replace(/-(ui|syntax)/g, '')
+    title = themeName.replace(/-(ui|syntax)/g, '').replace(/-theme$/g, '')
     _.undasherize(_.uncamelcase(title))
 
   addThemeViews: (container, themes) ->
