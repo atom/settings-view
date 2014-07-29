@@ -49,18 +49,29 @@
   .editor-container {
     margin-bottom: @component-padding;
 
+    .editor.mini {
+      opacity: .75;
+      .selection .region {
+        background-color: rgba(0, 0, 0, .2);
+      }
+    }
+    .editor.mini.is-focused {
+      opacity: 1;
+      .selection .region {
+        background-color: lighten(@background-color-info, 30%);
+      }
+    }
+
     .editor.mini,
     .editor.mini.is-focused {
+      font-size: @input-font-size;
+      line-height: @component-line-height + 3;
+      max-height: @component-line-height + 3; // +2 for borders
       color: @text-color;
       background-color: #fff;
-      padding: 6px 12px;
 
       .cursor {
         border-color: #000;
-      }
-
-      .selection .region {
-        background-color: rgba(0, 0, 0, .2);
       }
 
       .placeholder-text {
