@@ -82,6 +82,6 @@ class PackageUpdateView extends View
       when 'check'
         @status.setTooltip(_.capitalize("#{@type} updated"))
       when 'alert'
-        @status.setTooltip(_.capitalize("#{@type} failed to updated"))
+        @status.setTooltip(_.capitalize("#{@type} failed to update"))
       when 'cloud-download'
         @status.setTooltip(_.capitalize("#{@type} updating"))
