@@ -23,7 +23,7 @@ class PackageMenuView extends View
     return if atom.packages.isBundledPackage(@pack.name)
 
     @getAvailablePackage (availablePackage) =>
-      if @packageManager.canUpgrade(@pack, availablePackage)
+      if @packageManager.canUpgrade(@pack, availablePackage.latestVersion)
         @link.addClass('icon-squirrel')
 
   getAvailablePackage: (callback) ->
