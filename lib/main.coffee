@@ -44,10 +44,6 @@ module.exports =
     atom.workspaceView.command 'settings-view:uninstall-packages', ->
       openPanel('Packages')
 
-    atom.workspaceView.on 'pane-container:active-pane-item-changed', ->
-      if settingsView is atom.workspace.getActivePaneItem()
-        settingsView?.redrawEditors()
-
     atom.packages.once('activated', checkForUpdates)
 
 checkForUpdates = ->

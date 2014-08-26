@@ -86,7 +86,6 @@ class SettingsView extends ScrollView
     @showPanel(@panelToShow) if @panelToShow
     @showPanel('Settings') unless @activePanelName
     @filterEditor.show()
-    @filterEditor.redraw()
     @filterEditor.width(@sidebar.width()) if @isOnDom()
 
   afterAttach: (onDom) ->
@@ -121,9 +120,6 @@ class SettingsView extends ScrollView
       title1.localeCompare(title2)
 
     @packages
-
-  redrawEditors: ->
-    $(element).view().redraw() for element in @find('.editor')
 
   addCorePanel: (name, iconName, panel) ->
     panelMenuItem = $$ ->
@@ -175,8 +171,6 @@ class SettingsView extends ScrollView
       @panels.children().hide()
       @panels.append(panel) unless $.contains(@panels[0], panel[0])
       panel.show()
-      for editorElement, index in panel.find(".editor")
-        $(editorElement).view().redraw()
       panel.focus()
       @makePanelMenuActive(name)
       @activePanelName = name
