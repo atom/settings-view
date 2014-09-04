@@ -8,7 +8,7 @@
     "async": "~0.2.9",
     "emissary": "1.x",
     "fs-plus": "2.x",
-    "fuzzaldrin": "1.x",
+    "fuzzaldrin": "^2.1",
     "q": "~1.0.1",
     "season": "1.x",
     "semver": "~2.2.1",
