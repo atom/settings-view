@@ -8,12 +8,15 @@ class PackageMenuView extends View
     @li =>
       @a outlet: 'link', class: 'icon', =>
         @span outlet: 'nameLabel'
+        @span outlet: 'version', class: 'package-version'
         @span outlet: 'packageAuthorLabel', class: 'package-author'
 
   initialize: (@pack, @packageManager) ->
     @attr('name', @pack.name)
     @attr('type', 'package')
     @nameLabel.text(@packageManager.getPackageTitle(@pack))
+    @version.text(@pack.metadata.version)
+
     @packageAuthorLabel.text(@packageManager.getAuthorUserName(@pack))
     @checkForUpdates()
     @subscribe @packageManager, 'package-updated theme-updated', ({name}) =>
