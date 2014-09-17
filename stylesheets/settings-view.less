@@ -11,14 +11,14 @@
 
 ::-webkit-scrollbar-track {
   -webkit-box-shadow: none;
-  background: #D7D7D7;
+  background: #D7D7D7 !important;
 }
 
 ::-webkit-scrollbar-thumb {
   -webkit-border-radius: 10px;
   border-radius: 10px;
   background: #B5B5B5;
-  -webkit-box-shadow: none;
+  -webkit-box-shadow: none !important;
 }
 
 ::-webkit-scrollbar-thumb:window-inactive {
@@ -177,21 +177,27 @@
       }
 
       li > a {
+        border-radius: 1px !important;
+        padding: 12px 14px;
+        font-size: 13px;
         font-weight: bold;
-        opacity: .8;
-        transition: all .1s ease-in;
         line-height: 16px;
-        border-bottom: 1px solid #ccc;
-        padding: 12px 20px;
+        opacity: .85;
+        transition: all .1s ease-in;
+        box-shadow: inset 0 -1px 0 rgba(0,0,0, 7%);
 
         &:hover {
           opacity: 1;
-          box-shadow: none !important;
+          box-shadow: inset 0 -1px 0 rgba(0,0,0, 7%) !important;
         }
       }
 
-      li.active > a {
+      li:first-child {margin-top:2px;}
+      li:last-child {margin-bottom: 10px;}
+
+      li.active a, li.active a:hover {
         opacity: 1;
+        box-shadow: 0 0 0 1px darken(#3c76dd, 10%) !important;
 
         .package-author, .package-version {
           color: #fff;
@@ -200,14 +206,15 @@
       }
 
       .package-version {
-        font-size: @font-size/1.25;
+        font-size: 11px;
         line-height: 16px;
-        margin-left: 5px;
+        margin: 0 5px;
         font-weight: normal;
         color: #999;
       }
 
       .package-author {
+        font-size: 11px;
         font-weight: normal;
         display: block;
         color: #999;
