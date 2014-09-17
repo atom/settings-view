@@ -139,10 +139,10 @@
     -webkit-user-select: none;
 
     .atom-banner {
-      margin-left: 20px;
-      margin-right: 20px;
-      margin-top: 10px;
-      margin-bottom: 10px;
+      display: inline-block;
+      width: 80%;
+      max-width: 200px;
+      margin: 10px auto;
       min-height: 64px;
       max-height: 64px;
       background-size: contain;
@@ -183,7 +183,7 @@
         font-weight: bold;
         line-height: 16px;
         opacity: .85;
-        transition: all .1s ease-in;
+        transition: opacity .1s ease-in;
         box-shadow: inset 0 -1px 0 rgba(0,0,0, 7%);
 
         &:hover {
@@ -208,7 +208,7 @@
       .package-version {
         font-size: 11px;
         line-height: 16px;
-        margin: 0 5px;
+        margin-left: 5px;
         font-weight: normal;
         color: #999;
       }
