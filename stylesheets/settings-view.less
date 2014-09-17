@@ -3,26 +3,27 @@
 
 @text-color: #333;
 @text-color-subtle: #666;
-/* Let's get this party started */
 
-::-webkit-scrollbar {
-  width: 8px;
-}
+.scrollbars-visible-always {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
 
-::-webkit-scrollbar-track {
-  -webkit-box-shadow: none;
-  background: #D7D7D7 !important;
-}
+  ::-webkit-scrollbar-track {
+    -webkit-box-shadow: none;
+    background: #D7D7D7 !important;
+  }
 
-::-webkit-scrollbar-thumb {
-  -webkit-border-radius: 10px;
-  border-radius: 10px;
-  background: #B5B5B5;
-  -webkit-box-shadow: none !important;
-}
+  ::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: #B5B5B5;
+    -webkit-box-shadow: none !important;
+  }
 
-::-webkit-scrollbar-thumb:window-inactive {
-  background: #B5B5B5;
+  ::-webkit-scrollbar-thumb:window-inactive {
+    background: #B5B5B5;
+  }
 }
 
 .settings-view {
