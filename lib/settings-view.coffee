@@ -86,11 +86,11 @@ class SettingsView extends ScrollView
     @showPanel(@panelToShow) if @panelToShow
     @showPanel('Settings') unless @activePanelName
     @filterEditor.show()
-    @filterEditor.width(@sidebar.width()) if @isOnDom()
+    @sidebar.width(@sidebar.width()) if @isOnDom()
 
   afterAttach: (onDom) ->
     if onDom and @filterEditor.isVisible() and @sidebar.width() > 0
-      @filterEditor.width(@sidebar.width())
+      @sidebar.width(@sidebar.width())
 
   serialize: ->
     deserializer: 'SettingsView'
