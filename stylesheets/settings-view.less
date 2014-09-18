@@ -4,6 +4,28 @@
 @text-color: #333;
 @text-color-subtle: #666;
 
+.scrollbars-visible-always {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    -webkit-box-shadow: none;
+    background: #D7D7D7 !important;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: #B5B5B5;
+    -webkit-box-shadow: none !important;
+  }
+
+  ::-webkit-scrollbar-thumb:window-inactive {
+    background: #B5B5B5;
+  }
+}
+
 .settings-view {
   display: -webkit-flex;
 
@@ -67,7 +89,6 @@
       &.react {
         font-size: @input-font-size;
         line-height: @component-line-height + 3;
-        max-height: @component-line-height + 3; // +2 for borders
       }
       color: @text-color;
       background-color: #fff;
@@ -119,10 +140,10 @@
     -webkit-user-select: none;
 
     .atom-banner {
-      margin-left: 20px;
-      margin-right: 20px;
-      margin-top: 10px;
-      margin-bottom: 10px;
+      display: inline-block;
+      width: 80%;
+      max-width: 200px;
+      margin: 10px auto;
       min-height: 64px;
       max-height: 64px;
       background-size: contain;
@@ -151,6 +172,54 @@
       -webkit-flex-grow: 1;
       overflow: auto;
       height: 0;
+
+      li + li {
+        margin-top: 0;
+      }
+
+      li > a {
+        border-radius: 1px !important;
+        padding: 12px 14px;
+        font-size: @font-size + 1px;
+        font-weight: bold;
+        line-height: 16px;
+        opacity: .85;
+        transition: opacity .1s ease-in;
+        box-shadow: inset 0 -1px 0 rgba(0,0,0, 7%);
+
+        &:hover {
+          opacity: 1;
+          box-shadow: inset 0 -1px 0 rgba(0,0,0, 7%) !important;
+        }
+      }
+
+      li:first-child {margin-top:2px;}
+      li:last-child {margin-bottom: 10px;}
+
+      li.active a, li.active a:hover {
+        opacity: 1;
+        box-shadow: 0 0 0 1px darken(#3c76dd, 10%) !important;
+
+        .package-author, .package-version {
+          color: #fff;
+          opacity: .6;
+        }
+      }
+
+      .package-version {
+        font-size: 11px;
+        line-height: 16px;
+        margin-left: 5px;
+        font-weight: normal;
+        color: #999;
+      }
+
+      .package-author {
+        font-size: 11px;
+        font-weight: normal;
+        display: block;
+        color: #999;
+      }
     }
 
     .button-area {
@@ -165,12 +234,6 @@
       &:hover {
         background-color: #f2f2f2;
         box-shadow: -1px 0px 1px -1px #aeaeae inset;
-      }
-
-      .package-author {
-        display: block;
-        font-size: @font-size / 1.5;
-        color: #999;
       }
     }
 
