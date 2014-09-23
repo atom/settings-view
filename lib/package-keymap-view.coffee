@@ -19,13 +19,19 @@ class PackageKeymapView extends View
     otherPlatformPattern = new RegExp("\\.platform-(?!#{_.escapeRegExp(process.platform)}\\b)")
 
     for {command, keystrokes, selector} in atom.keymap.getKeyBindings()
+      unset = command.contains "unset"
       continue unless command?.indexOf?("#{namespace}:") is 0
       continue if otherPlatformPattern.test(selector)
 
       @keybindingItems.append $$$ ->
         @tr =>
-          @td keystrokes
-          @td command
-          @td selector
+          if unset
+            @td keystrokes, class: 'unset'
+            @td command, class: 'unset'
+            @td selector, class: 'unset'
+          else
+            @td keystrokes
+            @td command
+            @td selector
 
     @hide() unless @keybindingItems.children().length > 0
