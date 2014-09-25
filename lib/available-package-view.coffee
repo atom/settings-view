@@ -23,6 +23,8 @@ class AvailablePackageView extends View
 
     @handlePackageEvents()
 
+    @installButton.hide() if atom.packages.isBundledPackage(@pack.name)
+
     @installButton.on 'click', =>
       if @isInstalled()
         @uninstall()
