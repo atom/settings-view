@@ -29,8 +29,8 @@ class InstalledPackageView extends View
 
       @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
 
-      @p outlet: 'description', class: 'text-subtle native-key-bindings', tabindex: -1
-      @p outlet: 'startupTime', class: 'text-subtle icon icon-dashboard native-key-bindings', tabindex: -1
+      @p outlet: 'description', class: 'text native-key-bindings', tabindex: -1
+      @p outlet: 'startupTime', class: 'text icon-dashboard native-key-bindings', tabindex: -1
 
       @div outlet: 'buttons', class: 'btn-group', =>
         @button outlet: 'disableButton', class: 'btn btn-default icon'
