@@ -118,15 +118,16 @@ appendSetting = (namespace, name, value) ->
       else
         appendEditor.call(this, namespace, name, value)
 
-getSettingTitle = (name='') ->
-  _.uncamelcase(name).split('.').map(_.capitalize).join(' ')
+getSettingTitle = (keyPath, name='') ->
+  title = atom.config.getSchema?(keyPath)?.title
+  title or _.uncamelcase(name).split('.').map(_.capitalize).join(' ')
 
 appendCheckbox = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
   @div class: 'checkbox', =>
     @label for: keyPath, =>
       @input id: keyPath, type: 'checkbox'
-      @text getSettingTitle(name)
+      @text getSettingTitle(keyPath, name)
 
 appendEditor = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
@@ -135,14 +136,14 @@ appendEditor = (namespace, name, value) ->
   else
     type = 'string'
 
-  @label class: 'control-label', getSettingTitle(name)
+  @label class: 'control-label', getSettingTitle(keyPath, name)
   @div class: 'controls', =>
     @div class: 'editor-container', =>
       @subview keyPath.replace(/\./g, ''), new SettingEditorView(attributes: {id: keyPath, type: type})
 
 appendArray = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
-  @label class: 'control-label', getSettingTitle(name)
+  @label class: 'control-label', getSettingTitle(keyPath, name)
   @div class: 'controls', =>
     @div class: 'editor-container', =>
       @subview keyPath.replace(/\./g, ''), new SettingEditorView(attributes: {id: keyPath, type: 'array'})
