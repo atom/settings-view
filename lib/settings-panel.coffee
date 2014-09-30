@@ -11,7 +11,8 @@ class SettingsPanel extends View
     settings = atom.config.getSettings()
     @appendSettings(namespace, settings[namespace])
 
-    @bindFormFields()
+    @bindCheckboxFields()
+    @bindSelectFields()
     @bindEditors()
 
   appendSettings: (namespace, settings) ->
@@ -30,7 +31,7 @@ class SettingsPanel extends View
           for name in _.keys(settings).sort()
             appendSetting.call(this, namespace, name, settings[name])
 
-  bindFormFields: ->
+  bindCheckboxFields: ->
     for input in @find('input[id]').toArray()
       do (input) =>
         input = $(input)
@@ -51,6 +52,17 @@ class SettingsPanel extends View
             value = @parseValue(type, value)
 
           atom.config.set(name, value)
+
+  bindSelectFields: ->
+    @find('select[id]').toArray().forEach (select) =>
+      select = $(select)
+      name = select.attr('id')
+
+      @subscribe atom.config.observe name, (value) ->
+        select.val(value)
+
+      select.change ->
+        atom.config.set(name, select.val())
 
   bindEditors: ->
     for editorView in @find('.editor[id]').views()
@@ -109,7 +121,9 @@ appendSetting = (namespace, name, value) ->
 
   @div class: 'control-group', =>
     @div class: 'controls', =>
-      if _.isBoolean(value)
+      if atom.config.getSchema("#{namespace}.#{name}")?.enum
+        appendOptions.call(this, namespace, name, value)
+      else if _.isBoolean(value)
         appendCheckbox.call(this, namespace, name, value)
       else if _.isArray(value)
         appendArray.call(this, namespace, name, value) if isEditableArray(value)
@@ -119,11 +133,25 @@ appendSetting = (namespace, name, value) ->
         appendEditor.call(this, namespace, name, value)
 
 getSettingTitle = (keyPath, name='') ->
-  title = atom.config.getSchema?(keyPath)?.title
+  title = atom.config.getSchema(keyPath)?.title
   title or _.uncamelcase(name).split('.').map(_.capitalize).join(' ')
 
 getSettingDescription = (keyPath) ->
-  atom.config.getSchema?(keyPath)?.description or ''
+  atom.config.getSchema(keyPath)?.description or ''
+
+appendOptions = (namespace, name, value) ->
+  keyPath = "#{namespace}.#{name}"
+  title = getSettingTitle(keyPath, name)
+  description = getSettingDescription(keyPath)
+  options = atom.config.getSchema(keyPath)?.enum ? []
+
+  @label class: 'control-label', =>
+    @div class: 'setting-title', title
+    @div class: 'setting-description', description
+
+  @select id: keyPath, class: 'form-control', =>
+    for option in options
+      @option value: option, option
 
 appendCheckbox = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
