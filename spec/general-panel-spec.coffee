@@ -19,7 +19,6 @@ describe "GeneralPanel", ->
       element.change()
     else if element.is("select")
       element.val(value)
-      console.log 'here?'
       element.change()
     else
       element.view().setText(value?.toString())
