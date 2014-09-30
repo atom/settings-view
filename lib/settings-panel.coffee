@@ -133,7 +133,7 @@ appendCheckbox = (namespace, name, value) ->
   @div class: 'checkbox', =>
     @label for: keyPath, =>
       @input id: keyPath, type: 'checkbox'
-      @div title
+      @div class: 'setting-title', title
       @div class: 'setting-description', description
 
 appendEditor = (namespace, name, value) ->
@@ -147,7 +147,7 @@ appendEditor = (namespace, name, value) ->
   description = getSettingDescription(keyPath)
 
   @label class: 'control-label', =>
-    @div title
+    @div class: 'setting-title', title
     @div class: 'setting-description', description
 
   @div class: 'controls', =>
@@ -160,7 +160,7 @@ appendArray = (namespace, name, value) ->
   description = getSettingDescription(keyPath)
 
   @label class: 'control-label', =>
-    @div title
+    @div class: 'setting-title', title
     @div class: 'setting-description', description
 
   @div class: 'controls', =>
