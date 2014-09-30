@@ -146,6 +146,10 @@ appendEditor = (namespace, name, value) ->
   title = getSettingTitle(keyPath, name)
   description = getSettingDescription(keyPath)
 
+  @label class: 'control-label', =>
+    @div title
+    @div class: 'setting-description', description
+
   @div class: 'controls', =>
     @div class: 'editor-container', =>
       @subview keyPath.replace(/\./g, ''), new SettingEditorView(attributes: {id: keyPath, type: type})
