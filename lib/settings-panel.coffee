@@ -133,11 +133,11 @@ appendSetting = (namespace, name, value) ->
         appendEditor.call(this, namespace, name, value)
 
 getSettingTitle = (keyPath, name='') ->
-  title = atom.config.getSchema?(keyPath)?.title
+  title = atom.config.getSchema(keyPath)?.title
   title or _.uncamelcase(name).split('.').map(_.capitalize).join(' ')
 
 getSettingDescription = (keyPath) ->
-  atom.config.getSchema?(keyPath)?.description or ''
+  atom.config.getSchema(keyPath)?.description or ''
 
 appendOptions = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
