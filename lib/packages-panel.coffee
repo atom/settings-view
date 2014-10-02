@@ -2,13 +2,12 @@ path = require 'path'
 
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
-{$, $$, View} = require 'atom'
+{$, $$, View, TextEditorView} = require 'atom'
 
 AvailablePackageView = require './available-package-view'
 ErrorView = require './error-view'
 PackageManager = require './package-manager'
 PackageUpdateView = require './package-update-view'
-SettingEditorView = require './setting-editor-view'
 
 module.exports =
 class PackagesPanel extends View
@@ -34,7 +33,7 @@ class PackagesPanel extends View
           @span " and are installed to #{path.join(fs.getHomeDirectory(), '.atom', 'packages')}"
 
         @div class: 'editor-container padded', =>
-          @subview 'searchEditorView', new SettingEditorView()
+          @subview 'searchEditorView', new TextEditorView(mini: true)
 
         @div outlet: 'searchErrors'
         @div outlet: 'searchMessage', class: 'alert alert-info search-message icon icon-search'

@@ -1,6 +1,6 @@
 path = require 'path'
 _ = require 'underscore-plus'
-{$, $$, ScrollView} = require 'atom'
+{$, $$, ScrollView, TextEditorView} = require 'atom'
 async = require 'async'
 CSON = require 'season'
 fuzzaldrin = require 'fuzzaldrin'
@@ -11,7 +11,6 @@ KeybindingsPanel = require './keybindings-panel'
 PackageManager = require './package-manager'
 PackageMenuView = require './package-menu-view'
 PackagesPanel = require './packages-panel'
-SettingEditorView = require './setting-editor-view'
 ThemesPanel = require './themes-panel'
 
 module.exports =
@@ -23,7 +22,7 @@ class SettingsView extends ScrollView
         @ul class: 'panels-menu nav nav-pills nav-stacked', outlet: 'panelMenu', =>
           @div class: 'panel-menu-separator', outlet: 'menuSeparator'
           @div class: 'editor-container settings-filter', =>
-            @subview 'filterEditor', new SettingEditorView(placeholderText: 'Filter packages')
+            @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter packages')
         @ul class: 'panels-packages nav nav-pills nav-stacked', outlet: 'panelPackages'
         @div class: 'button-area', =>
           @button class: 'btn btn-default icon icon-link-external', outlet: 'openDotAtom', 'Open ~/.atom'

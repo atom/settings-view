@@ -1,7 +1,6 @@
-{$, $$$, View} = require 'atom'
+{$, $$$, View, TextEditorView} = require 'atom'
 _ = require 'underscore-plus'
 path = require 'path'
-SettingEditorView = require './setting-editor-view'
 
 module.exports =
 class KeybindingsPanel extends View
@@ -17,7 +16,7 @@ class KeybindingsPanel extends View
         @a class: 'link', outlet: 'openUserKeymap', 'your keymap file'
 
       @div class: 'editor-container padded', =>
-        @subview 'searchEditorView', new SettingEditorView()
+        @subview 'searchEditorView', new TextEditorView(mini: true)
 
       @table class: 'native-key-bindings table text', tabindex: -1, =>
         @col class: 'keystroke'
