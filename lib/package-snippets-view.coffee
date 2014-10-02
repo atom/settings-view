@@ -23,10 +23,15 @@ class PackageSnippetsView extends View
 
   getSnippetProperties: ->
     packageProperties = {}
-    for {name, properties} in atom.syntax.propertyStore.propertySets
-      continue unless name?.indexOf?(@packagePath) is 0
-      for name, snippet of properties.snippets ? {} when snippet?
-        packageProperties[name] ?= snippet
+    if atom.config.scopedSettingsForSource?
+      for settings in atom.config.scopedSettingsForSource(@packagePath)
+        for name, snippet of settings.snippets ? {} when snippet?
+          packageProperties[name] ?= snippet
+    else
+      for {name, properties} in atom.syntax.propertyStore.propertySets
+        continue unless name?.indexOf?(@packagePath) is 0
+        for name, snippet of properties.snippets ? {} when snippet?
+          packageProperties[name] ?= snippet
 
 
     _.values(packageProperties).sort (snippet1, snippet2) ->
