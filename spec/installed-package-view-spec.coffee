@@ -20,12 +20,12 @@ describe "InstalledPackageView", ->
 
     runs ->
       expect(grammarTable.find('tr:eq(0) td:eq(0)').text()).toBe 'A Grammar'
-      expect(grammarTable.find('tr:eq(0) td:eq(1)').text()).toBe '.a, .aa, a'
-      expect(grammarTable.find('tr:eq(0) td:eq(2)').text()).toBe 'source.a'
+      expect(grammarTable.find('tr:eq(0) td:eq(1)').text()).toBe 'source.a'
+      expect(grammarTable.find('tr:eq(0) td:eq(2)').text()).toBe '.a, .aa, a'
 
       expect(grammarTable.find('tr:eq(1) td:eq(0)').text()).toBe 'B Grammar'
-      expect(grammarTable.find('tr:eq(1) td:eq(1)').text()).toBe ''
-      expect(grammarTable.find('tr:eq(1) td:eq(2)').text()).toBe 'source.b'
+      expect(grammarTable.find('tr:eq(1) td:eq(1)').text()).toBe 'source.b'
+      expect(grammarTable.find('tr:eq(1) td:eq(2)').text()).toBe ''
 
   it "displays the snippets registered by the package", ->
     snippetsTable = null

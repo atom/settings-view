@@ -12,8 +12,8 @@ class PackageGrammarsView extends View
         @thead =>
           @tr =>
             @th 'Name'
-            @th 'File Types'
             @th 'Scope'
+            @th 'File Types'
         @tbody outlet: 'grammarItems'
 
   initialize: (packagePath) ->
@@ -38,8 +38,8 @@ class PackageGrammarsView extends View
       @grammarItems.append $$$ ->
         @tr =>
           @td name ? ''
-          @td fileTypes?.join(', ') ? ''
           @td scopeName ? ''
+          @td class: 'grammar-table-filetypes', fileTypes?.join(', ') ? ''
 
     if @grammarItems.children().length > 0
       @show()
