@@ -8,14 +8,6 @@ module.exports =
 class PackageGrammarsView extends View
   @content: ->
     @section =>
-      @div class: 'section-heading icon icon-puzzle', 'Grammars'
-      @table class: 'package-grammars-table table native-key-bindings text', tabindex: -1, =>
-        @thead =>
-          @tr =>
-            @th 'Name'
-            @th 'Scope'
-            @th 'File Types'
-        @tbody outlet: 'grammarItems'
       @div outlet: 'grammarSettings'
 
   initialize: (packagePath) ->
@@ -33,28 +25,25 @@ class PackageGrammarsView extends View
       name2 = grammar2.name ? grammar2.scopeName ? ''
       name1.localeCompare(name2)
 
+  addGrammarHeading: (grammar, panel) ->
+    panel.find('.section-body').prepend $$$ ->
+      @table class: 'package-grammars-table table native-key-bindings text', tabindex: -1, =>
+        @thead =>
+          @tr =>
+            @th 'Scope'
+            @th 'File Types'
+        @tbody =>
+          @tr =>
+            @td grammar.scopeName ? ''
+            @td class: 'grammar-table-filetypes', grammar.fileTypes?.join(', ') ? ''
+
   addGrammars: ->
-    @grammarItems.empty()
-
-    packageGrammars = @getPackageGrammars()
-
-    for {name, fileTypes, scopeName} in packageGrammars
-      @grammarItems.append $$$ ->
-        @tr =>
-          @td name ? ''
-          @td scopeName ? ''
-          @td class: 'grammar-table-filetypes', fileTypes?.join(', ') ? ''
-
-    if @grammarItems.children().length > 0
-      @show()
-    else
-      @hide()
-
     @grammarSettings.empty()
 
-    for {name, scopeName} in packageGrammars
-      continue unless scopeName
-      scopeName = ".#{scopeName}" unless scopeName[0] is '.'
-      title = "#{name} Grammar Settings"
-      panel = new SettingsPanel(null, {title, scopeName})
+    for grammar in @getPackageGrammars()
+      continue unless grammar.scopeName
+      scopeName = ".#{grammar.scopeName}" unless grammar.scopeName[0] is '.'
+      title = "#{grammar.name} Grammar Settings"
+      panel = new SettingsPanel(null, {title, scopeName, icon: 'puzzle'})
+      @addGrammarHeading(grammar, panel)
       @grammarSettings.append(panel)

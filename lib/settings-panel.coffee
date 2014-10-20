@@ -44,9 +44,11 @@ class SettingsPanel extends View
     else
       title ?= "Settings"
 
+    icon = @options.icon ? 'gear'
+
     @append $$ ->
       @section class: 'config-section', =>
-        @div class: 'block section-heading icon icon-gear', title
+        @div class: "block section-heading icon icon-#{icon}", title
         @div class: 'section-body', =>
           for name in _.keys(settings).sort()
             appendSetting.call(this, namespace, name, settings[name])
