@@ -27,15 +27,13 @@ class PackageGrammarsView extends View
 
   addGrammarHeading: (grammar, panel) ->
     panel.find('.section-body').prepend $$$ ->
-      @table class: 'package-grammars-table table native-key-bindings text', tabindex: -1, =>
-        @thead =>
-          @tr =>
-            @th 'Scope'
-            @th 'File Types'
-        @tbody =>
-          @tr =>
-            @td grammar.scopeName ? ''
-            @td class: 'grammar-table-filetypes', grammar.fileTypes?.join(', ') ? ''
+      @div class: 'native-key-bindings text', tabindex: -1, =>
+        @div =>
+          @strong 'Scope: '
+          @span grammar.scopeName ? ''
+        @div class: 'grammar-filetypes', =>
+          @strong 'File Types: '
+          @span grammar.fileTypes?.join(', ') ? ''
 
   addGrammars: ->
     @grammarSettings.empty()
