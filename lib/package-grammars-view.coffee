@@ -7,7 +7,7 @@ SettingsPanel = require './settings-panel'
 module.exports =
 class PackageGrammarsView extends View
   @content: ->
-    @section =>
+    @section class: 'package-grammars', =>
       @div outlet: 'grammarSettings'
 
   initialize: (packagePath) ->
@@ -28,7 +28,7 @@ class PackageGrammarsView extends View
   addGrammarHeading: (grammar, panel) ->
     panel.find('.section-body').prepend $$$ ->
       @div class: 'native-key-bindings text', tabindex: -1, =>
-        @div =>
+        @div class: 'grammar-scope', =>
           @strong 'Scope: '
           @span grammar.scopeName ? ''
         @div class: 'grammar-filetypes', =>

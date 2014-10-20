@@ -5,7 +5,7 @@ PackageManager = require '../lib/package-manager'
 
 describe "InstalledPackageView", ->
   it "display the grammars registered by the package", ->
-    grammarTable = null
+    settingsPanels = null
 
     waitsForPromise ->
       atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
@@ -13,19 +13,17 @@ describe "InstalledPackageView", ->
     runs ->
       pack = atom.packages.getActivePackage('language-test')
       view = new InstalledPackageView(pack, new PackageManager())
-      grammarTable = view.find('.package-grammars-table tbody')
+      settingsPanels = view.find('.package-grammars .settings-panel')
 
     waitsFor ->
-      grammarTable.children().length is 2
+      settingsPanels.children().length is 2
 
     runs ->
-      expect(grammarTable.find('tr:eq(0) td:eq(0)').text()).toBe 'A Grammar'
-      expect(grammarTable.find('tr:eq(0) td:eq(1)').text()).toBe 'source.a'
-      expect(grammarTable.find('tr:eq(0) td:eq(2)').text()).toBe '.a, .aa, a'
+      expect(settingsPanels.eq(0).find('.grammar-scope').text()).toBe 'Scope: source.a'
+      expect(settingsPanels.eq(0).find('.grammar-filetypes').text()).toBe 'File Types: .a, .aa, a'
 
-      expect(grammarTable.find('tr:eq(1) td:eq(0)').text()).toBe 'B Grammar'
-      expect(grammarTable.find('tr:eq(1) td:eq(1)').text()).toBe 'source.b'
-      expect(grammarTable.find('tr:eq(1) td:eq(2)').text()).toBe ''
+      expect(settingsPanels.eq(1).find('.grammar-scope').text()).toBe 'Scope: source.b'
+      expect(settingsPanels.eq(1).find('.grammar-filetypes').text()).toBe 'File Types: '
 
   it "displays the snippets registered by the package", ->
     snippetsTable = null
