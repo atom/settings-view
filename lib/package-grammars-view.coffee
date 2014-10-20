@@ -39,8 +39,10 @@ class PackageGrammarsView extends View
     @grammarSettings.empty()
 
     for grammar in @getPackageGrammars()
-      continue unless grammar.scopeName
-      scopeName = ".#{grammar.scopeName}" unless grammar.scopeName.startsWith('.')
+      {scopeName} = grammar
+      continue unless scopeName
+      scopeName = ".#{scopeName}" unless scopeName.startsWith('.')
+
       title = "#{grammar.name} Grammar"
       panel = new SettingsPanel(null, {title, scopeName, icon: 'puzzle'})
       @addGrammarHeading(grammar, panel)
