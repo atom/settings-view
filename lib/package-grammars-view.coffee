@@ -1,6 +1,7 @@
 path = require 'path'
 _ = require 'underscore-plus'
 {$$$, View} = require 'atom'
+SettingsPanel = require './settings-panel'
 
 # View to display the grammars that a package has registered.
 module.exports =
@@ -15,6 +16,7 @@ class PackageGrammarsView extends View
             @th 'Scope'
             @th 'File Types'
         @tbody outlet: 'grammarItems'
+      @div outlet: 'grammarSettings'
 
   initialize: (packagePath) ->
     @packagePath = path.join(packagePath, path.sep)
@@ -34,7 +36,9 @@ class PackageGrammarsView extends View
   addGrammars: ->
     @grammarItems.empty()
 
-    for {name, fileTypes, scopeName} in @getPackageGrammars()
+    packageGrammars = @getPackageGrammars()
+
+    for {name, fileTypes, scopeName} in packageGrammars
       @grammarItems.append $$$ ->
         @tr =>
           @td name ? ''
@@ -45,3 +49,12 @@ class PackageGrammarsView extends View
       @show()
     else
       @hide()
+
+    @grammarSettings.empty()
+
+    for {name, scopeName} in packageGrammars
+      continue unless scopeName
+      scopeName = ".#{scopeName}" unless scopeName[0] is '.'
+      title = "#{name} Grammar Settings"
+      panel = new SettingsPanel(null, {title, scopeName})
+      @grammarSettings.append(panel)
