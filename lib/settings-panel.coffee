@@ -7,8 +7,28 @@ class SettingsPanel extends View
     @div class: 'settings-panel'
 
   initialize: (namespace, @options={}) ->
-    settings = atom.config.getSettings()
-    @appendSettings(namespace, settings[namespace])
+    if @options.scopeName
+      namespace = 'editor'
+      scopedSettings = [
+        'autoIndent'
+        'invisibles'
+        'nonWordCharacters'
+        'normalizeIndentOnPaste'
+        'preferredLineLength'
+        'scrollPastEnd'
+        'showIndentGuide'
+        'showInvisibles'
+        'softWrap'
+        'softWrapAtPreferredLineLength'
+        'tabLength'
+      ]
+      settings = {}
+      for name in scopedSettings
+        settings[name] = atom.config.get([@options.scopeName], name)
+    else
+      settings = atom.config.getSettings()[namespace]
+
+    @appendSettings(namespace, settings)
 
     @bindCheckboxFields()
     @bindSelectFields()
@@ -17,78 +37,106 @@ class SettingsPanel extends View
   appendSettings: (namespace, settings) ->
     return if _.isEmpty(settings)
 
+    title = @options.title
     includeTitle = @options.includeTitle ? true
     if includeTitle
-      title = "#{_.undasherize(_.uncamelcase(namespace))} Settings"
+      title ?= "#{_.undasherize(_.uncamelcase(namespace))} Settings"
     else
-      title = "Settings"
+      title ?= "Settings"
+
+    icon = @options.icon ? 'gear'
 
     @append $$ ->
       @section class: 'config-section', =>
-        @div class: 'block section-heading icon icon-gear', title
+        @div class: "block section-heading icon icon-#{icon}", title
         @div class: 'section-body', =>
           for name in _.keys(settings).sort()
             appendSetting.call(this, namespace, name, settings[name])
 
   bindCheckboxFields: ->
-    for input in @find('input[id]').toArray()
-      do (input) =>
-        input = $(input)
-        name = input.attr('id')
-        type = input.attr('type')
+    @find('input[id]').toArray().forEach (input) =>
+      input = $(input)
+      name = input.attr('id')
+      type = input.attr('type')
 
-        @subscribe atom.config.observe name, (value) ->
-          if type is 'checkbox'
-            input.prop('checked', value)
-          else
-            input.val(value) if value
+      @observe name, (value) ->
+        if type is 'checkbox'
+          input.prop('checked', value)
+        else
+          input.val(value) if value
 
-        input.on 'change', =>
-          value = input.val()
-          if type == 'checkbox'
-            value = !!input.prop('checked')
-          else
-            value = @parseValue(type, value)
+      input.on 'change', =>
+        value = input.val()
+        if type == 'checkbox'
+          value = !!input.prop('checked')
+        else
+          value = @parseValue(type, value)
 
-          atom.config.set(name, value)
+        @set(name, value)
+
+  observe: (name, callback) ->
+    if @options.scopeName
+      @subscribe atom.config.observe([@options.scopeName], name, callback)
+    else
+      @subscribe atom.config.observe(name, callback)
+
+  isDefault: (name) ->
+    if @options.scopeName
+      atom.config.isDefault(@options.scopeName, name)
+    else
+      atom.config.isDefault(name)
+
+  getDefault: (name) ->
+    if @options.scopeName
+      atom.config.getDefault(@options.scopeName, name)
+    else
+      atom.config.getDefault(name)
+
+  set: (name, value) ->
+    if @options.scopeName
+      if value is undefined
+        atom.config.restoreDefault(@options.scopeName, name)
+      else
+        atom.config.set(@options.scopeName, name, value)
+    else
+      atom.config.set(name, value)
 
   bindSelectFields: ->
     @find('select[id]').toArray().forEach (select) =>
       select = $(select)
       name = select.attr('id')
 
-      @subscribe atom.config.observe name, (value) ->
+      @observe name, (value) ->
         select.val(value)
 
-      select.change ->
-        atom.config.set(name, select.val())
+      select.change =>
+        @set(name, select.val())
 
   bindEditors: ->
-    for editorView in @find('.editor[id]').views()
-      do (editorView) =>
-        name = editorView.attr('id')
-        type = editorView.attr('type')
+    @find('.editor[id]').views().forEach (editorView) =>
+      name = editorView.attr('id')
+      type = editorView.attr('type')
 
-        if defaultValue = @valueToString(atom.config.getDefault(name))
-          editorView.setPlaceholderText("Default: #{defaultValue}")
+      if defaultValue = @valueToString(@getDefault(name))
+        editorView.setPlaceholderText("Default: #{defaultValue}")
 
-        @subscribe atom.config.observe name, (value) =>
-          if atom.config.isDefault(name)
-            stringValue = ''
-          else
-            stringValue = @valueToString(value) ? ''
+      @observe name, (value) =>
+        if @isDefault(name)
+          stringValue = ''
+        else
+          stringValue = @valueToString(value) ? ''
 
-          return if stringValue is editorView.getText()
-          return if _.isEqual(value, @parseValue(type, editorView.getText()))
+        return if stringValue is editorView.getText()
+        return if _.isEqual(value, @parseValue(type, editorView.getText()))
 
-          editorView.setText(stringValue)
+        editorView.setText(stringValue)
 
-        editorView.getEditor().getBuffer().on 'contents-modified', =>
-          atom.config.set(name, @parseValue(type, editorView.getText()))
+      editorView.getEditor().getBuffer().on 'contents-modified', =>
+        @set(name, @parseValue(type, editorView.getText()))
 
   valueToString: (value) ->
     if _.isArray(value)
-      value.join(", ")
+      value.join(', ')
     else
       value?.toString()
 
@@ -120,13 +168,14 @@ appendSetting = (namespace, name, value) ->
 
   @div class: 'control-group', =>
     @div class: 'controls', =>
-      if atom.config.getSchema("#{namespace}.#{name}")?.enum
+      schema = atom.config.getSchema("#{namespace}.#{name}")
+      if schema?.enum
         appendOptions.call(this, namespace, name, value)
-      else if _.isBoolean(value)
+      else if _.isBoolean(value) or schema?.type is 'boolean'
         appendCheckbox.call(this, namespace, name, value)
-      else if _.isArray(value)
+      else if _.isArray(value) or schema?.type is 'array'
         appendArray.call(this, namespace, name, value) if isEditableArray(value)
-      else if _.isObject(value)
+      else if _.isObject(value) or schema?.type is 'object'
         appendObject.call(this, namespace, name, value)
       else
         appendEditor.call(this, namespace, name, value)

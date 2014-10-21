@@ -1,20 +1,14 @@
 path = require 'path'
 _ = require 'underscore-plus'
 {$$$, View} = require 'atom'
+SettingsPanel = require './settings-panel'
 
 # View to display the grammars that a package has registered.
 module.exports =
 class PackageGrammarsView extends View
   @content: ->
-    @section =>
-      @div class: 'section-heading icon icon-puzzle', 'Grammars'
-      @table class: 'package-grammars-table table native-key-bindings text', tabindex: -1, =>
-        @thead =>
-          @tr =>
-            @th 'Name'
-            @th 'Scope'
-            @th 'File Types'
-        @tbody outlet: 'grammarItems'
+    @section class: 'package-grammars', =>
+      @div outlet: 'grammarSettings'
 
   initialize: (packagePath) ->
     @packagePath = path.join(packagePath, path.sep)
@@ -31,17 +25,25 @@ class PackageGrammarsView extends View
       name2 = grammar2.name ? grammar2.scopeName ? ''
       name1.localeCompare(name2)
 
+  addGrammarHeading: (grammar, panel) ->
+    panel.find('.section-body').prepend $$$ ->
+      @div class: 'native-key-bindings text', tabindex: -1, =>
+        @div class: 'grammar-scope', =>
+          @strong 'Scope: '
+          @span grammar.scopeName ? ''
+        @div class: 'grammar-filetypes', =>
+          @strong 'File Types: '
+          @span grammar.fileTypes?.join(', ') ? ''
+
   addGrammars: ->
-    @grammarItems.empty()
+    @grammarSettings.empty()
 
-    for {name, fileTypes, scopeName} in @getPackageGrammars()
-      @grammarItems.append $$$ ->
-        @tr =>
-          @td name ? ''
-          @td scopeName ? ''
-          @td class: 'grammar-table-filetypes', fileTypes?.join(', ') ? ''
+    for grammar in @getPackageGrammars()
+      {scopeName} = grammar
+      continue unless scopeName
+      scopeName = ".#{scopeName}" unless scopeName.startsWith('.')
 
-    if @grammarItems.children().length > 0
-      @show()
-    else
-      @hide()
+      title = "#{grammar.name} Grammar"
+      panel = new SettingsPanel(null, {title, scopeName, icon: 'puzzle'})
+      @addGrammarHeading(grammar, panel)
+      @grammarSettings.append(panel)
