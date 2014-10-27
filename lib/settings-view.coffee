@@ -65,22 +65,22 @@ class SettingsView extends ScrollView
 
   initializePanels: ->
     return if @panels.size > 0
-    @current_panel = null
+    @currentPanel = null
 
     @panelsByName = {}
     @on 'click', '.panels-menu li a, .panels-packages li a', (e) =>
-      @current_panel = $(e.target).closest('li')
-      @showPanel(@current_panel.attr('name'))
+      @currentPanel = $(e.target).closest('li')
+      @showPanel(@currentPanel.attr('name'))
 
     @on 'keydown', (e) =>
-      return if @current_panel == null
+      return if @currentPanel == null
       switch e.which
         when 38  # up arrow
-          curr = @current_panel.prev('li')
+          curr = @currentPanel.prev('li')
           curr = curr.prev('li') while curr.length && curr.isHidden()
           curr.find('a')?.click() if curr.length
         when 40  # down arrow
-          curr = @current_panel.next('li')
+          curr = @currentPanel.next('li')
           curr = curr.next('li') while curr.length && curr.isHidden()
           curr.find('a')?.click() if curr.length
 
