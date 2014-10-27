@@ -65,10 +65,24 @@ class SettingsView extends ScrollView
 
   initializePanels: ->
     return if @panels.size > 0
+    @current_panel = null
 
     @panelsByName = {}
     @on 'click', '.panels-menu li a, .panels-packages li a', (e) =>
-      @showPanel($(e.target).closest('li').attr('name'))
+      @current_panel = $(e.target).closest('li')
+      @showPanel(@current_panel.attr('name'))
+
+    @on 'keydown', (e) =>
+      return if @current_panel == null
+      switch e.which
+        when 38  # up arrow
+          curr = @current_panel.prev('li')
+          curr = curr.prev('li') while curr.length && curr.isHidden()
+          curr.find('a')?.click() if curr.length
+        when 40  # down arrow
+          curr = @current_panel.next('li')
+          curr = curr.next('li') while curr.length && curr.isHidden()
+          curr.find('a')?.click() if curr.length
 
     @openDotAtom.on 'click', ->
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
