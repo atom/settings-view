@@ -101,17 +101,23 @@ class SettingsView extends ScrollView
     return @packages if @packages?
 
     @packages = atom.packages.getLoadedPackages()
+
+    try
+      bundledPackageMetadataCache = require(path.join(atom.getLoadSettings().resourcePath, 'package.json'))?._atomPackages
+
     # Include disabled packages so they can be re-enabled from the UI
     for packageName in atom.config.get('core.disabledPackages') ? []
       packagePath = atom.packages.resolvePackagePath(packageName)
       continue unless packagePath
 
-      if metadataPath = CSON.resolve(path.join(packagePath, 'package'))
-        try
-          metadata = CSON.readFileSync(metadataPath)
-          name = metadata?.name ? packageName
-          unless _.findWhere(@packages, {name})
-            @packages.push({name, metadata, path: packagePath})
+      try
+        metadata = require(path.join(packagePath, 'package.json'))
+      metadata ?= bundledPackageMetadataCache?[packageName]?.metadata
+      continue unless metadata?
+
+      name = metadata.name ? packageName
+      unless _.findWhere(@packages, {name})
+        @packages.push({name, metadata, path: packagePath})
 
     @packages.sort (pack1, pack2) =>
       title1 = @packageManager.getPackageTitle(pack1)
