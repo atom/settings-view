@@ -52,7 +52,7 @@ class SettingsPanel extends View
       @section class: 'config-section', =>
         @div class: "block section-heading icon icon-#{icon}", title
         @div class: 'section-body', =>
-          unless sortedSettings?
+          if sortedSettings?
             for name in sortedSettings
               appendSetting.call(this, namespace, name, settings[name])
 
