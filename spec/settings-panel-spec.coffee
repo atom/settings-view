@@ -37,11 +37,11 @@ describe "SettingsPanel", ->
             order: 100
       atom.config.setSchema("foo", config)
       atom.config.setDefaults("foo", gong: 'gong')
-      expect(_.size(atom.config.getSettings()["foo"])).toBe 5
+      expect(_.size(atom.config.getSettings().foo)).toBe 5
       settingsPanel = new SettingsPanel("foo", {includeTitle: false})
 
     it "sorts settings by order and then alphabetically by the key", ->
-      settings = atom.config.getSettings()["foo"]
+      settings = atom.config.getSettings().foo
       expect(_.size(settings)).toBe 5
       sortedSettings = settingsPanel.sortSettings("foo", settings)
       expect(sortedSettings[0]).toBe 'zing'
