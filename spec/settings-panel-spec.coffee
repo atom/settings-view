@@ -1,9 +1,8 @@
-path = require 'path'
-{$$, WorkspaceView} = require 'atom'
+{WorkspaceView} = require 'atom'
 SettingsPanel = require '../lib/settings-panel'
 _ = require 'underscore-plus'
 
-describe "SettingsView", ->
+describe "SettingsPanel", ->
   settingsPanel = null
 
   beforeEach ->
@@ -50,3 +49,8 @@ describe "SettingsView", ->
       expect(sortedSettings[2]).toBe 'bar'
       expect(sortedSettings[3]).toBe 'gong'
       expect(sortedSettings[4]).toBe 'haz'
+
+    it "gracefully deals with a null settings object", ->
+      sortedSettings = settingsPanel.sortSettings("foo", null)
+      expect(sortedSettings).not.toBeNull
+      expect(_.size(sortedSettings)).toBe 0
