@@ -46,12 +46,17 @@ class SettingsPanel extends View
 
     icon = @options.icon ? 'gear'
 
+    sortedSettings = @sortSettings(namespace, settings)
+
     @append $$ ->
       @section class: 'config-section', =>
         @div class: "block section-heading icon icon-#{icon}", title
         @div class: 'section-body', =>
-          for name in _.keys(settings).sort()
+          for name in sortedSettings
             appendSetting.call(this, namespace, name, settings[name])
+
+  sortSettings: (namespace, settings) ->
+    _.chain(settings).keys().sortBy((name) -> name).sortBy((name) -> atom.config.getSchema("#{namespace}.#{name}")?.order).value()
 
   bindCheckboxFields: ->
     @find('input[id]').toArray().forEach (input) =>
