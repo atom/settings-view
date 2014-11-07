@@ -112,7 +112,8 @@ class SettingsView extends ScrollView
 
       try
         metadata = require(path.join(packagePath, 'package.json'))
-      metadata ?= bundledPackageMetadataCache?[packageName]?.metadata
+      catch error
+        metadata = bundledPackageMetadataCache?[packageName]?.metadata
       continue unless metadata?
 
       name = metadata.name ? packageName
