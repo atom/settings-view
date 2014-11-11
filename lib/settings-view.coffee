@@ -18,7 +18,6 @@ class SettingsView extends ScrollView
   @content: ->
     @div class: 'settings-view pane-item', tabindex: -1, =>
       @div class: 'config-menu', outlet: 'sidebar', =>
-        @div class: 'atom-banner'
         @ul class: 'panels-menu nav nav-pills nav-stacked', outlet: 'panelMenu', =>
           @div class: 'panel-menu-separator', outlet: 'menuSeparator'
           @div class: 'editor-container settings-filter', =>
