@@ -335,7 +335,7 @@
       height: 34px;
       font-family: monospace;
       font-size: 24px;
-      border-radius: 2px;
+      border-radius: @component-border-radius;
       display: inline-block;
       margin: 0 @component-padding 0 @component-padding;
       -webkit-user-select: none;
@@ -347,6 +347,10 @@
     .theme-contrast-selected,
     .theme-saturation-selected {
       border: 2px solid hsla(0, 0%, 100%, .75);
+    }
+
+    .theme-base-color {
+      border-radius: 50%;
     }
 
     .theme-base-color-1 {
