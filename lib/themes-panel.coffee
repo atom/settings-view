@@ -41,20 +41,20 @@ class ThemesPanel extends View
               @div class: 'theme-base-color theme-base-color-4'
 
           @div class: 'form-group', =>
-            @label class: 'col-sm-2 col-lg-2 control-label themes-label text', 'Contrast'
-            @div class: 'col-sm-10 col-lg-4 col-md-4', =>
-              @div class: 'theme-contrast theme-contrast-1 theme-contrast-selected', 'data-contrast': '20%', 'A'
-              @div class: 'theme-contrast theme-contrast-2', 'data-contrast': '15%', 'A'
-              @div class: 'theme-contrast theme-contrast-3', 'data-contrast': '10%', 'A'
-              @div class: 'theme-contrast theme-contrast-4', 'data-contrast': '5%', 'A'
-
-          @div class: 'form-group', =>
             @label class: 'col-sm-2 col-lg-2 control-label themes-label text', 'Saturation'
             @div class: 'col-sm-10 col-lg-4 col-md-4', =>
               @div class: 'theme-saturation theme-saturation-1 theme-saturation-selected', 'data-saturation': '20%'
               @div class: 'theme-saturation theme-saturation-2', 'data-saturation': '15%'
               @div class: 'theme-saturation theme-saturation-3', 'data-saturation': '10%'
               @div class: 'theme-saturation theme-saturation-4', 'data-saturation': '5%'
+
+          @div class: 'form-group', =>
+            @label class: 'col-sm-2 col-lg-2 control-label themes-label text', 'Contrast'
+            @div class: 'col-sm-10 col-lg-4 col-md-4', =>
+              @div class: 'theme-contrast theme-contrast-1 theme-contrast-selected', 'data-contrast': '20%', 'A'
+              @div class: 'theme-contrast theme-contrast-2', 'data-contrast': '15%', 'A'
+              @div class: 'theme-contrast theme-contrast-3', 'data-contrast': '10%', 'A'
+              @div class: 'theme-contrast theme-contrast-4', 'data-contrast': '5%', 'A'
 
       @div class: 'section packages', =>
         @div class: 'section-heading icon icon-cloud-download', 'Install Themes'
