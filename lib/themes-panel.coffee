@@ -33,7 +33,7 @@ class ThemesPanel extends View
               @div class: 'text theme-description', 'This styles the text inside the editor'
 
           @div class: 'form-group', =>
-            @label class: 'col-sm-2 col-lg-2 control-label themes-label text', 'Base Color'
+            @label class: 'col-sm-2 col-lg-2 control-label themes-label text', 'Hue'
             @div class: 'col-sm-10 col-lg-4 col-md-4', =>
               @div class: 'theme-base-color theme-base-color-1 theme-base-color-selected'
               @div class: 'theme-base-color theme-base-color-2'
