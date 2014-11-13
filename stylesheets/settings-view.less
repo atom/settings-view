@@ -72,13 +72,14 @@
   .editor-container {
     margin-bottom: @component-padding;
 
-    .editor.mini {
+    .editor.mini, .editor.mini::shadow {
       opacity: .75;
       .selection .region {
         background-color: rgba(0, 0, 0, .2);
       }
     }
-    .editor.mini.is-focused {
+
+    .editor.mini.is-focused, .editor.mini.is-focused::shadow {
       opacity: 1;
       .selection .region {
         background-color: lighten(@background-color-info, 30%);
@@ -86,7 +87,9 @@
     }
 
     .editor.mini,
-    .editor.mini.is-focused {
+    .editor.mini::shadow,
+    .editor.mini.is-focused,
+    .editor.mini.is-focused::shadow {
       color: @text-color;
       background-color: #fff;
 
