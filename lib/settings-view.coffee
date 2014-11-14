@@ -72,17 +72,19 @@ class SettingsView extends ScrollView
       @currentPanel = $(e.target).closest('li')
       @showPanel(@currentPanel.attr('name'))
 
-    @on 'keydown', (e) =>
+    @on 'core:move-up', =>
+      # go to previous item in list
       return if @currentPanel == null
-      switch e.which
-        when 38  # up arrow
-          curr = @currentPanel.prev('li')
-          curr = curr.prev('li') while curr.length && curr.isHidden()
-          curr.find('a')?.click() if curr.length
-        when 40  # down arrow
-          curr = @currentPanel.next('li')
-          curr = curr.next('li') while curr.length && curr.isHidden()
-          curr.find('a')?.click() if curr.length
+      curr = @currentPanel.prev('li')
+      curr = curr.prev('li') while curr.length && curr.isHidden()
+      curr.find('a')?.click() if curr.length
+
+    @on 'core:move-down', =>
+      # go to next item in list
+      return if @currentPanel == null
+      curr = @currentPanel.next('li')
+      curr = curr.next('li') while curr.length && curr.isHidden()
+      curr.find('a')?.click() if curr.length
 
     @openDotAtom.on 'click', ->
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
