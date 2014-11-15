@@ -12,6 +12,7 @@ PackageManager = require './package-manager'
 PackageMenuView = require './package-menu-view'
 PackagesPanel = require './packages-panel'
 ThemesPanel = require './themes-panel'
+InstalledPackagesPanel = require './installed-packages-panel.coffee'
 
 module.exports =
 class SettingsView extends ScrollView
@@ -77,7 +78,8 @@ class SettingsView extends ScrollView
 
     @addCorePanel 'Settings', 'settings', -> new GeneralPanel
     @addCorePanel 'Keybindings', 'keyboard', -> new KeybindingsPanel
-    @addCorePanel 'Packages', 'package', => new PackagesPanel(@packageManager)
+    @addCorePanel 'Get Packages', 'cloud-download', => new PackagesPanel(@packageManager)
+    @addCorePanel 'Installed Packages', 'package', => new InstalledPackagesPanel(@packageManager)
     @addCorePanel 'Themes', 'paintcan', => new ThemesPanel(@packageManager)
 
     @addPackagePanel(pack) for pack in @getPackages()

@@ -15,7 +15,9 @@ class PackageManager
     @packagePromises = []
 
   runCommand: (args, callback) ->
-    command = atom.packages.getApmPath()
+    # cf https://github.com/atom/apm/pull/216
+    # command = atom.packages.getApmPath()
+    command = '/Users/daniel/github/apm/bin/apm'
     outputLines = []
     stdout = (lines) -> outputLines.push(lines)
     errorLines = []
@@ -25,6 +27,18 @@ class PackageManager
 
     args.push('--no-color')
     new BufferedProcess({command, args, stdout, stderr, exit})
+
+  loadInstalled: (callback) ->
+    args = ['ls', '--json']
+    @runCommand args, (code, stdout, stderr) ->
+      if code is 0
+        packages = JSON.parse(stdout)
+        callback(null, packages)
+      else
+        error = new Error('Fetching local packages failed.')
+        error.stdout = stdout
+        error.stderr = stderr
+        callback(error)
 
   loadFeatured: (callback) ->
     args = ['featured', '--json']
@@ -83,6 +97,9 @@ class PackageManager
         error.stdout = stdout
         error.stderr = stderr
         callback(error)
+
+  getInstalled: ->
+    @installedPromise ?= Q.nbind(@loadInstalled, this)()
 
   getFeatured: ->
     @featuredPromise ?= Q.nbind(@loadFeatured, this)()
