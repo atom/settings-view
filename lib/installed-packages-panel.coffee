@@ -5,7 +5,6 @@ fs = require 'fs-plus'
 {$, $$, View, TextEditorView} = require 'atom'
 
 AvailablePackageView = require './available-package-view'
-PackageCardView = require './package-card-view'
 ErrorView = require './error-view'
 PackageManager = require './package-manager'
 PackageUpdateView = require './package-update-view'
