@@ -1,0 +1,209 @@
+@import "octicon-mixins";
+@import "ui-variables";
+
+.settings-view {
+
+  .available-package-view {
+    border-radius: 1px;
+    padding-left: @component-padding;
+    padding-right: @component-padding;
+    margin-bottom: 20px;
+
+    &.col-lg-4 {
+      min-width: 190px;
+      padding: 1% 0;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    // &.col-lg-6 {
+    //   min-width: 280px;
+    //   padding: 1% 0;
+    //   padding-left: 10px;
+    //   padding-right: 10px;
+    // }
+
+    .thumbnail {
+      border-radius: 3px;
+      margin: 0;
+      min-height: 140px;
+
+      .caption {
+        width: 100%;
+        position: relative;
+      }
+    }
+    .package-name {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 100%;
+      overflow: hidden;
+      line-height: 20px;
+      margin: 5px 0;
+    }
+
+    .description {
+      font-size: 12px;
+      line-height: 18px;
+      color: #999;
+      overflow: hidden;
+      min-height: 38px;
+      max-height: 38px;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2; /* number of lines to show */
+      -webkit-box-orient: vertical;
+    }
+
+    .downloads {
+      font-size: 12px;
+      line-height: 12px;
+      color: #999;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1; /* number of lines to show */
+      -webkit-box-orient: vertical;
+    }
+
+    .package-status {
+      right: 0px;
+      top: 5px;
+      text-align: center;
+
+      &.icon-cloud-download {
+        color: #428bca;
+      }
+
+      &.icon-check {
+        color: #6CC644;
+      }
+
+      &.icon-alert {
+        color: #BD2C00;
+      }
+    }
+
+    // Begin copy-paste from atom.io
+    // position: relative;
+    list-style-type: none;
+    border: 1px solid @base-border-color;
+    border-radius: 3px;
+
+    overflow: hidden;
+
+    .card-name {
+      font-weight: 300;
+      font-size: 28px;
+      margin: 0;
+      line-height: 1.4;
+
+      .css-truncate-target {
+        color: $greenDark;
+      }
+    }
+
+    .card-description {
+      font-size: 15px;
+    }
+
+    .body {
+      padding: 7px 13px;
+
+      .css-truncate-target {
+        max-width: 100%;
+      }
+    }
+
+    p { margin: 0; }
+
+    img {
+      height: 24px;
+      width: 24px;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    .card-name {
+      margin-bottom: 5px;
+      font-size: 24px;
+    }
+
+    .card-description {
+      white-space: normal;
+      line-height: 1.4;
+    }
+
+    .meta {
+      padding: 13px;
+      background-color: @input-background-color;
+      line-height: 1;
+
+      .author {
+        color: @text-color-subtle;
+        margin-left: 10px;
+      }
+
+      a.linked-octicon {
+        text-decoration: none;
+
+        &:hover {
+          .octicon {
+            color: $greenDark;
+          }
+
+          .value {
+            color: $greenDark;
+          }
+        }
+      }
+
+      .stat {
+        height: 26px;
+        display: inline-block;
+        line-height: 24px;
+        margin-right: 5px;
+        padding-right: 5px;
+        vertical-align: top;
+
+        .octicon {
+          color: #999;
+        }
+      }
+
+      .action {
+        border-radius: 3px;
+        padding: 3px 6px;
+
+        &:hover {
+          background-color: #eaeaea;
+        }
+      }
+
+      .value {
+        color: #999;
+        font-size: 13px;
+      }
+    }
+
+    .meta-right {
+      float: right;
+    }
+
+    .meta-lower {
+      padding: 13px;
+      background-color: @input-background-color;
+      line-height: 1;
+    }
+
+    &.blank-slate {
+      text-align: center;
+      color: $beigeDark;
+      height: 132px;
+      line-height: 132px;
+    }
+
+    // End copy-paste from atom.io
+
+  }
+}
