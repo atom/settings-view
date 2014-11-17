@@ -4,33 +4,80 @@ shell = require 'shell'
 
 module.exports =
 class AvailablePackageView extends View
-  @content: ({name, description, downloads}) ->
-    @div class: 'col-lg-4 available-package-view', =>
-      @div class: 'thumbnail text', =>
-        @div class: 'caption', =>
-          @span outlet: 'status', class: 'package-status icon'
-          @h4 class: 'package-name native-key-bindings', tabindex: -1, _.undasherize(_.uncamelcase(name))
-          if downloads >= 0
-            count = if downloads is 1 then '1 download' else "#{downloads.toLocaleString()} downloads"
-            @p class: 'downloads native-key-bindings', tabindex: -1, count
-          @p class: 'description native-key-bindings', tabindex: -1, description ? ''
-          @div class: 'btn-toolbar', =>
-            @button outlet: 'installButton', class: 'btn btn-primary', 'Install'
-            @button outlet: 'learnMoreButton', class: 'btn btn-default', 'Learn More'
-            @button outlet: 'settingsButton', class: 'btn btn-default', 'Settings'
+  @content: ({name, description, version, repository}) ->
+    loginRegex = /github\.com\/([\w-]+)\/.+/
+    if typeof(repository) is "string"
+      repo = repository
+    else
+      repo = repository.url
+    owner = repo.match(loginRegex)[1]
+    # stars, downloads
+
+    @div class: 'available-package-view col-lg-6', =>
+      @div class: 'body', =>
+        @h4 class: 'card-name', =>
+          @span outlet: 'packageName', =>
+            @a name
+        @span outlet: 'packageDescription', class: 'package-description', description, =>
+      @div class: 'meta', =>
+        @a outlet: 'avatarLink', =>
+          @img class: 'avatar', src: "https://github.com/#{owner}.png" # TODO replace with cached asset
+        @a outlet: 'loginLink', class: 'author', href: "https://atom.io/users/#{owner}", owner
+        @div class: 'meta-right', =>
+          @span class: "stat", =>
+            @span class: 'icon icon-versions'
+            @span class:'value', version
+
+          @span class: 'stat', =>
+            @span class: 'icon icon-cloud-download'
+            # if downloads?
+            #   count = if downloads is 1 then '1 download' else "#{downloads.toLocaleString()} downloads"
+            #   @span outlet: 'downloadCount', class: 'value', count
+          @span class: 'star-wrap', =>
+            @div class: 'star-box', =>
+              @a outlet: 'starButton', class: 'star-button', =>
+                @span class: 'icon icon-star'
+              @a outlet: 'starCount', class: 'star-count'
+      @div class: 'meta-lower', =>
+        @div outlet: 'buttons', class: 'btn-group', =>
+          #
+          # @button outlet: 'disableButton', class: 'btn btn-default icon'
+          # @button outlet: 'uninstallButton', class: 'btn btn-default icon icon-trashcan', 'Uninstall'
+          # @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
+          # @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'Open README'
+          # @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'Open CHANGELOG'
+          # @button outlet: 'openButton', class: 'btn btn-default icon icon-link-external', 'Open in Atom'
+          #
+          @button type: 'button', class: 'btn',outlet: 'installButton', => # TODO hide in installedpackagesview
+            @span class: 'icon icon-cloud-download'
+            @text "Install"
+          @button type: 'button', class: 'btn', outlet: 'uninstallButton', => # TODO hide in installedpackagesview
+            @span class: 'icon icon-trashcan'
+            @text "Uninstall"
+          @button outlet: 'disableButton', class: 'btn btn-default icon'
+          @button type: 'button', class: 'btn', outlet: 'learnMoreButton', =>
+            @span class: 'icon icon-book'
+            @text "Learn more"
+          @button type: 'button', class: 'btn', outlet: 'settingsButton', =>
+            @span class: 'icon icon-gear'
+            @text "Settings"
+        @span outlet: 'status', class: 'package-status icon'
 
   initialize: (@pack, @packageManager) ->
     @type = if @pack.theme then 'theme' else 'package'
 
     @handlePackageEvents()
 
-    @installButton.hide() if atom.packages.isBundledPackage(@pack.name)
+    if atom.packages.isBundledPackage(@pack.name)
+      @installButton.hide()
+      @uninstallButton.hide()
 
     @installButton.on 'click', =>
-      if @isInstalled()
-        @uninstall()
-      else
-        @install()
+      @install()
+
+    @uninstallButton.on 'click', =>
+      @uninstall()
+
 
     @settingsButton.on 'click', =>
       @parents('.settings-view').view()?.showPanel(@pack.name)
@@ -46,11 +93,13 @@ class AvailablePackageView extends View
       else
         @setStatusIcon('check')
         @settingsButton.show()
-        @installButton.text('Uninstall')
+        @installButton.hide()
+        @uninstallButton.show()
 
     @subscribeToPackageEvent 'package-installing', (pack) =>
       @installButton.prop('disabled', true)
-      @installButton.text('Install')
+      @installButton.show()
+      @uninstallButton.hide()
       @setStatusIcon('cloud-download')
 
     @subscribeToPackageEvent 'package-uninstalling', (pack) =>
@@ -62,12 +111,14 @@ class AvailablePackageView extends View
       if error?
         @setStatusIcon('alert')
       else
-        @installButton.text('Install')
+        @installButton.show()
+        @uninstallButton.hide()
         @settingsButton.hide()
         @setStatusIcon()
 
     if @isInstalled()
-      @installButton.text('Uninstall')
+      @installButton.hide()
+      @uninstallButton.show()
       @setStatusIcon('check')
     else
       @settingsButton.hide()

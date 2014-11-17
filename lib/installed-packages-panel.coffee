@@ -89,17 +89,14 @@ class InstalledPackagesPanel extends View
         @searchErrors.append(new ErrorView(@packageManager, error))
 
   addPackageViews: (container, packages) ->
-    console.log "adding packages"
-    console.log container
-    console.log packages
     container.empty()
 
     for pack, index in packages
-      console.log pack
       if index % 3 is 0
         packageRow = $$ -> @div class: 'row'
         container.append(packageRow)
-      packageRow.append(new AvailablePackageView(pack, @packageManager))
+        packView = new AvailablePackageView(pack, @packageManager)
+      packageRow.append(packView)
 
   addUpdateViews: ->
     @updateAllButton.show() if @availableUpdates.length > 0
