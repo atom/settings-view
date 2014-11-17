@@ -7,22 +7,11 @@ fs = require 'fs-plus'
 AvailablePackageView = require './available-package-view'
 ErrorView = require './error-view'
 PackageManager = require './package-manager'
-PackageUpdateView = require './package-update-view'
 
 module.exports =
 class InstalledPackagesPanel extends View
   @content: ->
     @div =>
-      @div class: 'section packages', =>
-        @div class: 'section-heading icon icon-squirrel', =>
-          @span 'Available Updates'
-          @button outlet: 'updateAllButton', class: 'pull-right btn btn-primary', 'Update All'
-
-        @div outlet: 'updateErrors'
-        @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
-        @div outlet: 'noUpdatesMessage', class: 'alert alert-info featured-message icon icon-heart', 'All of your installed packages are up to date!'
-        @div outlet: 'updatesContainer', class: 'container package-container'
-
       @div class: 'section installed-packages', =>
         @div class: 'section-heading icon icon-package', 'Installed Packages'
         @div outlet: 'installedPackages', class: 'container package-container'
@@ -37,23 +26,13 @@ class InstalledPackagesPanel extends View
 
 
   initialize: (@packageManager) ->
-    @noUpdatesMessage.hide()
-
     @subscribe @packageManager, 'package-install-failed', (pack, error) =>
       @searchErrors.append(new ErrorView(@packageManager, error))
 
     @subscribe @packageManager, 'package-update-failed theme-update-failed', (pack, error) =>
       @updateErrors.append(new ErrorView(@packageManager, error))
 
-    @updateAllButton.hide()
-    @updateAllButton.on 'click', =>
-      @updateAllButton.prop('disabled', true)
-      for updateView in @updatesContainer.find('.available-package-view')
-        $(updateView).view()?.upgrade?()
-
     @loadPackages()
-
-    @checkForUpdates()
 
   loadPackages: ->
     @packageManager.getInstalled()
@@ -97,30 +76,8 @@ class InstalledPackagesPanel extends View
         packView = new AvailablePackageView(pack, @packageManager)
       packageRow.append(packView)
 
-  addUpdateViews: ->
-    @updateAllButton.show() if @availableUpdates.length > 0
-    @checkingMessage.hide()
-    @updatesContainer.empty()
-    @noUpdatesMessage.show() if @availableUpdates.length is 0
-
-    for pack, index in @availableUpdates
-      if index % 3 is 0
-        packageRow = $$ -> @div class: 'row'
-        @updatesContainer.append(packageRow)
-      packageRow.append(new PackageUpdateView(pack, @packageManager))
-
   filterPackages: (packages) ->
     packages.dev = packages.dev.filter ({theme}) -> not theme
     packages.user = packages.user.filter ({theme}) -> not theme
     packages.core = packages.core.filter ({theme}) -> not theme
     packages
-  # Check for updates and display them
-  checkForUpdates: ->
-    @checkingMessage.show()
-
-    @packageManager.getOutdated()
-      .then (@availableUpdates) =>
-        @addUpdateViews()
-      .catch (error) =>
-        @checkingMessage.hide()
-        @updateErrors.append(new ErrorView(@packageManager, error))

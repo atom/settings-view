@@ -13,11 +13,10 @@ class AvailablePackageView extends View
     owner = repo.match(loginRegex)[1]
     # stars, downloads
 
-    @div class: 'available-package-view col-lg-6', =>
+    @div class: 'available-package-view col-lg-4', =>
       @div class: 'body', =>
         @h4 class: 'card-name', =>
-          @span outlet: 'packageName', =>
-            @a name
+          @a outlet: 'packageName', name
         @span outlet: 'packageDescription', class: 'package-description', description, =>
       @div class: 'meta', =>
         @a outlet: 'avatarLink', =>
@@ -78,6 +77,8 @@ class AvailablePackageView extends View
     @uninstallButton.on 'click', =>
       @uninstall()
 
+    @packageName.on 'click', =>
+      @parents('.settings-view').view()?.showPanel(@pack.name)
 
     @settingsButton.on 'click', =>
       @parents('.settings-view').view()?.showPanel(@pack.name)
