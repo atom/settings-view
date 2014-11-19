@@ -328,6 +328,32 @@
       cursor: default;
     }
 
+    .theme-base-color,
+    .theme-contrast,
+    .theme-saturation {
+      width: 34px;
+      height: 34px;
+      font-family: monospace;
+      font-size: 24px;
+      border-radius: @component-border-radius;
+      display: inline-block;
+      margin: 0 @component-padding 0 @component-padding;
+      -webkit-user-select: none;
+      text-align: center;
+      cursor: pointer;
+      background-color: hsla(0, 0%, 0%, .1)
+    }
+
+    .theme-base-color-selected,
+    .theme-contrast-selected,
+    .theme-saturation-selected {
+      border: 2px solid hsla(0, 0%, 0%, .75);
+    }
+
+    .theme-base-color {
+      border-radius: 50%;
+    }
+
     .package-container {
       padding-top: @component-padding;
       max-width: 100%;

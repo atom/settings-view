@@ -32,6 +32,33 @@ class ThemesPanel extends View
               @select outlet: 'syntaxMenu', class: 'form-control'
               @div class: 'text theme-description', 'This styles the text inside the editor'
 
+          @div class: 'form-group', =>
+            @label class: 'col-sm-2 col-lg-2 control-label themes-label text', 'Hue'
+            @div class: 'col-sm-10 col-lg-4 col-md-4', =>
+              @div class: 'theme-base-color theme-base-color-1 theme-base-color-selected'
+              @div class: 'theme-base-color theme-base-color-2'
+              @div class: 'theme-base-color theme-base-color-3'
+              @div class: 'theme-base-color theme-base-color-4'
+              @div class: 'theme-base-color theme-base-color-5'
+
+          @div class: 'form-group', =>
+            @label class: 'col-sm-2 col-lg-2 control-label themes-label text', 'Saturation'
+            @div class: 'col-sm-10 col-lg-4 col-md-4', =>
+              @div class: 'theme-saturation theme-saturation-1', 'data-saturation': '40%'
+              @div class: 'theme-saturation theme-saturation-2', 'data-saturation': '20%'
+              @div class: 'theme-saturation theme-saturation-3 theme-saturation-selected', 'data-saturation': '0%'
+              @div class: 'theme-saturation theme-saturation-4', 'data-saturation': '-10%'
+              @div class: 'theme-saturation theme-saturation-5', 'data-saturation': '-100%'
+
+          @div class: 'form-group', =>
+            @label class: 'col-sm-2 col-lg-2 control-label themes-label text', 'Contrast'
+            @div class: 'col-sm-10 col-lg-4 col-md-4', =>
+              @div class: 'theme-contrast theme-contrast-1', 'data-contrast': '40%', 'A'
+              @div class: 'theme-contrast theme-contrast-2', 'data-contrast': '20%', 'A'
+              @div class: 'theme-contrast theme-contrast-3 theme-contrast-selected', 'data-contrast': '0%', 'A'
+              @div class: 'theme-contrast theme-contrast-4', 'data-contrast': '-10%', 'A'
+              @div class: 'theme-contrast theme-contrast-5', 'data-contrast': '-20%', 'A'
+
       @div class: 'section packages', =>
         @div class: 'section-heading icon icon-cloud-download', 'Install Themes'
 
@@ -91,6 +118,30 @@ class ThemesPanel extends View
       @scheduleUpdateThemeConfig()
 
     @loadFeaturedThemes()
+
+    @on 'click', '.theme-base-color', ({target}) =>
+      @find('.theme-base-color-selected').removeClass('theme-base-color-selected')
+
+      target.classList.add('theme-base-color-selected')
+
+      baseColor = window.getComputedStyle(target)['background-color']
+      atom.config.set('core.themeColor', baseColor)
+
+    @on 'click', '.theme-contrast', ({target}) =>
+      @find('.theme-contrast-selected').removeClass('theme-contrast-selected')
+
+      target.classList.add('theme-contrast-selected')
+
+      {contrast} = target.dataset
+      atom.config.set('core.themeContrast', contrast)
+
+    @on 'click', '.theme-saturation', ({target}) =>
+      @find('.theme-saturation-selected').removeClass('theme-saturation-selected')
+
+      target.classList.add('theme-saturation-selected')
+
+      {saturation} = target.dataset
+      atom.config.set('core.themeSaturation', saturation)
 
   focus: ->
     @searchEditorView.focus()
