@@ -81,11 +81,6 @@ class InstalledPackagesPanel extends View
     container.empty()
     packageViews = []
     for pack, index in packages
-      if index % 3 is 0
-        packageRow = $$ -> @div class: 'row'
-        container.append(packageRow)
-        packView = new AvailablePackageView(pack, @packageManager)
-        packView.widen()
       packageRow = $$ -> @div class: 'row'
       container.append(packageRow)
       # TODO if pack.valid?
