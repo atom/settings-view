@@ -105,22 +105,25 @@ class InstalledPackagesPanel extends View
     @updateSectionCounts()
 
   updateSectionCounts: ->
-    community = @communityPackages.find('.available-package-view:not(.hidden)').length
-    @communityCount.text " (#{community}/#{@packages.user.length})"
-    dev = @devPackages.find('.available-package-view:not(.hidden)').length
-    @devCount.text " (#{dev}/#{@packages.dev.length})"
-    core = @corePackages.find('.available-package-view:not(.hidden)').length
-    @coreCount.text " (#{core}/#{@packages.core.length})"
+    filterText = @filterEditor.getEditor().getText()
+    if filterText is ''
+      @totalPackages.text " (#{@packages.user.length + @packages.core.length + @packages.dev.length})"
+      @communityCount.text " (#{@packages.user.length})"
+      @coreCount.text " (#{@packages.core.length})"
+      @devCount.text " (#{@packages.dev.length})"
+    else
+      community = @communityPackages.find('.available-package-view:not(.hidden)').length
+      @communityCount.text " (#{community}/#{@packages.user.length})"
+      dev = @devPackages.find('.available-package-view:not(.hidden)').length
+      @devCount.text " (#{dev}/#{@packages.dev.length})"
+      core = @corePackages.find('.available-package-view:not(.hidden)').length
+      @coreCount.text " (#{core}/#{@packages.core.length})"
 
 
   # TODO rename this and the below
   matchPackages: ->
     filterText = @filterEditor.getEditor().getText()
-    if filterText != ''
-      @filterPackageListByText(filterText)
-    else
-      @find('.installed-package-view').show()
-
+    @filterPackageListByText(filterText)
 
   filterPackages: (packages) ->
     filterText = @filterEditor.getEditor().getText()
