@@ -92,6 +92,7 @@ class InstalledPackagesPanel extends View
     packageViews
 
   filterPackageListByText: (text) ->
+    return unless @packages
     active = fuzzaldrin.filter(@packageViews, text, key: 'name')
 
     _.each @packageViews, (view) ->
