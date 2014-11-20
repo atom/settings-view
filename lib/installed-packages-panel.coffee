@@ -23,20 +23,20 @@ class InstalledPackagesPanel extends View
         @h2 class: 'section-heading icon icon-package', =>
           @text 'Community Packages'
           @span outlet: 'communityCount', ' (…)'
-        @div outlet: 'communityPackages', class: 'container package-container'
-
+        @div outlet: 'communityPackages', class: 'container package-container', =>
+          @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
       @div class: 'section core-packages', =>
         @h2 class: 'section-heading icon icon-package', =>
           @text 'Core Packages'
           @span outlet: 'coreCount', ' (…)'
-        @div outlet: 'corePackages', class: 'container package-container'
-
+        @div outlet: 'corePackages', class: 'container package-container', =>
+          @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
       @div class: 'section dev-packages', =>
         @h2 class: 'section-heading icon icon-package', =>
           @text 'Development Packages'
           @span outlet: 'devCount', ' (…)'
-        @div outlet: 'devPackages', class: 'container package-container'
-
+        @div outlet: 'devPackages', class: 'container package-container', =>
+          @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
   initialize: (@packageManager) ->
     @packageViews = []
