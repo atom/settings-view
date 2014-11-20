@@ -14,25 +14,25 @@ class AvailablePackageView extends View
     # stars, downloads
 
     @div class: 'available-package-view col-lg-4', =>
+      @div class: 'top-meta meta-right', =>
+        @span class: "stat", =>
+          @span class: 'icon icon-versions'
+          @span class:'value', version
+
+        @span class: 'stat', =>
+          @span class: 'icon icon-cloud-download'
+          # if downloads?
+          #   count = if downloads is 1 then '1 download' else "#{downloads.toLocaleString()} downloads"
+          #   @span outlet: 'downloadCount', class: 'value', count
+        @span class: 'star-wrap', =>
+          @div class: 'star-box', =>
+            @a outlet: 'starButton', class: 'star-button btn icon icon-star', =>
+            @a outlet: 'starCount', class: 'star-count'
+
       @div class: 'body', =>
         @h4 class: 'card-name', =>
           @a outlet: 'packageName', name
         @span outlet: 'packageDescription', class: 'package-description', description
-        @div class: 'meta-right', =>
-          @span class: "stat", =>
-            @span class: 'icon icon-versions'
-            @span class:'value', version
-
-          @span class: 'stat', =>
-            @span class: 'icon icon-cloud-download'
-            # if downloads?
-            #   count = if downloads is 1 then '1 download' else "#{downloads.toLocaleString()} downloads"
-            #   @span outlet: 'downloadCount', class: 'value', count
-          @span class: 'star-wrap', =>
-            @div class: 'star-box', =>
-              @a outlet: 'starButton', class: 'star-button', =>
-                @span class: 'icon icon-star'
-              @a outlet: 'starCount', class: 'star-count'
 
       @div class: 'meta', =>
         @a outlet: 'avatarLink', =>
