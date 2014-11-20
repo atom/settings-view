@@ -86,6 +86,10 @@ class AvailablePackageView extends View
     @learnMoreButton.on 'click', =>
       shell.openExternal "https://atom.io/packages/#{@pack.name}"
 
+  widen: ->
+    # Set grid classes appropriate for installed package panel
+    @addClass('col-lg-8 col-lg-offset-1').removeClass('col-lg-4')
+
   handlePackageEvents: ->
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
       @installButton.prop('disabled', false)

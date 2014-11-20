@@ -74,6 +74,7 @@ class InstalledPackagesPanel extends View
         packageRow = $$ -> @div class: 'row'
         container.append(packageRow)
         packView = new AvailablePackageView(pack, @packageManager)
+        packView.widen()
       packageRow.append(packView)
 
   filterPackages: (packages) ->
