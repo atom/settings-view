@@ -12,16 +12,28 @@ module.exports =
 class InstalledPackagesPanel extends View
   @content: ->
     @div =>
+      @h1 class: 'installed-packages-title', =>
+        @text 'Installed Packages'
+        @span outlet: 'totalPackages', ' (…)'
+      @div class: 'editor-container settings-filter', =>
+        @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter packages by name')
+
       @div class: 'section installed-packages', =>
-        @h1 class: 'section-heading icon icon-package', 'Installed Packages'
+        @h2 class: 'section-heading icon icon-package', =>
+          @text 'Community Packages'
+          @span outlet: 'communityCount', ' (…)'
         @div outlet: 'installedPackages', class: 'container package-container'
 
       @div class: 'section core-packages', =>
-        @h1 class: 'section-heading icon icon-package', 'Core Packages'
+        @h2 class: 'section-heading icon icon-package', =>
+          @text 'Core Packages'
+          @span outlet: 'coreCount', ' (…)'
         @div outlet: 'corePackages', class: 'container package-container'
 
       @div class: 'section dev-packages', =>
-        @h1 class: 'section-heading icon icon-package', 'Development Packages'
+        @h2 class: 'section-heading icon icon-package', =>
+          @text 'Development Packages'
+          @span outlet: 'devCount', ' (…)'
         @div outlet: 'devPackages', class: 'container package-container'
 
 
@@ -42,9 +54,14 @@ class InstalledPackagesPanel extends View
         # @loadingMessage.hide()
         # TODO show empty mesage per section
         # @emptyMessage.show() if packages.length is 0
+        @totalPackages.text " (#{packages.user.length + packages.core.length + packages.dev.length})"
+
         @addPackageViews(@installedPackages, packages.user)
+        @communityCount.text " (#{packages.user.length})"
         @addPackageViews(@corePackages, packages.core)
+        @coreCount.text " (#{packages.core.length})"
         @addPackageViews(@devPackages, packages.dev)
+        @devCount.text " (#{packages.dev.length})"
       .catch (error) =>
         @loadingMessage.hide()
         # TODO errors by section
