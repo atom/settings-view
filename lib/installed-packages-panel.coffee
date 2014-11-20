@@ -65,10 +65,13 @@ class InstalledPackagesPanel extends View
 
         _.each @addPackageViews(@communityPackages, @packages.user), (v) => @packageViews.push(v)
         @communityCount.text " (#{@packages.user.length})"
+
         _.each @addPackageViews(@corePackages, @packages.core), (v) => @packageViews.push(v)
         @coreCount.text " (#{@packages.core.length})"
+
         _.each @addPackageViews(@devPackages, @packages.dev), (v) => @packageViews.push(v)
         @devCount.text " (#{@packages.dev.length})"
+
       .catch (error) =>
         @loadingMessage.hide()
         # TODO errors by section
@@ -90,6 +93,7 @@ class InstalledPackagesPanel extends View
       packView.widen()
       packageViews.push(packView) # used for search filterin'
       packageRow.append(packView)
+
     packageViews
 
   filterPackageListByText: (text) ->
