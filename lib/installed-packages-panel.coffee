@@ -23,7 +23,7 @@ class InstalledPackagesPanel extends View
         @h2 class: 'section-heading icon icon-package', =>
           @text 'Community Packages'
           @span outlet: 'communityCount', ' (…)'
-        @div outlet: 'installedPackages', class: 'container package-container'
+        @div outlet: 'communityPackages', class: 'container package-container'
 
       @div class: 'section core-packages', =>
         @h2 class: 'section-heading icon icon-package', =>
@@ -63,7 +63,7 @@ class InstalledPackagesPanel extends View
         # @emptyMessage.show() if packages.length is 0
         @totalPackages.text " (#{@packages.user.length + @packages.core.length + @packages.dev.length})"
 
-        _.each @addPackageViews(@installedPackages, @packages.user), (v) => @packageViews.push(v)
+        _.each @addPackageViews(@communityPackages, @packages.user), (v) => @packageViews.push(v)
         @communityCount.text " (#{@packages.user.length})"
         _.each @addPackageViews(@corePackages, @packages.core), (v) => @packageViews.push(v)
         @coreCount.text " (#{@packages.core.length})"
@@ -105,13 +105,25 @@ class InstalledPackagesPanel extends View
 
   filterPackageListByText: (text) ->
     active = fuzzaldrin.filter(@packageViews, text, key: 'name')
-    _.each @packageViews, (view) ->
-      view.hide()
-    _.each active, (view) ->
-      view.show()
 
-  updateCounts: ->
-    console.log "TODO"
+    _.each @packageViews, (view) ->
+      # should set an attribute on the view we can filter by it instead of doing
+      # dumb jquery stuff
+      view.hide().addClass('.hidden')
+    _.each active, (view) ->
+      view.show().removeClass('.hidden')
+
+    @totalPackages.text " (#{active.length}/#{@packageViews.length})"
+    @updateSectionCounts()
+
+  updateSectionCounts: ->
+    community = @communityPackages.find('.available-package-view.hidden').length
+    @communityCount.text " (#{community}/#{@packages.user.length})"
+    dev = @devPackages.find('.available-package-view.hidden').length
+    @devCount.text " (#{dev}/#{@packages.dev.length})"
+    core = @corePackages.find('.available-package-view.hidden').length
+    @coreCount.text " (#{core}/#{@packages.core.length})"
+
 
   # TODO rename this and the below
   matchPackages: ->
@@ -120,8 +132,6 @@ class InstalledPackagesPanel extends View
       @filterPackageListByText(filterText)
     else
       @find('.installed-package-view').show()
-
-    @updateCounts()
 
 
   filterPackages: (packages) ->
