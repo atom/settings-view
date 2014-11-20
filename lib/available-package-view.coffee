@@ -66,6 +66,7 @@ class AvailablePackageView extends View
 
   initialize: (@pack, @packageManager) ->
     @type = if @pack.theme then 'theme' else 'package'
+    @name = @pack.name
 
     @handlePackageEvents()
     @updateEnablement()
