@@ -13,15 +13,15 @@ class InstalledPackagesPanel extends View
   @content: ->
     @div =>
       @div class: 'section installed-packages', =>
-        @div class: 'section-heading icon icon-package', 'Installed Packages'
+        @h1 class: 'section-heading icon icon-package', 'Installed Packages'
         @div outlet: 'installedPackages', class: 'container package-container'
 
       @div class: 'section core-packages', =>
-        @div class: 'section-heading icon icon-package', 'Core Packages'
+        @h1 class: 'section-heading icon icon-package', 'Core Packages'
         @div outlet: 'corePackages', class: 'container package-container'
 
       @div class: 'section dev-packages', =>
-        @div class: 'section-heading icon icon-package', 'Development Packages'
+        @h1 class: 'section-heading icon icon-package', 'Development Packages'
         @div outlet: 'devPackages', class: 'container package-container'
 
 
