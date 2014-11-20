@@ -97,19 +97,19 @@ class InstalledPackagesPanel extends View
     _.each @packageViews, (view) ->
       # should set an attribute on the view we can filter by it instead of doing
       # dumb jquery stuff
-      view.hide().addClass('.hidden')
+      view.hide().addClass('hidden')
     _.each active, (view) ->
-      view.show().removeClass('.hidden')
+      view.show().removeClass('hidden')
 
     @totalPackages.text " (#{active.length}/#{@packageViews.length})"
     @updateSectionCounts()
 
   updateSectionCounts: ->
-    community = @communityPackages.find('.available-package-view.hidden').length
+    community = @communityPackages.find('.available-package-view:not(.hidden)').length
     @communityCount.text " (#{community}/#{@packages.user.length})"
-    dev = @devPackages.find('.available-package-view.hidden').length
+    dev = @devPackages.find('.available-package-view:not(.hidden)').length
     @devCount.text " (#{dev}/#{@packages.dev.length})"
-    core = @corePackages.find('.available-package-view.hidden').length
+    core = @corePackages.find('.available-package-view:not(.hidden)').length
     @coreCount.text " (#{core}/#{@packages.core.length})"
 
 
