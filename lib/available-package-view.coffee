@@ -62,8 +62,6 @@ class AvailablePackageView extends View
               @span class: 'icon icon-playback-pause'
               @span class: 'disable-text', 'Disable'
 
-        @span outlet: 'status', class: 'package-status icon'
-
   initialize: (@pack, @packageManager) ->
     @type = if @pack.theme then 'theme' else 'package'
     @name = @pack.name
@@ -120,10 +118,7 @@ class AvailablePackageView extends View
   handlePackageEvents: ->
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
       @installButton.prop('disabled', false)
-      if error?
-        @setStatusIcon('alert')
-      else
-        @setStatusIcon('check')
+      unless error?
         @settingsButton.show()
         @installButton.hide()
         @uninstallButton.show()
@@ -132,26 +127,20 @@ class AvailablePackageView extends View
       @installButton.prop('disabled', true)
       @installButton.show()
       @uninstallButton.hide()
-      @setStatusIcon('cloud-download')
 
     @subscribeToPackageEvent 'package-uninstalling', (pack) =>
       @installButton.prop('disabled', true)
-      @setStatusIcon()
 
     @subscribeToPackageEvent 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', (pack, error) =>
       @installButton.prop('disabled', false)
-      if error?
-        @setStatusIcon('alert')
-      else
+      unless error?
         @installButton.show()
         @uninstallButton.hide()
         @settingsButton.hide()
-        @setStatusIcon()
 
     if @isInstalled()
       @installButton.hide()
       @uninstallButton.show()
-      @setStatusIcon('check')
     else
       @settingsButton.hide()
 
@@ -178,15 +167,3 @@ class AvailablePackageView extends View
     @packageManager.uninstall @pack, (error) =>
       if error?
         console.error("Uninstalling #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
-
-  setStatusIcon: (iconName) ->
-    @status.removeClass('icon-check icon-alert icon-cloud-download')
-    @status.addClass("icon-#{iconName}") if iconName
-    @status.destroyTooltip()
-    switch iconName
-      when 'check'
-        @status.setTooltip(_.capitalize("#{@type} installed"))
-      when 'alert'
-        @status.setTooltip(_.capitalize("#{@type} failed to install"))
-      when 'cloud-download'
-        @status.setTooltip(_.capitalize("#{@type} installing"))
