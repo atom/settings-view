@@ -93,7 +93,7 @@ class InstalledPackagesPanel extends View
 
   filterPackageListByText: (text) ->
     return unless @packages
-    active = fuzzaldrin.filter(@packageViews, text, key: 'name')
+    active = fuzzaldrin.filter(@packageViews, text, key: 'filterText')
 
     _.each @packageViews, (view) ->
       # should set an attribute on the view we can filter by it instead of doing

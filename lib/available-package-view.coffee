@@ -5,13 +5,9 @@ shell = require 'shell'
 module.exports =
 class AvailablePackageView extends View
   @content: ({name, description, version, repository}) ->
-    loginRegex = /github\.com\/([\w-]+)\/.+/
-    if typeof(repository) is "string"
-      repo = repository
-    else
-      repo = repository.url
-    owner = repo.match(loginRegex)[1]
     # stars, downloads
+    # lol wat
+    owner = AvailablePackageView.prototype.ownerFromRepository(repository)
 
     @div class: 'available-package-view col-lg-4', =>
       @div class: 'top-meta meta-right', =>
@@ -64,6 +60,9 @@ class AvailablePackageView extends View
 
   initialize: (@pack, @packageManager) ->
     @type = if @pack.theme then 'theme' else 'package'
+
+    owner = @ownerFromRepository(@pack.repository)
+    @filterText = "#{@pack.name} #{owner}"
     @name = @pack.name
 
     @handlePackageEvents()
@@ -95,6 +94,14 @@ class AvailablePackageView extends View
         atom.packages.disablePackage(@pack.name)
       @updateEnablement()
       false
+
+  ownerFromRepository: (repository) ->
+    loginRegex = /github\.com\/([\w-]+)\/.+/
+    if typeof(repository) is "string"
+      repo = repository
+    else
+      repo = repository.url
+    repo.match(loginRegex)[1]
 
 
   widen: ->
