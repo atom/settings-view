@@ -54,7 +54,7 @@ class AvailablePackageView extends View
             @button type: 'button', class: 'btn', outlet: 'settingsButton', =>
               @span class: 'icon icon-gear'
               @text "Settings"
-            @button outlet: 'enablementButton', class: 'btn btn-default icon', =>
+            @button outlet: 'enablementButton', class: 'btn btn-default', =>
               @span class: 'icon icon-playback-pause'
               @span class: 'disable-text', 'Disable'
 
@@ -145,13 +145,13 @@ class AvailablePackageView extends View
         @uninstallButton.hide()
         @settingsButton.hide()
 
-    if @isInstalled()
+    if @isInstalled() or @isDisabled()
       @installButton.hide()
       @uninstallButton.show()
     else
       @settingsButton.hide()
 
-  isInstalled: -> atom.packages.isPackageLoaded(@pack.name)
+  isInstalled: -> atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)
 
   isDisabled: -> atom.packages.isPackageDisabled(@pack.name)
 
