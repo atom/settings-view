@@ -53,6 +53,8 @@ class UpdatesPanel extends View
     @noUpdatesMessage.show() if @availableUpdates.length is 0
 
     for pack, index in @availableUpdates
-      packageRow = $$ -> @div class: 'row'
+      if index % 3 is 0
+        packageRow = $$ -> @div class: 'row'
+        @updatesContainer.append(packageRow)
+
       packageRow.append(new PackageUpdateView(pack, @packageManager))
-      @updatesContainer.append(packageRow)
