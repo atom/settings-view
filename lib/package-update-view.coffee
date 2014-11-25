@@ -4,7 +4,7 @@ _ = require 'underscore-plus'
 module.exports =
 class PackageUpdateView extends View
   @content: ({name, description}) ->
-    @div class: 'col-lg-4 available-package-view', =>
+    @div class: 'col-lg-4 package-update-view', =>
       @div class: 'thumbnail text', =>
         @div class: 'caption', =>
           @span outlet: 'status', class: 'package-status icon'
@@ -29,7 +29,7 @@ class PackageUpdateView extends View
       @uninstall()
 
     @settingsButton.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name)
+      @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Available Updates'})
 
   handlePackageEvents: ->
     @subscribeToPackageEvent 'package-updated theme-updated package-update-failed theme-update-failed', (pack, error) =>

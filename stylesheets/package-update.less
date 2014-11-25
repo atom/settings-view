@@ -1,0 +1,76 @@
+.settings-view {
+  .package-update-view {
+    border-radius: 1px;
+    padding-left: @component-padding;
+    padding-right: @component-padding;
+
+    &.col-lg-4 {
+      min-width: 190px;
+      padding: 1% 0;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    .thumbnail {
+      border-radius: 3px;
+      margin: 0;
+      min-height: 140px;
+
+      .caption {
+        width: 100%;
+        position: relative;
+      }
+    }
+    .package-name {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 100%;
+      overflow: hidden;
+      line-height: 20px;
+      margin: 5px 0;
+    }
+
+    .description {
+      font-size: 12px;
+      line-height: 18px;
+      color: #999;
+      overflow: hidden;
+      min-height: 38px;
+      max-height: 38px;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2; /* number of lines to show */
+      -webkit-box-orient: vertical;
+    }
+
+    .downloads {
+      font-size: 12px;
+      line-height: 12px;
+      color: #999;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1; /* number of lines to show */
+      -webkit-box-orient: vertical;
+    }
+
+    .package-status {
+      position: absolute;
+      right: 0px;
+      top: 5px;
+      text-align: center;
+
+      &.icon-cloud-download {
+        color: #428bca;
+      }
+
+      &.icon-check {
+        color: #6CC644;
+      }
+
+      &.icon-alert {
+        color: #BD2C00;
+      }
+    }
+  }
+}

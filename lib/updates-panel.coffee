@@ -21,7 +21,7 @@ class UpdatesPanel extends View
     @updateAllButton.hide()
     @updateAllButton.on 'click', =>
       @updateAllButton.prop('disabled', true)
-      for updateView in @updatesContainer.find('.available-package-view')
+      for updateView in @updatesContainer.find('.package-update-view')
         $(updateView).view()?.upgrade?()
     @checkForUpdates()
 
