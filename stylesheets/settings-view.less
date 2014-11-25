@@ -28,6 +28,14 @@
 .settings-view {
   display: -webkit-flex;
 
+  .breadcrumb {
+    color: @text-color-subtle;
+    &::after {
+      content: " / "
+    }
+  }
+
+
   .btn-default,
   .btn-group > .btn-default {
     background: #fff;
