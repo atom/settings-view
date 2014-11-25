@@ -110,12 +110,14 @@ class AvailablePackageView extends View
 
   updateEnablement: ->
     if atom.packages.isPackageDisabled(@pack.name)
+      @addClass('disabled')
       @enablementButton.find('.disable-text').text('Enable')
       @enablementButton
         .find('.icon')
         .addClass('icon-playback-play')
         .removeClass('icon-playback-pause')
     else
+      @removeClass('disabled')
       @enablementButton.find('.disable-text').text('Disable')
       @enablementButton
         .find('.icon')
