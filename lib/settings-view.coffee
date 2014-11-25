@@ -33,6 +33,10 @@ class SettingsView extends ScrollView
     process.nextTick => @initializePanels()
 
   handlePackageEvents: ->
+    @subscribe @packageManager, 'package-installed theme-installed', ({name}) =>
+      if pack = atom.packages.getLoadedPackage(name)
+        @addPackagePanel(pack)
+
     @subscribe @packageManager, 'package-uninstalled', ({name}) =>
       @removePanel(name)
       @showPanel('Packages') if name is @activePanelName
@@ -57,6 +61,7 @@ class SettingsView extends ScrollView
     @addCorePanel 'Installed Packages', 'package', => new InstalledPackagesPanel(@packageManager)
     @addCorePanel 'Themes', 'paintcan', => new ThemesPanel(@packageManager)
 
+    @addPackagePanel(pack) for pack in @getPackages()
     @showPanel(@panelToShow) if @panelToShow
     @showPanel('Settings') unless @activePanelName
     @sidebar.width(@sidebar.width()) if @isOnDom()
@@ -103,6 +108,10 @@ class SettingsView extends ScrollView
         @a class: "icon icon-#{iconName}", name
     @menuSeparator.before(panelMenuItem)
     @addPanel(name, panelMenuItem, panel)
+
+  addPackagePanel: (pack) ->
+    @addPanel pack.name, null, =>
+      new InstalledPackageView(pack, @packageManager)
 
   addPanel: (name, panelMenuItem, panelCreateCallback) ->
     @panelCreateCallbacks ?= {}
