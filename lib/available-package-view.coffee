@@ -79,10 +79,10 @@ class AvailablePackageView extends View
       @uninstall()
 
     @packageName.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name)
+      @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Installed Packages'})
 
     @settingsButton.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name)
+      @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Installed Packages'})
 
     @learnMoreButton.on 'click', =>
       shell.openExternal "https://atom.io/packages/#{@pack.name}"

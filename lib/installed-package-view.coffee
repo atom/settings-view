@@ -21,6 +21,7 @@ class InstalledPackageView extends View
         @span outlet: 'updateLink', class: 'alert-link update-link icon icon-cloud-download', 'Install'
 
       @h3 class: 'native-key-bindings', tabindex: -1, =>
+        @a outlet: 'breadcrumb', class: 'text breadcrumb', =>
         @span outlet: 'title', class: 'text'
         @span ' '
         @span outlet: 'version', class: 'label label-primary'
@@ -51,6 +52,13 @@ class InstalledPackageView extends View
     @updateFileButtons()
     @checkForUpdate()
     @subscribeToPackageManager()
+
+  beforeShow: (opts) ->
+    if opts?.back
+      @breadcrumb.text(opts.back).on 'click', () =>
+        @parents('.settings-view').view()?.showPanel(opts.back)
+      @breadcrumb.after(' / ')
+
 
   populate: ->
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")

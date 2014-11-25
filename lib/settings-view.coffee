@@ -145,10 +145,11 @@ class SettingsView extends ScrollView
           child.focus()
         return
 
-  showPanel: (name) ->
+  showPanel: (name, opts) ->
     if panel = @getOrCreatePanel(name)
       @panels.children().hide()
       @panels.append(panel) unless $.contains(@panels[0], panel[0])
+      panel.beforeShow?(opts)
       panel.show()
       panel.focus()
       @makePanelMenuActive(name)
