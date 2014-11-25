@@ -57,7 +57,6 @@ class InstalledPackageView extends View
     if opts?.back
       @breadcrumb.text(opts.back).on 'click', () =>
         @parents('.settings-view').view()?.showPanel(opts.back)
-      @breadcrumb.after(' / ')
 
 
   populate: ->
