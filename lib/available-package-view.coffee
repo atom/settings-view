@@ -106,7 +106,7 @@ class AvailablePackageView extends View
 
   widen: ->
     # Set grid classes appropriate for installed package panel
-    @addClass('col-lg-8 col-lg-offset-1').removeClass('col-lg-4')
+    @addClass('col-lg-8').removeClass('col-lg-4')
 
   updateEnablement: ->
     if atom.packages.isPackageDisabled(@pack.name)
