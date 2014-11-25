@@ -9,7 +9,7 @@ class AvailablePackageView extends View
     # lol wat
     owner = AvailablePackageView.prototype.ownerFromRepository(repository)
 
-    @div class: 'available-package-view col-lg-4', =>
+    @div class: 'available-package-view col-lg-8', =>
       @div class: 'top-meta meta-right', =>
         @span class: "stat", =>
           @span class: 'icon icon-versions'
@@ -102,11 +102,6 @@ class AvailablePackageView extends View
     else
       repo = repository.url
     repo.match(loginRegex)[1]
-
-
-  widen: ->
-    # Set grid classes appropriate for installed package panel
-    @addClass('col-lg-8').removeClass('col-lg-4')
 
   updateEnablement: ->
     if atom.packages.isPackageDisabled(@pack.name)

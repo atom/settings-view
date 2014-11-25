@@ -97,7 +97,6 @@ class InstalledPackagesPanel extends View
       container.append(packageRow)
       # TODO if pack.valid?
       packView = new AvailablePackageView(pack, @packageManager)
-      packView.widen()
       packageViews.push(packView) # used for search filterin'
       packageRow.append(packView)
 
