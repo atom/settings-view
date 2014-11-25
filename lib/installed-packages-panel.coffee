@@ -80,6 +80,18 @@ class InstalledPackagesPanel extends View
   addPackageViews: (container, packages) ->
     container.empty()
     packageViews = []
+
+    packages.sort (left, right) ->
+      leftStatus = atom.packages.isPackageDisabled(left.name)
+      rightStatus = atom.packages.isPackageDisabled(right.name)
+      if leftStatus == rightStatus
+        return 0
+      else if leftStatus > rightStatus
+        return 1
+      else
+        return -1
+
+
     for pack, index in packages
       packageRow = $$ -> @div class: 'row'
       container.append(packageRow)
