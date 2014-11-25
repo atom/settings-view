@@ -13,6 +13,10 @@ module.exports =
 class InstalledPackagesPanel extends View
   @content: ->
     @div =>
+      @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
+      @div outlet: 'noUpdatesMessage', class: 'alert alert-info featured-message icon icon-heart', 'All of your installed packages are up to date!'
+      @div outlet: 'updateMessage', class: 'alert alert-info loading-area icon icon-cloud-download', =>
+        @a outlet: 'updateLink', "Updates available"
       @h1 class: 'installed-packages-title', =>
         @text 'Installed Packages'
         @span outlet: 'totalPackages', ' (…)'
@@ -40,6 +44,8 @@ class InstalledPackagesPanel extends View
 
   initialize: (@packageManager) ->
     @packageViews = []
+    @noUpdatesMessage.hide()
+    @updateMessage.hide()
 
     @subscribe @packageManager, 'package-install-failed', (pack, error) =>
       @searchErrors.append(new ErrorView(@packageManager, error))
@@ -50,7 +56,26 @@ class InstalledPackagesPanel extends View
     @filterEditor.getEditor().on 'contents-modified', =>
       @matchPackages()
 
+    @checkForUpdates()
     @loadPackages()
+
+  checkForUpdates: ->
+    @checkingMessage.show()
+
+    @packageManager.getOutdated()
+      .then (updates) =>
+        if updates.length > 0
+          @updateLink.text("#{updates.length} updates available…")
+            .on 'click', () =>
+              @parents('.settings-view').view()?.showPanel('Available Updates', {back: 'Installed Packages', updates: updates})
+          @updateMessage.show()
+          @checkingMessage.hide()
+        else
+
+      .catch (error) =>
+        @checkingMessage.hide()
+        @updateErrors.append(new ErrorView(@packageManager, error))
+
 
   loadPackages: ->
     @packageViews = []
