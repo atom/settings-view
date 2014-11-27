@@ -21,9 +21,7 @@ class PackageManager
       console.log packages
 
   runCommand: (args, callback) ->
-    # cf https://github.com/atom/apm/pull/216
-    # command = atom.packages.getApmPath()
-    command = '/Users/daniel/github/apm/bin/apm'
+    command = atom.packages.getApmPath()
     outputLines = []
     stdout = (lines) -> outputLines.push(lines)
     errorLines = []
@@ -35,16 +33,19 @@ class PackageManager
     new BufferedProcess({command, args, stdout, stderr, exit})
 
   loadInstalled: (callback) ->
-    args = ['ls', '--json']
-    @runCommand args, (code, stdout, stderr) ->
-      if code is 0
-        packages = JSON.parse(stdout)
-        callback(null, packages)
-      else
-        error = new Error('Fetching local packages failed.')
-        error.stdout = stdout
-        error.stderr = stderr
-        callback(error)
+    @packageLister.getPackages (err, packages) ->
+      callback(err, packages)
+
+    # args = ['ls', '--json']
+    # @runCommand args, (code, stdout, stderr) ->
+    #   if code is 0
+    #     packages = JSON.parse(stdout)
+    #     callback(null, packages)
+    #   else
+    #     error = new Error('Fetching local packages failed.')
+    #     error.stdout = stdout
+    #     error.stderr = stderr
+    #     callback(error)
 
   loadFeatured: (callback) ->
     args = ['featured', '--json']
