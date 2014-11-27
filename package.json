@@ -12,7 +12,10 @@
     "q": "~1.0.1",
     "season": "1.x",
     "semver": "~2.2.1",
-    "underscore-plus": "^1.0.6"
+    "underscore-plus": "^1.0.6",
+    "wrench": "~1.5.1",
+    "ncp": "~0.5.1",
+    "rimraf": "^2.2.8"
   },
   "repository": "https://github.com/atom/settings-view",
   "engines": {

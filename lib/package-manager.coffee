@@ -5,6 +5,9 @@ Q = require 'q'
 semver = require 'semver'
 url = require 'url'
 
+# temporary, hopefully
+PackageLister = require './list-packages'
+
 Q.stopUnhandledRejectionTracking()
 
 module.exports =
@@ -13,6 +16,9 @@ class PackageManager
 
   constructor: ->
     @packagePromises = []
+    @packageLister = new PackageLister
+    @packageLister.getPackages (err, packages) ->
+      console.log packages
 
   runCommand: (args, callback) ->
     # cf https://github.com/atom/apm/pull/216
