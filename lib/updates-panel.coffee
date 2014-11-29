@@ -7,8 +7,11 @@ class UpdatesPanel extends View
     @div =>
       @div class: 'section packages', =>
         @div class: 'section-heading', =>
-          @a outlet: 'breadcrumb', class: 'breadcrumb'
-          @span 'Available Updates'
+          @ol class: 'breadcrumb', =>
+            @li =>
+              @a outlet: 'breadcrumb'
+            @li class: 'active', =>
+              @a 'Available Updates'
           @button outlet: 'updateAllButton', class: 'pull-right btn btn-primary', 'Update All'
 
         @div outlet: 'updateErrors'
