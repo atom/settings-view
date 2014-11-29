@@ -30,9 +30,29 @@
 
   .breadcrumb {
     color: @text-color-subtle;
-    &::after {
-      content: " / "
+    list-style: none;
+    padding: @component-padding;
+    border-radius: 1px; // variables?
+    background-color: @tool-panel-background-color;
+    // margin-bottom
+
+    > li {
+      a {
+        color: @text-color;
+      }
+      display: inline-block;
+
+      + li:before {
+        content: "/\00a0"; // Unicode space added since inline-block means non-collapsing white-space
+        padding: 0 5px;
+        // color: @breadcrumb-color;
+      }
     }
+
+    > .active a {
+      color: @text-color-highlight;
+    }
+
   }
 
 

@@ -20,13 +20,13 @@ class InstalledPackageView extends View
         @span outlet: 'updateLabel', class: 'icon icon-squirrel update-message'
         @span outlet: 'updateLink', class: 'alert-link update-link icon icon-cloud-download', 'Install'
 
-      @h3 class: 'native-key-bindings', tabindex: -1, =>
-        @a outlet: 'breadcrumb', class: 'text breadcrumb', =>
-        @span outlet: 'title', class: 'text'
-        @span ' '
-        @span outlet: 'version', class: 'label label-primary'
-        @span ' '
-        @span outlet: 'disabledLabel', class: 'label label-warning', 'Disabled'
+      @ol class: 'native-key-bindings breadcrumb', tabindex: -1, =>
+        @li =>
+          @a outlet: 'breadcrumb'
+        @li class: 'active', =>
+          @a outlet: 'title'
+
+      @subview 'packageCard', new AvailablePackageView(pack)
 
       @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
 
