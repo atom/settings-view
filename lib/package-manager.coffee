@@ -17,8 +17,6 @@ class PackageManager
   constructor: ->
     @packagePromises = []
     @packageLister = new PackageLister
-    @packageLister.getPackages (err, packages) ->
-      console.log packages
 
   runCommand: (args, callback) ->
     command = atom.packages.getApmPath()
