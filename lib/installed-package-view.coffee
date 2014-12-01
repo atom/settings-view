@@ -53,9 +53,9 @@ class InstalledPackageView extends View
     @subscribeToPackageManager()
 
   beforeShow: (opts) ->
-    if opts?.back
-      @breadcrumb.text(opts.back).on 'click', () =>
-        @parents('.settings-view').view()?.showPanel(opts.back)
+    back = opts?.back or 'Installed Packages'
+    @breadcrumb.text(back).on 'click', () =>
+      @parents('.settings-view').view()?.showPanel(back)
 
 
   populate: ->
