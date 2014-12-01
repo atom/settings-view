@@ -48,12 +48,6 @@ class AvailablePackageView extends View
             @button type: 'button', class: 'btn', outlet: 'uninstallButton', => # TODO hide in installedpackagesview
               @span class: 'icon icon-trashcan'
               @text "Uninstall"
-            @button type: 'button', class: 'btn', outlet: 'learnMoreButton', =>
-              @span class: 'icon icon-book'
-              @text "Learn more"
-            @button type: 'button', class: 'btn', outlet: 'settingsButton', =>
-              @span class: 'icon icon-gear'
-              @text "Settings"
             @button outlet: 'enablementButton', class: 'btn btn-default', =>
               @span class: 'icon icon-playback-pause'
               @span class: 'disable-text', 'Disable'
@@ -79,9 +73,6 @@ class AvailablePackageView extends View
       @uninstall()
 
     @packageName.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Installed Packages'})
-
-    @settingsButton.on 'click', =>
       @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Installed Packages'})
 
     @learnMoreButton.on 'click', =>
@@ -123,7 +114,6 @@ class AvailablePackageView extends View
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
       @installButton.prop('disabled', false)
       unless error?
-        @settingsButton.show()
         @installButton.hide()
         @uninstallButton.show()
 
@@ -140,13 +130,10 @@ class AvailablePackageView extends View
       unless error?
         @installButton.show()
         @uninstallButton.hide()
-        @settingsButton.hide()
 
     if @isInstalled() or @isDisabled()
       @installButton.hide()
       @uninstallButton.show()
-    else
-      @settingsButton.hide()
 
   isInstalled: -> atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)
 
