@@ -75,9 +75,6 @@ class AvailablePackageView extends View
     @packageName.on 'click', =>
       @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Installed Packages'})
 
-    @learnMoreButton.on 'click', =>
-      shell.openExternal "https://atom.io/packages/#{@pack.name}"
-
     @enablementButton.on 'click', =>
       if atom.packages.isPackageDisabled(@pack.name)
         atom.packages.enablePackage(@pack.name)

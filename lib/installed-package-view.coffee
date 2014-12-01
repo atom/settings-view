@@ -36,6 +36,7 @@ class InstalledPackageView extends View
       @p outlet: 'startupTime', class: 'text icon-dashboard native-key-bindings', tabindex: -1
 
       @div outlet: 'buttons', class: 'btn-group', =>
+        @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io', =>
         @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
         @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'Open README'
         @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'Open CHANGELOG'
@@ -108,6 +109,10 @@ class InstalledPackageView extends View
     @openButton.on 'click', =>
       atom.open(pathsToOpen: [@pack.path]) if fs.existsSync(@pack.path)
       false
+
+    @learnMoreButton.on 'click', =>
+      shell.openExternal "https://atom.io/packages/#{@pack.name}"
+
 
   openMarkdownFile: (path) ->
     if atom.packages.isPackageActive('markdown-preview')
