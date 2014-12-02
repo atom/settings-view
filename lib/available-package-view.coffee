@@ -10,17 +10,17 @@ class AvailablePackageView extends View
     owner = AvailablePackageView.prototype.ownerFromRepository(repository)
 
     @div class: 'available-package-view col-lg-8', =>
-      @div class: 'top-meta meta-right', =>
-        @span class: "stat", =>
+      @div class: 'stats top-meta meta-right', =>
+        @span class: "stats-item", =>
           @span class: 'icon icon-versions'
           @span class:'value', version
 
-        @span class: 'stat', =>
+        @span class: 'stats-item', =>
           @span class: 'icon icon-cloud-download'
           # if downloads?
           #   count = if downloads is 1 then '1 download' else "#{downloads.toLocaleString()} downloads"
           #   @span outlet: 'downloadCount', class: 'value', count
-        @span class: 'star-wrap', =>
+        @span class: 'stats-item', =>
           @div class: 'star-box', =>
             @a outlet: 'starButton', class: 'star-button btn icon icon-star', =>
             @a outlet: 'starCount', class: 'star-count'

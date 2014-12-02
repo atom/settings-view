@@ -4,28 +4,25 @@
 .settings-view {
 
   .available-package-view {
-    border-radius: 1px;
-    padding: @component-padding;
-    margin-bottom: 20px;
-    background: @tool-panel-background-color;
+    padding: @component-padding*1.5;
+    margin-bottom: @component-padding;
+    list-style-type: none;
+    font-size: 13px;
+    border-radius: @component-border-radius*2;
+    border: 1px solid @base-border-color;
+    background-color: lighten(@tool-panel-background-color, 8%);
+    overflow: hidden;
 
     &.disabled {
-      opacity: 0.4;
+      background: transparent;
     }
 
     &.col-lg-4 {
       min-width: 190px;
-      padding: 1% 0;
-      padding-left: 10px;
-      padding-right: 10px;
+      padding: @component-padding 0;
+      padding-left: @component-padding;
+      padding-right: @component-padding;
     }
-
-    // &.col-lg-6 {
-    //   min-width: 280px;
-    //   padding: 1% 0;
-    //   padding-left: 10px;
-    //   padding-right: 10px;
-    // }
 
     .thumbnail {
       border-radius: 3px;
@@ -88,17 +85,10 @@
       }
     }
 
-    // Begin copy-paste from atom.io
-    // position: relative;
-    list-style-type: none;
-    border: 1px solid @base-border-color;
-    border-radius: 3px;
-
-    overflow: hidden;
-
     .card-name {
       font-weight: 300;
-      margin: 0;
+      margin: 0 0 .2em 0;
+      font-size: 1.2em;
       line-height: 1.4;
 
       .css-truncate-target {
@@ -106,44 +96,62 @@
       }
     }
 
-    .card-description {
-      font-size: 15px;
+    .stats {
+
+      .stats-item {
+        margin-left: @component-padding;
+        height: 26px;
+        display: inline-block;
+        line-height: 24px;
+        vertical-align: top;
+
+        .icon {
+          color: @text-color-subtle;
+        }
+      }
+
+      .star-box {
+        display: inline-block;
+        vertical-align: top;
+
+        a.social-count {
+          font-size: 13px;
+        }
+
+        .star-button {
+          padding: 0 6px;
+
+          .octicon {
+            margin-right: 0px;
+          }
+        }
+      }
     }
 
     .body {
-      padding: 7px 13px;
-
       .css-truncate-target {
         max-width: 100%;
       }
     }
 
-    p { margin: 0; }
-
-    img {
-      height: 24px;
-      width: 24px;
-      display: inline-block;
-      vertical-align: middle;
-    }
-
-    .card-name {
-      margin-bottom: 5px;
-    }
-
-    .card-description {
+    .package-description {
       white-space: normal;
       line-height: 1.4;
     }
 
     .meta {
-      padding: 13px;
-      background-color: @input-background-color;
-      line-height: 1;
+      margin-top: @component-padding;
+      .avatar {
+        border-radius: @component-border-radius;
+        height: 24px;
+        width: 24px;
+        display: inline-block;
+        vertical-align: middle;
+      }
 
       .author {
         color: @text-color-subtle;
-        margin-left: 10px;
+        margin-left: @component-padding;
       }
 
       a.linked-octicon {
@@ -157,19 +165,6 @@
           .value {
             color: $greenDark;
           }
-        }
-      }
-
-      .stat {
-        height: 26px;
-        display: inline-block;
-        line-height: 24px;
-        margin-right: 5px;
-        padding-right: 5px;
-        vertical-align: top;
-
-        .octicon {
-          color: #999;
         }
       }
 
@@ -190,27 +185,6 @@
 
     .meta-right {
       float: right;
-      &.top-meta {
-        margin-top: 13px;
-      }
-
-      .star-box {
-        display: inline-block;
-        vertical-align: top;
-
-        a.social-count {
-          font-size: 13px;
-        }
-
-        .star-button {
-          padding: 0 6px;
-
-          .octicon {
-            margin-right: 0px;
-          }
-        }
-      }
-
     }
 
     .meta-lower {
