@@ -130,17 +130,25 @@
     }
   }
 
+  section,
   .section {
     max-width: 1024px;
+    margin-top: 32px;
+    &:first-child {
+      margin-top: 0;
+    }
   }
 
-  section .section-heading:first-child,
-  .section .section-heading:first-child {
+  section .section-heading,
+  .section .section-heading {
     padding-top: @component-padding;
     padding-bottom: @component-padding;
-    border-bottom: 1px solid #858585;
+    margin-bottom: @component-padding;
+    border-bottom: 1px solid @base-border-color;
     color: #262626;
-    margin-bottom: 32px;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1;
     -webkit-user-select: none;
     cursor: default;
   }

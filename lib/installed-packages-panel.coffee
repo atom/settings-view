@@ -13,29 +13,30 @@ module.exports =
 class InstalledPackagesPanel extends View
   @content: ->
     @div =>
-      @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
-      @div outlet: 'noUpdatesMessage', class: 'alert alert-info featured-message icon icon-heart', 'All of your installed packages are up to date!'
-      @div outlet: 'updateMessage', class: 'alert alert-info loading-area icon icon-cloud-download', =>
-        @a outlet: 'updateLink', "Updates available"
-      @h1 class: 'installed-packages-title', =>
-        @text 'Installed Packages'
-        @span outlet: 'totalPackages', ' (…)'
-      @div class: 'editor-container settings-filter', =>
-        @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter packages by name')
+      @section class: 'section settings-filter', =>
+        @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
+        @div outlet: 'noUpdatesMessage', class: 'alert alert-info featured-message icon icon-heart', 'All of your installed packages are up to date!'
+        @div outlet: 'updateMessage', class: 'alert alert-info loading-area icon icon-cloud-download', =>
+          @a outlet: 'updateLink', "Updates available"
+        @div class: 'section-heading icon icon-package', =>
+          @text 'Installed Packages'
+          @span outlet: 'totalPackages', ' (…)'
+        @div class: 'editor-container', =>
+          @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter packages by name')
 
-      @div class: 'section installed-packages', =>
+      @section class: 'section installed-packages', =>
         @h2 class: 'section-heading icon icon-package', =>
           @text 'Community Packages'
           @span outlet: 'communityCount', ' (…)'
         @div outlet: 'communityPackages', class: 'container package-container', =>
           @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
-      @div class: 'section core-packages', =>
+      @section class: 'section core-packages', =>
         @h2 class: 'section-heading icon icon-package', =>
           @text 'Core Packages'
           @span outlet: 'coreCount', ' (…)'
         @div outlet: 'corePackages', class: 'container package-container', =>
           @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
-      @div class: 'section dev-packages', =>
+      @section class: 'section dev-packages', =>
         @h2 class: 'section-heading icon icon-package', =>
           @text 'Development Packages'
           @span outlet: 'devCount', ' (…)'

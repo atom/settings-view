@@ -5,31 +5,32 @@ path = require 'path'
 module.exports =
 class KeybindingsPanel extends View
   @content: ->
-    @div class: 'keybinding-panel section', =>
-      @div class: 'section-heading icon icon-keyboard', 'Keybindings'
+    @div =>
+      @section class: 'keybinding-panel section', =>
+        @div class: 'section-heading icon icon-keyboard', 'Keybindings'
 
-      @div class: 'text padded native-key-bindings', tabindex: -1, =>
-        @span class: 'icon icon-question'
-        @span 'You can override these keybindings by copying '
-        @span class: 'icon icon-clippy'
-        @span 'and pasting them into '
-        @a class: 'link', outlet: 'openUserKeymap', 'your keymap file'
+        @div class: 'text padded native-key-bindings', tabindex: -1, =>
+          @span class: 'icon icon-question'
+          @span 'You can override these keybindings by copying '
+          @span class: 'icon icon-clippy'
+          @span 'and pasting them into '
+          @a class: 'link', outlet: 'openUserKeymap', 'your keymap file'
 
-      @div class: 'editor-container padded', =>
-        @subview 'searchEditorView', new TextEditorView(mini: true)
+        @div class: 'editor-container padded', =>
+          @subview 'searchEditorView', new TextEditorView(mini: true)
 
-      @table class: 'native-key-bindings table text', tabindex: -1, =>
-        @col class: 'keystroke'
-        @col class: 'command'
-        @col class: 'source'
-        @col class: 'selector'
-        @thead =>
-          @tr =>
-            @th class: 'keystroke', 'Keystroke'
-            @th class: 'command', 'Command'
-            @th class: 'source', 'Source'
-            @th class: 'selector', 'Selector'
-        @tbody outlet: 'keybindingRows'
+        @table class: 'native-key-bindings table text', tabindex: -1, =>
+          @col class: 'keystroke'
+          @col class: 'command'
+          @col class: 'source'
+          @col class: 'selector'
+          @thead =>
+            @tr =>
+              @th class: 'keystroke', 'Keystroke'
+              @th class: 'command', 'Command'
+              @th class: 'source', 'Source'
+              @th class: 'selector', 'Selector'
+          @tbody outlet: 'keybindingRows'
 
   initialize: ->
     @otherPlatformPattern = new RegExp("\\.platform-(?!#{_.escapeRegExp(process.platform)}\\b)")
