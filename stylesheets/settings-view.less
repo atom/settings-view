@@ -479,3 +479,27 @@
 .available-updates-status {
   padding-left: 2px;
 }
+
+
+
+// Reset Bootstrap media queries,
+// since it breaks when resizing the treeview or in multiple panes
+
+@media (min-width: 768px) {
+  .container {
+    width: auto;
+  }
+}
+@media (min-width: 992px) {
+  .container {
+    width: auto;
+  }
+}
+@media (min-width: 1200px) {
+  .container {
+    width: auto;
+  }
+  .col-lg-8 {
+    width: 100%;
+  }
+}
