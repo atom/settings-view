@@ -36,20 +36,10 @@ class AvailablePackageView extends View
         @a outlet: 'loginLink', class: 'author', href: "https://atom.io/users/#{owner}", owner
         @div class: 'meta-right', =>
           @div outlet: 'buttons', class: 'btn-group', =>
-            #
-            # @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
-            # @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'Open README'
-            # @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'Open CHANGELOG'
-            # @button outlet: 'openButton', class: 'btn btn-default icon icon-link-external', 'Open in Atom'
-            #
-            @button type: 'button', class: 'btn',outlet: 'installButton', => # TODO hide in installedpackagesview
-              @span class: 'icon icon-cloud-download'
-              @text "Install"
-            @button type: 'button', class: 'btn', outlet: 'uninstallButton', => # TODO hide in installedpackagesview
-              @span class: 'icon icon-trashcan'
-              @text "Uninstall"
-            @button outlet: 'enablementButton', class: 'btn btn-default', =>
-              @span class: 'icon icon-playback-pause'
+            @button type: 'button', class: 'btn icon icon-gear', outlet: 'settingsButton', 'Settings'
+            @button type: 'button', class: 'btn icon icon-cloud-download', outlet: 'installButton', 'Install'
+            @button type: 'button', class: 'btn icon icon-trashcan', outlet: 'uninstallButton', 'Uninstall'
+            @button outlet: 'enablementButton', class: 'btn btn-default icon icon-playback-pause', =>
               @span class: 'disable-text', 'Disable'
 
   initialize: (@pack, @packageManager) ->
@@ -71,6 +61,9 @@ class AvailablePackageView extends View
 
     @uninstallButton.on 'click', =>
       @uninstall()
+
+    @settingsButton.on 'click', =>
+      @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Installed Packages'})
 
     @packageName.on 'click', =>
       @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Installed Packages'})
@@ -96,14 +89,12 @@ class AvailablePackageView extends View
       @addClass('disabled')
       @enablementButton.find('.disable-text').text('Enable')
       @enablementButton
-        .find('.icon')
         .addClass('icon-playback-play')
         .removeClass('icon-playback-pause')
     else
       @removeClass('disabled')
       @enablementButton.find('.disable-text').text('Disable')
       @enablementButton
-        .find('.icon')
         .addClass('icon-playback-pause')
         .removeClass('icon-playback-play')
 
