@@ -29,24 +29,24 @@
   display: -webkit-flex;
 
   .breadcrumb {
-    color: @text-color-subtle;
-    list-style: none;
+    margin-bottom: @component-padding;
     padding: @component-padding;
-    border-radius: 1px; // variables?
+    font-size: 13px;
+    color: @text-color-subtle;
+    border-radius: @component-border-radius;
+    border: 1px solid @base-border-color;
     background-color: @tool-panel-background-color;
-    display: inline-block;
-    // margin-bottom
+    list-style: none;
 
     > li {
+      display: inline-block;
       a {
         color: @text-color;
       }
-      display: inline-block;
 
       + li:before {
         content: "/\00a0"; // Unicode space added since inline-block means non-collapsing white-space
         padding: 0 5px;
-        // color: @breadcrumb-color;
       }
     }
 
@@ -133,9 +133,9 @@
   section,
   .section {
     max-width: 1024px;
-    margin-top: 32px;
-    &:first-child {
-      margin-top: 0;
+    margin-bottom: @component-padding*3;
+    &:empty {
+      margin-bottom: 0;
     }
   }
 
@@ -290,6 +290,11 @@
   }
 
   .settings-panel {
+
+    & > section {
+      margin-top: @component-padding*3;
+    }
+
     .section-body {
       padding-top: @component-padding/2;
     }
