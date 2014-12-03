@@ -3,6 +3,8 @@
 
 .settings-view {
 
+  // TODO: Somehow unify the "card".
+
   .available-package-view {
     padding: @component-padding*1.5;
     margin-bottom: @component-padding;
@@ -28,6 +30,10 @@
       border-radius: 3px;
       margin: 0;
       min-height: 140px;
+      color: @text-color;
+      border-radius: @component-border-radius*2;
+      border: 1px solid @base-border-color;
+      background-color: lighten(@tool-panel-background-color, 8%);
 
       .caption {
         width: 100%;
@@ -38,6 +44,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       width: 100%;
+      color: @text-color-highlight;
       overflow: hidden;
       line-height: 20px;
       margin: 5px 0;
@@ -46,7 +53,7 @@
     .description {
       font-size: 12px;
       line-height: 18px;
-      color: #999;
+      color: @text-color;
       overflow: hidden;
       min-height: 38px;
       max-height: 38px;
@@ -59,7 +66,7 @@
     .downloads {
       font-size: 12px;
       line-height: 12px;
-      color: #999;
+      color: @text-color-highlight;
       overflow: hidden;
       text-overflow: ellipsis;
       display: -webkit-box;
