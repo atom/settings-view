@@ -1,6 +1,7 @@
 _ = require 'underscore-plus'
 {View} = require 'atom'
 shell = require 'shell'
+Client = require './atom-io-client'
 
 module.exports =
 class AvailablePackageView extends View
@@ -32,7 +33,7 @@ class AvailablePackageView extends View
 
       @div class: 'meta', =>
         @a outlet: 'avatarLink', =>
-          @img class: 'avatar', src: "https://github.com/#{owner}.png" # TODO replace with cached asset
+          @img outlet: 'avatar', class: 'avatar'
         @a outlet: 'loginLink', class: 'author', href: "https://atom.io/users/#{owner}", owner
         @div class: 'meta-right', =>
           @div outlet: 'buttons', class: 'btn-group', =>
@@ -43,6 +44,7 @@ class AvailablePackageView extends View
               @span class: 'disable-text', 'Disable'
 
   initialize: (@pack, @packageManager) ->
+    @client = new Client
     @type = if @pack.theme then 'theme' else 'package'
 
     owner = @ownerFromRepository(@pack.repository)
@@ -51,6 +53,7 @@ class AvailablePackageView extends View
 
     @handlePackageEvents()
     @updateEnablement()
+    @loadCachedMetadata()
 
     if atom.packages.isBundledPackage(@pack.name)
       @installButton.hide()
@@ -83,6 +86,10 @@ class AvailablePackageView extends View
     else
       repo = repository.url
     repo.match(loginRegex)[1]
+
+  loadCachedMetadata: () ->
+    @client.avatar @ownerFromRepository(@pack.repository), (err, path) =>
+      @avatar.attr 'src', "file://#{path}"
 
   updateEnablement: ->
     if atom.packages.isPackageDisabled(@pack.name)
