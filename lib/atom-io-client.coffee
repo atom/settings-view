@@ -8,9 +8,50 @@ request = require 'request'
 module.exports =
 class AtomIoClient
   constructor: (@baseURL) ->
+    @baseURL ?= 'https://atom.io/api/'
     # 12 hour expiry
     @expiry = 1000 * 60 * 60 * 12
     @createAvatarCache()
+
+  # Public: Get an avatar image from the filesystem, fetching it first if necessary
+  avatar: (login, callback) ->
+    @cachedAvatar login, (err, cached) =>
+      if cached
+        callback null, cached
+      else
+        @fetchAndCacheAvatar(login, callback)
+
+  # Public: get a package from the atom.io API, with the appropriate level of
+  # caching.
+  package: (name, callback) ->
+    packagePath = "packages/#{name}"
+    @fetchFromCache packagePath, {}, (err, data) =>
+      if data
+        callback(null, data)
+      else
+        request "#{@baseURL}#{packagePath}", (err, res, body) =>
+          data = JSON.parse(body)
+          delete data['versions'] if data['versions']
+          cached =
+            data: data
+            createdOn: Date.now()
+          localStorage.setItem(@cacheKeyForPath(packagePath), JSON.stringify(cached))
+          callback(err, cached.data) # TODO handle parse error
+
+  cacheKeyForPath: (path) ->
+    "settings-view:#{path}"
+
+  fetchFromCache: (packagePath, options, callback) ->
+    callback = options unless callback
+
+    cached = localStorage.getItem(@cacheKeyForPath(packagePath))
+    cached = if cached then JSON.parse(cached)
+    # TODO - Needs to always return cached data when api is unreachable
+    if cached? and (options.force or (Date.now() - cached.createdOn < @expiry))
+      cached ?=  {data: {}}
+      callback(null, cached.data)
+    else
+      callback(null, null)
 
   createAvatarCache: () ->
     cachePath = path.join(app.getDataPath(), 'Cache')
@@ -30,15 +71,9 @@ class AtomIoClient
         [..., createdOn] = filename.split('-')
         # TODO don't check expiry if network connection is not avail
         if Date.now() - parseInt(createdOn) < @expiry
-          callback(null, imagePath)
+          return callback(null, imagePath)
           break
-
-  avatar: (login, callback) ->
-    @cachedAvatar login, (err, cached) =>
-      if cached
-        callback null, cached
-      else
-        @fetchAndCacheAvatar(login, callback)
+      callback(null, null)
 
   avatarGlob: (login) ->
     path.join app.getDataPath(), 'Cache/settings-view', "#{login}-*"
@@ -48,4 +83,5 @@ class AtomIoClient
     imagePath = @avatarPath login
     stream = fs.createWriteStream imagePath
     stream.on 'finish', () -> callback(null, imagePath)
+    # TODO stream.on error
     request("https://github.com/#{login}.png").pipe(stream)
