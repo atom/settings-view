@@ -42,8 +42,8 @@ class InstalledPackageView extends View
           @div outlet: 'buttons', class: 'btn-group', =>
             @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io', =>
             @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
-            @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'Open README'
-            @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'Open CHANGELOG'
+            @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'README'
+            @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'CHANGELOG'
             @button outlet: 'openButton', class: 'btn btn-default icon icon-link-external', 'Open in Atom'
 
           @div outlet: 'errors'
