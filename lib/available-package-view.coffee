@@ -36,11 +36,12 @@ class AvailablePackageView extends View
           @img outlet: 'avatar', class: 'avatar'
         @a outlet: 'loginLink', class: 'author', href: "https://atom.io/users/#{owner}", owner
         @div class: 'meta-right', =>
-          @div outlet: 'buttons', class: 'btn-group', =>
-            @button type: 'button', class: 'btn icon icon-gear', outlet: 'settingsButton', 'Settings'
+          @div class: 'btn-group', =>
             @button type: 'button', class: 'btn icon icon-cloud-download', outlet: 'installButton', 'Install'
-            @button type: 'button', class: 'btn icon icon-trashcan', outlet: 'uninstallButton', 'Uninstall'
-            @button outlet: 'enablementButton', class: 'btn btn-default icon icon-playback-pause', =>
+          @div outlet: 'buttons', class: 'btn-group', =>
+            @button type: 'button', class: 'btn icon icon-gear',           outlet: 'settingsButton', 'Settings'
+            @button type: 'button', class: 'btn icon icon-trashcan',       outlet: 'uninstallButton', 'Uninstall'
+            @button type: 'button', class: 'btn btn-default icon icon-playback-pause', outlet: 'enablementButton', =>
               @span class: 'disable-text', 'Disable'
 
   initialize: (@pack, @packageManager) ->
@@ -129,6 +130,10 @@ class AvailablePackageView extends View
     if @isInstalled() or @isDisabled()
       @installButton.hide()
       @uninstallButton.show()
+    else
+      @settingsButton.hide()
+      @uninstallButton.hide()
+      @enablementButton.hide()
 
   isInstalled: -> atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)
 
