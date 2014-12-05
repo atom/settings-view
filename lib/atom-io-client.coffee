@@ -22,20 +22,23 @@ class AtomIoClient
   avatarPath: (login) ->
     path.join app.getDataPath(), 'Cache/settings-view', "#{login}-#{Date.now()}"
 
-  cachedAvatar: (login) ->
-    glob @avatarGlob(login), (err, files) ->
+  cachedAvatar: (login, callback) ->
+    glob @avatarGlob(login), (err, files) =>
       files.sort().reverse()
       for imagePath in files
-        if Date.now() - parseInt(imagePath.split('-')[1]) < @expiry
-          # short circuit
-          return imagePath
-    return null
+        filename = path.basename(imagePath)
+        [..., createdOn] = filename.split('-')
+        # TODO don't check expiry if network connection is not avail
+        if Date.now() - parseInt(createdOn) < @expiry
+          callback(null, imagePath)
+          break
 
   avatar: (login, callback) ->
-    if cached = @cachedAvatar()
-      callback null, cached
-    else
-      @fetchAndCacheAvatar(login, callback)
+    @cachedAvatar login, (err, cached) =>
+      if cached
+        callback null, cached
+      else
+        @fetchAndCacheAvatar(login, callback)
 
   avatarGlob: (login) ->
     path.join app.getDataPath(), 'Cache/settings-view', "#{login}-*"
