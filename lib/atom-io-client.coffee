@@ -71,8 +71,9 @@ class AtomIoClient
         [..., createdOn] = filename.split('-')
         # TODO don't check expiry if network connection is not avail
         if Date.now() - parseInt(createdOn) < @expiry
-          callback(null, imagePath)
+          return callback(null, imagePath)
           break
+      callback(null, null)
 
   avatarGlob: (login) ->
     path.join app.getDataPath(), 'Cache/settings-view', "#{login}-*"
@@ -82,4 +83,5 @@ class AtomIoClient
     imagePath = @avatarPath login
     stream = fs.createWriteStream imagePath
     stream.on 'finish', () -> callback(null, imagePath)
+    # TODO stream.on error
     request("https://github.com/#{login}.png").pipe(stream)
