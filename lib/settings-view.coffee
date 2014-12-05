@@ -23,7 +23,7 @@ class SettingsView extends ScrollView
           @div class: 'panel-menu-separator', outlet: 'menuSeparator'
         @div class: 'button-area', =>
           @button class: 'btn btn-default icon icon-link-external', outlet: 'openDotAtom', 'Open ~/.atom'
-      @div class: 'panels padded', outlet: 'panels'
+      @div class: 'panels', outlet: 'panels'
 
   initialize: ({@uri, activePanelName}={}) ->
     super

@@ -13,27 +13,29 @@ class PackagesPanel extends View
   @content: ->
     @div =>
       @div class: 'section packages', =>
-        @h1 class: 'section-heading icon icon-cloud-download', 'Install Packages'
+        @div class: 'section-container', =>
+          @h1 class: 'section-heading icon icon-cloud-download', 'Install Packages'
 
-        @div class: 'text padded native-key-bindings', tabindex: -1, =>
-          @span class: 'icon icon-question'
-          @span 'Packages are published to  '
-          @a class: 'link', outlet: "openAtomIo", "atom.io"
-          @span " and are installed to #{path.join(fs.getHomeDirectory(), '.atom', 'packages')}"
+          @div class: 'text native-key-bindings', tabindex: -1, =>
+            @span class: 'icon icon-question'
+            @span 'Packages are published to  '
+            @a class: 'link', outlet: "openAtomIo", "atom.io"
+            @span " and are installed to #{path.join(fs.getHomeDirectory(), '.atom', 'packages')}"
 
-        @div class: 'editor-container padded', =>
-          @subview 'searchEditorView', new TextEditorView(mini: true)
+          @div class: 'editor-container', =>
+            @subview 'searchEditorView', new TextEditorView(mini: true)
 
-        @div outlet: 'searchErrors'
-        @div outlet: 'searchMessage', class: 'alert alert-info search-message icon icon-search'
-        @div outlet: 'resultsContainer', class: 'container package-container'
+          @div outlet: 'searchErrors'
+          @div outlet: 'searchMessage', class: 'alert alert-info search-message icon icon-search'
+          @div outlet: 'resultsContainer', class: 'container package-container'
 
       @div class: 'section packages', =>
-        @div class: 'section-heading icon icon-star', 'Featured Packages'
-        @div outlet: 'featuredErrors'
-        @div outlet: 'loadingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Loading featured packages\u2026'
-        @div outlet: 'emptyMessage', class: 'alert alert-info featured-message icon icon-heart', 'You have every featured package installed already!'
-        @div outlet: 'featuredContainer', class: 'container package-container'
+        @div class: 'section-container', =>
+          @div class: 'section-heading icon icon-star', 'Featured Packages'
+          @div outlet: 'featuredErrors'
+          @div outlet: 'loadingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Loading featured packages\u2026'
+          @div outlet: 'emptyMessage', class: 'alert alert-info featured-message icon icon-heart', 'You have every featured package installed already!'
+          @div outlet: 'featuredContainer', class: 'container package-container'
 
   initialize: (@packageManager) ->
     @openAtomIo.on 'click', =>
