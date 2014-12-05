@@ -18,10 +18,7 @@ class AvailablePackageView extends View
 
         @span class: 'stats-item', =>
           @span class: 'icon icon-cloud-download'
-          # if downloads?
-          #   count = if downloads is 1 then '1 download' else "#{downloads.toLocaleString()} downloads"
-          #   @span outlet: 'downloadCount', class: 'value', count
-        @span class: 'stats-item', =>
+          @span outlet: 'downloadCount', class: 'value'
         @span class: 'stats-item hidden', =>
           @div class: 'star-box', =>
             @a outlet: 'starButton', class: 'star-button btn icon icon-star', =>
@@ -92,6 +89,9 @@ class AvailablePackageView extends View
   loadCachedMetadata: () ->
     @client.avatar @ownerFromRepository(@pack.repository), (err, path) =>
       @avatar.attr 'src', "file://#{path}"
+    @client.package @pack.name, (err, data) =>
+      @packageData = data
+      @downloadCount.text data['downloads']
 
   updateEnablement: ->
     if atom.packages.isPackageDisabled(@pack.name)
