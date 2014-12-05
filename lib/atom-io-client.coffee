@@ -35,13 +35,16 @@ class AtomIoClient
           cached =
             data: data
             createdOn: Date.now()
-          localStorage.setItem(packagePath, JSON.stringify(cached))
+          localStorage.setItem(@cacheKeyForPath(packagePath), JSON.stringify(cached))
           callback(err, cached.data) # TODO handle parse error
+
+  cacheKeyForPath: (path) ->
+    "settings-view:#{path}"
 
   fetchFromCache: (packagePath, options, callback) ->
     callback = options unless callback
 
-    cached = localStorage.getItem(packagePath)
+    cached = localStorage.getItem(@cacheKeyForPath(packagePath))
     cached = if cached then JSON.parse(cached)
     # TODO - Needs to always return cached data when api is unreachable
     if cached? and (options.force or (Date.now() - cached.createdOn < @expiry))
