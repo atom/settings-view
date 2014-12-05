@@ -37,11 +37,11 @@ class AvailablePackageView extends View
         @a outlet: 'loginLink', class: 'author', href: "https://atom.io/users/#{owner}", owner
         @div class: 'meta-right', =>
           @div class: 'btn-group', =>
-            @button type: 'button', class: 'btn icon icon-cloud-download', outlet: 'installButton', 'Install'
+            @button type: 'button', class: 'btn btn-info icon icon-cloud-download', outlet: 'installButton', 'Install'
           @div outlet: 'buttons', class: 'btn-group', =>
             @button type: 'button', class: 'btn icon icon-gear',           outlet: 'settingsButton', 'Settings'
             @button type: 'button', class: 'btn icon icon-trashcan',       outlet: 'uninstallButton', 'Uninstall'
-            @button type: 'button', class: 'btn btn-default icon icon-playback-pause', outlet: 'enablementButton', =>
+            @button type: 'button', class: 'btn icon icon-playback-pause', outlet: 'enablementButton', =>
               @span class: 'disable-text', 'Disable'
 
   initialize: (@pack, @packageManager) ->
