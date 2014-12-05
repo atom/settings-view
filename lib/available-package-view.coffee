@@ -22,6 +22,7 @@ class AvailablePackageView extends View
           #   count = if downloads is 1 then '1 download' else "#{downloads.toLocaleString()} downloads"
           #   @span outlet: 'downloadCount', class: 'value', count
         @span class: 'stats-item', =>
+        @span class: 'stats-item hidden', =>
           @div class: 'star-box', =>
             @a outlet: 'starButton', class: 'star-button btn icon icon-star', =>
             @a outlet: 'starCount', class: 'star-count'
