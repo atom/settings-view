@@ -15,13 +15,13 @@ class InstalledPackagesPanel extends View
     @div =>
       @section class: 'section settings-filter', =>
         @div class: 'section-container', =>
+          @div class: 'section-heading icon icon-package', =>
+            @text 'Installed Packages'
+            @span outlet: 'totalPackages', ' (…)'
           @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
           @div outlet: 'noUpdatesMessage', class: 'alert alert-info featured-message icon icon-heart', 'All of your installed packages are up to date!'
           @div outlet: 'updateMessage', class: 'alert alert-info loading-area icon icon-cloud-download', =>
             @a outlet: 'updateLink', "Updates available"
-          @div class: 'section-heading icon icon-package', =>
-            @text 'Installed Packages'
-            @span outlet: 'totalPackages', ' (…)'
           @div class: 'editor-container', =>
             @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter packages by name')
 
