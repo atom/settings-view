@@ -35,7 +35,7 @@ class InstalledPackageView extends View
 
           @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
 
-          @p outlet: 'startupTime', class: 'text icon-dashboard native-key-bindings', tabindex: -1
+          @p outlet: 'startupTime', class: 'text icon icon-dashboard native-key-bindings', tabindex: -1
 
           @div outlet: 'buttons', class: 'btn-group', =>
             @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io', =>
@@ -65,7 +65,7 @@ class InstalledPackageView extends View
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")
 
     @type = if @pack.metadata.theme then 'theme' else 'package'
-    @startupTime.text("This #{@type} added #{@getStartupTime()}ms to startup time.")
+    @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
 
     if repoUrl = @packageManager.getRepositoryUrl(@pack)
       repoName = url.parse(repoUrl).pathname
