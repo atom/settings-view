@@ -17,35 +17,36 @@ module.exports =
 class InstalledPackageView extends View
   @content: (pack, packageManager) ->
     @div =>
-      @form class: 'installed-package-view section', =>
-        @ol class: 'native-key-bindings breadcrumb', tabindex: -1, =>
-          @li =>
-            @a outlet: 'breadcrumb'
-          @li class: 'active', =>
-            @a outlet: 'title'
+      @ol class: 'native-key-bindings breadcrumb', tabindex: -1, =>
+        @li =>
+          @a outlet: 'breadcrumb'
+        @li class: 'active', =>
+          @a outlet: 'title'
 
-        @div outlet: 'updateArea', class: 'alert alert-success package-update', =>
-          @span outlet: 'updateLabel', class: 'icon icon-squirrel update-message'
-          @span outlet: 'updateLink', class: 'alert-link update-link icon icon-cloud-download', 'Install'
+      @section class: 'section', =>
+        @form class: 'section-container installed-package-view', =>
+          @div outlet: 'updateArea', class: 'alert alert-success package-update', =>
+            @span outlet: 'updateLabel', class: 'icon icon-squirrel update-message'
+            @span outlet: 'updateLink', class: 'alert-link update-link icon icon-cloud-download', 'Install'
 
-        @div class: 'container package-container', =>
-          @div class: 'row', =>
-            @subview 'packageCard', new AvailablePackageView(pack.metadata, packageManager)
+          @div class: 'container package-container', =>
+            @div class: 'row', =>
+              @subview 'packageCard', new AvailablePackageView(pack.metadata, packageManager)
 
-        @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
+          @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
 
-        @p outlet: 'startupTime', class: 'text icon-dashboard native-key-bindings', tabindex: -1
+          @p outlet: 'startupTime', class: 'text icon-dashboard native-key-bindings', tabindex: -1
 
-        @div outlet: 'buttons', class: 'btn-group', =>
-          @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io', =>
-          @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
-          @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'Open README'
-          @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'Open CHANGELOG'
-          @button outlet: 'openButton', class: 'btn btn-default icon icon-link-external', 'Open in Atom'
+          @div outlet: 'buttons', class: 'btn-group', =>
+            @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io', =>
+            @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
+            @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'README'
+            @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'CHANGELOG'
+            @button outlet: 'openButton', class: 'btn btn-default icon icon-link-external', 'Open in Atom'
 
-        @div outlet: 'errors'
+          @div outlet: 'errors'
 
-        @div outlet: 'sections'
+      @div outlet: 'sections'
 
   initialize: (@pack, @packageManager) ->
     @populate()

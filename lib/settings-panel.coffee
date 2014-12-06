@@ -4,7 +4,7 @@ _ = require 'underscore-plus'
 module.exports =
 class SettingsPanel extends View
   @content: ->
-    @div class: 'settings-panel'
+    @section class: 'section settings-panel'
 
   initialize: (namespace, @options={}) ->
     if @options.scopeName
@@ -49,7 +49,7 @@ class SettingsPanel extends View
     sortedSettings = @sortSettings(namespace, settings)
 
     @append $$ ->
-      @section class: 'config-section', =>
+      @div class: 'section-container', =>
         @div class: "block section-heading icon icon-#{icon}", title
         @div class: 'section-body', =>
           for name in sortedSettings

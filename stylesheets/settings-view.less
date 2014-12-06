@@ -1,17 +1,17 @@
 @import "octicon-mixins";
 @import "ui-variables";
 
+@section-padding: 5 * @component-padding;
+@breadcrumb-padding: 2 * @component-padding;
+
 .settings-view {
   display: -webkit-flex;
 
   .breadcrumb {
-    margin-bottom: @component-padding;
-    padding: @component-padding;
+    margin-bottom: 0;
+    padding: @breadcrumb-padding;
     font-size: 13px;
     color: @text-color-subtle;
-    border-radius: @component-border-radius;
-    border: 1px solid @base-border-color;
-    background-color: @tool-panel-background-color;
     list-style: none;
 
     > li {
@@ -41,6 +41,11 @@
     color: contrast(@alert-background-color, darken(@tx, 20%), lighten(@tx, 20%) );
     border-color: darken(@alert-background-color, 10%);
     background-color: @alert-background-color;
+
+    .alert-link {
+      color: inherit;
+      text-decoration: underline;
+    }
   }
 
   .alert-info     { .alert-type(@text-color-info;    @background-color-info); }
@@ -82,7 +87,10 @@
   }
 
   .editor-container {
-    margin-bottom: @component-padding;
+    margin: @component-padding*2 0;
+    &:last-child {
+      margin-bottom: 0;
+    }
     &.settings-filter {
       margin-bottom: 36px;
     }
@@ -90,19 +98,36 @@
 
   section,
   .section {
-    max-width: 1024px;
-    margin-bottom: @component-padding*3;
-    &:empty {
-      margin-bottom: 0;
+
+    padding: @section-padding;
+    border-top: 1px solid @base-border-color;
+    &.section:empty {
+      padding: 0;
     }
+    &:first-child,
+    &:last-child {
+      padding: @section-padding;
+    }
+  }
+
+  .section .section {
+    padding: 0;
+  }
+
+  .section.settings-panel {
+    border-top: 1px solid @base-border-color !important;
+  }
+
+  .section-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
   }
 
   section .section-heading,
   .section .section-heading {
-    padding-top: @component-padding;
-    padding-bottom: @component-padding;
-    margin-bottom: @component-padding;
-    border-bottom: 1px solid @base-border-color;
+    margin-bottom: @component-padding*2;
+    color: @text-color-highlight;
     font-size: 18px;
     font-weight: bold;
     line-height: 1;
@@ -236,7 +261,6 @@
     display: -webkit-flex;
     position: relative;
     overflow-y: auto;
-    padding: @component-padding*2;
 
     > div {
       -webkit-flex: 1;
@@ -245,16 +269,19 @@
 
   .settings-panel {
 
-    .section-body {
-      padding-top: @component-padding/2;
-    }
 
     label {
       color: @text-color;
       font-size: 13px;
     }
 
-    padding-bottom: @component-padding;
+    .control-group + .control-group {
+      margin-top:  @component-padding*1.5;
+    }
+
+    .control-group .editor-container {
+      margin: 0;
+    }
 
     .grammar-filetypes {
       margin-top: @component-padding;
@@ -289,9 +316,6 @@
         text-decoration: underline;
       }
     }
-    .btn-group {
-      margin-bottom: @component-padding*3;
-    }
   }
 
   .packages {
@@ -316,7 +340,6 @@
     }
 
     .package-container {
-      padding-top: @component-padding;
       width: 100%;
     }
 
@@ -327,11 +350,6 @@
 
     .error-message {
       padding: @component-padding @component-padding 0 @component-padding;
-    }
-
-    .editor-container {
-      margin-bottom: 0;
-      padding-bottom: 0;
     }
 
   }
@@ -447,6 +465,27 @@
   padding-left: 2px;
 }
 
+
+// Overrides
+// TODO: Refactor + cleanup
+
+.settings-view {
+
+  .container {
+    padding: 0;
+    > .row {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
+
+  .update-all-button {
+    top: -13px;
+    right: 10px;
+    position: relative;
+  }
+
+}
 
 
 // Reset Bootstrap media queries,

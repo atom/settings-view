@@ -13,48 +13,51 @@ class ThemesPanel extends View
   @content: ->
     @div =>
       @div class: 'section packages', =>
-        @div class: 'section-heading icon icon-device-desktop', 'Choose a Theme'
+        @div class: 'section-container', =>
+          @div class: 'section-heading icon icon-device-desktop', 'Choose a Theme'
 
-        @div class: 'text padded native-key-bindings', tabindex: -1, =>
-          @span class: 'icon icon-question', 'You can also style Atom by editing '
-          @a class: 'link', outlet: 'openUserStysheet', 'your stylesheet'
+          @div class: 'text native-key-bindings', tabindex: -1, =>
+            @span class: 'icon icon-question', 'You can also style Atom by editing '
+            @a class: 'link', outlet: 'openUserStysheet', 'your stylesheet'
 
-        @form class: 'form-horizontal theme-chooser', =>
-          @div class: 'form-group', =>
-            @label class: 'col-sm-2 col-lg-2 control-label themes-label text', 'UI Theme'
-            @div class: 'col-sm-10 col-lg-4 col-md-4', =>
-              @select outlet: 'uiMenu', class: 'form-control'
-              @div class: 'text theme-description', 'This styles the tabs, status bar, tree view, and dropdowns'
+          @form class: 'form-horizontal theme-chooser', =>
+            @div class: 'form-group', =>
+              @label class: 'col-sm-4 control-label themes-label text', 'UI Theme'
+              @div class: 'col-sm-8', =>
+                @select outlet: 'uiMenu', class: 'form-control'
+                @div class: 'text theme-description', 'This styles the tabs, status bar, tree view, and dropdowns'
 
-          @div class: 'form-group', =>
-            @label class: 'col-sm-2 col-lg-2 control-label themes-label text', 'Syntax Theme'
-            @div class: 'col-sm-10 col-lg-4 col-md-4', =>
-              @select outlet: 'syntaxMenu', class: 'form-control'
-              @div class: 'text theme-description', 'This styles the text inside the editor'
-
-      @div class: 'section packages', =>
-        @div class: 'section-heading icon icon-cloud-download', 'Install Themes'
-
-        @div class: 'text padded native-key-bindings', tabindex: -1, =>
-          @span class: 'icon icon-question'
-          @span 'Themes are published to  '
-          @a class: 'link', outlet: "openAtomIo", "atom.io"
-          @span " and are installed to #{path.join(fs.getHomeDirectory(), '.atom', 'packages')}"
-
-
-        @div class: 'editor-container padded', =>
-          @subview 'searchEditorView', new TextEditorView(mini: true)
-
-        @div outlet: 'searchErrors'
-        @div outlet: 'searchMessage', class: 'alert alert-info icon icon-search search-message'
-        @div outlet: 'resultsContainer', class: 'container package-container'
+            @div class: 'form-group', =>
+              @label class: 'col-sm-4 control-label themes-label text', 'Syntax Theme'
+              @div class: 'col-sm-8', =>
+                @select outlet: 'syntaxMenu', class: 'form-control'
+                @div class: 'text theme-description', 'This styles the text inside the editor'
 
       @div class: 'section packages', =>
-        @div class: 'section-heading icon icon-star', 'Featured Themes'
-        @div outlet: 'featuredErrors'
-        @div outlet: 'loadingMessage', class: 'alert alert-info icon icon-hourglass featured-message', 'Loading featured themes\u2026'
-        @div outlet: 'emptyMessage', class: 'alert alert-info icon icon-heart featured-message', 'You have every featured theme installed already!'
-        @div outlet: 'featuredContainer', class: 'container package-container'
+        @div class: 'section-container', =>
+          @div class: 'section-heading icon icon-cloud-download', 'Install Themes'
+
+          @div class: 'text native-key-bindings', tabindex: -1, =>
+            @span class: 'icon icon-question'
+            @span 'Themes are published to  '
+            @a class: 'link', outlet: "openAtomIo", "atom.io"
+            @span " and are installed to #{path.join(fs.getHomeDirectory(), '.atom', 'packages')}"
+
+
+          @div class: 'editor-container', =>
+            @subview 'searchEditorView', new TextEditorView(mini: true)
+
+          @div outlet: 'searchErrors'
+          @div outlet: 'searchMessage', class: 'alert alert-info icon icon-search search-message'
+          @div outlet: 'resultsContainer', class: 'container package-container'
+
+      @div class: 'section packages', =>
+        @div class: 'section-container', =>
+          @div class: 'section-heading icon icon-star', 'Featured Themes'
+          @div outlet: 'featuredErrors'
+          @div outlet: 'loadingMessage', class: 'alert alert-info icon icon-hourglass featured-message', 'Loading featured themes\u2026'
+          @div outlet: 'emptyMessage', class: 'alert alert-info icon icon-heart featured-message', 'You have every featured theme installed already!'
+          @div outlet: 'featuredContainer', class: 'container package-container'
 
   initialize: (@packageManager) ->
     @openAtomIo.on 'click', =>
