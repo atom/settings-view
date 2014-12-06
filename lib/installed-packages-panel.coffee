@@ -17,7 +17,7 @@ class InstalledPackagesPanel extends View
         @div class: 'section-container', =>
           @div class: 'section-heading icon icon-package', =>
             @text 'Installed Packages'
-            @span outlet: 'totalPackages', ' (…)'
+            @span outlet: 'totalPackages', class:'section-heading-count', ' (…)'
           @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
           @div outlet: 'noUpdatesMessage', class: 'alert alert-info featured-message icon icon-heart', 'All of your installed packages are up to date!'
           @div outlet: 'updateMessage', class: 'alert alert-info loading-area icon icon-cloud-download', =>
@@ -29,7 +29,7 @@ class InstalledPackagesPanel extends View
         @div class: 'section-container', =>
           @h2 class: 'section-heading icon icon-package', =>
             @text 'Community Packages'
-            @span outlet: 'communityCount', ' (…)'
+            @span outlet: 'communityCount', class:'section-heading-count', ' (…)'
           @div outlet: 'communityPackages', class: 'container package-container', =>
             @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
@@ -37,7 +37,7 @@ class InstalledPackagesPanel extends View
         @div class: 'section-container', =>
           @h2 class: 'section-heading icon icon-package', =>
             @text 'Core Packages'
-            @span outlet: 'coreCount', ' (…)'
+            @span outlet: 'coreCount', class:'section-heading-count', ' (…)'
           @div outlet: 'corePackages', class: 'container package-container', =>
             @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
@@ -45,7 +45,7 @@ class InstalledPackagesPanel extends View
         @div class: 'section-container', =>
           @h2 class: 'section-heading icon icon-package', =>
             @text 'Development Packages'
-            @span outlet: 'devCount', ' (…)'
+            @span outlet: 'devCount', class:'section-heading-count', ' (…)'
           @div outlet: 'devPackages', class: 'container package-container', =>
             @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
