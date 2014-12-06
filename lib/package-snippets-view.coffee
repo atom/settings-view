@@ -6,7 +6,7 @@ _ = require 'underscore-plus'
 module.exports =
 class PackageSnippetsView extends View
   @content: ->
-    @section =>
+    @section class: 'section', =>
       @div class: 'section-heading icon icon-code', 'Snippets'
       @table class: 'package-snippets-table table native-key-bindings text', tabindex: -1, =>
         @thead =>

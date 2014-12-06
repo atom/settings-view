@@ -6,7 +6,7 @@ _ = require 'underscore-plus'
 module.exports =
 class PackageKeymapView extends View
   @content: ->
-    @section =>
+    @section class: 'section', =>
       @div class: 'section-heading icon icon-keyboard', 'Keybindings'
       @table class: 'package-keymap-table table native-key-bindings text', tabindex: -1, =>
         @thead =>

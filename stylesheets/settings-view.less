@@ -96,13 +96,12 @@
     }
   }
 
-  section,
   .section {
-
     padding: @section-padding;
     border-top: 1px solid @base-border-color;
     &.section:empty {
       padding: 0;
+      border-top: none;
     }
     &:first-child,
     &:last-child {
@@ -110,12 +109,8 @@
     }
   }
 
-  .section .section {
-    padding: 0;
-  }
-
   .section.settings-panel {
-    border-top: 1px solid @base-border-color !important;
+    border-top: 1px solid @base-border-color;
   }
 
   .section-container {
