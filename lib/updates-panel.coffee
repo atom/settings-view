@@ -5,19 +5,20 @@ module.exports =
 class UpdatesPanel extends View
   @content: ->
     @div =>
-      @div class: 'section packages', =>
-        @div class: 'section-heading', =>
-          @ol class: 'breadcrumb', =>
-            @li =>
-              @a outlet: 'breadcrumb'
-            @li class: 'active', =>
-              @a 'Available Updates'
-          @button outlet: 'updateAllButton', class: 'pull-right btn btn-primary', 'Update All'
+      @ol class: 'breadcrumb', =>
+        @li =>
+          @a outlet: 'breadcrumb'
+        @li class: 'active', =>
+          @a 'Available Updates'
+      @section class: 'section packages', =>
+        @div class: 'section-container', =>
+          @div class: 'section-heading', =>
+            @button outlet: 'updateAllButton', class: 'pull-right update-all-button btn btn-primary', 'Update All'
 
-        @div outlet: 'updateErrors'
-        @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
-        @div outlet: 'noUpdatesMessage', class: 'alert alert-info featured-message icon icon-heart', 'All of your installed packages are up to date!'
-        @div outlet: 'updatesContainer', class: 'container package-container'
+          @div outlet: 'updateErrors'
+          @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
+          @div outlet: 'noUpdatesMessage', class: 'alert alert-info featured-message icon icon-heart', 'All of your installed packages are up to date!'
+          @div outlet: 'updatesContainer', class: 'container package-container'
 
   initialize: (@packageManager) ->
     @noUpdatesMessage.hide()

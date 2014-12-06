@@ -17,13 +17,11 @@ module.exports =
 class InstalledPackageView extends View
   @content: (pack, packageManager) ->
     @div =>
-      @section class: 'section', =>
-        @div class: 'section-container', =>
-          @ol class: 'native-key-bindings breadcrumb', tabindex: -1, =>
-            @li =>
-              @a outlet: 'breadcrumb'
-            @li class: 'active', =>
-              @a outlet: 'title'
+      @ol class: 'native-key-bindings breadcrumb', tabindex: -1, =>
+        @li =>
+          @a outlet: 'breadcrumb'
+        @li class: 'active', =>
+          @a outlet: 'title'
 
       @section class: 'section', =>
         @form class: 'section-container installed-package-view', =>

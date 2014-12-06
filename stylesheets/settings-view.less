@@ -2,18 +2,16 @@
 @import "ui-variables";
 
 @section-padding: 5 * @component-padding;
+@breadcrumb-padding: 2 * @component-padding;
 
 .settings-view {
   display: -webkit-flex;
 
   .breadcrumb {
-    margin-bottom: @component-padding;
-    padding: @component-padding;
+    margin-bottom: 0;
+    padding: @breadcrumb-padding;
     font-size: 13px;
     color: @text-color-subtle;
-    border-radius: @component-border-radius;
-    border: 1px solid @base-border-color;
-    background-color: @tool-panel-background-color;
     list-style: none;
 
     > li {
@@ -476,6 +474,12 @@
       margin-left: 0;
       margin-right: 0;
     }
+  }
+
+  .update-all-button {
+    top: -13px;
+    right: 10px;
+    position: relative;
   }
 
 }
