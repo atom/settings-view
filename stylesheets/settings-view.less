@@ -186,13 +186,6 @@
       text-align: center;
     }
 
-    .panels-menu {
-      .panel-menu-separator {
-        margin: @component-padding;
-        border-bottom: 1px solid @base-border-color;
-      }
-    }
-
     .panels-packages{
       -webkit-flex-grow: 1;
       overflow: auto;
@@ -248,16 +241,22 @@
     }
 
     .button-area {
-      margin: @component-padding auto;
+      margin: 15px; // same as nav
+      > .btn {
+        width: 100%;
+      }
     }
 
-    .nav > li > a {
-      border-radius: 0;
-      white-space: nowrap;
+    .nav > li {
+      margin-top: 0;
+      > a {
+        border-radius: 0;
+        white-space: nowrap;
 
-      &:hover {
-        color: @text-color-highlight;
-        background-color: @background-color-highlight;
+        &:hover {
+          color: @text-color-highlight;
+          background-color: @background-color-highlight;
+        }
       }
     }
 
