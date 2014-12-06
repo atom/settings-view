@@ -43,6 +43,11 @@
     color: contrast(@alert-background-color, darken(@tx, 20%), lighten(@tx, 20%) );
     border-color: darken(@alert-background-color, 10%);
     background-color: @alert-background-color;
+
+    .alert-link {
+      color: inherit;
+      text-decoration: underline;
+    }
   }
 
   .alert-info     { .alert-type(@text-color-info;    @background-color-info); }
