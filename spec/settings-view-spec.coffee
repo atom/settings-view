@@ -68,21 +68,3 @@ describe "SettingsView", ->
       expect(settingsView.panelMenu.find('li:contains(Panel 2)')).toHaveClass('active')
       expect(settingsView.panels.find('#panel-1')).toBeHidden()
       expect(settingsView.panels.find('#panel-2')).toBeVisible()
-
-  describe ".addPackagePanel(package)", ->
-    it "adds a menu entry to the left and a panel that can be activated by clicking it", ->
-      waitsForPromise ->
-        atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'a-theme'))
-
-      runs ->
-        pack = atom.packages.getActivePackage('a-theme')
-        settingsView.addPackagePanel(pack)
-        expect(settingsView.panelPackages.find('li a:contains(A Theme)')).toExist()
-
-        settingsView.attachToDom()
-        expect(settingsView.panels.find('.installed-package-view')).not.toExist()
-
-        settingsView.panelPackages.find('li a:contains(A Theme)').click()
-        expect(settingsView.panelPackages.children('.active').length).toBe 1
-        expect(settingsView.panelPackages.find('li:contains(A Theme)')).toHaveClass('active')
-        expect(settingsView.panels.find('.installed-package-view')).toBeVisible()
