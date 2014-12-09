@@ -16,7 +16,7 @@ class InstalledPackagesPanel extends View
       @section class: 'section settings-filter', =>
         @div class: 'section-container', =>
           @div class: 'section-heading icon icon-package', =>
-            @text 'Installed Packages'
+            @text 'My Packages & Themes'
             @span outlet: 'totalPackages', class:'section-heading-count', ' (…)'
           @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
           @div outlet: 'noUpdatesMessage', class: 'alert alert-info featured-message icon icon-heart', 'All of your installed packages are up to date!'
@@ -74,7 +74,7 @@ class InstalledPackagesPanel extends View
         if updates.length > 0
           @updateLink.text("#{updates.length} updates available…")
             .on 'click', () =>
-              @parents('.settings-view').view()?.showPanel('Available Updates', {back: 'Installed Packages', updates: updates})
+              @parents('.settings-view').view()?.showPanel('Available Updates', {back: 'My Packages & Themes', updates: updates})
           @updateMessage.show()
           @checkingMessage.hide()
         else
