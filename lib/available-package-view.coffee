@@ -43,7 +43,7 @@ class AvailablePackageView extends View
             @button type: 'button', class: 'btn icon icon-playback-pause', outlet: 'enablementButton', =>
               @span class: 'disable-text', 'Disable'
 
-  initialize: (@pack, @packageManager) ->
+  initialize: (@pack, @packageManager, opts) ->
     @client = new Client
     @type = if @pack.theme then 'theme' else 'package'
 
@@ -66,10 +66,10 @@ class AvailablePackageView extends View
       @uninstall()
 
     @settingsButton.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Manage Packages'})
+      @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
 
     @packageName.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Manage Packages'})
+      @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
 
     @enablementButton.on 'click', =>
       if atom.packages.isPackageDisabled(@pack.name)

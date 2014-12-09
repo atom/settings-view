@@ -200,7 +200,7 @@ class ThemesPanel extends View
       packageRow = $$ -> @div class: 'row'
       container.append(packageRow)
       # TODO if pack.valid?
-      packView = new AvailablePackageView(pack, @packageManager)
+      packView = new AvailablePackageView(pack, @packageManager, {back: 'Themes'})
       packageViews.push(packView) # used for search filterin'
       packageRow.append(packView)
 
