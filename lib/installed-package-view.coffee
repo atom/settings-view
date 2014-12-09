@@ -17,7 +17,7 @@ module.exports =
 class InstalledPackageView extends View
   @content: (pack, packageManager) ->
     @div =>
-      @ol class: 'native-key-bindings breadcrumb', tabindex: -1, =>
+      @ol outlet: 'breadcrumbContainer', class: 'native-key-bindings breadcrumb', tabindex: -1, =>
         @li =>
           @a outlet: 'breadcrumb'
         @li class: 'active', =>
@@ -56,10 +56,11 @@ class InstalledPackageView extends View
     @subscribeToPackageManager()
 
   beforeShow: (opts) ->
-    back = opts?.back or 'Manage Packages'
-    @breadcrumb.text(back).on 'click', () =>
-      @parents('.settings-view').view()?.showPanel(back)
-
+    if opts?.back
+      @breadcrumb.text(opts.back).on 'click', () =>
+        @parents('.settings-view').view()?.showPanel(opts.back)
+    else
+      @breadcrumbContainer.hide()
 
   populate: ->
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")
