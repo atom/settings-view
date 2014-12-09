@@ -104,7 +104,7 @@ class PackageManager
         callback(error)
 
   getInstalled: ->
-    @installedPromise ?= Q.nbind(@loadInstalled, this)()
+    Q.nbind(@loadInstalled, this)()
 
   getFeatured: ->
     @featuredPromise ?= Q.nbind(@loadFeatured, this)()
