@@ -22,8 +22,12 @@ class PackagesPanel extends View
             @a class: 'link', outlet: "openAtomIo", "atom.io"
             @span " and are installed to #{path.join(fs.getHomeDirectory(), '.atom', 'packages')}"
 
-          @div class: 'editor-container', =>
-            @subview 'searchEditorView', new TextEditorView(mini: true)
+          @div class: 'search-container clearfix', =>
+            @div class: 'editor-container', =>
+              @subview 'searchEditorView', new TextEditorView(mini: true)
+            @div class: 'btn-group', =>
+              @button outlet: 'searchPackagesButton', type: 'button', class: 'btn btn-default active', 'Packages'
+              @button outlet: 'searchThemesButton', type: 'button', class: 'btn btn-default', 'Themes'
 
           @div outlet: 'searchErrors'
           @div outlet: 'searchMessage', class: 'alert alert-info search-message icon icon-search'
@@ -46,26 +50,52 @@ class PackagesPanel extends View
     @emptyMessage.hide()
 
     @searchEditorView.setPlaceholderText('Search packages')
-    @searchEditorView.on 'core:confirm', =>
-      if query = @searchEditorView.getText().trim()
-        @search(query)
-
-    @subscribe @packageManager, 'package-install-failed', (pack, error) =>
-      @searchErrors.append(new ErrorView(@packageManager, error))
+    @searchType = 'packages'
+    @handleSearchEvents()
 
     @loadFeaturedPackages()
 
   focus: ->
     @searchEditorView.focus()
 
-  search: (query) ->
-    if @resultsContainer.children().length is 0
-      @searchMessage.text("Searching for \u201C#{query}\u201D\u2026").show()
+  handleSearchEvents: ->
+    @subscribe @packageManager, 'package-install-failed', (pack, error) =>
+      @searchErrors.append(new ErrorView(@packageManager, error))
 
-    @packageManager.search(query, {packages: true})
+    @searchEditorView.on 'core:confirm', =>
+      @performSearch()
+
+    @searchPackagesButton.on 'click', =>
+      unless @searchPackagesButton.hasClass('active')
+        @searchType = 'packages'
+        @searchPackagesButton.addClass('active')
+        @searchThemesButton.removeClass('active')
+        @searchEditorView.setPlaceholderText('Search packages')
+        @performSearch()
+
+
+    @searchThemesButton.on 'click', =>
+      unless @searchThemesButton.hasClass('active')
+        @searchType = 'themes'
+        @searchThemesButton.addClass('active')
+        @searchPackagesButton.removeClass('active')
+        @searchEditorView.setPlaceholderText('Search themes')
+        @performSearch()
+
+  performSearch: ->
+    if query = @searchEditorView.getText().trim()
+      @search(query)
+
+  search: (query) ->
+    @resultsContainer.empty()
+    @searchMessage.text("Searching #{@searchType} for \u201C#{query}\u201D\u2026").show()
+
+    opts = {}
+    opts[@searchType] = true
+    @packageManager.search(query, opts)
       .then (packages=[]) =>
         if packages.length is 0
-          @searchMessage.text("No package results for \u201C#{query}\u201D").show()
+          @searchMessage.text("No #{@searchType.replace(/s$/, '')} results for \u201C#{query}\u201D").show()
         else
           @searchMessage.hide()
         @addPackageViews(@resultsContainer, packages)
