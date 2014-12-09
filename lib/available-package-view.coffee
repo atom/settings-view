@@ -66,10 +66,10 @@ class AvailablePackageView extends View
       @uninstall()
 
     @settingsButton.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'My Packages & Themes'})
+      @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Installed Packages'})
 
     @packageName.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'My Packages & Themes'})
+      @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Installed Packages'})
 
     @enablementButton.on 'click', =>
       if atom.packages.isPackageDisabled(@pack.name)
