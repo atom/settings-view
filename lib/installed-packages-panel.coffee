@@ -88,7 +88,7 @@ class InstalledPackagesPanel extends View
     @packageViews = []
     @packageManager.getInstalled()
       .then (packages) =>
-        @packages = @filterPackages(packages)
+        @packages = packages
 
         # @loadingMessage.hide()
         # TODO show empty mesage per section
@@ -168,12 +168,3 @@ class InstalledPackagesPanel extends View
   matchPackages: ->
     filterText = @filterEditor.getEditor().getText()
     @filterPackageListByText(filterText)
-
-  filterPackages: (packages) ->
-    filterText = @filterEditor.getEditor().getText()
-
-    packages.dev = packages.dev.filter ({theme}) -> not theme
-    packages.user = packages.user.filter ({theme}) -> not theme
-    packages.core = packages.core.filter ({theme}) -> not theme
-
-    packages
