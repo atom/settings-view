@@ -117,6 +117,10 @@
     width: 100%;
     max-width: 600px;
     margin: 0 auto;
+
+    &.updates-container {
+      max-width: 100%;
+    }
   }
 
   section .section-heading,
@@ -495,6 +499,19 @@
     position: relative;
   }
 
+}
+
+.clearfix {
+  &:before {
+    display: table;
+    content: "";
+  }
+
+  &:after {
+    display: table;
+    clear: both;
+    content: "";
+  }
 }
 
 

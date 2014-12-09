@@ -11,8 +11,8 @@ class UpdatesPanel extends View
         @li class: 'active', =>
           @a 'Available Updates'
       @section class: 'section packages', =>
-        @div class: 'section-container', =>
-          @div class: 'section-heading', =>
+        @div class: 'section-container updates-container', =>
+          @div class: 'section-heading clearfix', =>
             @button outlet: 'updateAllButton', class: 'pull-right update-all-button btn btn-primary', 'Update All'
 
           @div outlet: 'updateErrors'
