@@ -1,6 +1,7 @@
 path = require 'path'
 
 fs = require 'fs-plus'
+fuzzaldrin = require 'fuzzaldrin'
 _ = require 'underscore-plus'
 {$$, View, TextEditorView} = require 'atom'
 
@@ -33,44 +34,43 @@ class ThemesPanel extends View
                 @select outlet: 'syntaxMenu', class: 'form-control'
                 @div class: 'text theme-description', 'This styles the text inside the editor'
 
-      @div class: 'section packages', =>
+      @section class: 'section settings-filter', =>
         @div class: 'section-container', =>
-          @div class: 'section-heading icon icon-cloud-download', 'Install Themes'
-
-          @div class: 'text native-key-bindings', tabindex: -1, =>
-            @span class: 'icon icon-question'
-            @span 'Themes are published to  '
-            @a class: 'link', outlet: "openAtomIo", "atom.io"
-            @span " and are installed to #{path.join(fs.getHomeDirectory(), '.atom', 'packages')}"
-
-
+          @div class: 'section-heading icon icon-package', =>
+            @text 'Installed Themes'
+            @span outlet: 'totalPackages', class:'section-heading-count', ' (…)'
           @div class: 'editor-container', =>
-            @subview 'searchEditorView', new TextEditorView(mini: true)
+            @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter packages by name')
 
-          @div outlet: 'searchErrors'
-          @div outlet: 'searchMessage', class: 'alert alert-info icon icon-search search-message'
-          @div outlet: 'resultsContainer', class: 'container package-container'
 
-      @div class: 'section packages', =>
+      @section class: 'section installed-packages', =>
         @div class: 'section-container', =>
-          @div class: 'section-heading icon icon-star', 'Featured Themes'
-          @div outlet: 'featuredErrors'
-          @div outlet: 'loadingMessage', class: 'alert alert-info icon icon-hourglass featured-message', 'Loading featured themes\u2026'
-          @div outlet: 'emptyMessage', class: 'alert alert-info icon icon-heart featured-message', 'You have every featured theme installed already!'
-          @div outlet: 'featuredContainer', class: 'container package-container'
+          @h2 class: 'section-heading icon icon-package', =>
+            @text 'Community Themes'
+            @span outlet: 'communityCount', class:'section-heading-count', ' (…)'
+          @div outlet: 'communityPackages', class: 'container package-container', =>
+            @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
+
+      @section class: 'section core-packages', =>
+        @div class: 'section-container', =>
+          @h2 class: 'section-heading icon icon-package', =>
+            @text 'Core Themes'
+            @span outlet: 'coreCount', class:'section-heading-count', ' (…)'
+          @div outlet: 'corePackages', class: 'container package-container', =>
+            @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
+
+      @section class: 'section dev-packages', =>
+        @div class: 'section-container', =>
+          @h2 class: 'section-heading icon icon-package', =>
+            @text 'Development Themes'
+            @span outlet: 'devCount', class:'section-heading-count', ' (…)'
+          @div outlet: 'devPackages', class: 'container package-container', =>
+            @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
+
 
   initialize: (@packageManager) ->
-    @openAtomIo.on 'click', =>
-      require('shell').openExternal('https://atom.io/themes')
-      false
-
-    @searchMessage.hide()
-    @emptyMessage.hide()
-
-    @searchEditorView.setPlaceholderText('Search themes')
-    @searchEditorView.on 'core:confirm', =>
-      if query = @searchEditorView.getText().trim()
-        @search(query)
+    @packageViews = []
+    @loadPackages()
 
     @subscribe @packageManager, 'theme-install-failed', (pack, error) =>
       @searchErrors.append(new ErrorView(@packageManager, error))
@@ -85,6 +85,10 @@ class ThemesPanel extends View
     @subscribe atom.themes, 'reloaded', => @updateActiveThemes()
     @updateActiveThemes()
 
+    @filterEditor.getEditor().on 'contents-modified', =>
+      @matchPackages()
+
+
     @syntaxMenu.change =>
       @activeSyntaxTheme = @syntaxMenu.val()
       @scheduleUpdateThemeConfig()
@@ -93,10 +97,36 @@ class ThemesPanel extends View
       @activeUiTheme = @uiMenu.val()
       @scheduleUpdateThemeConfig()
 
-    @loadFeaturedThemes()
+  filterThemes: (packages) ->
+    packages.dev = packages.dev.filter ({theme}) -> theme
+    packages.user = packages.user.filter ({theme}) -> theme
+    packages.core = packages.core.filter ({theme}) -> theme
 
-  focus: ->
-    @searchEditorView.focus()
+    packages
+
+  loadPackages: ->
+    @packageViews = []
+    @packageManager.getInstalled()
+      .then (packages) =>
+        @packages = @filterThemes(packages)
+        # @loadingMessage.hide()
+        # TODO show empty mesage per section
+        # @emptyMessage.show() if packages.length is 0
+        @totalPackages.text " (#{@packages.user.length + @packages.core.length + @packages.dev.length})"
+
+        _.each @addPackageViews(@communityPackages, @packages.user), (v) => @packageViews.push(v)
+        @communityCount.text " (#{@packages.user.length})"
+
+        _.each @addPackageViews(@corePackages, @packages.core), (v) => @packageViews.push(v)
+        @coreCount.text " (#{@packages.core.length})"
+
+        _.each @addPackageViews(@devPackages, @packages.dev), (v) => @packageViews.push(v)
+        @devCount.text " (#{@packages.dev.length})"
+
+      .catch (error) =>
+        @loadingMessage.hide()
+        # TODO errors by section
+        @featuredErrors.append(new ErrorView(@packageManager, error))
 
   # Update the active UI and syntax themes and populate the menu
   updateActiveThemes: ->
@@ -152,51 +182,60 @@ class ThemesPanel extends View
     title = themeName.replace(/-(ui|syntax)/g, '').replace(/-theme$/g, '')
     _.undasherize(_.uncamelcase(title))
 
-  addThemeViews: (container, themes) ->
+  addPackageViews: (container, packages) ->
     container.empty()
+    packageViews = []
 
-    for theme, index in themes
-      if index % 3 is 0
-        themeRow = $$ -> @div class: 'row'
-        container.append(themeRow)
-      themeRow.append(new AvailablePackageView(theme, @packageManager))
+    packages.sort (left, right) ->
+      leftStatus = atom.packages.isPackageDisabled(left.name)
+      rightStatus = atom.packages.isPackageDisabled(right.name)
+      if leftStatus == rightStatus
+        return 0
+      else if leftStatus > rightStatus
+        return 1
+      else
+        return -1
 
-  filterThemes: (themes) ->
-    themes.filter ({theme}) -> theme
+    for pack, index in packages
+      packageRow = $$ -> @div class: 'row'
+      container.append(packageRow)
+      # TODO if pack.valid?
+      packView = new AvailablePackageView(pack, @packageManager)
+      packageViews.push(packView) # used for search filterin'
+      packageRow.append(packView)
 
-  # Load and display the featured themes available to install.
-  loadFeaturedThemes: ->
-    @loadingMessage.show()
-    @emptyMessage.hide()
+    packageViews
 
-    @packageManager.getFeatured()
-      .then (themes) =>
-        themes = @filterThemes(themes)
-        if themes.length is 0
-          @loadingMessage.hide()
-          @emptyMessage.removeClass('icon-heart').addClass('icon-rocket')
-          @emptyMessage.text('No featured themes, create and publish one!')
-          @emptyMessage.show()
-        else
-          themes = @filterThemes(themes)
-          @loadingMessage.hide()
-          @addThemeViews(@featuredContainer, themes)
-          @emptyMessage.show() if themes.length is 0
-      .catch (error) =>
-        @loadingMessage.hide()
-        @featuredErrors.append(new ErrorView(@packageManager, error))
+  filterPackageListByText: (text) ->
+    return unless @packages
+    active = fuzzaldrin.filter(@packageViews, text, key: 'filterText')
 
-  search: (query) ->
-    if @resultsContainer.children().length is 0
-      @searchMessage.text("Searching for \u201C#{query}\u201D\u2026").show()
+    _.each @packageViews, (view) ->
+      # should set an attribute on the view we can filter by it instead of doing
+      # dumb jquery stuff
+      view.hide().addClass('hidden')
+    _.each active, (view) ->
+      view.show().removeClass('hidden')
 
-    @packageManager.search(query, {themes: true})
-      .then (themes=[]) =>
-        if themes.length is 0
-          @searchMessage.text("No theme results for \u201C#{query}\u201D").show()
-        else
-          @searchMessage.hide()
-        @addThemeViews(@resultsContainer, themes)
-      .catch (error) =>
-        @searchMessage.hide()
-        @searchErrors.append(new ErrorView(@packageManager, error))
+    @totalPackages.text " (#{active.length}/#{@packageViews.length})"
+    @updateSectionCounts()
+
+  updateSectionCounts: ->
+    filterText = @filterEditor.getEditor().getText()
+    if filterText is ''
+      @totalPackages.text " (#{@packages.user.length + @packages.core.length + @packages.dev.length})"
+      @communityCount.text " (#{@packages.user.length})"
+      @coreCount.text " (#{@packages.core.length})"
+      @devCount.text " (#{@packages.dev.length})"
+    else
+      community = @communityPackages.find('.available-package-view:not(.hidden)').length
+      @communityCount.text " (#{community}/#{@packages.user.length})"
+      dev = @devPackages.find('.available-package-view:not(.hidden)').length
+      @devCount.text " (#{dev}/#{@packages.dev.length})"
+      core = @corePackages.find('.available-package-view:not(.hidden)').length
+      @coreCount.text " (#{core}/#{@packages.core.length})"
+
+  # TODO rename this
+  matchPackages: ->
+    filterText = @filterEditor.getEditor().getText()
+    @filterPackageListByText(filterText)

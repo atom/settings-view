@@ -83,12 +83,19 @@ class InstalledPackagesPanel extends View
         @checkingMessage.hide()
         @updateErrors.append(new ErrorView(@packageManager, error))
 
+  filterPackages: (packages) ->
+    packages.dev = packages.dev.filter ({theme}) -> not theme
+    packages.user = packages.user.filter ({theme}) -> not theme
+    packages.core = packages.core.filter ({theme}) -> not theme
+
+    packages
+
 
   loadPackages: ->
     @packageViews = []
     @packageManager.getInstalled()
       .then (packages) =>
-        @packages = packages
+        @packages =  @filterPackages(packages)
 
         # @loadingMessage.hide()
         # TODO show empty mesage per section
