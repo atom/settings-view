@@ -9,6 +9,7 @@ class AvailablePackageView extends View
     # stars, downloads
     # lol wat
     owner = AvailablePackageView.prototype.ownerFromRepository(repository)
+    description ?= ''
 
     @div class: 'available-package-view col-lg-8', =>
       @div class: 'stats top-meta meta-right', =>
@@ -79,6 +80,7 @@ class AvailablePackageView extends View
       false
 
   ownerFromRepository: (repository) ->
+    return '' unless repository
     loginRegex = /github\.com\/([\w-]+)\/.+/
     if typeof(repository) is "string"
       repo = repository
