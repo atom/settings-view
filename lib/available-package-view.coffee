@@ -36,7 +36,7 @@ class AvailablePackageView extends View
         @a outlet: 'loginLink', class: 'author', href: "https://atom.io/users/#{owner}", owner
         @div class: 'meta-right', =>
           @div class: 'btn-group', =>
-            @button type: 'button', class: 'btn btn-info icon icon-cloud-download', outlet: 'installButton', 'Install'
+            @button type: 'button', class: 'btn btn-info icon icon-cloud-download install-button', outlet: 'installButton', 'Install'
           @div outlet: 'buttons', class: 'btn-group', =>
             @button type: 'button', class: 'btn icon icon-gear',           outlet: 'settingsButton', 'Settings'
             @button type: 'button', class: 'btn icon icon-trashcan',       outlet: 'uninstallButton', 'Uninstall'
@@ -154,8 +154,10 @@ class AvailablePackageView extends View
       callback(pack, error) if pack.name is @pack.name
 
   install: ->
+    @installButton.addClass('is-installing')
     @packageManager.emit('package-installing', @pack)
     @packageManager.install @pack, (error) =>
+      @installButton.removeClass('is-installing')
       if error?
         console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
       else

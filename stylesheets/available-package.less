@@ -194,6 +194,13 @@
       float: right;
     }
 
+    .install-button.is-installing {
+      opacity: 1; // override disabled style
+      background-image: linear-gradient(to right, transparent 50%, hsla(0,0%,0%,.15) 50%);
+      background-size: 10px 100%;
+      -webkit-animation: available-package-is-installing .5s linear infinite;
+    }
+
     .meta-lower {
       padding: 13px;
       background-color: @input-background-color;
@@ -210,4 +217,8 @@
     // End copy-paste from atom.io
 
   }
+}
+
+@-webkit-keyframes available-package-is-installing {
+  100% { background-position: -10px 0px; }
 }
