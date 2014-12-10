@@ -113,8 +113,12 @@ class AvailablePackageView extends View
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
       @installButton.prop('disabled', false)
       unless error?
+        @updateEnablement()
+
         @installButton.hide()
         @uninstallButton.show()
+        @settingsButton.show()
+        @enablementButton.show()
 
     @subscribeToPackageEvent 'package-installing', (pack) =>
       @installButton.prop('disabled', true)
@@ -129,6 +133,9 @@ class AvailablePackageView extends View
       unless error?
         @installButton.show()
         @uninstallButton.hide()
+        @settingsButton.hide()
+        @enablementButton.hide()
+
 
     if @isInstalled() or @isDisabled()
       @installButton.hide()
