@@ -13,7 +13,7 @@ module.exports =
 class InstalledPackagesPanel extends View
   @content: ->
     @div =>
-      @section class: 'section settings-filter', =>
+      @section class: 'section', =>
         @div class: 'section-container', =>
           @div class: 'section-heading icon icon-package', =>
             @text 'Installed Packages'
@@ -25,29 +25,26 @@ class InstalledPackagesPanel extends View
           @div class: 'editor-container', =>
             @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter packages by name')
 
-      @section class: 'section installed-packages', =>
-        @div class: 'section-container', =>
-          @h2 class: 'section-heading icon icon-package', =>
-            @text 'Community Packages'
-            @span outlet: 'communityCount', class:'section-heading-count', ' (…)'
-          @div outlet: 'communityPackages', class: 'container package-container', =>
-            @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
+          @section class: 'sub-section installed-packages', =>
+            @h3 class: 'sub-section-heading icon icon-package', =>
+              @text 'Community Packages'
+              @span outlet: 'communityCount', class:'section-heading-count', ' (…)'
+            @div outlet: 'communityPackages', class: 'container package-container', =>
+              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
-      @section class: 'section core-packages', =>
-        @div class: 'section-container', =>
-          @h2 class: 'section-heading icon icon-package', =>
-            @text 'Core Packages'
-            @span outlet: 'coreCount', class:'section-heading-count', ' (…)'
-          @div outlet: 'corePackages', class: 'container package-container', =>
-            @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
+          @section class: 'sub-section core-packages', =>
+            @h3 class: 'sub-section-heading icon icon-package', =>
+              @text 'Core Packages'
+              @span outlet: 'coreCount', class:'section-heading-count', ' (…)'
+            @div outlet: 'corePackages', class: 'container package-container', =>
+              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
-      @section class: 'section dev-packages', =>
-        @div class: 'section-container', =>
-          @h2 class: 'section-heading icon icon-package', =>
-            @text 'Development Packages'
-            @span outlet: 'devCount', class:'section-heading-count', ' (…)'
-          @div outlet: 'devPackages', class: 'container package-container', =>
-            @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
+          @section class: 'sub-section dev-packages', =>
+            @h3 class: 'sub-section-heading icon icon-package', =>
+              @text 'Development Packages'
+              @span outlet: 'devCount', class:'section-heading-count', ' (…)'
+            @div outlet: 'devPackages', class: 'container package-container', =>
+              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
   initialize: (@packageManager) ->
     @packageViews = []
