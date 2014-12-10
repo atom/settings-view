@@ -16,6 +16,7 @@ class AtomIoClient
   # Public: Get an avatar image from the filesystem, fetching it first if necessary
   avatar: (login, callback) ->
     @cachedAvatar login, (err, cached) =>
+      # TODO this code currently doesn't ever refresh the cache.
       if cached
         callback null, cached
       else
@@ -42,7 +43,13 @@ class AtomIoClient
     "settings-view:#{path}"
 
   fetchFromCache: (packagePath, options, callback) ->
-    callback = options unless callback
+    unless callback
+      callback = options
+      options = {}
+
+    unless options.force
+      # Set `force` to true if we can't reach the network.
+      options.force = !navigator.onLine
 
     cached = localStorage.getItem(@cacheKeyForPath(packagePath))
     cached = if cached then JSON.parse(cached)
