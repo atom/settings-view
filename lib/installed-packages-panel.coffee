@@ -105,6 +105,11 @@ class InstalledPackagesPanel extends View
         _.each @addPackageViews(@communityPackages, @packages.user), (v) => @packageViews.push(v)
         @communityCount.text " (#{@packages.user.length})"
 
+        @packages.core = @packages.core.map (p) ->
+          # Assume core packages are in the atom org
+          p.repository = "https://github.com/atom/#{p.name}" unless p.repository
+          p
+
         _.each @addPackageViews(@corePackages, @packages.core), (v) => @packageViews.push(v)
         @coreCount.text " (#{@packages.core.length})"
 
