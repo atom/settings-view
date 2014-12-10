@@ -62,6 +62,13 @@
       -webkit-box-orient: vertical;
     }
 
+    .is-updating .upgrade-button {
+      opacity: 1; // override disabled style
+      background-image: linear-gradient(to right, transparent 50%, hsla(0,0%,0%,.15) 50%);
+      background-size: 10px 100%;
+      -webkit-animation: settings-package-updating .5s linear infinite;
+    }
+
     .package-status {
       position: absolute;
       right: 0px;
@@ -81,4 +88,8 @@
       }
     }
   }
+}
+
+@-webkit-keyframes settings-package-updating {
+  100% { background-position: -10px 0px; }
 }

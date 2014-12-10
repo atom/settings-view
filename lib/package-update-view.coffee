@@ -5,13 +5,13 @@ module.exports =
 class PackageUpdateView extends View
   @content: ({name, description}) ->
     @div class: 'col-lg-4 package-update-view', =>
-      @div class: 'thumbnail text', =>
+      @div outlet: 'thumbnail', class: 'thumbnail text', =>
         @div class: 'caption', =>
           @span outlet: 'status', class: 'package-status icon'
           @h4 class: 'package-name native-key-bindings', tabindex: -1, _.undasherize(_.uncamelcase(name))
           @p outlet: 'latestVersion', class: 'description native-key-bindings', tabindex: -1
           @div class: 'btn-toolbar', =>
-            @button outlet: 'upgradeButton', class: 'btn btn-primary', 'Update'
+            @button outlet: 'upgradeButton', class: 'btn btn-primary upgrade-button', 'Update'
             @button outlet: 'uninstallButton', class: 'btn btn-default', 'Uninstall'
             @button outlet: 'settingsButton', class: 'btn btn-default', 'Settings'
 
@@ -33,6 +33,7 @@ class PackageUpdateView extends View
 
   handlePackageEvents: ->
     @subscribeToPackageEvent 'package-updated theme-updated package-update-failed theme-update-failed', (pack, error) =>
+      @thumbnail.removeClass('is-updating');
       if error?
         @setButtonsEnabled(true)
         @setStatusIcon('alert')
@@ -44,6 +45,7 @@ class PackageUpdateView extends View
     @subscribeToPackageEvent 'package-updating', (pack) =>
       @setButtonsEnabled(false)
       @setStatusIcon('cloud-download')
+      @thumbnail.addClass('is-updating');
 
     @subscribeToPackageEvent 'package-uninstalling', (pack) =>
       @setButtonsEnabled(false)
