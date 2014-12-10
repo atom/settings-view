@@ -34,7 +34,7 @@ class ThemesPanel extends View
                 @select outlet: 'syntaxMenu', class: 'form-control'
                 @div class: 'text theme-description', 'This styles the text inside the editor'
 
-      @section class: 'section settings-filter', =>
+      @section class: 'section', =>
         @div class: 'section-container', =>
           @div class: 'section-heading icon icon-package', =>
             @text 'Installed Themes'
@@ -42,30 +42,26 @@ class ThemesPanel extends View
           @div class: 'editor-container', =>
             @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter packages by name')
 
+          @section class: 'sub-section installed-packages', =>
+            @h3 class: 'sub-section-heading icon icon-package', =>
+              @text 'Community Themes'
+              @span outlet: 'communityCount', class:'section-heading-count', ' (…)'
+            @div outlet: 'communityPackages', class: 'container package-container', =>
+              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
-      @section class: 'section installed-packages', =>
-        @div class: 'section-container', =>
-          @h2 class: 'section-heading icon icon-package', =>
-            @text 'Community Themes'
-            @span outlet: 'communityCount', class:'section-heading-count', ' (…)'
-          @div outlet: 'communityPackages', class: 'container package-container', =>
-            @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
+          @section class: 'sub-section core-packages', =>
+            @h3 class: 'sub-section-heading icon icon-package', =>
+              @text 'Core Themes'
+              @span outlet: 'coreCount', class:'section-heading-count', ' (…)'
+            @div outlet: 'corePackages', class: 'container package-container', =>
+              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
-      @section class: 'section core-packages', =>
-        @div class: 'section-container', =>
-          @h2 class: 'section-heading icon icon-package', =>
-            @text 'Core Themes'
-            @span outlet: 'coreCount', class:'section-heading-count', ' (…)'
-          @div outlet: 'corePackages', class: 'container package-container', =>
-            @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
-
-      @section class: 'section dev-packages', =>
-        @div class: 'section-container', =>
-          @h2 class: 'section-heading icon icon-package', =>
-            @text 'Development Themes'
-            @span outlet: 'devCount', class:'section-heading-count', ' (…)'
-          @div outlet: 'devPackages', class: 'container package-container', =>
-            @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
+          @section class: 'sub-section dev-packages', =>
+            @h3 class: 'sub-section-heading icon icon-package', =>
+              @text 'Development Themes'
+              @span outlet: 'devCount', class:'section-heading-count', ' (…)'
+            @div outlet: 'devPackages', class: 'container package-container', =>
+              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
 
   initialize: (@packageManager) ->

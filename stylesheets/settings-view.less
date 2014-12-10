@@ -127,15 +127,16 @@
   .section .section-heading {
     margin-bottom: @component-padding*2;
     color: @text-color-highlight;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
     line-height: 1;
     -webkit-user-select: none;
     cursor: default;
   }
 
+  .sub-section-heading.icon:before,
   .section-heading.icon:before {
-    margin-right: @component-padding;
+    margin-right: @component-padding*.8;
   }
 
   .section-heading-count {
@@ -143,6 +144,17 @@
     font-weight: normal;
     color: @text-color-subtle;
     margin-left: .3em;
+  }
+
+  .sub-section {
+    margin: @section-padding 0;
+  }
+
+  .sub-section-heading {
+    color: @text-color-highlight;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1;
   }
 
   .control-label {
