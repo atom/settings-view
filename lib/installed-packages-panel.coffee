@@ -16,7 +16,7 @@ class InstalledPackagesPanel extends View
       @section class: 'section settings-filter', =>
         @div class: 'section-container', =>
           @div class: 'section-heading icon icon-package', =>
-            @text 'Manage Packages'
+            @text 'Installed Packages'
             @span outlet: 'totalPackages', class:'section-heading-count', ' (…)'
           @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
           @div outlet: 'noUpdatesMessage', class: 'alert alert-info featured-message icon icon-heart', 'All of your installed packages are up to date!'
