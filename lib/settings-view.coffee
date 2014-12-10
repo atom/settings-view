@@ -61,8 +61,7 @@ class SettingsView extends ScrollView
     @addCorePanel 'Packages', 'package', => new InstalledPackagesPanel(@packageManager)
     @addCorePanel 'Themes', 'paintcan', => new ThemesPanel(@packageManager)
     @addCorePanel 'Install', 'cloud-download', => new PackagesPanel(@packageManager)
-    @addPanel 'Available Updates', null, =>
-      new UpdatesPanel(@packageManager)
+    @addCorePanel 'Updates', 'squirrel', => new UpdatesPanel(@packageManager)
 
     @addPackagePanel(pack) for pack in @getPackages()
     @showPanel(@panelToShow) if @panelToShow

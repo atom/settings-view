@@ -5,11 +5,6 @@ module.exports =
 class UpdatesPanel extends View
   @content: ->
     @div =>
-      @ol class: 'breadcrumb', =>
-        @li =>
-          @a outlet: 'breadcrumb'
-        @li class: 'active', =>
-          @a 'Available Updates'
       @section class: 'section packages', =>
         @div class: 'section-container updates-container', =>
           @div class: 'section-heading clearfix', =>
