@@ -9,7 +9,7 @@ GeneralPanel = require './general-panel'
 InstalledPackageView = require './installed-package-view'
 KeybindingsPanel = require './keybindings-panel'
 PackageManager = require './package-manager'
-PackagesPanel = require './packages-panel'
+InstallPanel = require './packages-panel'
 ThemesPanel = require './themes-panel'
 InstalledPackagesPanel = require './installed-packages-panel.coffee'
 UpdatesPanel = require './updates-panel.coffee'
@@ -60,7 +60,7 @@ class SettingsView extends ScrollView
     @addCorePanel 'Keybindings', 'keyboard', -> new KeybindingsPanel
     @addCorePanel 'Packages', 'package', => new InstalledPackagesPanel(@packageManager)
     @addCorePanel 'Themes', 'paintcan', => new ThemesPanel(@packageManager)
-    @addCorePanel 'Install', 'cloud-download', => new PackagesPanel(@packageManager)
+    @addCorePanel 'Install', 'cloud-download', => new InstallPanel(@packageManager)
     @addCorePanel 'Updates', 'squirrel', => new UpdatesPanel(@packageManager)
 
     @addPackagePanel(pack) for pack in @getPackages()

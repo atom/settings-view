@@ -9,7 +9,7 @@ ErrorView = require './error-view'
 PackageManager = require './package-manager'
 
 module.exports =
-class PackagesPanel extends View
+class InstallPanel extends View
   @content: ->
     @div =>
       @div class: 'section packages', =>
