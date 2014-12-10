@@ -36,28 +36,28 @@ class ThemesPanel extends View
 
       @section class: 'section', =>
         @div class: 'section-container', =>
-          @div class: 'section-heading icon icon-package', =>
+          @div class: 'section-heading icon icon-paintcan', =>
             @text 'Installed Themes'
             @span outlet: 'totalPackages', class:'section-heading-count', ' (…)'
           @div class: 'editor-container', =>
-            @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter packages by name')
+            @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter themes by name')
 
           @section class: 'sub-section installed-packages', =>
-            @h3 class: 'sub-section-heading icon icon-package', =>
+            @h3 class: 'sub-section-heading icon icon-paintcan', =>
               @text 'Community Themes'
               @span outlet: 'communityCount', class:'section-heading-count', ' (…)'
             @div outlet: 'communityPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
           @section class: 'sub-section core-packages', =>
-            @h3 class: 'sub-section-heading icon icon-package', =>
+            @h3 class: 'sub-section-heading icon icon-paintcan', =>
               @text 'Core Themes'
               @span outlet: 'coreCount', class:'section-heading-count', ' (…)'
             @div outlet: 'corePackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
           @section class: 'sub-section dev-packages', =>
-            @h3 class: 'sub-section-heading icon icon-package', =>
+            @h3 class: 'sub-section-heading icon icon-paintcan', =>
               @text 'Development Themes'
               @span outlet: 'devCount', class:'section-heading-count', ' (…)'
             @div outlet: 'devPackages', class: 'container package-container', =>
