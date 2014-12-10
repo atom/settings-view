@@ -103,14 +103,14 @@
       padding: 0;
       border-top: none;
     }
+    &.section:empty + .section {
+      // simulate :first-child when there is an empty element in front
+      border-top: none;
+    }
     &:first-child,
     &:last-child {
       padding: @section-padding;
     }
-  }
-
-  .section.settings-panel {
-    border-top: 1px solid @base-border-color;
   }
 
   .section-container {
