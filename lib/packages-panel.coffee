@@ -26,7 +26,7 @@ class PackagesPanel extends View
             @div class: 'editor-container', =>
               @subview 'searchEditorView', new TextEditorView(mini: true)
             @div class: 'btn-group', =>
-              @button outlet: 'searchPackagesButton', type: 'button', class: 'btn btn-default active', 'Packages'
+              @button outlet: 'searchPackagesButton', type: 'button', class: 'btn btn-default selected', 'Packages'
               @button outlet: 'searchThemesButton', type: 'button', class: 'btn btn-default', 'Themes'
 
           @div outlet: 'searchErrors'
@@ -66,19 +66,19 @@ class PackagesPanel extends View
       @performSearch()
 
     @searchPackagesButton.on 'click', =>
-      unless @searchPackagesButton.hasClass('active')
+      unless @searchPackagesButton.hasClass('selected')
         @searchType = 'packages'
-        @searchPackagesButton.addClass('active')
-        @searchThemesButton.removeClass('active')
+        @searchPackagesButton.addClass('selected')
+        @searchThemesButton.removeClass('selected')
         @searchEditorView.setPlaceholderText('Search packages')
         @performSearch()
 
 
     @searchThemesButton.on 'click', =>
-      unless @searchThemesButton.hasClass('active')
+      unless @searchThemesButton.hasClass('selected')
         @searchType = 'themes'
-        @searchThemesButton.addClass('active')
-        @searchPackagesButton.removeClass('active')
+        @searchThemesButton.addClass('selected')
+        @searchPackagesButton.removeClass('selected')
         @searchEditorView.setPlaceholderText('Search themes')
         @performSearch()
 
