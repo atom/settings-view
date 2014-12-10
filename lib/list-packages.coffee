@@ -47,13 +47,9 @@ class ListPackages
       packageDependencies ?= {}
       _atomPackages ?= {}
 
-      if options?.json
-        packageMetadata = (v['metadata'] for k, v of _atomPackages)
-        packages = packageMetadata.filter ({name}) ->
-          packageDependencies.hasOwnProperty(name)
-      else
-        packages = packages.filter ({name}) ->
-          packageDependencies.hasOwnProperty(name)
+      packageMetadata = (v['metadata'] for k, v of _atomPackages)
+      packages = packageMetadata.filter ({name}) ->
+        packageDependencies.hasOwnProperty(name)
 
       callback?(null, packages)
 
