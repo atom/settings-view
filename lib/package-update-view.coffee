@@ -33,28 +33,31 @@ class PackageUpdateView extends View
 
   handlePackageEvents: ->
     @subscribeToPackageEvent 'package-updated theme-updated package-update-failed theme-update-failed', (pack, error) =>
-      @thumbnail.removeClass('is-updating');
       if error?
         @setButtonsEnabled(true)
         @setStatusIcon('alert')
+        @setUpgradeButton()
       else
         @uninstallButton.prop('disabled', false)
         @latestVersion.text("Version #{@pack.latestVersion} is now installed.")
         @setStatusIcon('check')
+        @setUpgradeButton('check')
 
     @subscribeToPackageEvent 'package-updating', (pack) =>
       @setButtonsEnabled(false)
       @setStatusIcon('cloud-download')
-      @thumbnail.addClass('is-updating');
+      @setUpgradeButton('cloud-download')
 
     @subscribeToPackageEvent 'package-uninstalling', (pack) =>
       @setButtonsEnabled(false)
       @setStatusIcon()
+      @setUpgradeButton()
 
     @subscribeToPackageEvent 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', (pack, error) =>
       if error?
         @setButtonsEnabled(true)
         @setStatusIcon('alert')
+        @setUpgradeButton()
 
   setButtonsEnabled: (enabled) ->
     @upgradeButton.prop('disabled', not enabled)
@@ -88,3 +91,17 @@ class PackageUpdateView extends View
         @status.setTooltip(_.capitalize("#{@type} failed to update"))
       when 'cloud-download'
         @status.setTooltip(_.capitalize("#{@type} updating"))
+
+  setUpgradeButton: (iconName) ->
+    @upgradeButton.removeClass('btn-primary btn-progress btn-success icon icon-check icon-alert icon-cloud-download')
+    @upgradeButton.addClass("icon icon-#{iconName}") if iconName
+    switch iconName
+      when undefined
+        @upgradeButton.addClass('btn-primary')
+        @upgradeButton.text('Update')
+      when 'cloud-download'
+        @upgradeButton.addClass('btn-progress')
+        @upgradeButton.text('Updating...')
+      when 'check'
+        @upgradeButton.addClass('btn-success')
+        @upgradeButton.text('Updated')
