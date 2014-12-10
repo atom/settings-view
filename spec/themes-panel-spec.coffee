@@ -66,30 +66,6 @@ describe "ThemesPanel", ->
         expect(panel.uiMenu.val()).toBe 'atom-light-ui'
         expect(panel.syntaxMenu.val()).toBe 'atom-light-syntax'
 
-  describe "when a theme is installed", ->
-    it "adds it to the menu", ->
-      expect(panel.syntaxMenu.find('option[value=a-theme]').length).toBe 0
-
-      themeView = null
-      waitsFor ->
-        themeView = panel.find('.available-package-view').view()
-        themeView?
-
-      runs ->
-        expect(themeView.settingsButton.css('display')).toBe 'none'
-        spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
-          process.nextTick -> callback(0)
-        themeView.installButton.click()
-        expect(themeView.installButton.prop('disabled')).toBe true
-
-      waitsFor ->
-        panel.syntaxMenu.find('option[value=a-theme]').length is 1
-
-      runs ->
-        expect(themeView.status).toHaveClass 'icon-check'
-        expect(themeView.installButton.prop('disabled')).toBe false
-        expect(themeView.settingsButton.css('display')).not.toBe 'none'
-
   describe "when a theme fails to install", ->
     it "displays an error", ->
       expect(panel.syntaxMenu.find('option[value=a-theme]').length).toBe 0
