@@ -96,6 +96,9 @@ class AvailablePackageView extends View
       @downloadCount.text data['downloads']
 
   updateEnablement: ->
+    if @type is 'theme'
+      return @enablementButton.hide()
+
     if atom.packages.isPackageDisabled(@pack.name)
       @addClass('disabled')
       @enablementButton.find('.disable-text').text('Enable')
