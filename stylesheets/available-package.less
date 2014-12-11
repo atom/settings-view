@@ -16,7 +16,13 @@
     overflow: hidden;
 
     &.disabled {
-      background: transparent;
+      background-color: lighten(@tool-panel-background-color, 5%);
+      .body,
+      .avatar,
+      .author,
+      .stats {
+        opacity: .5;
+      }
     }
 
     &.col-lg-4 {
