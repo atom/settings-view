@@ -30,17 +30,23 @@ class AtomIoClient
       if data
         callback(null, data)
       else
-        request "#{@baseURL}#{packagePath}", (err, res, body) =>
-          data = JSON.parse(body)
-          delete data['versions'] if data['versions']
-          cached =
-            data: data
-            createdOn: Date.now()
-          localStorage.setItem(@cacheKeyForPath(packagePath), JSON.stringify(cached))
-          callback(err, cached.data) # TODO handle parse error
+        @request("#{@baseURL}#{packagePath}", callback)
+
+  request: (path, callback) ->
+    request path, (err, res, body) =>
+      data = JSON.parse(body)
+      delete data['versions'] if data['versions']
+      cached =
+        data: data
+        createdOn: Date.now()
+      localStorage.setItem(@cacheKeyForPath(packagePath), JSON.stringify(cached))
+      callback(err, cached.data) # TODO handle parse error
 
   cacheKeyForPath: (path) ->
     "settings-view:#{path}"
+
+  online: ->
+    navigator.onLine
 
   fetchFromCache: (packagePath, options, callback) ->
     unless callback
@@ -49,7 +55,7 @@ class AtomIoClient
 
     unless options.force
       # Set `force` to true if we can't reach the network.
-      options.force = !navigator.onLine
+      options.force = !@online()
 
     cached = localStorage.getItem(@cacheKeyForPath(packagePath))
     cached = if cached then JSON.parse(cached)
