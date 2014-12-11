@@ -35,10 +35,9 @@ class InstallPanel extends View
 
       @div class: 'section packages', =>
         @div class: 'section-container', =>
-          @div class: 'section-heading icon icon-star', 'Featured Packages'
+          @div outlet: 'featuredHeading', class: 'section-heading icon icon-star', 'Featured Packages'
           @div outlet: 'featuredErrors'
           @div outlet: 'loadingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Loading featured packages\u2026'
-          @div outlet: 'emptyMessage', class: 'alert alert-info featured-message icon icon-heart', 'You have every featured package installed already!'
           @div outlet: 'featuredContainer', class: 'container package-container'
 
   initialize: (@packageManager) ->
@@ -47,7 +46,6 @@ class InstallPanel extends View
       false
 
     @searchMessage.hide()
-    @emptyMessage.hide()
 
     @searchEditorView.setPlaceholderText('Search packages')
     @searchType = 'packages'
@@ -71,6 +69,7 @@ class InstallPanel extends View
         @searchPackagesButton.addClass('selected')
         @searchThemesButton.removeClass('selected')
         @searchEditorView.setPlaceholderText('Search packages')
+        @loadFeaturedPackages()
         @performSearch()
 
 
@@ -80,6 +79,7 @@ class InstallPanel extends View
         @searchThemesButton.addClass('selected')
         @searchPackagesButton.removeClass('selected')
         @searchEditorView.setPlaceholderText('Search themes')
+        @loadFeaturedPackages(true)
         @performSearch()
 
   performSearch: ->
@@ -111,19 +111,28 @@ class InstallPanel extends View
       container.append(packageRow)
       packageRow.append(new AvailablePackageView(pack, @packageManager))
 
-  filterPackages: (packages) ->
-    packages.filter ({theme}) -> not theme
+  filterPackages: (packages, themes) ->
+    packages.filter ({theme}) =>
+      if themes
+        theme
+      else
+        not theme
 
   # Load and display the featured packages that are available to install.
-  loadFeaturedPackages: ->
+  loadFeaturedPackages: (loadThemes) ->
+    loadThemes ?= false
     @loadingMessage.show()
 
     @packageManager.getFeatured()
       .then (packages) =>
-        packages = @filterPackages(packages)
+        packages = @filterPackages(packages, loadThemes)
         @loadingMessage.hide()
-        @emptyMessage.show() if packages.length is 0
         @addPackageViews(@featuredContainer, packages)
+        if loadThemes
+          @featuredHeading.text 'Featured Themes'
+        else
+          @featuredHeading.text 'Featured Packages'
+
       .catch (error) =>
         @loadingMessage.hide()
         @featuredErrors.append(new ErrorView(@packageManager, error))
