@@ -99,18 +99,23 @@
   .section {
     padding: @section-padding;
     border-top: 1px solid @base-border-color;
-    &.section:empty {
-      padding: 0;
-      border-top: none;
-    }
-    &.section:empty + .section {
-      // simulate :first-child when there is an empty element in front
-      border-top: none;
-    }
     &:first-child,
     &:last-child {
       padding: @section-padding;
     }
+    &.section:empty {
+      padding: 0;
+      border-top: none;
+    }
+  }
+
+  // Override settings.less
+  // TODO: refactor! This is super ugly, but fixes multiple nesting of sections
+  div > section.section.settings-panel {
+      border-top: 1px solid @base-border-color;
+  }
+  div > form.general-panel + .settings-panel {
+    border-top: none;
   }
 
   .section-container {
