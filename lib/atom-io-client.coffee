@@ -33,7 +33,6 @@ class AtomIoClient
         @request(packagePath, callback)
 
   request: (path, callback) ->
-
     request "#{@baseURL}#{path}", (err, res, body) =>
       data = JSON.parse(body)
       delete data['versions'] if data['versions']
