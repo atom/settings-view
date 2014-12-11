@@ -139,7 +139,6 @@ class AvailablePackageView extends View
         @settingsButton.hide()
         @enablementButton.hide()
 
-
     if @isInstalled() or @isDisabled()
       @installButton.hide()
       @uninstallButton.show()
