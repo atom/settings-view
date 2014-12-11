@@ -18,10 +18,6 @@ class InstalledPackagesPanel extends View
           @div class: 'section-heading icon icon-package', =>
             @text 'Installed Packages'
             @span outlet: 'totalPackages', class:'section-heading-count', ' (…)'
-          @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
-          @div outlet: 'noUpdatesMessage', class: 'alert alert-info featured-message icon icon-heart', 'All of your installed packages are up to date!'
-          @div outlet: 'updateMessage', class: 'alert alert-info loading-area icon icon-cloud-download', =>
-            @a outlet: 'updateLink', "Updates available"
           @div class: 'editor-container', =>
             @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter packages by name')
 
@@ -48,8 +44,6 @@ class InstalledPackagesPanel extends View
 
   initialize: (@packageManager) ->
     @packageViews = []
-    @noUpdatesMessage.hide()
-    @updateMessage.hide()
 
     @subscribe @packageManager, 'package-install-failed', (pack, error) =>
       @searchErrors.append(new ErrorView(@packageManager, error))
@@ -60,25 +54,7 @@ class InstalledPackagesPanel extends View
     @filterEditor.getEditor().on 'contents-modified', =>
       @matchPackages()
 
-    @checkForUpdates()
     @loadPackages()
-
-  checkForUpdates: ->
-    @checkingMessage.show()
-
-    @packageManager.getOutdated()
-      .then (updates) =>
-        if updates.length > 0
-          @updateLink.text("#{updates.length} updates available…")
-            .on 'click', () =>
-              @parents('.settings-view').view()?.showPanel('Available Updates', {back: 'Manage Packages', updates: updates})
-          @updateMessage.show()
-          @checkingMessage.hide()
-        else
-
-      .catch (error) =>
-        @checkingMessage.hide()
-        @updateErrors.append(new ErrorView(@packageManager, error))
 
   filterPackages: (packages) ->
     packages.dev = packages.dev.filter ({theme}) -> not theme
