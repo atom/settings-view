@@ -30,16 +30,17 @@ class AtomIoClient
       if data
         callback(null, data)
       else
-        @request("#{@baseURL}#{packagePath}", callback)
+        @request(packagePath, callback)
 
   request: (path, callback) ->
-    request path, (err, res, body) =>
+
+    request "#{@baseURL}#{path}", (err, res, body) =>
       data = JSON.parse(body)
       delete data['versions'] if data['versions']
       cached =
         data: data
         createdOn: Date.now()
-      localStorage.setItem(@cacheKeyForPath(packagePath), JSON.stringify(cached))
+      localStorage.setItem(@cacheKeyForPath(path), JSON.stringify(cached))
       callback(err, cached.data) # TODO handle parse error
 
   cacheKeyForPath: (path) ->
