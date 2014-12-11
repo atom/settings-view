@@ -121,9 +121,18 @@ class InstallPanel extends View
   # Load and display the featured packages that are available to install.
   loadFeaturedPackages: (loadThemes) ->
     loadThemes ?= false
+    @featuredContainer.empty()
+
+    if loadThemes
+      @loadingMessage.text('Loading featured themes\u2026')
+      @featuredHeading.text 'Featured Themes'
+    else
+      @featuredHeading.text 'Featured Packages'
+      @loadingMessage.text('Loading featured packages\u2026')
+
     @loadingMessage.show()
 
-    @packageManager.getFeatured()
+    @packageManager.getFeatured(loadThemes)
       .then (packages) =>
         packages = @filterPackages(packages, loadThemes)
         @loadingMessage.hide()

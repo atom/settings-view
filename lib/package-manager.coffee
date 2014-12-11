@@ -45,9 +45,14 @@ class PackageManager
     #     error.stderr = stderr
     #     callback(error)
 
-  loadFeatured: (callback) ->
+  loadFeatured: (loadThemes, callback) ->
+    unless callback
+      callback = loadThemes
+      loadThemes = false
+
     args = ['featured', '--json']
     version = atom.getVersion()
+    args.push('--themes') if loadThemes
     args.push('--compatible', version) if semver.valid(version)
 
     @runCommand args, (code, stdout, stderr) ->
@@ -60,7 +65,7 @@ class PackageManager
 
         callback(null, packages)
       else
-        error = new Error('Fetching featured packages and themes failed.')
+        error = new Error('Fetching featured packages failed.')
         error.stdout = stdout
         error.stderr = stderr
         callback(error)
@@ -106,8 +111,8 @@ class PackageManager
   getInstalled: ->
     Q.nbind(@loadInstalled, this)()
 
-  getFeatured: ->
-    @featuredPromise ?= Q.nbind(@loadFeatured, this)()
+  getFeatured: (loadThemes) ->
+    @featuredPromise ?= Q.nbind(@loadFeatured, this, !!loadThemes)()
 
   getOutdated: ->
     @outdatedPromise ?= Q.nbind(@loadOutdated, this)()
