@@ -126,7 +126,6 @@ class ThemesPanel extends View
 
       .catch (error) =>
         @loadingMessage.hide()
-        # TODO errors by section
         @featuredErrors.append(new ErrorView(@packageManager, error))
 
   # Update the active UI and syntax themes and populate the menu
@@ -200,7 +199,6 @@ class ThemesPanel extends View
     for pack, index in packages
       packageRow = $$ -> @div class: 'row'
       container.append(packageRow)
-      # TODO if pack.valid?
       packView = new AvailablePackageView(pack, @packageManager, {back: 'Themes'})
       packageViews.push(packView) # used for search filterin'
       packageRow.append(packView)
@@ -236,7 +234,6 @@ class ThemesPanel extends View
       core = @corePackages.find('.available-package-view:not(.hidden)').length
       @coreCount.text " (#{core}/#{@packages.core.length})"
 
-  # TODO rename this
   matchPackages: ->
     filterText = @filterEditor.getEditor().getText()
     @filterPackageListByText(filterText)
