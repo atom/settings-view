@@ -146,8 +146,6 @@ class InstalledPackagesPanel extends View
       core = @corePackages.find('.available-package-view:not(.hidden)').length
       @coreCount.text " (#{core}/#{@packages.core.length})"
 
-
-  # TODO rename this and the below
   matchPackages: ->
     filterText = @filterEditor.getEditor().getText()
     @filterPackageListByText(filterText)
