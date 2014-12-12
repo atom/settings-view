@@ -124,7 +124,7 @@ class AtomIoClient
     imagePath = @avatarPath login
     stream = fs.createWriteStream imagePath
     stream.on 'finish', () -> callback(null, imagePath)
-    # TODO stream.on error
+    stream.on 'error', (error) -> callback(error)
     request("https://github.com/#{login}.png").pipe(stream)
 
   # The cache expiry doesn't need to be clever, or even compare dates, it just
