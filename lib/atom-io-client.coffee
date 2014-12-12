@@ -63,7 +63,7 @@ class AtomIoClient
         data = JSON.parse(body)
       catch error
         return callback(error)
-        
+
       delete data['versions'] if data['versions']
       cached =
         data: data
@@ -77,6 +77,8 @@ class AtomIoClient
   online: ->
     navigator.onLine
 
+  # This could use a better name, since it checks whether it's appropriate to return
+  # the cached data and pretends it's null if it's stale and we're online
   fetchFromCache: (packagePath, options, callback) ->
     unless callback
       callback = options
@@ -88,8 +90,7 @@ class AtomIoClient
 
     cached = localStorage.getItem(@cacheKeyForPath(packagePath))
     cached = if cached then JSON.parse(cached)
-    # TODO - Needs to always return cached data when api is unreachable
-    if cached? and (options.force or (Date.now() - cached.createdOn < @expiry))
+    if cached? and (not @online() or options.force or (Date.now() - cached.createdOn < @expiry))
       cached ?=  {data: {}}
       callback(null, cached.data)
     else
