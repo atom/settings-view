@@ -26,8 +26,8 @@ class InstallPanel extends View
             @div class: 'editor-container', =>
               @subview 'searchEditorView', new TextEditorView(mini: true)
             @div class: 'btn-group', =>
-              @button outlet: 'searchPackagesButton', type: 'button', class: 'btn btn-default selected', 'Packages'
-              @button outlet: 'searchThemesButton', type: 'button', class: 'btn btn-default', 'Themes'
+              @a outlet: 'searchPackagesButton', class: 'btn btn-default selected', 'Packages'
+              @a outlet: 'searchThemesButton', class: 'btn btn-default', 'Themes'
 
           @div outlet: 'searchErrors'
           @div outlet: 'searchMessage', class: 'alert alert-info search-message icon icon-search'
