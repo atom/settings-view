@@ -59,7 +59,11 @@ class AtomIoClient
 
   request: (path, callback) ->
     request "#{@baseURL}#{path}", (err, res, body) =>
-      data = JSON.parse(body)
+      try
+        data = JSON.parse(body)
+      catch error
+        return callback(error)
+        
       delete data['versions'] if data['versions']
       cached =
         data: data
