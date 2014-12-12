@@ -107,7 +107,6 @@ class AtomIoClient
       for imagePath in files
         filename = path.basename(imagePath)
         [..., createdOn] = filename.split('-')
-        # TODO don't check expiry if network connection is not avail
         if Date.now() - parseInt(createdOn) < @expiry
           return callback(null, imagePath)
           break
