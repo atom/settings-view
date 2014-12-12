@@ -69,7 +69,7 @@ class AtomIoClient
         data: data
         createdOn: Date.now()
       localStorage.setItem(@cacheKeyForPath(path), JSON.stringify(cached))
-      callback(err, cached.data) # TODO handle parse error
+      callback(err, cached.data)
 
   cacheKeyForPath: (path) ->
     "settings-view:#{path}"
