@@ -44,6 +44,11 @@ class AvailablePackageView extends View
               @span class: 'disable-text', 'Disable'
 
   initialize: (@pack, @packageManager, opts) ->
+    # It might be useful to either wrap @pack in a class that has a ::validate
+    # method, or add a method here. At the moment I think all cases of malformed
+    # package metadata are handled here and in ::content but belt and suspenders,
+    # you know
+
     @client = new Client
     @type = if @pack.theme then 'theme' else 'package'
 
