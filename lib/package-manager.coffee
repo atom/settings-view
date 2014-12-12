@@ -5,9 +5,6 @@ Q = require 'q'
 semver = require 'semver'
 url = require 'url'
 
-# temporary, hopefully
-PackageLister = require './list-packages'
-
 Q.stopUnhandledRejectionTracking()
 
 module.exports =
@@ -16,7 +13,6 @@ class PackageManager
 
   constructor: ->
     @packagePromises = []
-    @packageLister = new PackageLister
 
   runCommand: (args, callback) ->
     command = atom.packages.getApmPath()
@@ -31,19 +27,16 @@ class PackageManager
     new BufferedProcess({command, args, stdout, stderr, exit})
 
   loadInstalled: (callback) ->
-    @packageLister.getPackages (err, packages) ->
-      callback(err, packages)
-
-    # args = ['ls', '--json']
-    # @runCommand args, (code, stdout, stderr) ->
-    #   if code is 0
-    #     packages = JSON.parse(stdout)
-    #     callback(null, packages)
-    #   else
-    #     error = new Error('Fetching local packages failed.')
-    #     error.stdout = stdout
-    #     error.stderr = stderr
-    #     callback(error)
+    args = ['ls', '--json']
+    @runCommand args, (code, stdout, stderr) ->
+      if code is 0
+        packages = JSON.parse(stdout)
+        callback(null, packages)
+      else
+        error = new Error('Fetching local packages failed.')
+        error.stdout = stdout
+        error.stderr = stderr
+        callback(error)
 
   loadFeatured: (loadThemes, callback) ->
     unless callback
