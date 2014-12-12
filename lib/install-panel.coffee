@@ -5,6 +5,7 @@ fs = require 'fs-plus'
 {$, $$, View, TextEditorView} = require 'atom'
 
 AvailablePackageView = require './available-package-view'
+Client = require './atom-io-client'
 ErrorView = require './error-view'
 PackageManager = require './package-manager'
 
@@ -41,6 +42,7 @@ class InstallPanel extends View
           @div outlet: 'featuredContainer', class: 'container package-container'
 
   initialize: (@packageManager) ->
+    @client = new Client(@packageManager)
     @openAtomIo.on 'click', =>
       require('shell').openExternal('https://atom.io/packages')
       false
@@ -132,16 +134,24 @@ class InstallPanel extends View
 
     @loadingMessage.show()
 
-    @packageManager.getFeatured(loadThemes)
-      .then (packages) =>
-        packages = @filterPackages(packages, loadThemes)
-        @loadingMessage.hide()
-        @addPackageViews(@featuredContainer, packages)
-        if loadThemes
-          @featuredHeading.text 'Featured Themes'
-        else
-          @featuredHeading.text 'Featured Packages'
+    handle = (error) =>
+      @loadingMessage.hide()
+      @featuredErrors.append(new ErrorView(@packageManager, error))
 
-      .catch (error) =>
-        @loadingMessage.hide()
-        @featuredErrors.append(new ErrorView(@packageManager, error))
+    if loadThemes
+      @client.featuredThemes (error, themes) =>
+        if error
+          handle(error)
+        else
+          @loadingMessage.hide()
+          @featuredHeading.text 'Featured Themes'
+          @addPackageViews(@featuredContainer, themes)
+
+    else
+      @client.featuredPackages (error, packages) =>
+        if error
+          handle(error)
+        else
+          @loadingMessage.hide()
+          @featuredHeading.text 'Featured Packages'
+          @addPackageViews(@featuredContainer, packages)

@@ -7,7 +7,7 @@ request = require 'request'
 
 module.exports =
 class AtomIoClient
-  constructor: (@baseURL) ->
+  constructor: (@packageManager, @baseURL) ->
     @baseURL ?= 'https://atom.io/api/'
     # 12 hour expiry
     @expiry = 1000 * 60 * 60 * 12
@@ -31,6 +31,30 @@ class AtomIoClient
         callback(null, data)
       else
         @request(packagePath, callback)
+
+  featuredPackages: (callback) ->
+    # TODO clean up caching copypasta
+    @fetchFromCache 'packages/featured', {}, (err, data) =>
+      if data
+        callback(null, data)
+      else
+        @getFeatured(false, callback)
+
+  featuredThemes: (callback) ->
+    # TODO clean up caching copypasta
+    @fetchFromCache 'themes/featured', {}, (err, data) =>
+      if data
+        callback(null, data)
+      else
+        @getFeatured(true, callback)
+
+  getFeatured: (loadThemes, callback) ->
+    # apm already does this, might as well use it instead of request i guess?
+    @packageManager.getFeatured(loadThemes)
+      .then (packages) =>
+        callback(null, packages)
+      .catch (error) =>
+        callback(error, null)
 
   request: (path, callback) ->
     request "#{@baseURL}#{path}", (err, res, body) =>
