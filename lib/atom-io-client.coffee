@@ -17,8 +17,8 @@ class AtomIoClient
   # Public: Get an avatar image from the filesystem, fetching it first if necessary
   avatar: (login, callback) ->
     @cachedAvatar login, (err, cached) =>
-      # TODO this code currently doesn't ever refresh the cache.
-      if cached
+      stale = Date.now() - parseInt(cached.split('-').pop()) > @expiry if cached
+      if cached and (not stale or not @online())
         callback null, cached
       else
         @fetchAndCacheAvatar(login, callback)
