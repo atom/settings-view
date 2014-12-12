@@ -12,6 +12,7 @@ class AtomIoClient
     # 12 hour expiry
     @expiry = 1000 * 60 * 60 * 12
     @createAvatarCache()
+    @expireCacheItems()
 
   # Public: Get an avatar image from the filesystem, fetching it first if necessary
   avatar: (login, callback) ->
@@ -116,9 +117,34 @@ class AtomIoClient
     path.join app.getDataPath(), 'Cache/settings-view', "#{login}-*"
 
   fetchAndCacheAvatar: (login, callback) ->
-    # TODO clean up cache
     imagePath = @avatarPath login
     stream = fs.createWriteStream imagePath
     stream.on 'finish', () -> callback(null, imagePath)
     # TODO stream.on error
     request("https://github.com/#{login}.png").pipe(stream)
+
+  # The cache expiry doesn't need to be clever, or even compare dates, it just
+  # needs to always keep around the newest item, and that item only.
+
+  expireCacheItems: ->
+    @expireAvatarCache()
+    @expireLocalStorageCache()
+
+  expireAvatarCache: ->
+    fs.readdir path.join(app.getDataPath(), 'Cache/settings-view'), (error, _files) ->
+      files = {}
+      for filename in _files
+        parts = filename.split('-')
+        stamp = parts.pop()
+        key = parts.join('-')
+        files[key] ?= []
+        files[key].push "#{key}-#{stamp}"
+
+      for key, children of files
+        children.sort()
+        keep = children.pop()
+        (fs.unlink(path.join(app.getDataPath(), 'Cache/settings-view', child)) for child in children) # throw away callback
+
+
+
+  expireLocalStorageCache: ->
