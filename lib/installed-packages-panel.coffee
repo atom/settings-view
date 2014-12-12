@@ -91,7 +91,6 @@ class InstalledPackagesPanel extends View
 
       .catch (error) =>
         @loadingMessage.hide()
-        # TODO errors by section
         @featuredErrors.append(new ErrorView(@packageManager, error))
 
   addPackageViews: (container, packages) ->
