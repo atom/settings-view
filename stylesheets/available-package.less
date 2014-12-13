@@ -208,6 +208,13 @@
       -webkit-animation: available-package-is-installing .5s linear infinite;
     }
 
+    .status-indicator {
+      padding: 0;
+      width: max(4px, @component-padding/2);
+      pointer-events: none;
+      transition: background .4s;
+    }
+
     .meta-lower {
       padding: 13px;
       background-color: @input-background-color;

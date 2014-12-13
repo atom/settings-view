@@ -42,6 +42,7 @@ class AvailablePackageView extends View
             @button type: 'button', class: 'btn icon icon-trashcan',       outlet: 'uninstallButton', 'Uninstall'
             @button type: 'button', class: 'btn icon icon-playback-pause', outlet: 'enablementButton', =>
               @span class: 'disable-text', 'Disable'
+            @button type: 'button', class: 'btn btn-success status-indicator', tabindex: -1, outlet: 'statusIndicator'
 
   initialize: (@pack, @packageManager, opts) ->
     # It might be useful to either wrap @pack in a class that has a ::validate
@@ -110,12 +111,18 @@ class AvailablePackageView extends View
       @enablementButton
         .addClass('icon-playback-play')
         .removeClass('icon-playback-pause')
+      @statusIndicator
+        .addClass('btn-warning')
+        .removeClass('btn-success')
     else
       @removeClass('disabled')
       @enablementButton.find('.disable-text').text('Disable')
       @enablementButton
         .addClass('icon-playback-pause')
         .removeClass('icon-playback-play')
+      @statusIndicator
+        .addClass('btn-success')
+        .removeClass('btn-warning')
 
   handlePackageEvents: ->
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
@@ -127,6 +134,7 @@ class AvailablePackageView extends View
         @uninstallButton.show()
         @settingsButton.show()
         @enablementButton.show()
+        @statusIndicator.show()
 
     @subscribeToPackageEvent 'package-installing', (pack) =>
       @installButton.prop('disabled', true)
@@ -151,6 +159,7 @@ class AvailablePackageView extends View
       @settingsButton.hide()
       @uninstallButton.hide()
       @enablementButton.hide()
+      @statusIndicator.hide()
 
   isInstalled: -> atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)
 
