@@ -51,8 +51,7 @@ class InstalledPackagesPanel extends View
     @subscribe @packageManager, 'package-update-failed theme-update-failed', (pack, error) =>
       @updateErrors.append(new ErrorView(@packageManager, error))
 
-    @filterEditor.getEditor().on 'contents-modified', =>
-      @matchPackages()
+    @filterEditor.getEditor().onDidStopChanging => @matchPackages()
 
     @loadPackages()
 

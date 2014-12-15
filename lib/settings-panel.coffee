@@ -136,7 +136,7 @@ class SettingsPanel extends View
 
         editorView.setText(stringValue)
 
-      editorView.getEditor().getBuffer().on 'contents-modified', =>
+      editorView.getEditor().onDidStopChanging =>
         @set(name, @parseValue(type, editorView.getText()))
 
   valueToString: (value) ->

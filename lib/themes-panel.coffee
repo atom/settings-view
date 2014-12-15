@@ -81,9 +81,7 @@ class ThemesPanel extends View
     @subscribe atom.themes, 'reloaded', => @updateActiveThemes()
     @updateActiveThemes()
 
-    @filterEditor.getEditor().on 'contents-modified', =>
-      @matchPackages()
-
+    @filterEditor.getEditor().onDidStopChanging => @matchPackages()
 
     @syntaxMenu.change =>
       @activeSyntaxTheme = @syntaxMenu.val()

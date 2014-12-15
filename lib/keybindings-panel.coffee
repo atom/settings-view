@@ -42,7 +42,7 @@ class KeybindingsPanel extends View
 
     @searchEditorView.setPlaceholderText('Search keybindings')
 
-    @searchEditorView.getEditor().getBuffer().on 'contents-modified', =>
+    @searchEditorView.getEditor().onDidStopChanging =>
       @filterKeyBindings(@keyBindings, @searchEditorView.getText())
 
     @on 'click', '.copy-icon', ({target}) =>
