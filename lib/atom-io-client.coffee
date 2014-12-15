@@ -104,7 +104,7 @@ class AtomIoClient
         fs.mkdirSync(path.join(cachePath, 'settings-view')) unless exists
 
   avatarPath: (login) ->
-    path.join app.getDataPath(), 'Cache/settings-view', "#{login}-#{Date.now()}"
+    path.join app.getDataPath(), 'Cache', 'settings-view', "#{login}-#{Date.now()}"
 
   cachedAvatar: (login, callback) ->
     glob @avatarGlob(login), (err, files) =>
@@ -118,7 +118,7 @@ class AtomIoClient
       callback(null, null)
 
   avatarGlob: (login) ->
-    path.join app.getDataPath(), 'Cache/settings-view', "#{login}-*"
+    path.join app.getDataPath(), 'Cache', 'settings-view', "#{login}-*"
 
   fetchAndCacheAvatar: (login, callback) ->
     imagePath = @avatarPath login
@@ -132,7 +132,7 @@ class AtomIoClient
   # cache updates in place, so it doesn't need to be purged.
 
   expireAvatarCache: ->
-    fs.readdir path.join(app.getDataPath(), 'Cache/settings-view'), (error, _files) ->
+    fs.readdir path.join(app.getDataPath(), 'Cache', 'settings-view'), (error, _files) ->
       _files ?= []
       files = {}
       for filename in _files
@@ -150,7 +150,7 @@ class AtomIoClient
         # - this should be fixed with a singleton client
         unlink = (child) ->
           try
-            fs.unlink(path.join(app.getDataPath(), 'Cache/settings-view', child))
+            fs.unlink(path.join(app.getDataPath(), 'Cache', 'settings-view', child))
           catch error
             throw error unless error.code is 'ENOENT'
         (unlink(child) for child in children) # throw away callback
