@@ -64,7 +64,7 @@ class AtomIoClient
       catch error
         return callback(error)
 
-      delete data['versions'] if data['versions']
+      delete data.versions
       cached =
         data: data
         createdOn: Date.now()
