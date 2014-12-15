@@ -1,6 +1,7 @@
 path = require 'path'
 _ = require 'underscore-plus'
-{$$$, View} = require 'atom'
+{CompositeDisposable} = require 'atom'
+{$$$, View} = require 'atom-space-pen-views'
 SettingsPanel = require './settings-panel'
 
 # View to display the grammars that a package has registered.
@@ -11,9 +12,15 @@ class PackageGrammarsView extends View
       @div outlet: 'grammarSettings'
 
   initialize: (packagePath) ->
+    @disposables = new CompositeDisposable()
     @packagePath = path.join(packagePath, path.sep)
     @addGrammars()
-    @subscribe atom.grammars, 'grammar-added grammar-updated', => @addGrammars()
+
+    @disposables.add atom.grammars.onDidAddGrammar => @addGrammars()
+    @disposables.add atom.grammars.onDidUpdateGrammar => @addGrammars()
+
+  beforeRemove: ->
+    @disposables.dispose()
 
   getPackageGrammars: ->
     packageGrammars = []
