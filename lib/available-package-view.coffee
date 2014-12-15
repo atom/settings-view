@@ -99,7 +99,7 @@ class AvailablePackageView extends View
       @avatar.attr 'src', "file://#{path}"
     @client.package @pack.name, (err, data) =>
       @packageData = data
-      @downloadCount.text data['downloads']
+      @downloadCount.text data.downloads?.toLocaleString()
 
   updateEnablement: ->
     if @type is 'theme'
