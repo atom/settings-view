@@ -1,5 +1,5 @@
 _ = require 'underscore-plus'
-{View} = require 'atom'
+{View} = require 'atom-space-pen-views'
 
 module.exports =
 class PackageUpdatesStatusView extends View
@@ -13,7 +13,7 @@ class PackageUpdatesStatusView extends View
     @setTooltip("#{_.pluralize(packages.length, 'package update')} available")
     statusBar.appendRight(this)
 
-    @subscribe this, 'click', =>
-      @trigger('settings-view:install-packages')
+    @on 'click', =>
+      atom.commands.dispatch(atom.views.getView(atom.workspace), 'settings-view:check-for-package-updates')
       @destroyTooltip()
       @remove()
