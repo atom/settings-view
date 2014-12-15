@@ -1,12 +1,11 @@
 path = require 'path'
-{$$, WorkspaceView} = require 'atom'
+{$$} = require 'atom-space-pen-views'
 SettingsView = require '../lib/settings-view'
 
 describe "SettingsView", ->
   settingsView = null
 
   beforeEach ->
-    atom.workspaceView = new WorkspaceView()
     settingsView = new SettingsView
     spyOn(settingsView, "initializePanels").andCallThrough()
     window.advanceClock(10000)
@@ -68,3 +67,7 @@ describe "SettingsView", ->
       expect(settingsView.panelMenu.find('li:contains(Panel 2)')).toHaveClass('active')
       expect(settingsView.panels.find('#panel-1')).toBeHidden()
       expect(settingsView.panels.find('#panel-2')).toBeVisible()
+
+  it "can be activated", ->
+    waitsForPromise ->
+      atom.packages.activatePackage('settings-view')

@@ -1,5 +1,4 @@
 path = require 'path'
-{WorkspaceView} = require 'atom'
 InstalledPackageView = require '../lib/installed-package-view'
 PackageManager = require '../lib/package-manager'
 
@@ -27,7 +26,6 @@ describe "InstalledPackageView", ->
 
   it "displays the snippets registered by the package", ->
     snippetsTable = null
-    atom.workspaceView = new WorkspaceView()
 
     waitsForPromise ->
       atom.packages.activatePackage('snippets')

@@ -1,12 +1,8 @@
-{WorkspaceView} = require 'atom'
 SettingsPanel = require '../lib/settings-panel'
 _ = require 'underscore-plus'
 
 describe "SettingsPanel", ->
   settingsPanel = null
-
-  beforeEach ->
-    atom.workspaceView = new WorkspaceView()
 
   describe "sorted settings", ->
     beforeEach ->

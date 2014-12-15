@@ -74,7 +74,7 @@ class ThemesPanel extends View
       @searchErrors.append(new ErrorView(@packageManager, error))
 
     @openUserStysheet.on 'click', =>
-      atom.workspaceView.trigger('application:open-your-stylesheet')
+      atom.commands.dispatch(atom.views.getView(atom.workspace), 'application:open-your-stylesheet')
       false
 
     @subscribe @packageManager, 'theme-installed', =>

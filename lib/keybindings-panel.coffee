@@ -39,7 +39,7 @@ class KeybindingsPanel extends View
     @platformPattern = new RegExp("\\.platform-#{_.escapeRegExp(process.platform)}\\b")
 
     @openUserKeymap.on 'click', =>
-      atom.workspaceView.trigger('application:open-your-keymap')
+      atom.commands.dispatch(atom.views.getView(atom.workspace), 'application:open-your-keymap')
       false
 
     @searchEditorView.getModel().setPlaceholderText('Search keybindings')
