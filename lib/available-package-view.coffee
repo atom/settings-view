@@ -50,7 +50,7 @@ class AvailablePackageView extends View
 
     owner = @ownerFromRepository(@pack.repository)
     @filterText = "#{@pack.name} #{owner}"
-    @name = @pack.name
+    {@name} = @pack
 
     @handlePackageEvents()
     @updateEnablement()
