@@ -8,7 +8,7 @@ class AvailablePackageView extends View
   @content: ({name, description, version, repository}) ->
     # stars, downloads
     # lol wat
-    owner = AvailablePackageView.prototype.ownerFromRepository(repository)
+    owner = AvailablePackageView::ownerFromRepository(repository)
     description ?= ''
 
     @div class: 'available-package-view col-lg-8', =>
