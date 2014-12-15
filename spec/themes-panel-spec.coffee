@@ -1,6 +1,5 @@
 path = require 'path'
 
-{$} = require 'atom'
 _ = require 'underscore-plus'
 CSON = require 'season'
 Q = require 'q'
