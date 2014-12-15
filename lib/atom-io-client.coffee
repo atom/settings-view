@@ -96,7 +96,7 @@ class AtomIoClient
     else
       callback(null, null)
 
-  createAvatarCache: () ->
+  createAvatarCache: ->
     cachePath = path.join(app.getDataPath(), 'Cache')
     fs.exists cachePath, (exists) ->
       fs.mkdirSync(cachePath) unless exists
@@ -123,7 +123,7 @@ class AtomIoClient
   fetchAndCacheAvatar: (login, callback) ->
     imagePath = @avatarPath login
     stream = fs.createWriteStream imagePath
-    stream.on 'finish', () -> callback(null, imagePath)
+    stream.on 'finish', -> callback(null, imagePath)
     stream.on 'error', (error) -> callback(error)
     request("https://github.com/#{login}.png").pipe(stream)
 
