@@ -2,7 +2,8 @@ AvailablePackageView = require '../lib/available-package-view'
 
 describe "AvailablePackageView", ->
   it "doesn't show the disable control for a theme", ->
-    packageManager = jasmine.createSpyObj('packageManager', ['on'])
+    packageManager = jasmine.createSpyObj('packageManager', ['on', 'getClient'])
+    packageManager.getClient.andCallFake -> jasmine.createSpyObj('client', ['avatar', 'package'])
     spyOn(AvailablePackageView.prototype, 'isInstalled').andReturn(true)
     spyOn(AvailablePackageView.prototype, 'isDisabled').andReturn(false)
 

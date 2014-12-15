@@ -5,6 +5,8 @@ Q = require 'q'
 semver = require 'semver'
 url = require 'url'
 
+Client = require './atom-io-client'
+
 Q.stopUnhandledRejectionTracking()
 
 module.exports =
@@ -13,6 +15,9 @@ class PackageManager
 
   constructor: ->
     @packagePromises = []
+
+  getClient: ->
+    @client ?= new Client(this)
 
   runCommand: (args, callback) ->
     command = atom.packages.getApmPath()

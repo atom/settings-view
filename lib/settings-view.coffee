@@ -29,7 +29,6 @@ class SettingsView extends ScrollView
   initialize: ({@uri, activePanelName}={}) ->
     super
     @packageManager = new PackageManager()
-    @client = new Client(@packageManager)
     @handlePackageEvents()
 
     @panelToShow = activePanelName

@@ -43,7 +43,7 @@ class InstallPanel extends View
 
   initialize: (@packageManager) ->
     client = $('.settings-view').view()?.client
-    @client = if client then client else new Client(@packageManager)
+    @client = @packageManager.getClient()
     @openAtomIo.on 'click', =>
       require('shell').openExternal('https://atom.io/packages')
       false

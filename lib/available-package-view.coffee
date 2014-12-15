@@ -1,7 +1,6 @@
 _ = require 'underscore-plus'
-{$, View} = require 'atom'
+{View} = require 'atom'
 shell = require 'shell'
-Client = require './atom-io-client'
 
 module.exports =
 class AvailablePackageView extends View
@@ -45,8 +44,7 @@ class AvailablePackageView extends View
     # method, or add a method here. At the moment I think all cases of malformed
     # package metadata are handled here and in ::content but belt and suspenders,
     # you know
-    client = $('.settings-view').view()?.client
-    @client = if client then client else new Client(@packageManager)
+    @client = @packageManager.getClient()
 
     @type = if @pack.theme then 'theme' else 'package'
 
