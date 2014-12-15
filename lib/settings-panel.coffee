@@ -123,7 +123,7 @@ class SettingsPanel extends View
       type = editorView.attr('type')
 
       if defaultValue = @valueToString(@getDefault(name))
-        editorView.setPlaceholderText("Default: #{defaultValue}")
+        editorView.getModel().setPlaceholderText("Default: #{defaultValue}")
 
       @observe name, (value) =>
         if @isDefault(name)

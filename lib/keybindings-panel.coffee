@@ -40,7 +40,7 @@ class KeybindingsPanel extends View
       atom.workspaceView.trigger('application:open-your-keymap')
       false
 
-    @searchEditorView.setPlaceholderText('Search keybindings')
+    @searchEditorView.getModel().setPlaceholderText('Search keybindings')
 
     @searchEditorView.getEditor().onDidStopChanging =>
       @filterKeyBindings(@keyBindings, @searchEditorView.getText())

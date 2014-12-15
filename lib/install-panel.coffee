@@ -50,7 +50,7 @@ class InstallPanel extends View
 
     @searchMessage.hide()
 
-    @searchEditorView.setPlaceholderText('Search packages')
+    @searchEditorView.getModel().setPlaceholderText('Search packages')
     @searchType = 'packages'
     @handleSearchEvents()
 
@@ -71,7 +71,7 @@ class InstallPanel extends View
         @searchType = 'packages'
         @searchPackagesButton.addClass('selected')
         @searchThemesButton.removeClass('selected')
-        @searchEditorView.setPlaceholderText('Search packages')
+        @searchEditorView.getModel().setPlaceholderText('Search packages')
         @loadFeaturedPackages()
         @performSearch()
 
@@ -81,7 +81,7 @@ class InstallPanel extends View
         @searchType = 'themes'
         @searchThemesButton.addClass('selected')
         @searchPackagesButton.removeClass('selected')
-        @searchEditorView.setPlaceholderText('Search themes')
+        @searchEditorView.getModel().setPlaceholderText('Search themes')
         @loadFeaturedPackages(true)
         @performSearch()
 
