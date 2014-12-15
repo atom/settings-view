@@ -1,6 +1,6 @@
 path = require 'path'
 _ = require 'underscore-plus'
-{$, $$$, View} = require 'atom'
+{$, $$$, View} = require 'atom-space-pen-views'
 
 # Displays the keybindings for a package namespace
 module.exports =

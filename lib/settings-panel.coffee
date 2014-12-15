@@ -1,5 +1,5 @@
-{$, $$, View} = require 'atom'
-{TextEditorView} = require 'atom-space-pen-views'
+{CompositeDisposable} = require 'atom'
+{$, $$, TextEditorView, View} = require 'atom-space-pen-views'
 _ = require 'underscore-plus'
 
 module.exports =
@@ -8,6 +8,7 @@ class SettingsPanel extends View
     @section class: 'section settings-panel'
 
   initialize: (namespace, @options={}) ->
+    @disposables = new CompositeDisposable()
     if @options.scopeName
       namespace = 'editor'
       scopedSettings = [
@@ -34,6 +35,9 @@ class SettingsPanel extends View
     @bindCheckboxFields()
     @bindSelectFields()
     @bindEditors()
+
+  beforeRemove: ->
+    @disposables.dispose()
 
   appendSettings: (namespace, settings) ->
     return if _.isEmpty(settings)
@@ -82,9 +86,9 @@ class SettingsPanel extends View
 
   observe: (name, callback) ->
     if @options.scopeName
-      @subscribe atom.config.observe([@options.scopeName], name, callback)
+      @disposables.add atom.config.observe([@options.scopeName], name, callback)
     else
-      @subscribe atom.config.observe(name, callback)
+      @disposables.add atom.config.observe(name, callback)
 
   isDefault: (name) ->
     if @options.scopeName

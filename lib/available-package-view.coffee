@@ -1,9 +1,12 @@
 _ = require 'underscore-plus'
-{View} = require 'atom'
+{View} = require 'atom-space-pen-views'
+{Subscriber} = require 'emissary'
 shell = require 'shell'
 
 module.exports =
 class AvailablePackageView extends View
+  Subscriber.includeInto(this)
+
   @content: ({name, description, version, repository}) ->
     # stars, downloads
     # lol wat
@@ -79,6 +82,9 @@ class AvailablePackageView extends View
         atom.packages.disablePackage(@pack.name)
       @updateEnablement()
       false
+
+  beforeRemove: ->
+    @unsubscribe()
 
   ownerFromRepository: (repository) ->
     return '' unless repository
