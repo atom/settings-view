@@ -32,17 +32,17 @@ module.exports =
     atom.workspaceView.command 'settings-view:change-themes', ->
       openPanel('Themes')
 
-    atom.workspaceView.command 'settings-view:install-themes', ->
-      openPanel('Themes')
-
-    atom.workspaceView.command 'settings-view:install-packages', ->
-      openPanel('Packages')
+    atom.workspaceView.command 'settings-view:install-packages-and-themes', ->
+      openPanel('Install')
 
     atom.workspaceView.command 'settings-view:uninstall-themes', ->
       openPanel('Themes')
 
     atom.workspaceView.command 'settings-view:uninstall-packages', ->
       openPanel('Packages')
+
+    atom.workspaceView.command 'settings-view:check-for-package-updates', ->
+      openPanel('Updates')
 
     atom.packages.once('activated', checkForUpdates)
 
