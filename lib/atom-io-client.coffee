@@ -133,6 +133,7 @@ class AtomIoClient
 
   expireAvatarCache: ->
     fs.readdir path.join(app.getDataPath(), 'Cache/settings-view'), (error, _files) ->
+      _files ?= []
       files = {}
       for filename in _files
         parts = filename.split('-')
