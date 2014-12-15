@@ -19,7 +19,7 @@ describe "ThemesPanel", ->
     atom.packages.packageDirPaths.push(path.join(__dirname, 'fixtures'))
     atom.config.set('core.themes', ['atom-dark-ui', 'atom-dark-syntax'])
     reloadedHandler = jasmine.createSpy('reloadedHandler')
-    atom.themes.on 'reloaded', reloadedHandler
+    atom.themes.onDidReloadAll(reloadedHandler)
     atom.themes.activatePackages()
 
     waitsFor "themes to be reloaded", ->
