@@ -109,7 +109,6 @@ class AtomIoClient
         [..., createdOn] = filename.split('-')
         if Date.now() - parseInt(createdOn) < @expiry
           return callback(null, imagePath)
-          break
       callback(null, null)
 
   avatarGlob: (login) ->
