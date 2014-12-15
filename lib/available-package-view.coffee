@@ -87,7 +87,7 @@ class AvailablePackageView extends View
       repo = repository
     else
       repo = repository.url
-    repo.match(loginRegex)[1]
+    repo.match(loginRegex)?[1] ? ''
 
   loadCachedMetadata: ->
     @client.avatar @ownerFromRepository(@pack.repository), (err, path) =>
