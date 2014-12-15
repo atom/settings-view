@@ -1,10 +1,13 @@
 path = require 'path'
 _ = require 'underscore-plus'
-{$$$, View} = require 'atom'
+{$$$, View} = require 'atom-space-pen-views'
+{Subscriber} = require 'emissary'
 
 # View to display the snippets that a package has registered.
 module.exports =
 class PackageSnippetsView extends View
+  Subscriber.includeInto(this)
+
   @content: ->
     @section class: 'section', =>
       @div class: 'section-heading icon icon-code', 'Snippets'
@@ -20,6 +23,9 @@ class PackageSnippetsView extends View
     @packagePath = path.join(packagePath, path.sep)
     @hide()
     @addSnippets()
+
+  beforeRemove: ->
+    @unsubscribe()
 
   getSnippetProperties: ->
     packageProperties = {}

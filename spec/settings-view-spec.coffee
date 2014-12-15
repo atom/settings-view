@@ -17,7 +17,7 @@ describe "SettingsView", ->
       settingsView.showPanel('Themes')
       newSettingsView = new SettingsView(settingsView.serialize())
       settingsView.remove()
-      newSettingsView.attachToDom()
+      jasmine.attachToDOM(newSettingsView.element)
       newSettingsView.initializePanels()
       expect(newSettingsView.activePanelName).toBe 'Themes'
 
@@ -27,7 +27,7 @@ describe "SettingsView", ->
       newSettingsView = new SettingsView(settingsView.serialize())
       newSettingsView.addPanel('Panel 1', 'panel1', -> $$ -> @div id: 'panel-1')
       newSettingsView.initializePanels()
-      newSettingsView.attachToDom()
+      jasmine.attachToDOM(newSettingsView.element)
       expect(newSettingsView.activePanelName).toBe 'Panel 1'
 
     it "shows the Settings panel if the last saved active panel name no longer exists", ->
@@ -35,7 +35,7 @@ describe "SettingsView", ->
       settingsView.showPanel('Panel 1')
       newSettingsView = new SettingsView(settingsView.serialize())
       settingsView.remove()
-      newSettingsView.attachToDom()
+      jasmine.attachToDOM(newSettingsView.element)
       newSettingsView.initializePanels()
       expect(newSettingsView.activePanelName).toBe 'Settings'
 
@@ -43,7 +43,7 @@ describe "SettingsView", ->
       settingsView.showPanel('Themes')
       settingsView2 = new SettingsView(settingsView.serialize())
       settingsView3 = new SettingsView(settingsView2.serialize())
-      settingsView3.attachToDom()
+      jasmine.attachToDOM(settingsView3.element)
       settingsView3.initializePanels()
       expect(settingsView3.activePanelName).toBe 'Themes'
 
@@ -56,7 +56,7 @@ describe "SettingsView", ->
       expect(settingsView.panelMenu.find('li a:contains(Panel 2)')).toExist()
       expect(settingsView.panelMenu.children(':first')).toHaveClass 'active'
 
-      settingsView.attachToDom()
+      jasmine.attachToDOM(settingsView.element)
       settingsView.panelMenu.find('li a:contains(Panel 1)').click()
       expect(settingsView.panelMenu.children('.active').length).toBe 1
       expect(settingsView.panelMenu.find('li:contains(Panel 1)')).toHaveClass('active')

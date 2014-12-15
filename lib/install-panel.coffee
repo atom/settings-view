@@ -2,8 +2,8 @@ path = require 'path'
 
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
-{$, $$, View} = require 'atom'
-{TextEditorView} = require 'atom-space-pen-views'
+{$, $$, TextEditorView, View} = require 'atom'
+{Subscriber} = require 'emissary'
 
 AvailablePackageView = require './available-package-view'
 Client = require './atom-io-client'
@@ -12,6 +12,8 @@ PackageManager = require './package-manager'
 
 module.exports =
 class InstallPanel extends View
+  Subscriber.includeInto(this)
+
   @content: ->
     @div =>
       @div class: 'section packages', =>
@@ -56,6 +58,9 @@ class InstallPanel extends View
     @handleSearchEvents()
 
     @loadFeaturedPackages()
+
+  beforeRemove: ->
+    @unsubscribe()
 
   focus: ->
     @searchEditorView.focus()

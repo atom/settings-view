@@ -3,8 +3,9 @@ path = require 'path'
 fs = require 'fs-plus'
 fuzzaldrin = require 'fuzzaldrin'
 _ = require 'underscore-plus'
-{$$, CompositeDisposable, View} = require 'atom'
-{TextEditorView} = require 'atom-space-pen-views'
+{CompositeDisposable} = require 'atom'
+{$$, TextEditorView, View} = require 'atom-space-pen-views'
+{Subscriber} = require 'emissary'
 
 AvailablePackageView = require './available-package-view'
 ErrorView = require './error-view'
@@ -12,6 +13,8 @@ PackageManager = require './package-manager'
 
 module.exports =
 class ThemesPanel extends View
+  Subscriber.includeInto(this)
+
   @content: ->
     @div =>
       @div class: 'section packages', =>
@@ -94,6 +97,7 @@ class ThemesPanel extends View
       @scheduleUpdateThemeConfig()
 
   beforeRemove: ->
+    @unsubscribe()
     @disposables.dispose()
 
   filterThemes: (packages) ->

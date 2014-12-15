@@ -2,8 +2,8 @@ path = require 'path'
 
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
-{$, $$, View} = require 'atom'
-{TextEditorView} = require 'atom-space-pen-views'
+{$, $$, TextEditorView, View} = require 'atom-space-pen-views'
+{Subscriber} = require 'emissary'
 fuzzaldrin = require 'fuzzaldrin'
 
 AvailablePackageView = require './available-package-view'
@@ -12,6 +12,8 @@ PackageManager = require './package-manager'
 
 module.exports =
 class InstalledPackagesPanel extends View
+  Subscriber.includeInto(this)
+
   @content: ->
     @div =>
       @section class: 'section', =>
@@ -55,6 +57,9 @@ class InstalledPackagesPanel extends View
     @filterEditor.getEditor().onDidStopChanging => @matchPackages()
 
     @loadPackages()
+
+  beforeRemove: ->
+    @unsubscribe()
 
   filterPackages: (packages) ->
     packages.dev = packages.dev.filter ({theme}) -> not theme

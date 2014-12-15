@@ -1,8 +1,11 @@
 _ = require 'underscore-plus'
-{View} = require 'atom'
+{View} = require 'atom-space-pen-views'
+{Subscriber} = require 'emissary'
 
 module.exports =
 class PackageUpdateView extends View
+  Subscriber.includeInto(this)
+
   @content: ({name, description}) ->
     @div class: 'col-lg-4 package-update-view', =>
       @div outlet: 'thumbnail', class: 'thumbnail text', =>
@@ -30,6 +33,9 @@ class PackageUpdateView extends View
 
     @settingsButton.on 'click', =>
       @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Available Updates'})
+
+  beforeRemove: ->
+    @unsubscribe()
 
   handlePackageEvents: ->
     @subscribeToPackageEvent 'package-updated theme-updated package-update-failed theme-update-failed', (pack, error) =>

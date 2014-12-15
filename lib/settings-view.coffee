@@ -1,7 +1,7 @@
 path = require 'path'
 _ = require 'underscore-plus'
-{$, $$, ScrollView} = require 'atom'
-{TextEditorView} = require 'atom-space-pen-views'
+{$, $$, ScrollView, TextEditorView} = require 'atom-space-pen-views'
+{Subscriber} = require 'emissary'
 async = require 'async'
 CSON = require 'season'
 fuzzaldrin = require 'fuzzaldrin'
@@ -18,6 +18,8 @@ UpdatesPanel = require './updates-panel.coffee'
 
 module.exports =
 class SettingsView extends ScrollView
+  Subscriber.includeInto(this)
+
   @content: ->
     @div class: 'settings-view pane-item', tabindex: -1, =>
       @div class: 'config-menu', outlet: 'sidebar', =>
@@ -34,6 +36,9 @@ class SettingsView extends ScrollView
 
     @panelToShow = activePanelName
     process.nextTick => @initializePanels()
+
+  beforeRemove: ->
+    @unsubscribe()
 
   handlePackageEvents: ->
     @subscribe @packageManager, 'package-installed theme-installed', ({name}) =>
