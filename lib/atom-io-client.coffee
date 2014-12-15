@@ -145,4 +145,12 @@ class AtomIoClient
       for key, children of files
         children.sort()
         keep = children.pop()
-        (fs.unlink(path.join(app.getDataPath(), 'Cache/settings-view', child)) for child in children) # throw away callback
+        # Right now a bunch of clients might be instantiated at once, so
+        # we can just ignore attempts to unlink files that have already been removed
+        # - this should be fixed with a singleton client
+        unlink = (child) ->
+          try
+            fs.unlink(path.join(app.getDataPath(), 'Cache/settings-view', child))
+          catch error
+            throw error unless error.code is 'ENOENT'
+        (unlink(child) for child in children) # throw away callback
