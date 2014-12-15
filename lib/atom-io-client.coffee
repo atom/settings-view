@@ -126,6 +126,12 @@ class AtomIoClient
   # cache updates in place, so it doesn't need to be purged.
 
   expireAvatarCache: ->
+    unlink = (child) =>
+      avatarPath = path.join(@getCachePath(), child)
+      fs.unlink avatarPath, (error) ->
+        if error.code isnt 'ENOENT'
+          console.warn("Error deleting avatar (#{error.code}): #{avatarPath}")
+
     fs.readdir @getCachePath(), (error, _files) =>
       _files ?= []
       files = {}
@@ -142,12 +148,7 @@ class AtomIoClient
         # Right now a bunch of clients might be instantiated at once, so
         # we can just ignore attempts to unlink files that have already been removed
         # - this should be fixed with a singleton client
-        unlink = (child) =>
-          try
-            fs.unlink(path.join(@getCachePath(), child))
-          catch error
-            throw error unless error.code is 'ENOENT'
-        (unlink(child) for child in children) # throw away callback
+        children.forEach(unlink)
 
   getCachePath: ->
     @cachePath ?= path.join(require('remote').require('app').getDataPath(), 'Cache', 'settings-view')
