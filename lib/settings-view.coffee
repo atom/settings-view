@@ -1,6 +1,7 @@
 path = require 'path'
 _ = require 'underscore-plus'
-{$, $$, ScrollView, TextEditorView} = require 'atom'
+{$, $$, ScrollView} = require 'atom'
+{TextEditorView} = require 'atom-space-pen-views'
 async = require 'async'
 CSON = require 'season'
 fuzzaldrin = require 'fuzzaldrin'

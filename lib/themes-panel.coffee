@@ -3,7 +3,8 @@ path = require 'path'
 fs = require 'fs-plus'
 fuzzaldrin = require 'fuzzaldrin'
 _ = require 'underscore-plus'
-{$$, CompositeDisposable, View, TextEditorView} = require 'atom'
+{$$, CompositeDisposable, View} = require 'atom'
+{TextEditorView} = require 'atom-space-pen-views'
 
 AvailablePackageView = require './available-package-view'
 ErrorView = require './error-view'
@@ -82,7 +83,7 @@ class ThemesPanel extends View
     @disposables.add atom.themes.onDidReloadAll => @updateActiveThemes()
     @updateActiveThemes()
 
-    @filterEditor.getEditor().onDidStopChanging => @matchPackages()
+    @filterEditor.getModel().onDidStopChanging => @matchPackages()
 
     @syntaxMenu.change =>
       @activeSyntaxTheme = @syntaxMenu.val()

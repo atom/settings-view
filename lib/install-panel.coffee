@@ -2,7 +2,8 @@ path = require 'path'
 
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
-{$, $$, View, TextEditorView} = require 'atom'
+{$, $$, View} = require 'atom'
+{TextEditorView} = require 'atom-space-pen-views'
 
 AvailablePackageView = require './available-package-view'
 Client = require './atom-io-client'

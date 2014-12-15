@@ -1,4 +1,5 @@
-{$, $$, View, TextEditorView} = require 'atom'
+{$, $$, View} = require 'atom'
+{TextEditorView} = require 'atom-space-pen-views'
 _ = require 'underscore-plus'
 
 module.exports =
@@ -118,12 +119,13 @@ class SettingsPanel extends View
         @set(name, select.val())
 
   bindEditors: ->
-    @find('.editor[id]').views().forEach (editorView) =>
+    @find('atom-text-editor[id]').views().forEach (editorView) =>
+      editor = editorView.getModel()
       name = editorView.attr('id')
       type = editorView.attr('type')
 
       if defaultValue = @valueToString(@getDefault(name))
-        editorView.getModel().setPlaceholderText("Default: #{defaultValue}")
+        editor.setPlaceholderText("Default: #{defaultValue}")
 
       @observe name, (value) =>
         if @isDefault(name)
@@ -131,13 +133,13 @@ class SettingsPanel extends View
         else
           stringValue = @valueToString(value) ? ''
 
-        return if stringValue is editorView.getText()
-        return if _.isEqual(value, @parseValue(type, editorView.getText()))
+        return if stringValue is editor.getText()
+        return if _.isEqual(value, @parseValue(type, editor.getText()))
 
         editorView.setText(stringValue)
 
-      editorView.getEditor().onDidStopChanging =>
-        @set(name, @parseValue(type, editorView.getText()))
+      editor.onDidStopChanging =>
+        @set(name, @parseValue(type, editor.getText()))
 
   valueToString: (value) ->
     if _.isArray(value)

@@ -1,4 +1,5 @@
-{$, $$$, View, TextEditorView} = require 'atom'
+{$, $$$, View} = require 'atom'
+{TextEditorView} = require 'atom-space-pen-views'
 _ = require 'underscore-plus'
 path = require 'path'
 
@@ -42,7 +43,7 @@ class KeybindingsPanel extends View
 
     @searchEditorView.getModel().setPlaceholderText('Search keybindings')
 
-    @searchEditorView.getEditor().onDidStopChanging =>
+    @searchEditorView.getModel().onDidStopChanging =>
       @filterKeyBindings(@keyBindings, @searchEditorView.getText())
 
     @on 'click', '.copy-icon', ({target}) =>
