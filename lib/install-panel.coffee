@@ -42,7 +42,8 @@ class InstallPanel extends View
           @div outlet: 'featuredContainer', class: 'container package-container'
 
   initialize: (@packageManager) ->
-    @client = new Client(@packageManager)
+    client = $('.settings-view').view()?.client
+    @client = if client then client else new Client(@packageManager)
     @openAtomIo.on 'click', =>
       require('shell').openExternal('https://atom.io/packages')
       false

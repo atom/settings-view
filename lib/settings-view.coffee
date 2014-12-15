@@ -5,6 +5,7 @@ async = require 'async'
 CSON = require 'season'
 fuzzaldrin = require 'fuzzaldrin'
 
+Client = require './atom-io-client'
 GeneralPanel = require './general-panel'
 InstalledPackageView = require './installed-package-view'
 KeybindingsPanel = require './keybindings-panel'
@@ -28,6 +29,7 @@ class SettingsView extends ScrollView
   initialize: ({@uri, activePanelName}={}) ->
     super
     @packageManager = new PackageManager()
+    @client = new Client(@packageManager)
     @handlePackageEvents()
 
     @panelToShow = activePanelName
