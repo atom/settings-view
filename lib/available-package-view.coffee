@@ -20,10 +20,6 @@ class AvailablePackageView extends View
         @span class: 'stats-item', =>
           @span class: 'icon icon-cloud-download'
           @span outlet: 'downloadCount', class: 'value'
-        @span class: 'stats-item hidden', =>
-          @div class: 'star-box', =>
-            @a outlet: 'starButton', class: 'star-button btn icon icon-star', =>
-            @a outlet: 'starCount', class: 'star-count'
 
       @div class: 'body', =>
         @h4 class: 'card-name', =>
