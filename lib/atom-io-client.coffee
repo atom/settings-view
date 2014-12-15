@@ -129,7 +129,7 @@ class AtomIoClient
     deleteAvatar = (child) =>
       avatarPath = path.join(@getCachePath(), child)
       fs.unlink avatarPath, (error) ->
-        if error.code isnt 'ENOENT'
+        if error.code isnt 'ENOENT' # Ignore cache paths that don't exist
           console.warn("Error deleting avatar (#{error.code}): #{avatarPath}")
 
     fs.readdir @getCachePath(), (error, _files) =>
