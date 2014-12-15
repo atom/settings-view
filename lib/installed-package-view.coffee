@@ -42,7 +42,7 @@ class InstalledPackageView extends View
             @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
             @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'README'
             @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'CHANGELOG'
-            @button outlet: 'openButton', class: 'btn btn-default icon icon-link-external', 'Open in Atom'
+            @button outlet: 'openButton', class: 'btn btn-default icon icon-link-external', 'View Code'
 
           @div outlet: 'errors'
 
