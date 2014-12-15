@@ -23,7 +23,7 @@ class PackageSnippetsView extends View
 
   getSnippetProperties: ->
     packageProperties = {}
-    for {name, properties} in atom.syntax.propertyStore.propertySets
+    for {name, properties} in atom.grammars.propertyStore.propertySets
       continue unless name?.indexOf?(@packagePath) is 0
       for name, snippet of properties.snippets ? {} when snippet?
         packageProperties[name] ?= snippet

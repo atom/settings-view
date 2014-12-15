@@ -13,11 +13,11 @@ class PackageGrammarsView extends View
   initialize: (packagePath) ->
     @packagePath = path.join(packagePath, path.sep)
     @addGrammars()
-    @subscribe atom.syntax, 'grammar-added grammar-updated', => @addGrammars()
+    @subscribe atom.grammars, 'grammar-added grammar-updated', => @addGrammars()
 
   getPackageGrammars: ->
     packageGrammars = []
-    grammars = atom.syntax.grammars ? []
+    grammars = atom.grammars.grammars ? []
     for grammar in grammars when grammar.path
       packageGrammars.push(grammar) if grammar.path.indexOf(@packagePath) is 0
     packageGrammars.sort (grammar1, grammar2) ->
