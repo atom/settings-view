@@ -63,7 +63,6 @@ class InstalledPackagesPanel extends View
 
     packages
 
-
   loadPackages: ->
     @packageViews = []
     @packageManager.getInstalled()
@@ -105,7 +104,6 @@ class InstalledPackagesPanel extends View
         return 1
       else
         return -1
-
 
     for pack, index in packages
       packageRow = $$ -> @div class: 'row'
