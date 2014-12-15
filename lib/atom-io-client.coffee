@@ -1,7 +1,6 @@
 fs = require 'fs-plus'
 path = require 'path'
 
-app = require('remote').require('app')
 glob = require 'glob'
 request = require 'request'
 
@@ -97,14 +96,10 @@ class AtomIoClient
       callback(null, null)
 
   createAvatarCache: ->
-    cachePath = path.join(app.getDataPath(), 'Cache')
-    fs.exists cachePath, (exists) ->
-      fs.mkdirSync(cachePath) unless exists
-      fs.exists path.join(cachePath, 'settings-view'), (exists) ->
-        fs.mkdirSync(path.join(cachePath, 'settings-view')) unless exists
+    fs.makeTree(@getCachePath())
 
   avatarPath: (login) ->
-    path.join app.getDataPath(), 'Cache', 'settings-view', "#{login}-#{Date.now()}"
+    path.join @getCachePath(), "#{login}-#{Date.now()}"
 
   cachedAvatar: (login, callback) ->
     glob @avatarGlob(login), (err, files) =>
@@ -118,7 +113,7 @@ class AtomIoClient
       callback(null, null)
 
   avatarGlob: (login) ->
-    path.join app.getDataPath(), 'Cache', 'settings-view', "#{login}-*"
+    path.join @getCachePath(), "#{login}-*"
 
   fetchAndCacheAvatar: (login, callback) ->
     imagePath = @avatarPath login
@@ -132,7 +127,7 @@ class AtomIoClient
   # cache updates in place, so it doesn't need to be purged.
 
   expireAvatarCache: ->
-    fs.readdir path.join(app.getDataPath(), 'Cache', 'settings-view'), (error, _files) ->
+    fs.readdir @getCachePath(), (error, _files) =>
       _files ?= []
       files = {}
       for filename in _files
@@ -148,9 +143,12 @@ class AtomIoClient
         # Right now a bunch of clients might be instantiated at once, so
         # we can just ignore attempts to unlink files that have already been removed
         # - this should be fixed with a singleton client
-        unlink = (child) ->
+        unlink = (child) =>
           try
-            fs.unlink(path.join(app.getDataPath(), 'Cache', 'settings-view', child))
+            fs.unlink(path.join(@getCachePath(), child))
           catch error
             throw error unless error.code is 'ENOENT'
         (unlink(child) for child in children) # throw away callback
+
+  getCachePath: ->
+    @cachePath ?= path.join(require('remote').require('app').getDataPath(), 'Cache', 'settings-view')
