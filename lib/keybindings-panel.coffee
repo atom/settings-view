@@ -1,5 +1,5 @@
-{$, $$$, View} = require 'atom'
-{TextEditorView} = require 'atom-space-pen-views'
+{CompositeDisposable} = require 'atom'
+{$, $$$, TextEditorView, View} = require 'atom-space-pen-views'
 _ = require 'underscore-plus'
 path = require 'path'
 
@@ -34,6 +34,7 @@ class KeybindingsPanel extends View
           @tbody outlet: 'keybindingRows'
 
   initialize: ->
+    @disposables = new CompositeDisposable()
     @otherPlatformPattern = new RegExp("\\.platform-(?!#{_.escapeRegExp(process.platform)}\\b)")
     @platformPattern = new RegExp("\\.platform-#{_.escapeRegExp(process.platform)}\\b")
 
@@ -50,10 +51,13 @@ class KeybindingsPanel extends View
       keyBinding = $(target).closest('tr').data('keyBinding')
       @writeKeyBindingToClipboard(keyBinding)
 
-    @subscribe atom.keymap, 'reloaded-key-bindings unloaded-key-bindings', =>
-      @loadKeyBindings()
+    @disposables.add atom.keymap.onDidReloadKeymap => @loadKeyBindings()
+    @disposables.add atom.keymap.onDidUnloadKeymap => @loadKeyBindings()
 
     @loadKeyBindings()
+
+  beforeRemove: ->
+    @disposables.dispose()
 
   loadKeyBindings: ->
     @keybindingRows.empty()
