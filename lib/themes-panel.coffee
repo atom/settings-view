@@ -3,7 +3,7 @@ path = require 'path'
 fs = require 'fs-plus'
 fuzzaldrin = require 'fuzzaldrin'
 _ = require 'underscore-plus'
-{$$, View, TextEditorView} = require 'atom'
+{$$, CompositeDisposable, View, TextEditorView} = require 'atom'
 
 AvailablePackageView = require './available-package-view'
 ErrorView = require './error-view'
@@ -65,6 +65,7 @@ class ThemesPanel extends View
 
 
   initialize: (@packageManager) ->
+    @disposables = new CompositeDisposable()
     @packageViews = []
     @loadPackages()
 
@@ -78,7 +79,7 @@ class ThemesPanel extends View
     @subscribe @packageManager, 'theme-installed', =>
       @populateThemeMenus()
 
-    @subscribe atom.themes, 'reloaded', => @updateActiveThemes()
+    @disposables.add atom.themes.onDidReloadAll => @updateActiveThemes()
     @updateActiveThemes()
 
     @filterEditor.getEditor().onDidStopChanging => @matchPackages()
@@ -90,6 +91,9 @@ class ThemesPanel extends View
     @uiMenu.change =>
       @activeUiTheme = @uiMenu.val()
       @scheduleUpdateThemeConfig()
+
+  beforeRemove: ->
+    @disposables.dispose()
 
   filterThemes: (packages) ->
     packages.dev = packages.dev.filter ({theme}) -> theme
