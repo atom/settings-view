@@ -79,7 +79,7 @@ class InstalledPackagesPanel extends View
 
         @packages.core.forEach (p) ->
           # Assume core packages are in the atom org
-          pack.repository ?= "https://github.com/atom/#{p.name}"
+          p.repository ?= "https://github.com/atom/#{p.name}"
 
         _.each @addPackageViews(@corePackages, @packages.core), (v) => @packageViews.push(v)
         @coreCount.text " (#{@packages.core.length})"
