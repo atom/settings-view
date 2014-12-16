@@ -77,7 +77,7 @@ class AvailablePackageView extends View
       @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
 
     @enablementButton.on 'click', =>
-      if atom.packages.isPackageDisabled(@pack.name)
+      if @isDisabled()
         atom.packages.enablePackage(@pack.name)
       else
         atom.packages.disablePackage(@pack.name)
