@@ -99,6 +99,7 @@ class AvailablePackageView extends View
     @client.avatar @ownerFromRepository(@pack.repository), (err, path) =>
       @avatar.attr 'src', "file://#{path}"
     @client.package @pack.name, (err, data) =>
+      data ?= {}
       @packageData = data
       @downloadCount.text data.downloads?.toLocaleString()
 

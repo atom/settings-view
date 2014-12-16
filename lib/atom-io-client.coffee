@@ -92,7 +92,12 @@ class AtomIoClient
     if cached? and (not @online() or options.force or (Date.now() - cached.createdOn < @expiry))
       cached ?= data: {}
       callback(null, cached.data)
+    else if not cached? and not @online()
+      # The user hasn't requested this resource before and there's no way for us
+      # to get it to them so just hand back an empty object so callers don't crash
+      callback(null, {})
     else
+      # falsy data means "try to hit the network"
       callback(null, null)
 
   createAvatarCache: ->
