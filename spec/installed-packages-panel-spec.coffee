@@ -27,18 +27,15 @@ describe 'InstalledPackagesPanel', ->
 
   it 'filters packages by name', ->
     waitsFor ->
-      console.error @panel.communityCount.text()
       @packageManager.getInstalled.callCount is 1 and @panel.communityCount.text().indexOf('…') < 0
 
     runs ->
       @panel.filterEditor.getModel().setText('user-')
-      console.error window.b = @panel.filterEditor.getModel().getBuffer()
       window.advanceClock(@panel.filterEditor.getModel().getBuffer().stoppedChangingDelay)
       expect(@panel.communityCount.text().trim()).toBe '(1/1)'
       expect(@panel.communityPackages.find('.available-package-view:not(.hidden)').length).toBe 1
 
       expect(@panel.coreCount.text().trim()).toBe '(0/1)'
-      console.error  @panel.corePackages.find('.available-package-view')
       expect(@panel.corePackages.find('.available-package-view:not(.hidden)').length).toBe 0
 
       expect(@panel.devCount.text().trim()).toBe '(0/1)'
