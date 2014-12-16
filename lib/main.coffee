@@ -32,7 +32,7 @@ module.exports =
       'settings-view:uninstall-packages': -> openPanel('Packages')
       'settings-view:check-for-package-updates': -> openPanel('Updates')
 
-    atom.packages.once('activated', checkForUpdates)
+    atom.packages.onDidActivateAll(checkForUpdates)
 
 checkForUpdates = ->
   if statusBar = atom.views.getView(atom.workspace)?.querySelector('status-bar')
