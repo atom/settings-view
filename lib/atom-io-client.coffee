@@ -120,12 +120,14 @@ class AtomIoClient
     path.join @getCachePath(), "#{login}-*"
 
   fetchAndCacheAvatar: (login, callback) ->
-    imagePath = @avatarPath login
-    stream = fs.createWriteStream imagePath
-    stream.on 'finish', -> callback(null, imagePath)
-    stream.on 'error', (error) -> callback(error)
-    request("https://github.com/#{login}.png").pipe(stream)
-
+    if @online()
+      imagePath = @avatarPath login
+      stream = fs.createWriteStream imagePath
+      stream.on 'finish', -> callback(null, imagePath)
+      stream.on 'error', (error) -> callback(error)
+      request("https://github.com/#{login}.png").pipe(stream)
+    else
+      callback(null, null)
   # The cache expiry doesn't need to be clever, or even compare dates, it just
   # needs to always keep around the newest item, and that item only. The localStorage
   # cache updates in place, so it doesn't need to be purged.
