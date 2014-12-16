@@ -378,15 +378,20 @@
     }
 
     .search-container {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 0 -@component-padding/2;
+      padding-top: @component-padding*1.5;
+
+
       .editor-container {
-        float: left;
-        width: 456px;
+        flex: 1;
+        min-width: 130px;
+        margin: @component-padding/2;
       }
 
       .btn-group {
-        float: left;
-        margin: @component-padding*2 0;
-        margin-left: @component-padding;
+        margin: @component-padding/2;
       }
     }
 
