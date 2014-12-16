@@ -1,14 +1,10 @@
-path = require 'path'
-
 _ = require 'underscore-plus'
-fs = require 'fs-plus'
-{$, $$, TextEditorView, View} = require 'atom-space-pen-views'
+{$$, TextEditorView, View} = require 'atom-space-pen-views'
 {Subscriber} = require 'emissary'
 fuzzaldrin = require 'fuzzaldrin'
 
 AvailablePackageView = require './available-package-view'
 ErrorView = require './error-view'
-PackageManager = require './package-manager'
 
 module.exports =
 class InstalledPackagesPanel extends View
