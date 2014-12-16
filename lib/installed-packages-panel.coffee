@@ -54,7 +54,7 @@ class InstalledPackagesPanel extends View
     @subscribe @packageManager, 'package-update-failed theme-update-failed', (pack, error) =>
       @updateErrors.append(new ErrorView(@packageManager, error))
 
-    @filterEditor.getEditor().onDidStopChanging => @matchPackages()
+    @filterEditor.getModel().onDidStopChanging => @matchPackages()
 
     @loadPackages()
 
@@ -134,7 +134,7 @@ class InstalledPackagesPanel extends View
     @updateSectionCounts()
 
   updateSectionCounts: ->
-    filterText = @filterEditor.getEditor().getText()
+    filterText = @filterEditor.getModel().getText()
     if filterText is ''
       @totalPackages.text " (#{@packages.user.length + @packages.core.length + @packages.dev.length})"
       @communityCount.text " (#{@packages.user.length})"
@@ -149,5 +149,5 @@ class InstalledPackagesPanel extends View
       @coreCount.text " (#{core}/#{@packages.core.length})"
 
   matchPackages: ->
-    filterText = @filterEditor.getEditor().getText()
+    filterText = @filterEditor.getModel().getText()
     @filterPackageListByText(filterText)

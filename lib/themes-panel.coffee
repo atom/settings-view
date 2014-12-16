@@ -227,7 +227,7 @@ class ThemesPanel extends View
     @updateSectionCounts()
 
   updateSectionCounts: ->
-    filterText = @filterEditor.getEditor().getText()
+    filterText = @filterEditor.getModel().getText()
     if filterText is ''
       @totalPackages.text " (#{@packages.user.length + @packages.core.length + @packages.dev.length})"
       @communityCount.text " (#{@packages.user.length})"
@@ -242,5 +242,5 @@ class ThemesPanel extends View
       @coreCount.text " (#{core}/#{@packages.core.length})"
 
   matchPackages: ->
-    filterText = @filterEditor.getEditor().getText()
+    filterText = @filterEditor.getModel().getText()
     @filterPackageListByText(filterText)
