@@ -102,7 +102,7 @@ class KeybindingsPanel extends View
     {selector, keystrokes, command, source} = keyBinding
     source = @determineSource(source)
     $$$ ->
-      rowClasses = if source is 'User' then 'success' else ''
+      rowClasses = if source is 'User' then 'is-user' else ''
       @tr class: rowClasses, =>
         @td class: 'keystroke', =>
           @span class: 'icon icon-clippy copy-icon'
