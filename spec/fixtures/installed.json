@@ -1,0 +1,29 @@
+{
+  "core": [
+    {
+      "name": "core-theme",
+      "theme": "syntax"
+    },
+    {
+      "name": "core-package"
+    }
+  ],
+  "user": [
+    {
+      "name": "user-theme",
+      "theme": "syntax"
+    },
+    {
+      "name": "user-package"
+    }
+  ],
+  "dev": [
+    {
+      "name": "dev-theme",
+      "theme": "syntax"
+    },
+    {
+      "name": "dev-package"
+    }
+  ]
+}
