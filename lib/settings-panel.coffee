@@ -28,7 +28,7 @@ class SettingsPanel extends View
       for name in scopedSettings
         settings[name] = atom.config.get([@options.scopeName], name)
     else
-      settings = atom.config.getSettings()[namespace]
+      settings = atom.config.get(namespace)
 
     @appendSettings(namespace, settings)
 
