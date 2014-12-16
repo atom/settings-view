@@ -153,23 +153,9 @@
     }
 
     .meta {
-      margin-top: @component-padding;
-      .avatar {
-        border-radius: @component-border-radius;
-        height: 24px;
-        width: 24px;
-        display: inline-block;
-        vertical-align: middle;
-        background-color: hsla(0,0%,0%,.1);
-      }
-
-      .author {
-        color: @text-color-subtle;
-        margin-left: @component-padding;
-        &:focus {
-          outline: none;
-        }
-      }
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
 
       a.linked-octicon {
         text-decoration: none;
@@ -200,22 +186,44 @@
       }
     }
 
-    .meta-right {
-      float: right;
+    .meta-user {
+      flex: 1 0 auto;
+      margin-top: @component-padding;
+      margin-right: @component-padding;
+
+      .avatar {
+        border-radius: @component-border-radius;
+        height: 24px;
+        width: 24px;
+        display: inline-block;
+        vertical-align: middle;
+        background-color: hsla(0,0%,0%,.1);
+      }
+
+      .author {
+        color: @text-color-subtle;
+        margin-left: @component-padding;
+        &:focus {
+          outline: none;
+        }
+      }
     }
 
-    .install-button.is-installing {
-      opacity: 1; // override disabled style
-      background-image: linear-gradient(to right, transparent 50%, hsla(0,0%,0%,.15) 50%);
-      background-size: 10px 100%;
-      -webkit-animation: available-package-is-installing .5s linear infinite;
-    }
+    .meta-controls {
+      margin-top: @component-padding;
+      .install-button.is-installing {
+        opacity: 1; // override disabled style
+        background-image: linear-gradient(to right, transparent 50%, hsla(0,0%,0%,.15) 50%);
+        background-size: 10px 100%;
+        -webkit-animation: available-package-is-installing .5s linear infinite;
+      }
 
-    .status-indicator {
-      padding: 0;
-      width: max(4px, @component-padding/2);
-      pointer-events: none;
-      transition: background .4s;
+      .status-indicator {
+        padding: 0;
+        width: max(4px, @component-padding/2);
+        pointer-events: none;
+        transition: background .4s;
+      }
     }
 
     .meta-lower {

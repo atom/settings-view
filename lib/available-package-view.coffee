@@ -29,10 +29,11 @@ class AvailablePackageView extends View
         @span outlet: 'packageDescription', class: 'package-description', description
 
       @div class: 'meta', =>
-        @a outlet: 'avatarLink', href: "https://atom.io/users/#{owner}", =>
-          @img outlet: 'avatar', class: 'avatar', src: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' # A transparent gif so there is no "broken border"
-        @a outlet: 'loginLink', class: 'author', href: "https://atom.io/users/#{owner}", owner
-        @div class: 'meta-right', =>
+        @div class: 'meta-user', =>
+          @a outlet: 'avatarLink', href: "https://atom.io/users/#{owner}", =>
+            @img outlet: 'avatar', class: 'avatar', src: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' # A transparent gif so there is no "broken border"
+          @a outlet: 'loginLink', class: 'author', href: "https://atom.io/users/#{owner}", owner
+        @div class: 'meta-controls', =>
           @div class: 'btn-group', =>
             @button type: 'button', class: 'btn btn-info icon icon-cloud-download install-button', outlet: 'installButton', 'Install'
           @div outlet: 'buttons', class: 'btn-group', =>

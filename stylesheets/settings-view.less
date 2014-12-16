@@ -289,10 +289,11 @@
     -webkit-flex-flow: column;
     display: -webkit-flex;
     position: relative;
-    overflow-y: auto;
+    overflow: auto;
 
     > div {
       -webkit-flex: 1;
+      min-width: 372px; // magic number: fit the Settings, Uninstall and Disable button
     }
   }
 
