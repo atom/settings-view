@@ -14,7 +14,7 @@ class AvailablePackageView extends View
     description ?= ''
 
     @div class: 'available-package-view col-lg-8', =>
-      @div class: 'stats top-meta meta-right', =>
+      @div class: 'stats pull-right', =>
         @span class: "stats-item", =>
           @span class: 'icon icon-versions'
           @span class:'value', version
