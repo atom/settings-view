@@ -223,6 +223,10 @@
         width: max(4px, @component-padding/2);
         pointer-events: none;
         transition: background .4s;
+        background: @background-color-success;
+        &.is-disabled {
+          background: @background-color-warning;
+        }
       }
     }
 

@@ -41,7 +41,7 @@ class AvailablePackageView extends View
             @button type: 'button', class: 'btn icon icon-trashcan',       outlet: 'uninstallButton', 'Uninstall'
             @button type: 'button', class: 'btn icon icon-playback-pause', outlet: 'enablementButton', =>
               @span class: 'disable-text', 'Disable'
-            @button type: 'button', class: 'btn btn-success status-indicator', tabindex: -1, outlet: 'statusIndicator'
+            @button type: 'button', class: 'btn status-indicator', tabindex: -1, outlet: 'statusIndicator'
 
   initialize: (@pack, @packageManager, opts) ->
     # It might be useful to either wrap @pack in a class that has a ::validate
@@ -116,8 +116,7 @@ class AvailablePackageView extends View
         .addClass('icon-playback-play')
         .removeClass('icon-playback-pause')
       @statusIndicator
-        .addClass('btn-warning')
-        .removeClass('btn-success')
+        .addClass('is-disabled')
     else
       @removeClass('disabled')
       @enablementButton.find('.disable-text').text('Disable')
@@ -125,8 +124,7 @@ class AvailablePackageView extends View
         .addClass('icon-playback-pause')
         .removeClass('icon-playback-play')
       @statusIndicator
-        .addClass('btn-success')
-        .removeClass('btn-warning')
+        .removeClass('is-disabled')
 
   handlePackageEvents: ->
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
