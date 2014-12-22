@@ -1,12 +1,11 @@
 path = require 'path'
-{$$, WorkspaceView} = require 'atom'
+{$$} = require 'atom-space-pen-views'
 SettingsView = require '../lib/settings-view'
 
 describe "SettingsView", ->
   settingsView = null
 
   beforeEach ->
-    atom.workspaceView = new WorkspaceView()
     settingsView = new SettingsView
     spyOn(settingsView, "initializePanels").andCallThrough()
     window.advanceClock(10000)
@@ -18,7 +17,7 @@ describe "SettingsView", ->
       settingsView.showPanel('Themes')
       newSettingsView = new SettingsView(settingsView.serialize())
       settingsView.remove()
-      newSettingsView.attachToDom()
+      jasmine.attachToDOM(newSettingsView.element)
       newSettingsView.initializePanels()
       expect(newSettingsView.activePanelName).toBe 'Themes'
 
@@ -28,7 +27,7 @@ describe "SettingsView", ->
       newSettingsView = new SettingsView(settingsView.serialize())
       newSettingsView.addPanel('Panel 1', 'panel1', -> $$ -> @div id: 'panel-1')
       newSettingsView.initializePanels()
-      newSettingsView.attachToDom()
+      jasmine.attachToDOM(newSettingsView.element)
       expect(newSettingsView.activePanelName).toBe 'Panel 1'
 
     it "shows the Settings panel if the last saved active panel name no longer exists", ->
@@ -36,7 +35,7 @@ describe "SettingsView", ->
       settingsView.showPanel('Panel 1')
       newSettingsView = new SettingsView(settingsView.serialize())
       settingsView.remove()
-      newSettingsView.attachToDom()
+      jasmine.attachToDOM(newSettingsView.element)
       newSettingsView.initializePanels()
       expect(newSettingsView.activePanelName).toBe 'Settings'
 
@@ -44,7 +43,7 @@ describe "SettingsView", ->
       settingsView.showPanel('Themes')
       settingsView2 = new SettingsView(settingsView.serialize())
       settingsView3 = new SettingsView(settingsView2.serialize())
-      settingsView3.attachToDom()
+      jasmine.attachToDOM(settingsView3.element)
       settingsView3.initializePanels()
       expect(settingsView3.activePanelName).toBe 'Themes'
 
@@ -57,7 +56,7 @@ describe "SettingsView", ->
       expect(settingsView.panelMenu.find('li a:contains(Panel 2)')).toExist()
       expect(settingsView.panelMenu.children(':first')).toHaveClass 'active'
 
-      settingsView.attachToDom()
+      jasmine.attachToDOM(settingsView.element)
       settingsView.panelMenu.find('li a:contains(Panel 1)').click()
       expect(settingsView.panelMenu.children('.active').length).toBe 1
       expect(settingsView.panelMenu.find('li:contains(Panel 1)')).toHaveClass('active')
@@ -69,20 +68,6 @@ describe "SettingsView", ->
       expect(settingsView.panels.find('#panel-1')).toBeHidden()
       expect(settingsView.panels.find('#panel-2')).toBeVisible()
 
-  describe ".addPackagePanel(package)", ->
-    it "adds a menu entry to the left and a panel that can be activated by clicking it", ->
-      waitsForPromise ->
-        atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'a-theme'))
-
-      runs ->
-        pack = atom.packages.getActivePackage('a-theme')
-        settingsView.addPackagePanel(pack)
-        expect(settingsView.panelPackages.find('li a:contains(A Theme)')).toExist()
-
-        settingsView.attachToDom()
-        expect(settingsView.panels.find('.installed-package-view')).not.toExist()
-
-        settingsView.panelPackages.find('li a:contains(A Theme)').click()
-        expect(settingsView.panelPackages.children('.active').length).toBe 1
-        expect(settingsView.panelPackages.find('li:contains(A Theme)')).toHaveClass('active')
-        expect(settingsView.panels.find('.installed-package-view')).toBeVisible()
+  it "can be activated", ->
+    waitsForPromise ->
+      atom.packages.activatePackage('settings-view')

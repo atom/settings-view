@@ -62,7 +62,7 @@ describe "KeybindingsPanel", ->
     it "reloads the key bindings", ->
       keyBindings.push
         source: atom.keymap.getUserKeymapPath(), keystrokes: 'ctrl-b', command: 'core:undo', selector: '.editor'
-      atom.keymap.emit 'reloaded-key-bindings'
+      atom.keymap.emitter.emit 'did-reload-keymap'
 
       waitsFor ->
         panel.keybindingRows.children().length is 2

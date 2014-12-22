@@ -1,12 +1,12 @@
 path = require 'path'
 _ = require 'underscore-plus'
-{$, $$$, View} = require 'atom'
+{$, $$$, View} = require 'atom-space-pen-views'
 
 # Displays the keybindings for a package namespace
 module.exports =
 class PackageKeymapView extends View
   @content: ->
-    @section =>
+    @section class: 'section', =>
       @div class: 'section-heading icon icon-keyboard', 'Keybindings'
       @table class: 'package-keymap-table table native-key-bindings text', tabindex: -1, =>
         @thead =>

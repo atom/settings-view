@@ -5,6 +5,8 @@ Q = require 'q'
 semver = require 'semver'
 url = require 'url'
 
+Client = require './atom-io-client'
+
 Q.stopUnhandledRejectionTracking()
 
 module.exports =
@@ -13,6 +15,9 @@ class PackageManager
 
   constructor: ->
     @packagePromises = []
+
+  getClient: ->
+    @client ?= new Client(this)
 
   runCommand: (args, callback) ->
     command = atom.packages.getApmPath()
@@ -26,9 +31,26 @@ class PackageManager
     args.push('--no-color')
     new BufferedProcess({command, args, stdout, stderr, exit})
 
-  loadFeatured: (callback) ->
+  loadInstalled: (callback) ->
+    args = ['ls', '--json']
+    @runCommand args, (code, stdout, stderr) ->
+      if code is 0
+        packages = JSON.parse(stdout)
+        callback(null, packages)
+      else
+        error = new Error('Fetching local packages failed.')
+        error.stdout = stdout
+        error.stderr = stderr
+        callback(error)
+
+  loadFeatured: (loadThemes, callback) ->
+    unless callback
+      callback = loadThemes
+      loadThemes = false
+
     args = ['featured', '--json']
     version = atom.getVersion()
+    args.push('--themes') if loadThemes
     args.push('--compatible', version) if semver.valid(version)
 
     @runCommand args, (code, stdout, stderr) ->
@@ -41,7 +63,7 @@ class PackageManager
 
         callback(null, packages)
       else
-        error = new Error('Fetching featured packages and themes failed.')
+        error = new Error('Fetching featured packages failed.')
         error.stdout = stdout
         error.stderr = stderr
         callback(error)
@@ -84,8 +106,11 @@ class PackageManager
         error.stderr = stderr
         callback(error)
 
-  getFeatured: ->
-    @featuredPromise ?= Q.nbind(@loadFeatured, this)()
+  getInstalled: ->
+    Q.nbind(@loadInstalled, this)()
+
+  getFeatured: (loadThemes) ->
+    @featuredPromise ?= Q.nbind(@loadFeatured, this, !!loadThemes)()
 
   getOutdated: ->
     @outdatedPromise ?= Q.nbind(@loadOutdated, this)()
@@ -211,12 +236,6 @@ class PackageManager
     {repository} = metadata
     repoUrl = repository?.url ? repository ? ''
     repoUrl.replace(/\.git$/, '').replace(/\/+$/, '')
-
-  getAuthorUserName: (pack) ->
-    return null unless repoUrl = @getRepositoryUrl(pack)
-    repoName = url.parse(repoUrl).pathname
-    chunks = repoName.match '/(.+?)/'
-    chunks?[1]
 
   checkNativeBuildTools: ->
     deferred = Q.defer()

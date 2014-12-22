@@ -4,9 +4,11 @@ url = require 'url'
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
 shell = require 'shell'
-{View} = require 'atom'
+{View} = require 'atom-space-pen-views'
+{Subscriber} = require 'emissary'
 
 ErrorView = require './error-view'
+AvailablePackageView = require './available-package-view'
 PackageGrammarsView = require './package-grammars-view'
 PackageKeymapView = require './package-keymap-view'
 PackageSnippetsView = require './package-snippets-view'
@@ -14,60 +16,69 @@ SettingsPanel = require './settings-panel'
 
 module.exports =
 class InstalledPackageView extends View
-  @content: ->
-    @form class: 'installed-package-view section', =>
-      @div outlet: 'updateArea', class: 'alert alert-success package-update', =>
-        @span outlet: 'updateLabel', class: 'icon icon-squirrel update-message'
-        @span outlet: 'updateLink', class: 'alert-link update-link icon icon-cloud-download', 'Install'
+  Subscriber.includeInto(this)
 
-      @h3 class: 'native-key-bindings', tabindex: -1, =>
-        @span outlet: 'title', class: 'text'
-        @span ' '
-        @span outlet: 'version', class: 'label label-primary'
-        @span ' '
-        @span outlet: 'disabledLabel', class: 'label label-warning', 'Disabled'
+  @content: (pack, packageManager) ->
+    @div =>
+      @ol outlet: 'breadcrumbContainer', class: 'native-key-bindings breadcrumb', tabindex: -1, =>
+        @li =>
+          @a outlet: 'breadcrumb'
+        @li class: 'active', =>
+          @a outlet: 'title'
 
-      @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
+      @section class: 'section', =>
+        @form class: 'section-container installed-package-view', =>
+          @div outlet: 'updateArea', class: 'alert alert-success package-update', =>
+            @span outlet: 'updateLabel', class: 'icon icon-squirrel update-message'
+            @span outlet: 'updateLink', class: 'alert-link update-link icon icon-cloud-download', 'Install'
 
-      @p outlet: 'description', class: 'text native-key-bindings', tabindex: -1
-      @p outlet: 'startupTime', class: 'text icon-dashboard native-key-bindings', tabindex: -1
+          @div class: 'container package-container', =>
+            @div class: 'row', =>
+              @subview 'packageCard', new AvailablePackageView(pack.metadata, packageManager)
 
-      @div outlet: 'buttons', class: 'btn-group', =>
-        @button outlet: 'disableButton', class: 'btn btn-default icon'
-        @button outlet: 'uninstallButton', class: 'btn btn-default icon icon-trashcan', 'Uninstall'
-        @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
-        @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'Open README'
-        @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'Open CHANGELOG'
-        @button outlet: 'openButton', class: 'btn btn-default icon icon-link-external', 'Open in Atom'
+          @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
 
-      @div outlet: 'errors'
+          @p outlet: 'startupTime', class: 'text icon icon-dashboard native-key-bindings', tabindex: -1
+
+          @div outlet: 'buttons', class: 'btn-group', =>
+            @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io', =>
+            @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
+            @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'README'
+            @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'CHANGELOG'
+            @button outlet: 'openButton', class: 'btn btn-default icon icon-link-external', 'View Code'
+
+          @div outlet: 'errors'
 
       @div outlet: 'sections'
 
   initialize: (@pack, @packageManager) ->
     @populate()
     @handleButtonEvents()
-    @updateEnablement()
     @updateFileButtons()
     @checkForUpdate()
     @subscribeToPackageManager()
 
+  beforeRemove: ->
+    @unsubscribe()
+
+  beforeShow: (opts) ->
+    if opts?.back
+      @breadcrumb.text(opts.back).on 'click', () =>
+        @parents('.settings-view').view()?.showPanel(opts.back)
+    else
+      @breadcrumbContainer.hide()
+
   populate: ->
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")
-    @uninstallButton.hide() if atom.packages.isBundledPackage(@pack.name)
 
     @type = if @pack.metadata.theme then 'theme' else 'package'
-    @startupTime.text("This #{@type} added #{@getStartupTime()}ms to startup time.")
+    @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
 
     if repoUrl = @packageManager.getRepositoryUrl(@pack)
       repoName = url.parse(repoUrl).pathname
       @packageRepo.text(repoName.substring(1)).show()
     else
       @packageRepo.hide()
-
-    @description.text(@pack.metadata.description)
-    @version.text(@pack.metadata.version)
-    @disableButton.hide() if @pack.metadata.theme
 
     @sections.empty()
     @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
@@ -86,23 +97,6 @@ class InstalledPackageView extends View
         @populate()
 
   handleButtonEvents: ->
-    @disableButton.on 'click', =>
-      if atom.packages.isPackageDisabled(@pack.name)
-        atom.packages.enablePackage(@pack.name)
-      else
-        atom.packages.disablePackage(@pack.name)
-      @updateEnablement()
-      false
-
-    @uninstallButton.on 'click', =>
-      @uninstallButton.prop('disabled', true)
-      @packageManager.uninstall @pack, (error) =>
-        if error?
-          @errors.append(new ErrorView(@packageManager, error))
-          @uninstallButton.prop('disabled', false)
-          console.error("Uninstalling #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
-      false
-
     @packageRepo.on 'click', =>
       if repoUrl = @packageManager.getRepositoryUrl(@pack)
         shell.openExternal(repoUrl)
@@ -125,6 +119,10 @@ class InstalledPackageView extends View
       atom.open(pathsToOpen: [@pack.path]) if fs.existsSync(@pack.path)
       false
 
+    @learnMoreButton.on 'click', =>
+      shell.openExternal "https://atom.io/packages/#{@pack.name}"
+
+
   openMarkdownFile: (path) ->
     if atom.packages.isPackageActive('markdown-preview')
       atom.workspace.open("#{encodeURI("markdown-preview://#{path}")}")
@@ -145,18 +143,6 @@ class InstalledPackageView extends View
     if @changelogPath then @changelogButton.show() else @changelogButton.hide()
     if @readmePath then @readmeButton.show() else @readmeButton.hide()
 
-  updateEnablement: ->
-    if atom.packages.isPackageDisabled(@pack.name)
-      @disableButton.text('Enable')
-      @disableButton.addClass('icon-playback-play')
-      @disableButton.removeClass('icon-playback-pause')
-      @disabledLabel.show()
-    else
-      @disableButton.text('Disable')
-      @disableButton.addClass('icon-playback-pause')
-      @disableButton.removeClass('icon-playback-play')
-      @disabledLabel.hide()
-
   getStartupTime: ->
     loadTime = @pack.loadTime ? 0
     activateTime = @pack.activateTime ? 0
@@ -166,15 +152,10 @@ class InstalledPackageView extends View
     return if @updateLink.prop('disabled')
     return unless @availableVersion
 
-    @disableButton.prop('disabled', true)
-    @uninstallButton.prop('disabled', true)
     @updateLink.prop('disabled', true)
     @updateLink.text('Installing\u2026')
 
     @packageManager.update @pack, @availableVersion, (error) =>
-      @disableButton.prop('disabled', false)
-      @uninstallButton.prop('disabled', false)
-
       if error?
         @updateLink.prop('disabled', false)
         @updateLink.text('Install')

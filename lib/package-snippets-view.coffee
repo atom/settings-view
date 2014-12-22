@@ -1,12 +1,15 @@
 path = require 'path'
 _ = require 'underscore-plus'
-{$$$, View} = require 'atom'
+{$$$, View} = require 'atom-space-pen-views'
+{Subscriber} = require 'emissary'
 
 # View to display the snippets that a package has registered.
 module.exports =
 class PackageSnippetsView extends View
+  Subscriber.includeInto(this)
+
   @content: ->
-    @section =>
+    @section class: 'section', =>
       @div class: 'section-heading icon icon-code', 'Snippets'
       @table class: 'package-snippets-table table native-key-bindings text', tabindex: -1, =>
         @thead =>
@@ -21,9 +24,12 @@ class PackageSnippetsView extends View
     @hide()
     @addSnippets()
 
+  beforeRemove: ->
+    @unsubscribe()
+
   getSnippetProperties: ->
     packageProperties = {}
-    for {name, properties} in atom.syntax.propertyStore.propertySets
+    for {name, properties} in atom.config.scopedSettingsStore.propertySets
       continue unless name?.indexOf?(@packagePath) is 0
       for name, snippet of properties.snippets ? {} when snippet?
         packageProperties[name] ?= snippet

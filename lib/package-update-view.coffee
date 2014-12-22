@@ -1,24 +1,27 @@
 _ = require 'underscore-plus'
-{View} = require 'atom'
+{View} = require 'atom-space-pen-views'
+{Subscriber} = require 'emissary'
 
 module.exports =
 class PackageUpdateView extends View
+  Subscriber.includeInto(this)
+
   @content: ({name, description}) ->
-    @div class: 'col-lg-4 available-package-view', =>
-      @div class: 'thumbnail text', =>
+    @div class: 'col-lg-4 package-update-view', =>
+      @div outlet: 'thumbnail', class: 'thumbnail text', =>
         @div class: 'caption', =>
           @span outlet: 'status', class: 'package-status icon'
           @h4 class: 'package-name native-key-bindings', tabindex: -1, _.undasherize(_.uncamelcase(name))
           @p outlet: 'latestVersion', class: 'description native-key-bindings', tabindex: -1
           @div class: 'btn-toolbar', =>
-            @button outlet: 'upgradeButton', class: 'btn btn-primary', 'Update'
+            @button outlet: 'upgradeButton', class: 'btn btn-primary upgrade-button', 'Update'
             @button outlet: 'uninstallButton', class: 'btn btn-default', 'Uninstall'
             @button outlet: 'settingsButton', class: 'btn btn-default', 'Settings'
 
   initialize: (@pack, @packageManager) ->
     @type = if @pack.theme then 'theme' else 'package'
 
-    @latestVersion.text("Version #{@pack.latestVersion} is now available. #{@pack.version} is currently installed.")
+    @latestVersion.html("Version <span class='highlight'>#{@pack.latestVersion}</span> is now available. #{@pack.version} is currently installed.")
 
     @handlePackageEvents()
 
@@ -29,30 +32,38 @@ class PackageUpdateView extends View
       @uninstall()
 
     @settingsButton.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name)
+      @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Available Updates'})
+
+  beforeRemove: ->
+    @unsubscribe()
 
   handlePackageEvents: ->
     @subscribeToPackageEvent 'package-updated theme-updated package-update-failed theme-update-failed', (pack, error) =>
       if error?
         @setButtonsEnabled(true)
         @setStatusIcon('alert')
+        @setUpgradeButton()
       else
         @uninstallButton.prop('disabled', false)
         @latestVersion.text("Version #{@pack.latestVersion} is now installed.")
         @setStatusIcon('check')
+        @setUpgradeButton('check')
 
     @subscribeToPackageEvent 'package-updating', (pack) =>
       @setButtonsEnabled(false)
       @setStatusIcon('cloud-download')
+      @setUpgradeButton('cloud-download')
 
     @subscribeToPackageEvent 'package-uninstalling', (pack) =>
       @setButtonsEnabled(false)
       @setStatusIcon()
+      @setUpgradeButton()
 
     @subscribeToPackageEvent 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', (pack, error) =>
       if error?
         @setButtonsEnabled(true)
         @setStatusIcon('alert')
+        @setUpgradeButton()
 
   setButtonsEnabled: (enabled) ->
     @upgradeButton.prop('disabled', not enabled)
@@ -86,3 +97,17 @@ class PackageUpdateView extends View
         @status.setTooltip(_.capitalize("#{@type} failed to update"))
       when 'cloud-download'
         @status.setTooltip(_.capitalize("#{@type} updating"))
+
+  setUpgradeButton: (iconName) ->
+    @upgradeButton.removeClass('btn-primary btn-progress btn-success icon icon-check icon-alert icon-cloud-download')
+    @upgradeButton.addClass("icon icon-#{iconName}") if iconName
+    switch iconName
+      when undefined
+        @upgradeButton.addClass('btn-primary')
+        @upgradeButton.text('Update')
+      when 'cloud-download'
+        @upgradeButton.addClass('btn-progress')
+        @upgradeButton.text('Updating...')
+      when 'check'
+        @upgradeButton.addClass('btn-success')
+        @upgradeButton.text('Updated')

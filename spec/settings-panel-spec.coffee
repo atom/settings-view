@@ -1,12 +1,8 @@
-{WorkspaceView} = require 'atom'
 SettingsPanel = require '../lib/settings-panel'
 _ = require 'underscore-plus'
 
 describe "SettingsPanel", ->
   settingsPanel = null
-
-  beforeEach ->
-    atom.workspaceView = new WorkspaceView()
 
   describe "sorted settings", ->
     beforeEach ->
@@ -37,11 +33,11 @@ describe "SettingsPanel", ->
             order: 100
       atom.config.setSchema("foo", config)
       atom.config.setDefaults("foo", gong: 'gong')
-      expect(_.size(atom.config.getSettings().foo)).toBe 5
+      expect(_.size(atom.config.get('foo'))).toBe 5
       settingsPanel = new SettingsPanel("foo", {includeTitle: false})
 
     it "sorts settings by order and then alphabetically by the key", ->
-      settings = atom.config.getSettings().foo
+      settings = atom.config.get('foo')
       expect(_.size(settings)).toBe 5
       sortedSettings = settingsPanel.sortSettings("foo", settings)
       expect(sortedSettings[0]).toBe 'zing'

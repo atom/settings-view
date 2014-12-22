@@ -8,7 +8,7 @@ createSettingsView = (params) ->
   settingsView = new SettingsView(params)
 
 openPanel = (panelName) ->
-  atom.workspaceView.open(configUri)
+  atom.workspace.open(configUri)
   settingsView.showPanel(panelName)
 
 deserializer =
@@ -20,37 +20,25 @@ atom.deserializers.add(deserializer)
 
 module.exports =
   activate: ->
-    atom.workspace.registerOpener (uri) ->
+    atom.workspace.addOpener (uri) ->
       createSettingsView({uri}) if uri is configUri
 
-    atom.workspaceView.command 'settings-view:open', ->
-      openPanel('Settings')
+    atom.commands.add 'atom-workspace',
+      'settings-view:open': -> openPanel('Settings')
+      'settings-view:show-keybindings': -> openPanel('Keybindings')
+      'settings-view:change-themes': -> openPanel('Themes')
+      'settings-view:install-packages-and-themes': -> openPanel('Install')
+      'settings-view:uninstall-themes': -> openPanel('Themes')
+      'settings-view:uninstall-packages': -> openPanel('Packages')
+      'settings-view:check-for-package-updates': -> openPanel('Updates')
 
-    atom.workspaceView.command 'settings-view:show-keybindings', ->
-      openPanel('Keybindings')
-
-    atom.workspaceView.command 'settings-view:change-themes', ->
-      openPanel('Themes')
-
-    atom.workspaceView.command 'settings-view:install-themes', ->
-      openPanel('Themes')
-
-    atom.workspaceView.command 'settings-view:install-packages', ->
-      openPanel('Packages')
-
-    atom.workspaceView.command 'settings-view:uninstall-themes', ->
-      openPanel('Themes')
-
-    atom.workspaceView.command 'settings-view:uninstall-packages', ->
-      openPanel('Packages')
-
-    atom.packages.once('activated', checkForUpdates)
+    atom.packages.onDidActivateAll(checkForUpdates)
 
 checkForUpdates = ->
-  if atom.workspaceView?.statusBar?
+  if statusBar = atom.views.getView(atom.workspace)?.querySelector('status-bar')
     PackageManager = require './package-manager'
     packageManager = new PackageManager()
     packageManager.getOutdated().then (packages) ->
       if packages.length > 0
         PackageUpdatesStatusView = require './package-updates-status-view'
-        packageUpdatesStatusView = new PackageUpdatesStatusView(atom.workspaceView.statusBar, packages)
+        packageUpdatesStatusView = new PackageUpdatesStatusView(statusBar, packages)

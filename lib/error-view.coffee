@@ -1,10 +1,10 @@
-{View} = require 'atom'
+{View} = require 'atom-space-pen-views'
 CompileToolsErrorView = require './compile-tools-error-view'
 
 module.exports =
 class ErrorView extends View
   @content: ->
-    @div class: 'padded error-message', =>
+    @div class: 'error-message', =>
       @div outlet: 'alert', class: 'alert alert-danger alert-dismissable native-key-bindings', tabindex: -1, =>
         @button outlet: 'close', class: 'close icon icon-x'
         @span outlet: 'message', class: 'native-key-bindings'

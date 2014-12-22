@@ -1,12 +1,14 @@
-{$, $$, View, TextEditorView} = require 'atom'
+{CompositeDisposable} = require 'atom'
+{$, $$, TextEditorView, View} = require 'atom-space-pen-views'
 _ = require 'underscore-plus'
 
 module.exports =
 class SettingsPanel extends View
   @content: ->
-    @div class: 'settings-panel'
+    @section class: 'section settings-panel'
 
   initialize: (namespace, @options={}) ->
+    @disposables = new CompositeDisposable()
     if @options.scopeName
       namespace = 'editor'
       scopedSettings = [
@@ -27,13 +29,16 @@ class SettingsPanel extends View
       for name in scopedSettings
         settings[name] = atom.config.get([@options.scopeName], name)
     else
-      settings = atom.config.getSettings()[namespace]
+      settings = atom.config.get(namespace)
 
     @appendSettings(namespace, settings)
 
     @bindCheckboxFields()
     @bindSelectFields()
     @bindEditors()
+
+  beforeRemove: ->
+    @disposables.dispose()
 
   appendSettings: (namespace, settings) ->
     return if _.isEmpty(settings)
@@ -50,7 +55,7 @@ class SettingsPanel extends View
     sortedSettings = @sortSettings(namespace, settings)
 
     @append $$ ->
-      @section class: 'config-section', =>
+      @div class: 'section-container', =>
         @div class: "block section-heading icon icon-#{icon}", title
         @div class: 'section-body', =>
           for name in sortedSettings
@@ -82,9 +87,9 @@ class SettingsPanel extends View
 
   observe: (name, callback) ->
     if @options.scopeName
-      @subscribe atom.config.observe([@options.scopeName], name, callback)
+      @disposables.add atom.config.observe([@options.scopeName], name, callback)
     else
-      @subscribe atom.config.observe(name, callback)
+      @disposables.add atom.config.observe(name, callback)
 
   isDefault: (name) ->
     if @options.scopeName
@@ -119,12 +124,13 @@ class SettingsPanel extends View
         @set(name, select.val())
 
   bindEditors: ->
-    @find('.editor[id]').views().forEach (editorView) =>
+    @find('atom-text-editor[id]').views().forEach (editorView) =>
+      editor = editorView.getModel()
       name = editorView.attr('id')
       type = editorView.attr('type')
 
       if defaultValue = @valueToString(@getDefault(name))
-        editorView.setPlaceholderText("Default: #{defaultValue}")
+        editor.setPlaceholderText("Default: #{defaultValue}")
 
       @observe name, (value) =>
         if @isDefault(name)
@@ -132,13 +138,13 @@ class SettingsPanel extends View
         else
           stringValue = @valueToString(value) ? ''
 
-        return if stringValue is editorView.getText()
-        return if _.isEqual(value, @parseValue(type, editorView.getText()))
+        return if stringValue is editor.getText()
+        return if _.isEqual(value, @parseValue(type, editor.getText()))
 
         editorView.setText(stringValue)
 
-      editorView.getEditor().getBuffer().on 'contents-modified', =>
-        @set(name, @parseValue(type, editorView.getText()))
+      editor.onDidStopChanging =>
+        @set(name, @parseValue(type, editor.getText()))
 
   valueToString: (value) ->
     if _.isArray(value)
