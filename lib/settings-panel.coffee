@@ -13,6 +13,7 @@ class SettingsPanel extends View
       namespace = 'editor'
       scopedSettings = [
         'autoIndent'
+        'autoIndentOnPaste'
         'invisibles'
         'nonWordCharacters'
         'normalizeIndentOnPaste'

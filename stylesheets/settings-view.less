@@ -107,6 +107,20 @@
       padding: 0;
       border-top: none;
     }
+
+    .editor.mini, .editor.mini::shadow {
+      opacity: .75;
+      .selection .region {
+        background-color: rgba(0, 0, 0, .2);
+      }
+    }
+
+    .editor.mini.is-focused, .editor.mini.is-focused::shadow {
+      opacity: 1;
+      .selection .region {
+        background-color: lighten(@background-color-info, 30%);
+      }
+    }
   }
 
   // Override settings.less
