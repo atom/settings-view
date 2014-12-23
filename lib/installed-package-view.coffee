@@ -45,6 +45,7 @@ class InstalledPackageView extends View
             @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
             @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'README'
             @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'CHANGELOG'
+            @button outlet: 'licenseButton', class: 'btn btn-default icon icon-law', 'LICENSE'
             @button outlet: 'openButton', class: 'btn btn-default icon icon-link-external', 'View Code'
 
           @div outlet: 'errors'
@@ -115,6 +116,10 @@ class InstalledPackageView extends View
       @openMarkdownFile(@changelogPath) if @changelogPath
       false
 
+    @licenseButton.on 'click', =>
+      @openMarkdownFile(@licensePath) if @licensePath
+      false
+
     @openButton.on 'click', =>
       atom.open(pathsToOpen: [@pack.path]) if fs.existsSync(@pack.path)
       false
@@ -131,16 +136,19 @@ class InstalledPackageView extends View
 
   updateFileButtons: ->
     @changelogPath = null
+    @licensePath = null
     @readmePath = null
 
     for child in fs.listSync(@pack.path)
       switch path.basename(child, path.extname(child)).toLowerCase()
         when 'changelog', 'history' then @changelogPath = child
+        when 'license', 'licence' then @licensePath = child
         when 'readme' then @readmePath = child
 
-      break if @readmePath and @changelogPath
+      break if @readmePath and @changelogPath and @licensePath
 
     if @changelogPath then @changelogButton.show() else @changelogButton.hide()
+    if @licensePath then @licenseButton.show() else @licenseButton.hide()
     if @readmePath then @readmeButton.show() else @readmeButton.hide()
 
   getStartupTime: ->
