@@ -27,7 +27,7 @@ class SettingsPanel extends View
       ]
       settings = {}
       for name in scopedSettings
-        settings[name] = atom.config.get([@options.scopeName], name)
+        settings[name] = atom.config.get(name, scope: [@options.scopeName])
     else
       settings = atom.config.get(namespace)
 
@@ -87,28 +87,30 @@ class SettingsPanel extends View
 
   observe: (name, callback) ->
     if @options.scopeName
-      @disposables.add atom.config.observe([@options.scopeName], name, callback)
+      @disposables.add atom.config.observe(name, scope: [@options.scopeName], callback)
     else
       @disposables.add atom.config.observe(name, callback)
 
   isDefault: (name) ->
+    userConfigPath = atom.config.getUserConfigPath()
     if @options.scopeName
-      atom.config.isDefault(@options.scopeName, name)
+      not atom.config.get(name, scope: [@options.scopeName], sources: [userConfigPath])
     else
-      atom.config.isDefault(name)
+      not atom.config.get(name, sources: [userConfigPath])
 
   getDefault: (name) ->
+    userConfigPath = atom.config.getUserConfigPath()
     if @options.scopeName
-      atom.config.getDefault(@options.scopeName, name)
+      atom.config.get(name, scope: [@options.scopeName], excludeSources: [userConfigPath])
     else
-      atom.config.getDefault(name)
+      atom.config.get(name, excludeSources: [userConfigPath])
 
   set: (name, value) ->
     if @options.scopeName
       if value is undefined
-        atom.config.restoreDefault(@options.scopeName, name)
+        atom.config.unset(name, scopeSelector: @options.scopeName)
       else
-        atom.config.set(@options.scopeName, name, value)
+        atom.config.set(name, value, scopeSelector: @options.scopeName)
     else
       atom.config.set(name, value)
 
