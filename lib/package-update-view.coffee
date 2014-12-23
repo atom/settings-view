@@ -35,6 +35,7 @@ class PackageUpdateView extends View
       @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Available Updates'})
 
   beforeRemove: ->
+    @statusTooltip?.dispose()
     @unsubscribe()
 
   handlePackageEvents: ->
@@ -89,14 +90,17 @@ class PackageUpdateView extends View
   setStatusIcon: (iconName) ->
     @status.removeClass('icon-check icon-alert icon-cloud-download')
     @status.addClass("icon-#{iconName}") if iconName
-    @status.destroyTooltip()
+    @statusTooltip?.dispose()
     switch iconName
       when 'check'
-        @status.setTooltip(_.capitalize("#{@type} updated"))
+        tooltip = _.capitalize("#{@type} updated")
       when 'alert'
-        @status.setTooltip(_.capitalize("#{@type} failed to update"))
+        tooltip = _.capitalize("#{@type} failed to update")
       when 'cloud-download'
-        @status.setTooltip(_.capitalize("#{@type} updating"))
+        tooltip = _.capitalize("#{@type} updating")
+
+    if tooltip
+      @statusTooltip = atom.tooltips.add(@status[0], title: tooltip)
 
   setUpgradeButton: (iconName) ->
     @upgradeButton.removeClass('btn-primary btn-progress btn-success icon icon-check icon-alert icon-cloud-download')
