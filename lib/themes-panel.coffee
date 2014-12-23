@@ -17,7 +17,7 @@ class ThemesPanel extends View
 
   @content: ->
     @div =>
-      @div class: 'section packages', =>
+      @div class: 'section packages themes-panel', =>
         @div class: 'section-container', =>
           @div class: 'section-heading icon icon-device-desktop', 'Choose a Theme'
 
@@ -25,18 +25,19 @@ class ThemesPanel extends View
             @span class: 'icon icon-question', 'You can also style Atom by editing '
             @a class: 'link', outlet: 'openUserStysheet', 'your stylesheet'
 
-          @form class: 'form-horizontal theme-chooser', =>
-            @div class: 'form-group', =>
-              @label class: 'col-sm-4 control-label themes-label text', 'UI Theme'
-              @div class: 'col-sm-8', =>
-                @select outlet: 'uiMenu', class: 'form-control'
-                @div class: 'text theme-description', 'This styles the tabs, status bar, tree view, and dropdowns'
+          @div class: 'control-group', =>
+            @div class: 'controls', =>
+              @label class: 'control-label', =>
+                @div class: 'setting-title themes-label text', 'UI Theme'
+                @div class: 'setting-description text theme-description', 'This styles the tabs, status bar, tree view, and dropdowns'
+              @select outlet: 'uiMenu', class: 'form-control'
 
-            @div class: 'form-group', =>
-              @label class: 'col-sm-4 control-label themes-label text', 'Syntax Theme'
-              @div class: 'col-sm-8', =>
-                @select outlet: 'syntaxMenu', class: 'form-control'
-                @div class: 'text theme-description', 'This styles the text inside the editor'
+          @div class: 'control-group', =>
+            @div class: 'controls', =>
+              @label class: 'control-label', =>
+                @div class: 'setting-title themes-label text', 'Syntax Theme'
+                @div class: 'setting-description text theme-description', 'This styles the text inside the editor'
+              @select outlet: 'syntaxMenu', class: 'form-control'
 
       @section class: 'section', =>
         @div class: 'section-container', =>
