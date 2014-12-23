@@ -18,7 +18,7 @@ class InstallPanel extends View
     @div =>
       @div class: 'section packages', =>
         @div class: 'section-container', =>
-          @h1 class: 'section-heading icon icon-cloud-download', 'Install Packages'
+          @h1 outlet: 'installHeading', class: 'section-heading icon icon-cloud-download', 'Install Packages'
 
           @div class: 'text native-key-bindings', tabindex: -1, =>
             @span class: 'icon icon-question'
@@ -39,9 +39,9 @@ class InstallPanel extends View
 
       @div class: 'section packages', =>
         @div class: 'section-container', =>
-          @div outlet: 'featuredHeading', class: 'section-heading icon icon-star', 'Featured Packages'
+          @div outlet: 'featuredHeading', class: 'section-heading icon icon-star'
           @div outlet: 'featuredErrors'
-          @div outlet: 'loadingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Loading featured packages\u2026'
+          @div outlet: 'loadingMessage', class: 'alert alert-info featured-message icon icon-hourglass'
           @div outlet: 'featuredContainer', class: 'container package-container'
 
   initialize: (@packageManager) ->
@@ -133,9 +133,11 @@ class InstallPanel extends View
     @featuredContainer.empty()
 
     if loadThemes
-      @loadingMessage.text('Loading featured themes\u2026')
+      @installHeading.text 'Install Themes'
       @featuredHeading.text 'Featured Themes'
+      @loadingMessage.text('Loading featured themes\u2026')
     else
+      @installHeading.text 'Install Packages'
       @featuredHeading.text 'Featured Packages'
       @loadingMessage.text('Loading featured packages\u2026')
 
