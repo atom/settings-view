@@ -138,9 +138,11 @@
     margin: 0 auto;
 
     &.updates-container {
-      max-width: 100%;
-      .section-heading {
-        margin-left: @component-padding;
+      .package-container {
+        > .row {
+          margin-left: -@component-padding;
+          margin-right: -@component-padding;
+        }
       }
     }
   }
@@ -551,7 +553,7 @@
 
   .update-all-button {
     top: -13px;
-    right: 10px;
+    right: 0;
     position: relative;
   }
 

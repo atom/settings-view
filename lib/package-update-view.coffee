@@ -7,7 +7,7 @@ class PackageUpdateView extends View
   Subscriber.includeInto(this)
 
   @content: ({name, description}) ->
-    @div class: 'col-lg-4 package-update-view', =>
+    @div class: 'col-md-6 package-update-view', =>
       @div outlet: 'thumbnail', class: 'thumbnail text', =>
         @div class: 'caption', =>
           @span outlet: 'status', class: 'package-status icon'
