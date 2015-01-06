@@ -110,10 +110,10 @@ class PackageManager
     Q.nbind(@loadInstalled, this)()
 
   getFeatured: (loadThemes) ->
-    @featuredPromise ?= Q.nbind(@loadFeatured, this, !!loadThemes)()
+    Q.nbind(@loadFeatured, this, !!loadThemes)()
 
   getOutdated: ->
-    @outdatedPromise ?= Q.nbind(@loadOutdated, this)()
+    Q.nbind(@loadOutdated, this)()
 
   getPackage: (packageName) ->
     @packagePromises[packageName] ?= Q.nbind(@loadPackage, this, packageName)()
