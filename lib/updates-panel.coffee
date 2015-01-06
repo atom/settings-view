@@ -37,11 +37,19 @@ class UpdatesPanel extends View
     if opts?.back
       @breadcrumb.text(opts.back).on 'click', () =>
         @parents('.settings-view').view()?.showPanel(opts.back)
-    @availableUpdates ?= opts?.updates
-    @addUpdateViews() if @availableUpdates
+    if opts?.updates
+      @availableUpdates = opts.updates
+      @addUpdateViews()
+    else
+      @availableUpdates = []
+      @updatesContainer.empty()
+      @checkForUpdates()
 
   # Check for updates and display them
   checkForUpdates: ->
+    @noUpdatesMessage.hide()
+    @updateAllButton.hide()
+
     @checkingMessage.show()
 
     @packageManager.getOutdated()
