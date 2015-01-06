@@ -27,7 +27,7 @@ class SettingsPanel extends View
       ]
       settings = {}
       for name in scopedSettings
-        settings[name] = atom.config.get([@options.scopeName], name)
+        settings[name] = atom.config.get(name, scope: [@options.scopeName])
     else
       settings = atom.config.get(namespace)
 
