@@ -3,7 +3,7 @@ InstalledPackageView = require '../lib/installed-package-view'
 PackageManager = require '../lib/package-manager'
 
 describe "InstalledPackageView", ->
-  it "display the grammars registered by the package", ->
+  it "displays the grammars registered by the package", ->
     settingsPanels = null
 
     waitsForPromise ->
