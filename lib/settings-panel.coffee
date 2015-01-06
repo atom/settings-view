@@ -97,10 +97,9 @@ class SettingsPanel extends View
     not atom.config.get(name, params)?
 
   getDefault: (name) ->
-    if @options.scopeName
-      atom.config.getDefault(@options.scopeName, name)
-    else
-      atom.config.getDefault(name)
+    params = {excludeSources: [atom.config.getUserConfigPath()]}
+    params.scope = [@options.scopeName] if @options.scopeName?
+    atom.config.get(name, params)
 
   set: (name, value) ->
     if @options.scopeName
