@@ -92,10 +92,9 @@ class SettingsPanel extends View
       @disposables.add atom.config.observe(name, callback)
 
   isDefault: (name) ->
-    if @options.scopeName
-      atom.config.isDefault(@options.scopeName, name)
-    else
-      atom.config.isDefault(name)
+    params = {sources: [atom.config.getUserConfigPath()]}
+    params.scope = [@options.scopeName] if @options.scopeName?
+    not atom.config.get(name, params)?
 
   getDefault: (name) ->
     if @options.scopeName
