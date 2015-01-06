@@ -54,7 +54,7 @@ class InstalledPackagesPanel extends View
 
     @loadPackages()
 
-  beforeRemove: ->
+  detached: ->
     @unsubscribe()
 
   filterPackages: (packages) ->

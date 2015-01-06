@@ -37,7 +37,7 @@ class SettingsView extends ScrollView
     @panelToShow = activePanelName
     process.nextTick => @initializePanels()
 
-  beforeRemove: ->
+  detached: ->
     @unsubscribe()
 
   handlePackageEvents: ->

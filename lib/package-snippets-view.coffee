@@ -24,7 +24,7 @@ class PackageSnippetsView extends View
     @hide()
     @addSnippets()
 
-  beforeRemove: ->
+  detached: ->
     @unsubscribe()
 
   getSnippetProperties: ->

@@ -59,7 +59,7 @@ class InstallPanel extends View
 
     @loadFeaturedPackages()
 
-  beforeRemove: ->
+  detached: ->
     @unsubscribe()
 
   focus: ->

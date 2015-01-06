@@ -84,7 +84,7 @@ class AvailablePackageView extends View
       @updateEnablement()
       false
 
-  beforeRemove: ->
+  detached: ->
     @unsubscribe()
 
   ownerFromRepository: (repository) ->

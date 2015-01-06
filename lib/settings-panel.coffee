@@ -37,7 +37,7 @@ class SettingsPanel extends View
     @bindSelectFields()
     @bindEditors()
 
-  beforeRemove: ->
+  detached: ->
     @disposables.dispose()
 
   appendSettings: (namespace, settings) ->

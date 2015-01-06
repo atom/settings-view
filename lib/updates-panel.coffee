@@ -30,7 +30,7 @@ class UpdatesPanel extends View
     @subscribe @packageManager, 'package-update-failed theme-update-failed', (pack, error) =>
       @updateErrors.append(new ErrorView(@packageManager, error))
 
-  beforeRemove: ->
+  detached: ->
     @unsubscribe()
 
   beforeShow: (opts) ->

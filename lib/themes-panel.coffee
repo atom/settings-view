@@ -97,7 +97,7 @@ class ThemesPanel extends View
       @activeUiTheme = @uiMenu.val()
       @scheduleUpdateThemeConfig()
 
-  beforeRemove: ->
+  detached: ->
     @unsubscribe()
     @disposables.dispose()
 

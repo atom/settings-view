@@ -34,7 +34,7 @@ class PackageUpdateView extends View
     @settingsButton.on 'click', =>
       @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Available Updates'})
 
-  beforeRemove: ->
+  detached: ->
     @statusTooltip?.dispose()
     @unsubscribe()
 

@@ -19,7 +19,7 @@ class PackageGrammarsView extends View
     @disposables.add atom.grammars.onDidAddGrammar => @addGrammars()
     @disposables.add atom.grammars.onDidUpdateGrammar => @addGrammars()
 
-  beforeRemove: ->
+  detached: ->
     @disposables.dispose()
 
   getPackageGrammars: ->

@@ -56,7 +56,7 @@ class KeybindingsPanel extends View
 
     @loadKeyBindings()
 
-  beforeRemove: ->
+  detached: ->
     @disposables.dispose()
 
   loadKeyBindings: ->

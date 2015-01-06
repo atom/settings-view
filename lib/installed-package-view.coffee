@@ -59,7 +59,7 @@ class InstalledPackageView extends View
     @checkForUpdate()
     @subscribeToPackageManager()
 
-  beforeRemove: ->
+  detached: ->
     @unsubscribe()
 
   beforeShow: (opts) ->
