@@ -4,4 +4,4 @@ Edit config settings, install packages, and change themes in Atom.
 
 Open by pressing `cmd-,` or selecting the _Atom > Preferences..._ menu.
 
-![](https://f.cloud.github.com/assets/671378/2241795/ba4827d8-9ce4-11e3-93a8-6666ee100917.png)
+![screen shot 2015-01-05 at 8 08 18 pm](https://cloud.githubusercontent.com/assets/1476/5624241/d29ffbe6-9516-11e4-8bfe-e91623977bc7.png)
