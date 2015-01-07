@@ -1,5 +1,6 @@
 {$, $$, View} = require 'atom-space-pen-views'
 {Subscriber} = require 'emissary'
+ErrorView = require './error-view'
 PackageUpdateView = require './package-update-view'
 
 module.exports =
