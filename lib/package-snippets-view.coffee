@@ -42,12 +42,11 @@ class PackageSnippetsView extends View
 
   getSnippets: (callback) ->
     snippetsPackage = atom.packages.getLoadedPackage('snippets')
-    if snippetsPackage?.mainModule?
-      if snippetsPackage.mainModule.loaded
+    if snippetsModule = snippetsPackage?.mainModule
+      if snippetsModule.loaded
         callback(@getSnippetProperties())
       else
-        @subscribe atom.packages.once 'snippets:loaded', =>
-          callback(@getSnippetProperties())
+        snippetsModule.onDidLoadSnippets => callback(@getSnippetProperties())
     else
       callback([])
 
