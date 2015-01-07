@@ -13,8 +13,8 @@ KeybindingsPanel = require './keybindings-panel'
 PackageManager = require './package-manager'
 InstallPanel = require './install-panel'
 ThemesPanel = require './themes-panel'
-InstalledPackagesPanel = require './installed-packages-panel.coffee'
-UpdatesPanel = require './updates-panel.coffee'
+InstalledPackagesPanel = require './installed-packages-panel'
+UpdatesPanel = require './updates-panel'
 
 module.exports =
 class SettingsView extends ScrollView
