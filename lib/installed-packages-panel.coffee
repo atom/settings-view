@@ -20,6 +20,8 @@ class InstalledPackagesPanel extends View
           @div class: 'editor-container', =>
             @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter packages by name')
 
+          @div outlet: 'updateErrors'
+
           @section class: 'sub-section installed-packages', =>
             @h3 class: 'sub-section-heading icon icon-package', =>
               @text 'Community Packages'
@@ -44,10 +46,7 @@ class InstalledPackagesPanel extends View
   initialize: (@packageManager) ->
     @packageViews = []
 
-    @subscribe @packageManager, 'package-install-failed', (pack, error) =>
-      @searchErrors.append(new ErrorView(@packageManager, error))
-
-    @subscribe @packageManager, 'package-update-failed theme-update-failed', (pack, error) =>
+    @subscribe @packageManager, 'package-install-failed theme-install-failed package-uninstall-failed theme-uninstall-failed package-update-failed theme-update-failed', (pack, error) =>
       @updateErrors.append(new ErrorView(@packageManager, error))
 
     @filterEditor.getModel().onDidStopChanging => @matchPackages()
