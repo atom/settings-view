@@ -83,7 +83,7 @@ class ThemesPanel extends View
       atom.commands.dispatch(atom.views.getView(atom.workspace), 'application:open-your-stylesheet')
       false
 
-    @subscribe @packageManager, 'theme-installed', =>
+    @subscribe @packageManager, 'theme-installed theme-uninstalled', =>
       @populateThemeMenus()
 
     @disposables.add atom.themes.onDidReloadAll => @updateActiveThemes()
