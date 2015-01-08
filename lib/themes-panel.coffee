@@ -47,6 +47,8 @@ class ThemesPanel extends View
           @div class: 'editor-container', =>
             @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter themes by name')
 
+          @div outlet: 'themeErrors'
+
           @section class: 'sub-section installed-packages', =>
             @h3 class: 'sub-section-heading icon icon-paintcan', =>
               @text 'Community Themes'
@@ -74,8 +76,8 @@ class ThemesPanel extends View
     @packageViews = []
     @loadPackages()
 
-    @subscribe @packageManager, 'theme-install-failed', (pack, error) =>
-      @searchErrors.append(new ErrorView(@packageManager, error))
+    @subscribe @packageManager, 'theme-install-failed theme-uninstall-failed', (pack, error) =>
+      @themeErrors.append(new ErrorView(@packageManager, error))
 
     @openUserStysheet.on 'click', =>
       atom.commands.dispatch(atom.views.getView(atom.workspace), 'application:open-your-stylesheet')
@@ -134,7 +136,7 @@ class ThemesPanel extends View
 
       .catch (error) =>
         @loadingMessage.hide()
-        @featuredErrors.append(new ErrorView(@packageManager, error))
+        @themeErrors.append(new ErrorView(@packageManager, error))
 
   # Update the active UI and syntax themes and populate the menu
   updateActiveThemes: ->
