@@ -220,7 +220,8 @@
 
       .status-indicator {
         padding: 0;
-        width: max(4px, @component-padding/2);
+        width: @component-padding/2;
+        min-width: 4px;
         pointer-events: none;
         transition: background .4s;
         background: @background-color-success;
