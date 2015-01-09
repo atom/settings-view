@@ -33,7 +33,7 @@ class SettingsPanel extends View
 
     @appendSettings(namespace, settings)
 
-    @bindCheckboxFields()
+    @bindInputFields()
     @bindSelectFields()
     @bindEditors()
 
@@ -64,7 +64,7 @@ class SettingsPanel extends View
   sortSettings: (namespace, settings) ->
     _.chain(settings).keys().sortBy((name) -> name).sortBy((name) -> atom.config.getSchema("#{namespace}.#{name}")?.order).value()
 
-  bindCheckboxFields: ->
+  bindInputFields: ->
     @find('input[id]').toArray().forEach (input) =>
       input = $(input)
       name = input.attr('id')
