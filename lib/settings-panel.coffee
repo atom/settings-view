@@ -74,6 +74,8 @@ class SettingsPanel extends View
         if type is 'checkbox'
           input.prop('checked', value)
         else
+          if value? and type is 'color'
+            value = "##{value.red.toString(16)}#{value.green.toString(16)}#{value.blue.toString(16)}"
           input.val(value) if value
 
       input.on 'change', =>
@@ -180,6 +182,8 @@ appendSetting = (namespace, name, value) ->
       schema = atom.config.getSchema("#{namespace}.#{name}")
       if schema?.enum
         appendOptions.call(this, namespace, name, value)
+      else if schema?.type is 'color'
+        appendColor.call(this, namespace, name, value)
       else if _.isBoolean(value) or schema?.type is 'boolean'
         appendCheckbox.call(this, namespace, name, value)
       else if _.isArray(value) or schema?.type is 'array'
@@ -218,6 +222,17 @@ appendCheckbox = (namespace, name, value) ->
   @div class: 'checkbox', =>
     @label for: keyPath, =>
       @input id: keyPath, type: 'checkbox'
+      @div class: 'setting-title', title
+      @div class: 'setting-description', description
+
+appendColor = (namespace, name, value) ->
+  keyPath = "#{namespace}.#{name}"
+  title = getSettingTitle(keyPath, name)
+  description = getSettingDescription(keyPath)
+
+  @div class: 'color', =>
+    @label for: keyPath, =>
+      @input id: keyPath, type: 'color'
       @div class: 'setting-title', title
       @div class: 'setting-description', description
 
