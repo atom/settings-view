@@ -74,8 +74,7 @@ class SettingsPanel extends View
         if type is 'checkbox'
           input.prop('checked', value)
         else
-          if value? and type is 'color'
-            value = "##{value.red.toString(16)}#{value.green.toString(16)}#{value.blue.toString(16)}"
+          value = toHexString(value) if value? and type is 'color'
           input.val(value) if value
 
       input.on 'change', =>
@@ -275,3 +274,9 @@ appendArray = (namespace, name, value) ->
 appendObject = (namespace, name, value) ->
   for key in _.keys(value).sort()
     appendSetting.call(this, namespace, "#{name}.#{key}", value[key])
+
+toHexString = ({red, green, blue}) ->
+  hexRed = if red < 10 then "0#{red.toString(16)}" else red.toString(16)
+  hexGreen = if green < 10 then "0#{green.toString(16)}" else green.toString(16)
+  hexBlue = if blue < 10 then "0#{blue.toString(16)}" else blue.toString(16)
+  "##{hexRed}#{hexGreen}#{hexBlue}"
