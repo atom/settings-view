@@ -18,7 +18,7 @@ describe "ThemesPanel", ->
     atom.packages.packageDirPaths.push(path.join(__dirname, 'fixtures'))
     atom.config.set('core.themes', ['atom-dark-ui', 'atom-dark-syntax'])
     reloadedHandler = jasmine.createSpy('reloadedHandler')
-    atom.themes.onDidReloadAll(reloadedHandler)
+    atom.themes.onDidChangeActiveThemes(reloadedHandler)
     atom.themes.activatePackages()
 
     waitsFor "themes to be reloaded", ->
@@ -29,7 +29,6 @@ describe "ThemesPanel", ->
       themeMetadata = CSON.readFileSync(path.join(__dirname, 'fixtures', 'a-theme', 'package.json'))
       spyOn(packageManager, 'getFeatured').andCallFake (callback) ->
         Q([themeMetadata])
-      spyOn(atom.themes, 'setEnabledThemes').andCallThrough()
       panel = new ThemesPanel(packageManager)
 
       # Make updates synchronous
