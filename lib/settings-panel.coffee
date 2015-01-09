@@ -80,12 +80,17 @@ class SettingsPanel extends View
 
       input.on 'change', =>
         value = input.val()
-        if type == 'checkbox'
+        if type is 'checkbox'
           value = !!input.prop('checked')
         else
           value = @parseValue(type, value)
 
-        @set(name, value)
+        setNewValue = => @set(name, value)
+        if type is 'color'
+          clearTimeout(@colorDebounceTimeout)
+          @colorDebounceTimeout = setTimeout(setNewValue, 100)
+        else
+          setNewValue()
 
   observe: (name, callback) ->
     params = {sources: [atom.config.getUserConfigPath()]}
