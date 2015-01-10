@@ -159,11 +159,29 @@
 
   .color {
     font-size: 13px;
+    padding-left: 5em;
+    .setting-title {
+      margin-top: .15em;
+    }
   }
   input[type="color"] {
-    width: 10em;
-    height: 2em;
-    margin-bottom: .5em;
+    float: left;
+    margin: 0 0 0 -5em;
+    padding: 0;
+    width: 4em;
+    height: 1.6em;
+    border-radius: 4px;
+    border: 1px solid @base-border-color;
+    background: darken(@base-background-color, 2%);
+    &::-webkit-color-swatch-wrapper {
+      padding: 2px;
+      margin: 0;
+      border-radius: inherit;
+    }
+    &::-webkit-color-swatch {
+      border-radius: 2px;
+      border: 1px solid hsla(0,0%,0%,.1);
+    }
   }
 
   .editor-container {
