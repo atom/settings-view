@@ -33,7 +33,7 @@ class SettingsPanel extends View
 
     @appendSettings(namespace, settings)
 
-    @bindCheckboxFields()
+    @bindInputFields()
     @bindSelectFields()
     @bindEditors()
 
@@ -64,7 +64,7 @@ class SettingsPanel extends View
   sortSettings: (namespace, settings) ->
     _.chain(settings).keys().sortBy((name) -> name).sortBy((name) -> atom.config.getSchema("#{namespace}.#{name}")?.order).value()
 
-  bindCheckboxFields: ->
+  bindInputFields: ->
     @find('input[id]').toArray().forEach (input) =>
       input = $(input)
       name = input.attr('id')
@@ -74,16 +74,24 @@ class SettingsPanel extends View
         if type is 'checkbox'
           input.prop('checked', value)
         else
+          value = value.toHexString() if value? and type is 'color'
           input.val(value) if value
 
       input.on 'change', =>
         value = input.val()
-        if type == 'checkbox'
+        if type is 'checkbox'
           value = !!input.prop('checked')
         else
           value = @parseValue(type, value)
 
-        @set(name, value)
+        setNewValue = => @set(name, value)
+        if type is 'color'
+          # This is debounced since the color wheel fires lots of events
+          # as you are dragging it around
+          clearTimeout(@colorDebounceTimeout)
+          @colorDebounceTimeout = setTimeout(setNewValue, 100)
+        else
+          setNewValue()
 
   observe: (name, callback) ->
     params = {sources: [atom.config.getUserConfigPath()]}
@@ -180,6 +188,8 @@ appendSetting = (namespace, name, value) ->
       schema = atom.config.getSchema("#{namespace}.#{name}")
       if schema?.enum
         appendOptions.call(this, namespace, name, value)
+      else if schema?.type is 'color'
+        appendColor.call(this, namespace, name, value)
       else if _.isBoolean(value) or schema?.type is 'boolean'
         appendCheckbox.call(this, namespace, name, value)
       else if _.isArray(value) or schema?.type is 'array'
@@ -218,6 +228,17 @@ appendCheckbox = (namespace, name, value) ->
   @div class: 'checkbox', =>
     @label for: keyPath, =>
       @input id: keyPath, type: 'checkbox'
+      @div class: 'setting-title', title
+      @div class: 'setting-description', description
+
+appendColor = (namespace, name, value) ->
+  keyPath = "#{namespace}.#{name}"
+  title = getSettingTitle(keyPath, name)
+  description = getSettingDescription(keyPath)
+
+  @div class: 'color', =>
+    @label for: keyPath, =>
+      @input id: keyPath, type: 'color'
       @div class: 'setting-title', title
       @div class: 'setting-description', description
 
