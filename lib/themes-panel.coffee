@@ -86,7 +86,7 @@ class ThemesPanel extends View
     @subscribe @packageManager, 'theme-installed theme-uninstalled', =>
       @populateThemeMenus()
 
-    @disposables.add atom.themes.onDidReloadAll => @updateActiveThemes()
+    @disposables.add atom.themes.onDidChangeActiveThemes => @updateActiveThemes()
     @updateActiveThemes()
 
     @filterEditor.getModel().onDidStopChanging => @matchPackages()
@@ -177,7 +177,7 @@ class ThemesPanel extends View
     themes = []
     themes.push(@activeUiTheme) if @activeUiTheme
     themes.push(@activeSyntaxTheme) if @activeSyntaxTheme
-    atom.themes.setEnabledThemes(themes) if themes.length > 0
+    atom.config.set("core.themes", themes) if themes.length > 0
 
   scheduleUpdateThemeConfig: ->
     setTimeout((=> @updateThemeConfig()), 100)
