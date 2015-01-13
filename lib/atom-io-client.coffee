@@ -130,10 +130,13 @@ class AtomIoClient
   fetchAndCacheAvatar: (login, callback) ->
     if @online()
       imagePath = @avatarPath login
-      stream = fs.createWriteStream imagePath
-      stream.on 'finish', -> callback(null, imagePath)
-      stream.on 'error', (error) -> callback(error)
-      request("https://github.com/#{login}.png").pipe(stream)
+      writeStream = fs.createWriteStream imagePath
+      writeStream.on 'finish', -> callback(null, imagePath)
+      writeStream.on 'error', (error) -> callback(error)
+
+      readStream = request("https://github.com/#{login}.png")
+      readStream.on 'error', (error) -> callback(error)
+      readStream.pipe(writeStream)
     else
       callback(null, null)
   # The cache expiry doesn't need to be clever, or even compare dates, it just
