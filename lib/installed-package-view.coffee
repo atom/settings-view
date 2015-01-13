@@ -126,7 +126,7 @@ class InstalledPackageView extends View
 
     @learnMoreButton.on 'click', =>
       shell.openExternal "https://atom.io/packages/#{@pack.name}"
-
+      false
 
   openMarkdownFile: (path) ->
     if atom.packages.isPackageActive('markdown-preview')
