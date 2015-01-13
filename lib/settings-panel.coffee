@@ -86,6 +86,8 @@ class SettingsPanel extends View
 
         setNewValue = => @set(name, value)
         if type is 'color'
+          # This is debounced since the color wheel fires lots of events
+          # as you are dragging it around
           clearTimeout(@colorDebounceTimeout)
           @colorDebounceTimeout = setTimeout(setNewValue, 100)
         else
