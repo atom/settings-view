@@ -40,7 +40,7 @@ class InstalledPackageView extends View
 
           @p outlet: 'startupTime', class: 'text icon icon-dashboard native-key-bindings', tabindex: -1
 
-          @div outlet: 'buttons', class: 'btn-group', =>
+          @div outlet: 'buttons', class: 'btn-wrap-group', =>
             @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io', =>
             @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
             @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'README'
