@@ -89,6 +89,9 @@
   .checkbox {
     font-size: 13px;
     padding-left: @component-padding*2.4;
+    .setting-title {
+      display: inline-block;
+    }
   }
   input[type="checkbox"] {
     -webkit-appearance: none;
@@ -291,6 +294,7 @@
     color: @text-color-subtle;
     font-size: 10px;
     -webkit-user-select: none;
+    cursor: default;
 
     &:empty {
       display: none;

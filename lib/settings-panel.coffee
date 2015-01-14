@@ -229,7 +229,7 @@ appendCheckbox = (namespace, name, value) ->
     @label for: keyPath, =>
       @input id: keyPath, type: 'checkbox'
       @div class: 'setting-title', title
-      @div class: 'setting-description', description
+    @div class: 'setting-description', description
 
 appendColor = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
@@ -240,7 +240,7 @@ appendColor = (namespace, name, value) ->
     @label for: keyPath, =>
       @input id: keyPath, type: 'color'
       @div class: 'setting-title', title
-      @div class: 'setting-description', description
+    @div class: 'setting-description', description
 
 appendEditor = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
