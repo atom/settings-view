@@ -5,7 +5,7 @@
 @breadcrumb-padding: 2 * @component-padding;
 
 .settings-view {
-  display: -webkit-flex;
+  display: flex;
 
   .breadcrumb {
     margin-bottom: 0;
@@ -235,7 +235,7 @@
 
   .section-container {
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
 
     &.updates-container {
       .package-container {
@@ -310,9 +310,12 @@
   }
 
   .config-menu {
-    display: -webkit-flex;
-    -webkit-flex-direction: column;
-    -webkit-user-select: none;
+    display: flex;
+    flex-direction: column;
+    flex: 1.6;
+    min-width: 150px;
+    max-width: 200px;
+    user-select: none;
     padding-top: @component-padding;
     background-color: lighten(@base-background-color, 2%);
     border-right: 1px solid @base-border-color;
@@ -322,7 +325,7 @@
     }
 
     .panels-packages{
-      -webkit-flex-grow: 1;
+      flex-grow: 1;
       overflow: auto;
       height: 0;
 
@@ -402,14 +405,14 @@
   }
 
   .panels {
-    -webkit-flex: 1;
-    -webkit-flex-flow: column;
-    display: -webkit-flex;
+    flex: 8.4;
+    flex-flow: column;
+    display: flex;
     position: relative;
     overflow: auto;
 
     > div {
-      -webkit-flex: 1;
+      flex: 1;
       min-width: 372px; // magic number: fit the Settings, Uninstall and Disable button
     }
   }
@@ -476,8 +479,8 @@
 
   .packages {
     height: 100%;
-    display: -webkit-flex;
-    -webkit-flex-flow: column;
+    display: flex;
+    flex-flow: column;
 
     .themes-label {
       font-weight: bold;
