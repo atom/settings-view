@@ -178,7 +178,7 @@ class SettingsView extends ScrollView
   getIconName: ->
     "tools"
 
-  getUri: ->
+  getURI: ->
     @uri
 
   isEqual: (other) ->

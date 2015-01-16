@@ -111,9 +111,9 @@ class SettingsPanel extends View
   set: (name, value) ->
     if @options.scopeName
       if value is undefined
-        atom.config.restoreDefault(@options.scopeName, name)
+        atom.config.unset(name, scopeSelector: @options.scopeName)
       else
-        atom.config.set(@options.scopeName, name, value)
+        atom.config.set(name, value, scopeSelector: @options.scopeName)
     else
       atom.config.set(name, value)
 
