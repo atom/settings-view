@@ -25,7 +25,7 @@ class AvailablePackageView extends View
 
       @div class: 'body', =>
         @h4 class: 'card-name', =>
-          @a outlet: 'packageName', name
+          @a outlet: 'packageName', href: "https://atom.io/packages/#{name}", name
         @span outlet: 'packageDescription', class: 'package-description', description
 
       @div class: 'meta', =>
