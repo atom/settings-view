@@ -237,7 +237,7 @@ appendColor = (namespace, name, value) ->
   description = getSettingDescription(keyPath)
 
   @div class: 'color', =>
-    @label =>
+    @label class: 'control-label', =>
       @div class: 'setting-title', title
       @div class: 'setting-description', description
     @input id: keyPath, type: 'color'
