@@ -237,10 +237,10 @@ appendColor = (namespace, name, value) ->
   description = getSettingDescription(keyPath)
 
   @div class: 'color', =>
-    @label for: keyPath, =>
-      @input id: keyPath, type: 'color'
+    @label =>
       @div class: 'setting-title', title
-    @div class: 'setting-description', description
+      @div class: 'setting-description', description
+    @input id: keyPath, type: 'color'
 
 appendEditor = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
