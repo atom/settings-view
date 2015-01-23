@@ -25,7 +25,7 @@ class AvailablePackageView extends View
 
       @div class: 'body', =>
         @h4 class: 'card-name', =>
-          @a outlet: 'packageName', href: "https://atom.io/packages/#{name}", name
+          @a outlet: 'packageName', name
         @span outlet: 'packageDescription', class: 'package-description', description
 
       @div class: 'meta', =>
@@ -74,7 +74,10 @@ class AvailablePackageView extends View
       @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
 
     @packageName.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
+      if @installButton.isVisible()
+        shell.openExternal("https://atom.io/packages/#{@pack.name}")
+      else
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
 
     @enablementButton.on 'click', =>
       if @isDisabled()
