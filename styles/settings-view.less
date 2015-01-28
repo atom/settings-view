@@ -310,8 +310,6 @@
   }
 
   .config-menu {
-    display: flex;
-    flex-direction: column;
     flex: 1.6;
     min-width: 150px;
     max-width: 200px;
@@ -319,6 +317,7 @@
     padding-top: @component-padding;
     background-color: lighten(@base-background-color, 2%);
     border-right: 1px solid @base-border-color;
+    overflow-x: auto;
 
     .icon:before {
       text-align: center;
