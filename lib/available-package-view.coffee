@@ -137,6 +137,7 @@ class AvailablePackageView extends View
       unless error?
         @updateEnablement()
 
+        @packageName.removeClass('is-disabled')
         @learnMoreButton.hide()
         @installButton.hide()
         @uninstallButton.show()
@@ -155,6 +156,7 @@ class AvailablePackageView extends View
     @subscribeToPackageEvent 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', (pack, error) =>
       @installButton.prop('disabled', false)
       unless error?
+        @packageName.addClass('is-disabled')
         @learnMoreButton.show()
         @installButton.show()
         @uninstallButton.hide()
@@ -162,10 +164,12 @@ class AvailablePackageView extends View
         @enablementButton.hide()
 
     if @isInstalled() or @isDisabled()
+      @packageName.removeClass('is-disabled')
       @learnMoreButton.hide()
       @installButton.hide()
       @uninstallButton.show()
     else
+      @packageName.addClass('is-disabled')
       @settingsButton.hide()
       @uninstallButton.hide()
       @enablementButton.hide()
