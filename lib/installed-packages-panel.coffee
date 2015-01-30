@@ -16,7 +16,7 @@ class InstalledPackagesPanel extends View
         @div class: 'section-container', =>
           @div class: 'section-heading icon icon-package', =>
             @text 'Installed Packages'
-            @span outlet: 'totalPackages', class:'section-heading-count', ' (…)'
+            @span outlet: 'totalPackages', class:'section-heading-count badge badge-parent', '…'
           @div class: 'editor-container', =>
             @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter packages by name')
 
@@ -25,21 +25,21 @@ class InstalledPackagesPanel extends View
           @section class: 'sub-section installed-packages', =>
             @h3 class: 'sub-section-heading icon icon-package', =>
               @text 'Community Packages'
-              @span outlet: 'communityCount', class:'section-heading-count', ' (…)'
+              @span outlet: 'communityCount', class:'section-heading-count badge badge-parent', '…'
             @div outlet: 'communityPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
           @section class: 'sub-section core-packages', =>
             @h3 class: 'sub-section-heading icon icon-package', =>
               @text 'Core Packages'
-              @span outlet: 'coreCount', class:'section-heading-count', ' (…)'
+              @span outlet: 'coreCount', class:'section-heading-count badge badge-parent', '…'
             @div outlet: 'corePackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
           @section class: 'sub-section dev-packages', =>
             @h3 class: 'sub-section-heading icon icon-package', =>
               @text 'Development Packages'
-              @span outlet: 'devCount', class:'section-heading-count', ' (…)'
+              @span outlet: 'devCount', class:'section-heading-count badge badge-parent', '…'
             @div outlet: 'devPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
@@ -72,20 +72,20 @@ class InstalledPackagesPanel extends View
         # @loadingMessage.hide()
         # TODO show empty mesage per section
         # @emptyMessage.show() if packages.length is 0
-        @totalPackages.text " (#{@packages.user.length + @packages.core.length + @packages.dev.length})"
+        @totalPackages.text @packages.user.length + @packages.core.length + @packages.dev.length
 
         _.each @addPackageViews(@communityPackages, @packages.user), (v) => @packageViews.push(v)
-        @communityCount.text " (#{@packages.user.length})"
+        @communityCount.text @packages.user.length
 
         @packages.core.forEach (p) ->
           # Assume core packages are in the atom org
           p.repository ?= "https://github.com/atom/#{p.name}"
 
         _.each @addPackageViews(@corePackages, @packages.core), (v) => @packageViews.push(v)
-        @coreCount.text " (#{@packages.core.length})"
+        @coreCount.text @packages.core.length
 
         _.each @addPackageViews(@devPackages, @packages.dev), (v) => @packageViews.push(v)
-        @devCount.text " (#{@packages.dev.length})"
+        @devCount.text @packages.dev.length
 
       .catch (error) =>
         @loadingMessage.hide()
@@ -125,23 +125,23 @@ class InstalledPackagesPanel extends View
     _.each active, (view) ->
       view.show().removeClass('hidden')
 
-    @totalPackages.text " (#{active.length}/#{@packageViews.length})"
+    @totalPackages.text "#{active.length}/#{@packageViews.length}"
     @updateSectionCounts()
 
   updateSectionCounts: ->
     filterText = @filterEditor.getModel().getText()
     if filterText is ''
-      @totalPackages.text " (#{@packages.user.length + @packages.core.length + @packages.dev.length})"
-      @communityCount.text " (#{@packages.user.length})"
-      @coreCount.text " (#{@packages.core.length})"
-      @devCount.text " (#{@packages.dev.length})"
+      @totalPackages.text @packages.user.length + @packages.core.length + @packages.dev.length
+      @communityCount.text @packages.user.length
+      @coreCount.text @packages.core.length
+      @devCount.text @packages.dev.length
     else
       community = @communityPackages.find('.available-package-view:not(.hidden)').length
-      @communityCount.text " (#{community}/#{@packages.user.length})"
+      @communityCount.text "#{community}/#{@packages.user.length}"
       dev = @devPackages.find('.available-package-view:not(.hidden)').length
-      @devCount.text " (#{dev}/#{@packages.dev.length})"
+      @devCount.text "#{dev}/#{@packages.dev.length}"
       core = @corePackages.find('.available-package-view:not(.hidden)').length
-      @coreCount.text " (#{core}/#{@packages.core.length})"
+      @coreCount.text "#{core}/#{@packages.core.length}"
 
   matchPackages: ->
     filterText = @filterEditor.getModel().getText()
