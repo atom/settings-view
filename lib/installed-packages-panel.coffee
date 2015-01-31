@@ -16,7 +16,7 @@ class InstalledPackagesPanel extends View
         @div class: 'section-container', =>
           @div class: 'section-heading icon icon-package', =>
             @text 'Installed Packages'
-            @span outlet: 'totalPackages', class:'section-heading-count badge badge-parent', '…'
+            @span outlet: 'totalPackages', class:'section-heading-count badge badge-flexible', '…'
           @div class: 'editor-container', =>
             @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter packages by name')
 
@@ -25,21 +25,21 @@ class InstalledPackagesPanel extends View
           @section class: 'sub-section installed-packages', =>
             @h3 class: 'sub-section-heading icon icon-package', =>
               @text 'Community Packages'
-              @span outlet: 'communityCount', class:'section-heading-count badge badge-parent', '…'
+              @span outlet: 'communityCount', class:'section-heading-count badge badge-flexible', '…'
             @div outlet: 'communityPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
           @section class: 'sub-section core-packages', =>
             @h3 class: 'sub-section-heading icon icon-package', =>
               @text 'Core Packages'
-              @span outlet: 'coreCount', class:'section-heading-count badge badge-parent', '…'
+              @span outlet: 'coreCount', class:'section-heading-count badge badge-flexible', '…'
             @div outlet: 'corePackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
           @section class: 'sub-section dev-packages', =>
             @h3 class: 'sub-section-heading icon icon-package', =>
               @text 'Development Packages'
-              @span outlet: 'devCount', class:'section-heading-count badge badge-parent', '…'
+              @span outlet: 'devCount', class:'section-heading-count badge badge-flexible', '…'
             @div outlet: 'devPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
