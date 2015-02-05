@@ -20,5 +20,4 @@ describe "package updates status view", ->
 
   describe "when packages are outdated", ->
     it "adds a tile to the status bar", ->
-      consumeStatusBar: (statusBar) ->
-        expect($('status-bar .package-updates-status-view').text()).toBe '1'
+      expect($('status-bar .package-updates-status-view').text()).toBe '1'
