@@ -73,11 +73,7 @@ describe "SettingsView", ->
     beforeEach ->
       jasmine.attachToDOM(atom.views.getView(atom.workspace))
       waitsForPromise ->
-        atom.packages.activatePackage('settings-view').then (pack) ->
-          mainModule = pack.mainModule
-
-    it "can be activated", ->
-      expect(mainModule).toBeDefined()
+        atom.packages.activatePackage('settings-view')
 
     describe "when atom.workspace.open() is used with a config URI", ->
       beforeEach ->
