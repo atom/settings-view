@@ -26,7 +26,7 @@ class SettingsView extends ScrollView
         @ul class: 'panels-menu nav nav-pills nav-stacked', outlet: 'panelMenu', =>
           @div class: 'panel-menu-separator', outlet: 'menuSeparator'
         @div class: 'button-area', =>
-          @button class: 'btn btn-default icon icon-link-external', outlet: 'openDotAtom', 'Open ~/.atom'
+          @button class: 'btn btn-default icon icon-link-external', outlet: 'openDotAtom', 'Open Config Folder'
       @div class: 'panels', outlet: 'panels'
 
   initialize: ({@uri, activePanelName}={}) ->
