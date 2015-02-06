@@ -64,6 +64,9 @@ class AvailablePackageView extends View
       @installButton.hide()
       @uninstallButton.hide()
 
+    @on 'click', =>
+      @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
+
     @installButton.on 'click', =>
       @install()
 
@@ -73,8 +76,10 @@ class AvailablePackageView extends View
     @settingsButton.on 'click', =>
       @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
 
-    @packageName.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
+    @packageName.on 'click', (event) =>
+      event.stopPropagation()
+      packageType = if @pack.theme then 'themes' else 'packages'
+      shell.openExternal("https://atom.io/#{packageType}/#{@pack.name}")
 
     @enablementButton.on 'click', =>
       if @isDisabled()
