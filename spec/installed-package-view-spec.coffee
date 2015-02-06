@@ -61,3 +61,17 @@ describe "InstalledPackageView", ->
       view = new InstalledPackageView(pack, new PackageManager())
       keybindingsTable = view.find('.package-keymap-table tbody')
       expect(keybindingsTable.children().length).toBe 0
+
+  it 'should load the config for inactive packages', ->
+    atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-config'))
+
+    waitsFor ->
+      atom.packages.isPackageLoaded('package-with-config') is true
+
+    runs ->
+      expect(atom.config.get('package-with-config.setting')).toBe undefined
+
+      pack = atom.packages.getLoadedPackage('package-with-config')
+      view = new InstalledPackageView(pack, new PackageManager())
+
+      expect(atom.config.get('package-with-config.setting')).toBe 'something'

@@ -53,11 +53,15 @@ class InstalledPackageView extends View
       @div outlet: 'sections'
 
   initialize: (@pack, @packageManager) ->
+    @activate()
     @populate()
     @handleButtonEvents()
     @updateFileButtons()
     @checkForUpdate()
     @subscribeToPackageManager()
+
+  activate: ->
+    @pack.activateConfig() if not atom.packages.isPackageActive(@pack.name)
 
   detached: ->
     @unsubscribe()
