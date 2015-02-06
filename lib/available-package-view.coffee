@@ -35,6 +35,7 @@ class AvailablePackageView extends View
           @a outlet: 'loginLink', class: 'author', href: "https://atom.io/users/#{owner}", owner
         @div class: 'meta-controls', =>
           @div class: 'btn-group', =>
+            @button type: 'button', class: 'btn btn-default icon icon-link', outlet: 'learnMoreButton', 'View on Atom.io'
             @button type: 'button', class: 'btn btn-info icon icon-cloud-download install-button', outlet: 'installButton', 'Install'
           @div outlet: 'buttons', class: 'btn-group', =>
             @button type: 'button', class: 'btn icon icon-gear',           outlet: 'settingsButton', 'Settings'
@@ -63,6 +64,10 @@ class AvailablePackageView extends View
     if atom.packages.isBundledPackage(@pack.name)
       @installButton.hide()
       @uninstallButton.hide()
+
+    @learnMoreButton.on 'click', =>
+      shell.openExternal "https://atom.io/packages/#{@pack.name}"
+      false
 
     @installButton.on 'click', =>
       @install()
@@ -132,6 +137,8 @@ class AvailablePackageView extends View
       unless error?
         @updateEnablement()
 
+        @packageName.removeClass('is-disabled')
+        @learnMoreButton.hide()
         @installButton.hide()
         @uninstallButton.show()
         @settingsButton.show()
@@ -149,15 +156,20 @@ class AvailablePackageView extends View
     @subscribeToPackageEvent 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', (pack, error) =>
       @installButton.prop('disabled', false)
       unless error?
+        @packageName.addClass('is-disabled')
+        @learnMoreButton.show()
         @installButton.show()
         @uninstallButton.hide()
         @settingsButton.hide()
         @enablementButton.hide()
 
     if @isInstalled() or @isDisabled()
+      @packageName.removeClass('is-disabled')
+      @learnMoreButton.hide()
       @installButton.hide()
       @uninstallButton.show()
     else
+      @packageName.addClass('is-disabled')
       @settingsButton.hide()
       @uninstallButton.hide()
       @enablementButton.hide()
