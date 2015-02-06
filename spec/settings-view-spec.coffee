@@ -68,6 +68,36 @@ describe "SettingsView", ->
       expect(settingsView.panels.find('#panel-1')).toBeHidden()
       expect(settingsView.panels.find('#panel-2')).toBeVisible()
 
-  it "can be activated", ->
-    waitsForPromise ->
-      atom.packages.activatePackage('settings-view')
+  describe "when the package is activated", ->
+    mainModule = null
+    beforeEach ->
+      jasmine.attachToDOM(atom.views.getView(atom.workspace))
+      waitsForPromise ->
+        atom.packages.activatePackage('settings-view').then (pack) ->
+          mainModule = pack.mainModule
+
+    it "can be activated", ->
+      expect(mainModule).toBeDefined()
+
+    describe "when atom.workspace.open() is used with a config URI", ->
+      beforeEach ->
+        settingsView = null
+
+      it "opens the settings to the correct panel with atom://config/<panel-name>", ->
+        waitsForPromise ->
+          atom.workspace.open('atom://config').then (s) -> settingsView = s
+
+        runs ->
+          expect(settingsView.activePanelName).toBe 'Settings'
+
+        waitsForPromise ->
+          atom.workspace.open('atom://config/themes').then (s) -> settingsView = s
+
+        runs ->
+          expect(settingsView.activePanelName).toBe 'Themes'
+
+        waitsForPromise ->
+          atom.workspace.open('atom://config/install').then (s) -> settingsView = s
+
+        runs ->
+          expect(settingsView.activePanelName).toBe 'Install'
