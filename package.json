@@ -14,7 +14,7 @@
     "q": "^1.1.2",
     "request": "2.49.0",
     "season": "^5.0.2",
-    "semver": "~2.2.1",
+    "semver": "~4.2",
     "underscore-plus": "^1.0.6"
   },
   "repository": "https://github.com/atom/settings-view",
