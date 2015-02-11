@@ -12,7 +12,7 @@
     "fuzzaldrin": "^2.1",
     "glob": "4.3.1",
     "q": "^1.1.2",
-    "request": "2.49.0",
+    "request": "^2.40.0",
     "season": "^5.0.2",
     "semver": "~4.2",
     "underscore-plus": "^1.0.6"
