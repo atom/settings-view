@@ -31,10 +31,7 @@ module.exports =
       'settings-view:uninstall-packages': -> openPanel('Packages')
       'settings-view:check-for-package-updates': -> openPanel('Updates')
 
-    atom.packages.onDidActivateInitialPackages(checkForUpdates)
-
-checkForUpdates = ->
-  if statusBar = atom.views.getView(atom.workspace)?.querySelector('status-bar')
+  consumeStatusBar: (statusBar) ->
     PackageManager = require './package-manager'
     packageManager = new PackageManager()
     packageManager.getOutdated().then (packages) ->
