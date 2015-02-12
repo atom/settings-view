@@ -83,17 +83,20 @@ describe "SettingsView", ->
         waitsForPromise ->
           atom.workspace.open('atom://config').then (s) -> settingsView = s
 
+        waits 1
         runs ->
           expect(settingsView.activePanelName).toBe 'Settings'
 
         waitsForPromise ->
           atom.workspace.open('atom://config/themes').then (s) -> settingsView = s
 
+        waits 1
         runs ->
           expect(settingsView.activePanelName).toBe 'Themes'
 
         waitsForPromise ->
           atom.workspace.open('atom://config/install').then (s) -> settingsView = s
 
+        waits 1
         runs ->
           expect(settingsView.activePanelName).toBe 'Install'
