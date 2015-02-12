@@ -8,7 +8,8 @@ createSettingsView = (params) ->
   settingsView = new SettingsView(params)
 
 openPanel = (panelName) ->
-  atom.workspace.open(configUri).then -> settingsView?.showPanel(panelName)
+  settingsView ?= createSettingsView({uri: configUri})
+  settingsView.showPanel(panelName)
 
 deserializer =
   name: 'SettingsView'
