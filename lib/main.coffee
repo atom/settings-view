@@ -20,7 +20,13 @@ atom.deserializers.add(deserializer)
 module.exports =
   activate: ->
     atom.workspace.addOpener (uri) ->
-      createSettingsView({uri}) if uri is configUri
+      if uri.startsWith(configUri)
+        settingsView = createSettingsView({uri})
+        if match = /config\/([a-z]+)/gi.exec(uri)
+          panelName = match[1]
+          panelName = panelName[0].toUpperCase() + panelName.slice(1)
+          openPanel(panelName)
+        settingsView
 
     atom.commands.add 'atom-workspace',
       'settings-view:open': -> openPanel('Settings')
