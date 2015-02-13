@@ -64,6 +64,10 @@ class AvailablePackageView extends View
       @installButton.hide()
       @uninstallButton.hide()
 
+    # core themes only have a settings option, no status
+    if atom.packages.isBundledPackage(@pack.name) and @type is 'theme'
+      @statusIndicator.hide()
+
     if opts?.onSettingsView
       @settingsButton.remove()
     else
