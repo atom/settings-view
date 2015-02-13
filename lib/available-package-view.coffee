@@ -64,17 +64,19 @@ class AvailablePackageView extends View
       @installButton.hide()
       @uninstallButton.hide()
 
-    @on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
+    if opts?.onSettingsView
+      @settingsButton.remove()
+    else
+      @on 'click', =>
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
+      @settingsButton.on 'click', =>
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
 
     @installButton.on 'click', =>
       @install()
 
     @uninstallButton.on 'click', =>
       @uninstall()
-
-    @settingsButton.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
 
     @packageName.on 'click', (event) =>
       event.stopPropagation()
