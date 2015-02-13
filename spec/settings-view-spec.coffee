@@ -69,11 +69,62 @@ describe "SettingsView", ->
       expect(settingsView.panels.find('#panel-2')).toBeVisible()
 
   describe "when the package is activated", ->
-    mainModule = null
+    [mainModule] = []
     beforeEach ->
       jasmine.attachToDOM(atom.views.getView(atom.workspace))
       waitsForPromise ->
         atom.packages.activatePackage('settings-view')
+
+    describe "when the settings view is opened with a settings-view:* command", ->
+      openWithCommand = (command) ->
+        atom.commands.dispatch(atom.views.getView(atom.workspace), command)
+        waitsFor ->
+          atom.workspace.getActivePaneItem()?
+
+      beforeEach ->
+        settingsView = null
+
+      describe "settings-view:open", ->
+        it "opens the settings view", ->
+          openWithCommand('settings-view:open')
+          runs ->
+            expect(atom.workspace.getActivePaneItem().activePanelName).toBe 'Settings'
+
+      describe "settings-view:show-keybindings", ->
+        it "opens the settings view to the keybindings page", ->
+          openWithCommand('settings-view:show-keybindings')
+          runs ->
+            expect(atom.workspace.getActivePaneItem().activePanelName).toBe 'Keybindings'
+
+      describe "settings-view:change-themes", ->
+        it "opens the settings view to the themes page", ->
+          openWithCommand('settings-view:change-themes')
+          runs ->
+            expect(atom.workspace.getActivePaneItem().activePanelName).toBe 'Themes'
+
+      describe "settings-view:uninstall-themes", ->
+        it "opens the settings view to the themes page", ->
+          openWithCommand('settings-view:uninstall-themes')
+          runs ->
+            expect(atom.workspace.getActivePaneItem().activePanelName).toBe 'Themes'
+
+      describe "settings-view:uninstall-packages", ->
+        it "opens the settings view to the install page", ->
+          openWithCommand('settings-view:uninstall-packages')
+          runs ->
+            expect(atom.workspace.getActivePaneItem().activePanelName).toBe 'Packages'
+
+      describe "settings-view:install-packages-and-themes", ->
+        it "opens the settings view to the install page", ->
+          openWithCommand('settings-view:install-packages-and-themes')
+          runs ->
+            expect(atom.workspace.getActivePaneItem().activePanelName).toBe 'Install'
+
+      describe "settings-view:check-for-package-updates", ->
+        it "opens the settings view to the install page", ->
+          openWithCommand('settings-view:check-for-package-updates')
+          runs ->
+            expect(atom.workspace.getActivePaneItem().activePanelName).toBe 'Updates'
 
     describe "when atom.workspace.open() is used with a config URI", ->
       beforeEach ->

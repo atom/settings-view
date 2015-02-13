@@ -30,13 +30,13 @@ module.exports =
         settingsView
 
     atom.commands.add 'atom-workspace',
-      'settings-view:open': -> openPanel('Settings')
-      'settings-view:show-keybindings': -> openPanel('Keybindings')
-      'settings-view:change-themes': -> openPanel('Themes')
-      'settings-view:install-packages-and-themes': -> openPanel('Install')
-      'settings-view:uninstall-themes': -> openPanel('Themes')
-      'settings-view:uninstall-packages': -> openPanel('Packages')
-      'settings-view:check-for-package-updates': -> openPanel('Updates')
+      'settings-view:open': -> atom.workspace.open(configUri)
+      'settings-view:show-keybindings': -> atom.workspace.open("#{configUri}/keybindings")
+      'settings-view:change-themes': -> atom.workspace.open("#{configUri}/themes")
+      'settings-view:install-packages-and-themes': -> atom.workspace.open("#{configUri}/install")
+      'settings-view:uninstall-themes': -> atom.workspace.open("#{configUri}/themes")
+      'settings-view:uninstall-packages': -> atom.workspace.open("#{configUri}/packages")
+      'settings-view:check-for-package-updates': -> atom.workspace.open("#{configUri}/updates")
 
   consumeStatusBar: (statusBar) ->
     PackageManager = require './package-manager'
