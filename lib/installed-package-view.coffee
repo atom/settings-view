@@ -34,7 +34,7 @@ class InstalledPackageView extends View
 
           @div class: 'container package-container', =>
             @div class: 'row', =>
-              @subview 'packageCard', new AvailablePackageView(pack.metadata, packageManager)
+              @subview 'packageCard', new AvailablePackageView(pack.metadata, packageManager, onSettingsView: true)
 
           @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
 
