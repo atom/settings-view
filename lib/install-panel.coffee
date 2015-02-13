@@ -118,7 +118,7 @@ class InstallPanel extends View
     for pack, index in packages
       packageRow = $$ -> @div class: 'row'
       container.append(packageRow)
-      packageRow.append(new AvailablePackageView(pack, @packageManager))
+      packageRow.append(new AvailablePackageView(pack, @packageManager, back: 'Install'))
 
   filterPackages: (packages, themes) ->
     packages.filter ({theme}) =>
