@@ -1,6 +1,7 @@
 path = require 'path'
 _ = require 'underscore-plus'
 {$, $$, ScrollView, TextEditorView} = require 'atom-space-pen-views'
+{Disposable} = require 'atom'
 {Subscriber} = require 'emissary'
 async = require 'async'
 CSON = require 'season'
@@ -39,6 +40,10 @@ class SettingsView extends ScrollView
 
   detached: ->
     @unsubscribe()
+
+  #TODO Remove both of these post 1.0
+  onDidChangeTitle: -> new Disposable()
+  onDidChangeModified: -> new Disposable()
 
   handlePackageEvents: ->
     @subscribe @packageManager, 'package-installed theme-installed', ({name}) =>
