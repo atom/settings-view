@@ -91,7 +91,7 @@ class PackageDetailView extends View
 
     else
       @startupTime.hide()
-
+      @openButton.hide()
 
 
   subscribeToPackageManager: ->
