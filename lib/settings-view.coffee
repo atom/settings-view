@@ -8,7 +8,7 @@ fuzzaldrin = require 'fuzzaldrin'
 
 Client = require './atom-io-client'
 GeneralPanel = require './general-panel'
-InstalledPackageView = require './installed-package-view'
+PackageDetailView = require './package-detail-view'
 KeybindingsPanel = require './keybindings-panel'
 PackageManager = require './package-manager'
 InstallPanel = require './install-panel'
@@ -120,7 +120,7 @@ class SettingsView extends ScrollView
 
   addPackagePanel: (pack) ->
     @addPanel pack.name, null, =>
-      new InstalledPackageView(pack, @packageManager)
+      new PackageDetailView(pack, @packageManager)
 
   addPanel: (name, panelMenuItem, panelCreateCallback) ->
     @panelCreateCallbacks ?= {}
@@ -139,7 +139,7 @@ class SettingsView extends ScrollView
         callback = =>
           # sigh
           opts.pack.metadata = opts.pack
-          new InstalledPackageView(opts.pack, @packageManager)
+          new PackageDetailView(opts.pack, @packageManager)
 
       if callback
         panel = callback()

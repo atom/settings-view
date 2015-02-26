@@ -15,7 +15,7 @@ PackageSnippetsView = require './package-snippets-view'
 SettingsPanel = require './settings-panel'
 
 module.exports =
-class InstalledPackageView extends View
+class PackageDetailView extends View
   Subscriber.includeInto(this)
 
   @content: (pack, packageManager) ->
@@ -27,7 +27,7 @@ class InstalledPackageView extends View
           @a outlet: 'title'
 
       @section class: 'section', =>
-        @form class: 'section-container installed-package-view', =>
+        @form class: 'section-container package-detail-view', =>
           @div outlet: 'updateArea', class: 'alert alert-success package-update', =>
             @span outlet: 'updateLabel', class: 'icon icon-squirrel update-message'
             @span outlet: 'updateLink', class: 'alert-link update-link icon icon-cloud-download', 'Install'
@@ -189,6 +189,6 @@ class InstalledPackageView extends View
           @updateLabel.text("Version #{@availableVersion} is now available!")
           @updateArea.show()
 
-  # Even though the title of this view is hilariously "InstalledPackageView",
+  # Even though the title of this view is hilariously "PackageDetailView",
   # the package might not be installed.
   isInstalled: -> atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)
