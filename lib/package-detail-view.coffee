@@ -8,7 +8,7 @@ shell = require 'shell'
 {Subscriber} = require 'emissary'
 
 ErrorView = require './error-view'
-AvailablePackageView = require './available-package-view'
+PackageCard = require './package-card'
 PackageGrammarsView = require './package-grammars-view'
 PackageKeymapView = require './package-keymap-view'
 PackageSnippetsView = require './package-snippets-view'
@@ -34,7 +34,7 @@ class PackageDetailView extends View
 
           @div class: 'container package-container', =>
             @div class: 'row', =>
-              @subview 'packageCard', new AvailablePackageView(pack.metadata, packageManager, onSettingsView: true)
+              @subview 'packageCard', new PackageCard(pack.metadata, packageManager, onSettingsView: true)
 
           @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
 

@@ -4,16 +4,16 @@ _ = require 'underscore-plus'
 shell = require 'shell'
 
 module.exports =
-class AvailablePackageView extends View
+class PackageCard extends View
   Subscriber.includeInto(this)
 
   @content: ({name, description, version, repository}) ->
     # stars, downloads
     # lol wat
-    owner = AvailablePackageView::ownerFromRepository(repository)
+    owner = PackageCard::ownerFromRepository(repository)
     description ?= ''
 
-    @div class: 'available-package-view col-lg-8', =>
+    @div class: 'package-card col-lg-8', =>
       @div class: 'stats pull-right', =>
         @span class: "stats-item", =>
           @span class: 'icon icon-versions'

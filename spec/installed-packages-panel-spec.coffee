@@ -17,13 +17,13 @@ describe 'InstalledPackagesPanel', ->
       @packageManager.getInstalled.callCount is 1 and @panel.communityCount.text().indexOf('…') < 0
     runs ->
       expect(@panel.communityCount.text().trim()).toBe '1'
-      expect(@panel.communityPackages.find('.available-package-view:not(.hidden)').length).toBe 1
+      expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 1
 
       expect(@panel.coreCount.text().trim()).toBe '1'
-      expect(@panel.corePackages.find('.available-package-view:not(.hidden)').length).toBe 1
+      expect(@panel.corePackages.find('.package-card:not(.hidden)').length).toBe 1
 
       expect(@panel.devCount.text().trim()).toBe '1'
-      expect(@panel.devPackages.find('.available-package-view:not(.hidden)').length).toBe 1
+      expect(@panel.devPackages.find('.package-card:not(.hidden)').length).toBe 1
 
   it 'filters packages by name', ->
     waitsFor ->
@@ -33,10 +33,10 @@ describe 'InstalledPackagesPanel', ->
       @panel.filterEditor.getModel().setText('user-')
       window.advanceClock(@panel.filterEditor.getModel().getBuffer().stoppedChangingDelay)
       expect(@panel.communityCount.text().trim()).toBe '1/1'
-      expect(@panel.communityPackages.find('.available-package-view:not(.hidden)').length).toBe 1
+      expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 1
 
       expect(@panel.coreCount.text().trim()).toBe '0/1'
-      expect(@panel.corePackages.find('.available-package-view:not(.hidden)').length).toBe 0
+      expect(@panel.corePackages.find('.package-card:not(.hidden)').length).toBe 0
 
       expect(@panel.devCount.text().trim()).toBe '0/1'
-      expect(@panel.devPackages.find('.available-package-view:not(.hidden)').length).toBe 0
+      expect(@panel.devPackages.find('.package-card:not(.hidden)').length).toBe 0

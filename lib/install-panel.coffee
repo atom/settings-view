@@ -5,7 +5,7 @@ fs = require 'fs-plus'
 {$, $$, TextEditorView, View} = require 'atom-space-pen-views'
 {Subscriber} = require 'emissary'
 
-AvailablePackageView = require './available-package-view'
+PackageCard = require './package-card'
 Client = require './atom-io-client'
 ErrorView = require './error-view'
 PackageManager = require './package-manager'
@@ -118,7 +118,7 @@ class InstallPanel extends View
     for pack, index in packages
       packageRow = $$ -> @div class: 'row'
       container.append(packageRow)
-      packageRow.append(new AvailablePackageView(pack, @packageManager, back: 'Install'))
+      packageRow.append(new PackageCard(pack, @packageManager, back: 'Install'))
 
   filterPackages: (packages, themes) ->
     packages.filter ({theme}) =>
