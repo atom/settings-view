@@ -72,9 +72,9 @@ class AvailablePackageView extends View
       @settingsButton.remove()
     else
       @on 'click', =>
-        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
       @settingsButton.on 'click', =>
-        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
 
     @installButton.on 'click', =>
       @install()

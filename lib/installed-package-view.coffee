@@ -73,7 +73,6 @@ class InstalledPackageView extends View
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")
 
     @type = if @pack.metadata.theme then 'theme' else 'package'
-    @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
 
     if repoUrl = @packageManager.getRepositoryUrl(@pack)
       repoName = url.parse(repoUrl).pathname
@@ -82,10 +81,18 @@ class InstalledPackageView extends View
       @packageRepo.hide()
 
     @sections.empty()
-    @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
-    @sections.append(new PackageKeymapView(@pack.name))
-    @sections.append(new PackageGrammarsView(@pack.path))
-    @sections.append(new PackageSnippetsView(@pack.path))
+
+    if @isInstalled()
+      @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
+      @sections.append(new PackageKeymapView(@pack.name))
+      @sections.append(new PackageGrammarsView(@pack.path))
+      @sections.append(new PackageSnippetsView(@pack.path))
+      @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
+
+    else
+      @startupTime.hide()
+
+
 
   subscribeToPackageManager: ->
     @subscribe @packageManager, 'theme-updated package-updated', (pack, newVersion) =>
@@ -181,3 +188,7 @@ class InstalledPackageView extends View
           @availableVersion = pack.latestVersion
           @updateLabel.text("Version #{@availableVersion} is now available!")
           @updateArea.show()
+
+  # Even though the title of this view is hilariously "InstalledPackageView",
+  # the package might not be installed.
+  isInstalled: -> atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)

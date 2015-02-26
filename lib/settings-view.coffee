@@ -127,14 +127,26 @@ class SettingsView extends ScrollView
     @panelCreateCallbacks[name] = panelCreateCallback
     @showPanel(name) if @panelToShow is name
 
-  getOrCreatePanel: (name) ->
+  getOrCreatePanel: (name, opts) ->
     panel = @panelsByName?[name]
+    # These nested conditionals are not great but I feel like it's the most
+    # expedient thing to do - I feel like the "right way" involves refactoring
+    # this whole file.
     unless panel?
-      if callback = @panelCreateCallbacks?[name]
+      callback = @panelCreateCallbacks?[name]
+
+      if opts?.pack and not callback
+        callback = =>
+          # sigh
+          opts.pack.metadata = opts.pack
+          new InstalledPackageView(opts.pack, @packageManager)
+
+      if callback
         panel = callback()
         @panelsByName ?= {}
         @panelsByName[name] = panel
         delete @panelCreateCallbacks[name]
+
     panel
 
   makePanelMenuActive: (name) ->
@@ -155,7 +167,7 @@ class SettingsView extends ScrollView
         return
 
   showPanel: (name, opts) ->
-    if panel = @getOrCreatePanel(name)
+    if panel = @getOrCreatePanel(name, opts)
       @panels.children().hide()
       @panels.append(panel) unless $.contains(@panels[0], panel[0])
       panel.beforeShow?(opts)
