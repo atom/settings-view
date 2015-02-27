@@ -11,6 +11,7 @@ ErrorView = require './error-view'
 PackageCard = require './package-card'
 PackageGrammarsView = require './package-grammars-view'
 PackageKeymapView = require './package-keymap-view'
+PackageReadmeView = require './package-readme-view'
 PackageSnippetsView = require './package-snippets-view'
 SettingsPanel = require './settings-panel'
 
@@ -84,12 +85,14 @@ class PackageDetailView extends View
 
   updateInstalledState: ->
     @sections.empty()
+    @updateFileButtons()
 
     if @isInstalled()
       @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
       @sections.append(new PackageKeymapView(@pack.name))
       @sections.append(new PackageGrammarsView(@pack.path))
       @sections.append(new PackageSnippetsView(@pack.path))
+      @sections.append(new PackageReadmeView(@pack.metadata.readme))
       @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
 
     else
