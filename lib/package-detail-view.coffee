@@ -102,6 +102,9 @@ class PackageDetailView extends View
       @pack = atom.packages.getLoadedPackage(pack.name)
       @updateInstalledState()
 
+    @subscribe @packageManager, 'theme-uninstalled package-uninstalled', (pack) =>
+      @updateInstalledState()
+
     @subscribe @packageManager, 'theme-updated package-updated', (pack, newVersion) =>
       return unless @pack.name is pack.name
 
