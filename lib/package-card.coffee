@@ -74,12 +74,15 @@ class PackageCard extends View
       @on 'click', =>
         @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
       @settingsButton.on 'click', =>
+        event.stopPropagation()
         @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
 
     @installButton.on 'click', =>
+      event.stopPropagation()
       @install()
 
-    @uninstallButton.on 'click', =>
+    @uninstallButton.on 'click', (event) =>
+      event.stopPropagation()
       @uninstall()
 
     @packageName.on 'click', (event) =>
