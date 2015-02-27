@@ -167,6 +167,7 @@ class PackageCard extends View
         @uninstallButton.hide()
         @settingsButton.hide()
         @enablementButton.hide()
+        @statusIndicator.hide()
 
     if @isInstalled() or @isDisabled()
       @installButton.hide()
