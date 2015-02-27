@@ -45,14 +45,6 @@ class SettingsView extends ScrollView
       if pack = atom.packages.getLoadedPackage(name)
         @addPackagePanel(pack)
 
-    @subscribe @packageManager, 'package-uninstalled', ({name}) =>
-      @removePanel(name)
-      @showPanel('Packages') if name is @activePanelName
-
-    @subscribe @packageManager, 'theme-uninstalled', ({name}) =>
-      @removePanel(name)
-      @showPanel('Themes') if name is @activePanelName
-
   initializePanels: ->
     return if @panels.size > 0
 
