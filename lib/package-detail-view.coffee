@@ -98,7 +98,8 @@ class PackageDetailView extends View
 
 
   subscribeToPackageManager: ->
-    @subscribe @packageManager, 'theme-installed package-installed theme-install-failed package-install-failed', (pack) =>
+    @subscribe @packageManager, 'theme-installed package-installed', (pack) =>
+      @pack = atom.packages.getLoadedPackage(pack.name)
       @updateInstalledState()
 
     @subscribe @packageManager, 'theme-updated package-updated', (pack, newVersion) =>
