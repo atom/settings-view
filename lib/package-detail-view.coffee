@@ -80,6 +80,9 @@ class PackageDetailView extends View
     else
       @packageRepo.hide()
 
+    @updateInstalledState()
+
+  updateInstalledState: ->
     @sections.empty()
 
     if @isInstalled()
@@ -95,6 +98,9 @@ class PackageDetailView extends View
 
 
   subscribeToPackageManager: ->
+    @subscribe @packageManager, 'theme-installed package-installed theme-install-failed package-install-failed', (pack) =>
+      @updateInstalledState()
+
     @subscribe @packageManager, 'theme-updated package-updated', (pack, newVersion) =>
       return unless @pack.name is pack.name
 
