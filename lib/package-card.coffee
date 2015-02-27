@@ -77,7 +77,7 @@ class PackageCard extends View
         event.stopPropagation()
         @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
 
-    @installButton.on 'click', =>
+    @installButton.on 'click', (event) =>
       event.stopPropagation()
       @install()
 
