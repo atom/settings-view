@@ -61,3 +61,20 @@ describe "InstalledPackageView", ->
       view = new InstalledPackageView(pack, new PackageManager())
       keybindingsTable = view.find('.package-keymap-table tbody')
       expect(keybindingsTable.children().length).toBe 0
+
+  fit "displays the correct enablement state", ->
+    availablePackageView = null
+
+    waitsForPromise ->
+      atom.packages.activatePackage('status-bar')
+
+    runs ->
+      expect(atom.packages.isPackageActive('status-bar')).toBe(true)
+      atom.packages.disablePackage('status-bar')
+      expect(atom.packages.isPackageDisabled('status-bar')).toBe(true)
+
+      pack = atom.packages.getLoadedPackage('status-bar')
+      view = new InstalledPackageView(pack, new PackageManager())
+      availablePackageView = view.find('.available-package-view')
+      console.log(availablePackageView)
+      expect(availablePackageView.hasClass('disabled')).toBe(true)
