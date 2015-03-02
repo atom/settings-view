@@ -2,6 +2,7 @@ _ = require 'underscore-plus'
 {View} = require 'atom-space-pen-views'
 {Subscriber} = require 'emissary'
 shell = require 'shell'
+semver = require 'semver'
 
 module.exports =
 class AvailablePackageView extends View
@@ -60,7 +61,15 @@ class AvailablePackageView extends View
     @updateEnablement()
     @loadCachedMetadata()
 
-    if atom.packages.isBundledPackage(@pack.name)
+    # Unfortunately, semver.satisfies('x.y.z-w', '>a.b.c') returns false, where
+    # semver.satisfies('x.y.z', '>a.b.c') returns true. So we have to remove
+    # the version hash so that it can be tested properly.
+    [atomVersion] = atom.getVersion().split('-')
+
+    isBundledPackage = atom.packages.isBundledPackage(@pack.name)
+    satisfiesAtomVersion = semver.satisfies(atomVersion, @pack.engines?.atom ? '*')
+
+    if isBundledPackage or !satisfiesAtomVersion
       @installButton.hide()
       @uninstallButton.hide()
 

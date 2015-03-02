@@ -40,3 +40,29 @@ describe "AvailablePackageView", ->
     expect(view.uninstallButton.css('display')).toBe('none')
     view.installButton.click()
     expect(@packageManager.install).toHaveBeenCalled()
+
+  it "can be installed if currently not installed and package engine match atom version", ->
+    setPackageStatusSpies {installed: false, disabled: false}
+
+    view = new AvailablePackageView {
+      name: 'test-package'
+      engines:
+        atom: '>0.50.0'
+    }, @packageManager
+    
+    expect(view.installButton.css('display')).not.toBe('none')
+    expect(view.uninstallButton.css('display')).toBe('none')
+    view.installButton.click()
+    expect(@packageManager.install).toHaveBeenCalled()
+
+  it "can't be installed if the atom version doesn't match the package engine version", ->
+    setPackageStatusSpies {installed: false, disabled: false}
+
+    view = new AvailablePackageView {
+      name: 'test-package'
+      engines:
+        atom: '>=99.0.0'
+    }, @packageManager
+
+    expect(view.installButton.css('display')).toBe('none')
+    expect(view.uninstallButton.css('display')).toBe('none')
