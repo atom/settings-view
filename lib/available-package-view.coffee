@@ -76,10 +76,15 @@ class AvailablePackageView extends View
     # The package is not bundled with Atom and is not installed so we'll have
     # to find a package version that is compatible with this Atom version.
     else
-      @packageManager.requestPackage @pack.name, (err, pack) =>
-        if err?
-          console.error(err)
-        else
+      atomVersion = @packageManager.normalizeVersion(atom.getVersion())
+      # The latest version is compatible with the current Atom version, no need
+      # to make a request to get all versions.
+      if @packageManager.satisfiesVersion(atomVersion, @pack)
+        @installButton.show()
+      else
+        @packageManager.requestPackage @pack.name, (err, pack) =>
+          return console.error(err) if err?
+
           packageVersion = @packageManager.getLatestCompatibleVersion(pack)
           # A compatible version exist, we activate the install button and
           # replace @pack so that the install action installs the compatible
@@ -106,7 +111,6 @@ class AvailablePackageView extends View
             </span>
             """
             console.error("No available version compatible with the installed Atom version: #{atom.getVersion()}")
-            return
 
     @installButton.on 'click', =>
       @install()

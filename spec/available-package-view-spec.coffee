@@ -8,9 +8,13 @@ describe "AvailablePackageView", ->
 
 
   beforeEach ->
-    @packageManager = jasmine.createSpyObj('packageManager', ['on', 'getClient', 'emit', 'install', 'uninstall', 'requestPackage', 'getLatestCompatibleVersion'])
+    @packageManager = jasmine.createSpyObj('packageManager', ['on', 'getClient', 'emit', 'install', 'uninstall', 'requestPackage', 'getLatestCompatibleVersion', 'satisfiesVersion', 'normalizeVersion'])
     @packageManager.getLatestCompatibleVersion.andCallFake ->
       PackageManager.prototype.getLatestCompatibleVersion(arguments...)
+    @packageManager.satisfiesVersion.andCallFake ->
+      PackageManager.prototype.satisfiesVersion(arguments...)
+    @packageManager.normalizeVersion.andCallFake ->
+      PackageManager.prototype.normalizeVersion(arguments...)
     @packageManager.getClient.andCallFake -> jasmine.createSpyObj('client', ['avatar', 'package'])
     @packageManager.requestPackage.andCallFake (packageName, callback) ->
       pack =
@@ -83,6 +87,9 @@ describe "AvailablePackageView", ->
       engines:
         atom: '>0.50.0'
     }, @packageManager
+
+    # In that case there's no need to make a request to get all the versions
+    expect(@packageManager.requestPackage).not.toHaveBeenCalled()
 
     expect(view.installButton.css('display')).not.toBe('none')
     expect(view.uninstallButton.css('display')).toBe('none')

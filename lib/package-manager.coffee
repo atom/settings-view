@@ -147,17 +147,19 @@ class PackageManager
 
     latestVersion = null
     for version, metadata of pack.versions ? {}
-      continue unless semver.valid(version)
       continue unless metadata
-
-      engine = metadata.engines?.atom ? '*'
-      continue unless semver.validRange(engine)
-      continue unless semver.satisfies(atomVersion, engine)
+      continue unless semver.valid(version)
+      continue unless @satisfiesVersion(atomVersion, metadata)
 
       latestVersion ?= version
       latestVersion = version if semver.gt(version, latestVersion)
 
     latestVersion
+
+  satisfiesVersion: (version, metadata) ->
+    engine = metadata.engines?.atom ? '*'
+    return false unless semver.validRange(engine)
+    return semver.satisfies(version, engine)
 
   normalizeVersion: (version) ->
     [version] = version.split('-') if typeof version is 'string'
