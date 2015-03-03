@@ -4,6 +4,8 @@ _ = require 'underscore-plus'
 Q = require 'q'
 semver = require 'semver'
 url = require 'url'
+apm = require 'apm'
+request = require 'apm/lib/request'
 
 Client = require './atom-io-client'
 
@@ -117,6 +119,49 @@ class PackageManager
 
   getPackage: (packageName) ->
     @packagePromises[packageName] ?= Q.nbind(@loadPackage, this, packageName)()
+
+  # Request package information from the atom.io API for a given package name.
+  #
+  # packageName - The string name of the package to request.
+  # callback - The function to invoke when the request completes with an error
+  #            as the first argument and an object as the second.
+  requestPackage: (packageName, callback) ->
+    requestSettings =
+      url: "#{apm.getAtomPackagesUrl()}/#{packageName}"
+      json: true
+    request.get requestSettings, (error, response, body={}) ->
+      if error?
+        callback("Request for package information failed: #{error.message}")
+      else if response.statusCode isnt 200
+        message = request.getErrorMessage(response, body)
+        callback("Request for package information failed: #{message}")
+      else
+        if body.releases.latest
+          callback(null, body)
+        else
+          callback("No releases available for #{packageName}")
+
+  getLatestCompatibleVersion: (pack) ->
+    atomVersion = @normalizeVersion(atom.getVersion())
+    return pack.releases.latest unless atomVersion?
+
+    latestVersion = null
+    for version, metadata of pack.versions ? {}
+      continue unless semver.valid(version)
+      continue unless metadata
+
+      engine = metadata.engines?.atom ? '*'
+      continue unless semver.validRange(engine)
+      continue unless semver.satisfies(atomVersion, engine)
+
+      latestVersion ?= version
+      latestVersion = version if semver.gt(version, latestVersion)
+
+    latestVersion
+
+  normalizeVersion: (version) ->
+    [version] = version.split('-') if typeof version is 'string'
+    version
 
   search: (query, options = {}) ->
     deferred = Q.defer()
