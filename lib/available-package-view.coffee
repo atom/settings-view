@@ -57,6 +57,7 @@ class AvailablePackageView extends View
     {@name} = @pack
 
     @handlePackageEvents()
+    @handleControlsEvent()
     @updateEnablement()
     @loadCachedMetadata()
 
@@ -112,6 +113,7 @@ class AvailablePackageView extends View
             """
             console.error("No available version compatible with the installed Atom version: #{atom.getVersion()}")
 
+  handleControlsEvent: ->
     @installButton.on 'click', =>
       @install()
 
