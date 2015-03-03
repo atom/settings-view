@@ -2,7 +2,6 @@ _ = require 'underscore-plus'
 {View} = require 'atom-space-pen-views'
 {Subscriber} = require 'emissary'
 shell = require 'shell'
-semver = require 'semver'
 
 module.exports =
 class AvailablePackageView extends View
@@ -61,17 +60,36 @@ class AvailablePackageView extends View
     @updateEnablement()
     @loadCachedMetadata()
 
-    # Unfortunately, semver.satisfies('x.y.z-w', '>a.b.c') returns false, where
-    # semver.satisfies('x.y.z', '>a.b.c') returns true. So we have to remove
-    # the version hash so that it can be tested properly.
-    [atomVersion] = atom.getVersion().split('-')
+    # We hide install/uninstall buttons until we know how to treat this
+    # package.
+    @installButton.hide()
+    @uninstallButton.hide()
 
-    isBundledPackage = atom.packages.isBundledPackage(@pack.name)
-    satisfiesAtomVersion = semver.satisfies(atomVersion, @pack.engines?.atom ? '*')
+    # The package is bundled with Atom, we don't need to do anything
+    # beyond that.
+    return if atom.packages.isBundledPackage(@pack.name)
 
-    if isBundledPackage or !satisfiesAtomVersion
-      @installButton.hide()
-      @uninstallButton.hide()
+    # The package is not bundled with Atom, but is already installed
+    # we only need to show the uninstall button.
+    if @isInstalled()
+      @uninstallButton.show()
+    # The package is not bundled with Atom and is not installed so we'll have
+    # to find a package version that is compatible with this Atom version.
+    else
+      @packageManager.requestPackage @pack.name, (err, pack) =>
+        if err?
+          console.error(err)
+        else
+          packageVersion = @packageManager.getLatestCompatibleVersion(pack)
+          # A compatible version exist, we activate the install button and
+          # replace @pack so that the install action installs the compatible
+          # version of the package.
+          if packageVersion
+            @pack = pack.versions[packageVersion]
+            @installButton.show()
+          else
+            console.error("No available version compatible with the installed Atom version: #{atom.getVersion()}")
+            return
 
     @installButton.on 'click', =>
       @install()
