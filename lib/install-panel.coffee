@@ -69,7 +69,7 @@ class InstallPanel extends View
     @subscribe @packageManager, 'package-install-failed', (pack, error) =>
       @searchErrors.append(new ErrorView(@packageManager, error))
 
-    @searchEditorView.on 'core:confirm', =>
+    @subscribe atom.commands.add @searchEditorView.element, 'core:confirm', =>
       @performSearch()
 
     @searchPackagesButton.on 'click', =>
