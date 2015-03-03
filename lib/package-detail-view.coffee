@@ -91,13 +91,13 @@ class PackageDetailView extends View
       @sections.append(new PackageKeymapView(@pack.name))
       @sections.append(new PackageGrammarsView(@pack.path))
       @sections.append(new PackageSnippetsView(@pack.path))
-      @sections.append(new PackageReadmeView(@pack.metadata.readme))
       @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
 
     else
       @startupTime.hide()
       @openButton.hide()
 
+    @sections.append(new PackageReadmeView(@pack.metadata.readme))
 
   subscribeToPackageManager: ->
     @subscribe @packageManager, 'theme-installed package-installed', (pack) =>
