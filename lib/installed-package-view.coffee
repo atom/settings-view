@@ -61,6 +61,7 @@ class InstalledPackageView extends View
     @subscribeToPackageManager()
 
   activate: ->
+    # Package.activateConfig() is part of the Private package API and should not be used outside of core.
     @pack.activateConfig() if not atom.packages.isPackageActive(@pack.name)
 
   detached: ->
