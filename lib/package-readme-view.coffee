@@ -3,6 +3,7 @@ _ = require 'underscore-plus'
 {$, $$$, View} = require 'atom-space-pen-views'
 roaster = require 'roaster'
 fs = require 'fs'
+cheerio = require 'cheerio'
 
 # Displays the readme for a package, if it has one
 # TODO Decide to keep this or current button-to-new-tab view
@@ -18,4 +19,34 @@ class PackageReadmeView extends View
     roaster readme, (err, content) =>
       if err
         @packageReadme.append("<h3>Error parsing README</h3>")
-      @packageReadme.append(content)
+      @packageReadme.append(sanitize(content))
+
+  sanitize = (html) ->
+    o = cheerio.load("<div>#{html}</div>")
+    o('script').remove()
+    attributesToRemove = [
+      'onabort'
+      'onblur'
+      'onchange'
+      'onclick'
+      'ondbclick'
+      'onerror'
+      'onfocus'
+      'onkeydown'
+      'onkeypress'
+      'onkeyup'
+      'onload'
+      'onmousedown'
+      'onmousemove'
+      'onmouseover'
+      'onmouseout'
+      'onmouseup'
+      'onreset'
+      'onresize'
+      'onscroll'
+      'onselect'
+      'onsubmit'
+      'onunload'
+    ]
+    o('*').removeAttr(attribute) for attribute in attributesToRemove
+    o.html()
