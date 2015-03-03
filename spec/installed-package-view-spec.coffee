@@ -3,6 +3,9 @@ InstalledPackageView = require '../lib/installed-package-view'
 PackageManager = require '../lib/package-manager'
 
 describe "InstalledPackageView", ->
+  beforeEach ->
+    spyOn(PackageManager.prototype, 'requestPackage').andCallFake ->
+
   it "displays the grammars registered by the package", ->
     settingsPanels = null
 
