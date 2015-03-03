@@ -17,7 +17,7 @@ class AvailablePackageView extends View
       @div class: 'stats pull-right', =>
         @span class: "stats-item", =>
           @span class: 'icon icon-versions'
-          @span class:'value', version
+          @span outlet: 'versionValue', class:'value', String(version)
 
         @span class: 'stats-item', =>
           @span class: 'icon icon-cloud-download'
@@ -85,9 +85,14 @@ class AvailablePackageView extends View
           # replace @pack so that the install action installs the compatible
           # version of the package.
           if packageVersion
+            @versionValue.text(packageVersion)
+            if packageVersion isnt @pack.version
+              @versionValue.addClass('text-warning')
+
             @pack = pack.versions[packageVersion]
             @installButton.show()
           else
+            @versionValue.addClass('text-danger')
             console.error("No available version compatible with the installed Atom version: #{atom.getVersion()}")
             return
 
