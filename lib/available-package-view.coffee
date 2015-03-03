@@ -88,11 +88,23 @@ class AvailablePackageView extends View
             @versionValue.text(packageVersion)
             if packageVersion isnt @pack.version
               @versionValue.addClass('text-warning')
+              @packageDescription.append """
+              <br/>
+              <span class='text-warning'>
+                Version #{packageVersion} is not the latest version available for this package, but it's the latest that is compatible with your version of Atom.
+              </span>
+              """
 
             @pack = pack.versions[packageVersion]
             @installButton.show()
           else
             @versionValue.addClass('text-danger')
+            @packageDescription.append """
+            <br/>
+            <span class='text-danger'>
+              There's no version of this package that is compatible with your Atom version. The version must satisfy #{@pack.engines.atom}.
+            </span>
+            """
             console.error("No available version compatible with the installed Atom version: #{atom.getVersion()}")
             return
 
