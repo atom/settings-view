@@ -44,7 +44,6 @@ class PackageDetailView extends View
           @div outlet: 'buttons', class: 'btn-wrap-group', =>
             @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io', =>
             @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
-            @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'README'
             @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'CHANGELOG'
             @button outlet: 'licenseButton', class: 'btn btn-default icon icon-law', 'LICENSE'
             @button outlet: 'openButton', class: 'btn btn-default icon icon-link-external', 'View Code'
@@ -128,10 +127,6 @@ class PackageDetailView extends View
         shell.openExternal("#{repoUrl}/issues/new")
       false
 
-    @readmeButton.on 'click', =>
-      @openMarkdownFile(@readmePath) if @readmePath
-      false
-
     @changelogButton.on 'click', =>
       @openMarkdownFile(@changelogPath) if @changelogPath
       false
@@ -169,7 +164,6 @@ class PackageDetailView extends View
 
     if @changelogPath then @changelogButton.show() else @changelogButton.hide()
     if @licensePath then @licenseButton.show() else @licenseButton.hide()
-    if @readmePath then @readmeButton.show() else @readmeButton.hide()
 
   getStartupTime: ->
     loadTime = @pack.loadTime ? 0
