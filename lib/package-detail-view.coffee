@@ -97,7 +97,11 @@ class PackageDetailView extends View
       @startupTime.hide()
       @openButton.hide()
 
-    @sections.append(new PackageReadmeView(@pack.metadata.readme))
+    readme = if @pack.metadata.readme then @pack.metadata.readme else null
+    if @readmePath and not readme
+      readme = fs.readFileSync(@readmePath, encoding: 'utf8')
+
+    @sections.append(new PackageReadmeView(readme))
 
   subscribeToPackageManager: ->
     @subscribe @packageManager, 'theme-installed package-installed', (pack) =>
