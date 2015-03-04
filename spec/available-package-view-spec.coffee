@@ -135,7 +135,7 @@ describe "AvailablePackageView", ->
     expect(view.uninstallButton.css('display')).toBe('none')
     expect(view.versionValue.text()).toBe('0.0.1')
     expect(view.versionValue).toHaveClass('text-warning')
-    expect(view.packageDescription.find('.text-warning')).toExist()
+    expect(view.packageMessage).toHaveClass('text-warning')
     view.installButton.click()
     expect(@packageManager.install).toHaveBeenCalled()
     expect(@packageManager.install.mostRecentCall.args[0]).toEqual({
@@ -171,4 +171,4 @@ describe "AvailablePackageView", ->
     expect(view.settingsButton.css('display')).toBe('none')
     expect(view.enablementButton.css('display')).toBe('none')
     expect(view.versionValue).toHaveClass('text-danger')
-    expect(view.packageDescription.find('.text-danger')).toExist()
+    expect(view.packageMessage).toHaveClass('text-danger')
