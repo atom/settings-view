@@ -11,8 +11,9 @@ module.exports =
 class PackageReadmeView extends View
   @content: ->
     @section class: 'section', =>
-      @div class: 'section-heading icon icon-book', 'README'
-      @div class: 'package-readme', outlet: 'packageReadme'
+      @div class: 'section-container', =>
+        @div class: 'section-heading icon icon-book', 'README'
+        @div class: 'package-readme', outlet: 'packageReadme'
 
   initialize: (readme) ->
     readme = readme || "### No README."
