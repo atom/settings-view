@@ -8,14 +8,15 @@ shell = require 'shell'
 {Subscriber} = require 'emissary'
 
 ErrorView = require './error-view'
-AvailablePackageView = require './available-package-view'
+PackageCard = require './package-card'
 PackageGrammarsView = require './package-grammars-view'
 PackageKeymapView = require './package-keymap-view'
+PackageReadmeView = require './package-readme-view'
 PackageSnippetsView = require './package-snippets-view'
 SettingsPanel = require './settings-panel'
 
 module.exports =
-class InstalledPackageView extends View
+class PackageDetailView extends View
   Subscriber.includeInto(this)
 
   @content: (pack, packageManager) ->
@@ -27,14 +28,14 @@ class InstalledPackageView extends View
           @a outlet: 'title'
 
       @section class: 'section', =>
-        @form class: 'section-container installed-package-view', =>
+        @form class: 'section-container package-detail-view', =>
           @div outlet: 'updateArea', class: 'alert alert-success package-update', =>
             @span outlet: 'updateLabel', class: 'icon icon-squirrel update-message'
             @span outlet: 'updateLink', class: 'alert-link update-link icon icon-cloud-download', 'Install'
 
           @div class: 'container package-container', =>
             @div class: 'row', =>
-              @subview 'packageCard', new AvailablePackageView(pack.metadata, packageManager)
+              @subview 'packageCard', new PackageCard(pack.metadata, packageManager, onSettingsView: true)
 
           @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
 
@@ -43,7 +44,6 @@ class InstalledPackageView extends View
           @div outlet: 'buttons', class: 'btn-wrap-group', =>
             @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io', =>
             @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
-            @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'README'
             @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'CHANGELOG'
             @button outlet: 'licenseButton', class: 'btn btn-default icon icon-law', 'LICENSE'
             @button outlet: 'openButton', class: 'btn btn-default icon icon-link-external', 'View Code'
@@ -73,7 +73,6 @@ class InstalledPackageView extends View
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")
 
     @type = if @pack.metadata.theme then 'theme' else 'package'
-    @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
 
     if repoUrl = @packageManager.getRepositoryUrl(@pack)
       repoName = url.parse(repoUrl).pathname
@@ -81,13 +80,37 @@ class InstalledPackageView extends View
     else
       @packageRepo.hide()
 
+    @updateInstalledState()
+
+  updateInstalledState: ->
     @sections.empty()
-    @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
-    @sections.append(new PackageKeymapView(@pack.name))
-    @sections.append(new PackageGrammarsView(@pack.path))
-    @sections.append(new PackageSnippetsView(@pack.path))
+    @updateFileButtons()
+
+    if @isInstalled()
+      @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
+      @sections.append(new PackageKeymapView(@pack.name))
+      @sections.append(new PackageGrammarsView(@pack.path))
+      @sections.append(new PackageSnippetsView(@pack.path))
+      @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
+
+    else
+      @startupTime.hide()
+      @openButton.hide()
+
+    readme = if @pack.metadata.readme then @pack.metadata.readme else null
+    if @readmePath and not readme
+      readme = fs.readFileSync(@readmePath, encoding: 'utf8')
+
+    @sections.append(new PackageReadmeView(readme))
 
   subscribeToPackageManager: ->
+    @subscribe @packageManager, 'theme-installed package-installed', (pack) =>
+      @pack = atom.packages.getLoadedPackage(pack.name)
+      @updateInstalledState()
+
+    @subscribe @packageManager, 'theme-uninstalled package-uninstalled', (pack) =>
+      @updateInstalledState()
+
     @subscribe @packageManager, 'theme-updated package-updated', (pack, newVersion) =>
       return unless @pack.name is pack.name
 
@@ -106,10 +129,6 @@ class InstalledPackageView extends View
     @issueButton.on 'click', =>
       if repoUrl = @packageManager.getRepositoryUrl(@pack)
         shell.openExternal("#{repoUrl}/issues/new")
-      false
-
-    @readmeButton.on 'click', =>
-      @openMarkdownFile(@readmePath) if @readmePath
       false
 
     @changelogButton.on 'click', =>
@@ -149,7 +168,6 @@ class InstalledPackageView extends View
 
     if @changelogPath then @changelogButton.show() else @changelogButton.hide()
     if @licensePath then @licenseButton.show() else @licenseButton.hide()
-    if @readmePath then @readmeButton.show() else @readmeButton.hide()
 
   getStartupTime: ->
     loadTime = @pack.loadTime ? 0
@@ -181,3 +199,7 @@ class InstalledPackageView extends View
           @availableVersion = pack.latestVersion
           @updateLabel.text("Version #{@availableVersion} is now available!")
           @updateArea.show()
+
+  # Even though the title of this view is hilariously "PackageDetailView",
+  # the package might not be installed.
+  isInstalled: -> atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)

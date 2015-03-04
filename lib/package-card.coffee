@@ -4,16 +4,16 @@ _ = require 'underscore-plus'
 shell = require 'shell'
 
 module.exports =
-class AvailablePackageView extends View
+class PackageCard extends View
   Subscriber.includeInto(this)
 
   @content: ({name, description, version, repository}) ->
     # stars, downloads
     # lol wat
-    owner = AvailablePackageView::ownerFromRepository(repository)
+    owner = PackageCard::ownerFromRepository(repository)
     description ?= ''
 
-    @div class: 'available-package-view col-lg-8', =>
+    @div class: 'package-card col-lg-8', =>
       @div class: 'stats pull-right', =>
         @span class: "stats-item", =>
           @span class: 'icon icon-versions'
@@ -64,17 +64,31 @@ class AvailablePackageView extends View
       @installButton.hide()
       @uninstallButton.hide()
 
-    @installButton.on 'click', =>
+    # core themes only have a settings option, no status
+    if atom.packages.isBundledPackage(@pack.name) and @type is 'theme'
+      @statusIndicator.hide()
+
+    if opts?.onSettingsView
+      @settingsButton.remove()
+    else
+      @on 'click', =>
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
+      @settingsButton.on 'click', =>
+        event.stopPropagation()
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
+
+    @installButton.on 'click', (event) =>
+      event.stopPropagation()
       @install()
 
-    @uninstallButton.on 'click', =>
+    @uninstallButton.on 'click', (event) =>
+      event.stopPropagation()
       @uninstall()
 
-    @settingsButton.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
-
-    @packageName.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
+    @packageName.on 'click', (event) =>
+      event.stopPropagation()
+      packageType = if @pack.theme then 'themes' else 'packages'
+      shell.openExternal("https://atom.io/#{packageType}/#{@pack.name}")
 
     @enablementButton.on 'click', =>
       if @isDisabled()
@@ -153,6 +167,7 @@ class AvailablePackageView extends View
         @uninstallButton.hide()
         @settingsButton.hide()
         @enablementButton.hide()
+        @statusIndicator.hide()
 
     if @isInstalled() or @isDisabled()
       @installButton.hide()

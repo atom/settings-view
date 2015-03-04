@@ -9,7 +9,7 @@ fuzzaldrin = require 'fuzzaldrin'
 
 Client = require './atom-io-client'
 GeneralPanel = require './general-panel'
-InstalledPackageView = require './installed-package-view'
+PackageDetailView = require './package-detail-view'
 KeybindingsPanel = require './keybindings-panel'
 PackageManager = require './package-manager'
 InstallPanel = require './install-panel'
@@ -49,14 +49,6 @@ class SettingsView extends ScrollView
     @subscribe @packageManager, 'package-installed theme-installed', ({name}) =>
       if pack = atom.packages.getLoadedPackage(name)
         @addPackagePanel(pack)
-
-    @subscribe @packageManager, 'package-uninstalled', ({name}) =>
-      @removePanel(name)
-      @showPanel('Packages') if name is @activePanelName
-
-    @subscribe @packageManager, 'theme-uninstalled', ({name}) =>
-      @removePanel(name)
-      @showPanel('Themes') if name is @activePanelName
 
   initializePanels: ->
     return if @panels.size > 0
@@ -125,21 +117,33 @@ class SettingsView extends ScrollView
 
   addPackagePanel: (pack) ->
     @addPanel pack.name, null, =>
-      new InstalledPackageView(pack, @packageManager)
+      new PackageDetailView(pack, @packageManager)
 
   addPanel: (name, panelMenuItem, panelCreateCallback) ->
     @panelCreateCallbacks ?= {}
     @panelCreateCallbacks[name] = panelCreateCallback
     @showPanel(name) if @panelToShow is name
 
-  getOrCreatePanel: (name) ->
+  getOrCreatePanel: (name, opts) ->
     panel = @panelsByName?[name]
+    # These nested conditionals are not great but I feel like it's the most
+    # expedient thing to do - I feel like the "right way" involves refactoring
+    # this whole file.
     unless panel?
-      if callback = @panelCreateCallbacks?[name]
+      callback = @panelCreateCallbacks?[name]
+
+      if opts?.pack and not callback
+        callback = =>
+          # sigh
+          opts.pack.metadata = opts.pack
+          new PackageDetailView(opts.pack, @packageManager)
+
+      if callback
         panel = callback()
         @panelsByName ?= {}
         @panelsByName[name] = panel
         delete @panelCreateCallbacks[name]
+
     panel
 
   makePanelMenuActive: (name) ->
@@ -160,7 +164,7 @@ class SettingsView extends ScrollView
         return
 
   showPanel: (name, opts) ->
-    if panel = @getOrCreatePanel(name)
+    if panel = @getOrCreatePanel(name, opts)
       @panels.children().hide()
       @panels.append(panel) unless $.contains(@panels[0], panel[0])
       panel.beforeShow?(opts)
