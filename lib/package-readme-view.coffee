@@ -1,5 +1,3 @@
-path = require 'path'
-_ = require 'underscore-plus'
 {$, $$$, View} = require 'atom-space-pen-views'
 roaster = require 'roaster'
 fs = require 'fs'
