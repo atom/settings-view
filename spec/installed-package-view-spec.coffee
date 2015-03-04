@@ -1,8 +1,8 @@
 path = require 'path'
-InstalledPackageView = require '../lib/installed-package-view'
+PackageDetailView = require '../lib/package-detail-view'
 PackageManager = require '../lib/package-manager'
 
-describe "InstalledPackageView", ->
+describe "PackageDetailView", ->
   it "displays the grammars registered by the package", ->
     settingsPanels = null
 
@@ -11,7 +11,7 @@ describe "InstalledPackageView", ->
 
     runs ->
       pack = atom.packages.getActivePackage('language-test')
-      view = new InstalledPackageView(pack, new PackageManager())
+      view = new PackageDetailView(pack, new PackageManager())
       settingsPanels = view.find('.package-grammars .settings-panel')
 
     waitsFor ->
@@ -35,7 +35,7 @@ describe "InstalledPackageView", ->
 
     runs ->
       pack = atom.packages.getActivePackage('language-test')
-      view = new InstalledPackageView(pack, new PackageManager())
+      view = new PackageDetailView(pack, new PackageManager())
       snippetsTable = view.find('.package-snippets-table tbody')
 
     waitsFor ->
@@ -58,7 +58,7 @@ describe "InstalledPackageView", ->
 
     runs ->
       pack = atom.packages.getActivePackage('language-test')
-      view = new InstalledPackageView(pack, new PackageManager())
+      view = new PackageDetailView(pack, new PackageManager())
       keybindingsTable = view.find('.package-keymap-table tbody')
       expect(keybindingsTable.children().length).toBe 0
 
