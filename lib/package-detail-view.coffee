@@ -44,7 +44,6 @@ class PackageDetailView extends View
           @div outlet: 'buttons', class: 'btn-wrap-group', =>
             @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io', =>
             @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
-            @button outlet: 'readmeButton', class: 'btn btn-default icon icon-book', 'README'
             @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'CHANGELOG'
             @button outlet: 'licenseButton', class: 'btn btn-default icon icon-law', 'LICENSE'
             @button outlet: 'openButton', class: 'btn btn-default icon icon-link-external', 'View Code'
@@ -92,13 +91,17 @@ class PackageDetailView extends View
       @sections.append(new PackageKeymapView(@pack.name))
       @sections.append(new PackageGrammarsView(@pack.path))
       @sections.append(new PackageSnippetsView(@pack.path))
-      @sections.append(new PackageReadmeView(@pack.metadata.readme))
       @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
 
     else
       @startupTime.hide()
       @openButton.hide()
 
+    readme = if @pack.metadata.readme then @pack.metadata.readme else null
+    if @readmePath and not readme
+      readme = fs.readFileSync(@readmePath, encoding: 'utf8')
+
+    @sections.append(new PackageReadmeView(readme))
 
   subscribeToPackageManager: ->
     @subscribe @packageManager, 'theme-installed package-installed', (pack) =>
@@ -126,10 +129,6 @@ class PackageDetailView extends View
     @issueButton.on 'click', =>
       if repoUrl = @packageManager.getRepositoryUrl(@pack)
         shell.openExternal("#{repoUrl}/issues/new")
-      false
-
-    @readmeButton.on 'click', =>
-      @openMarkdownFile(@readmePath) if @readmePath
       false
 
     @changelogButton.on 'click', =>
@@ -169,7 +168,6 @@ class PackageDetailView extends View
 
     if @changelogPath then @changelogButton.show() else @changelogButton.hide()
     if @licensePath then @licenseButton.show() else @licenseButton.hide()
-    if @readmePath then @readmeButton.show() else @readmeButton.hide()
 
   getStartupTime: ->
     loadTime = @pack.loadTime ? 0

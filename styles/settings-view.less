@@ -306,8 +306,8 @@
 
   .config-menu {
     flex: 1.6;
-    min-width: 150px;
-    max-width: 200px;
+    min-width: 180px;
+    max-width: 240px;
     user-select: none;
     padding-top: @component-padding;
     background-color: lighten(@base-background-color, 2%);
@@ -670,6 +670,14 @@
   }
 
   .package-readme {
+    font-size: 1.25em;
+    h1 { font-size: 2em;    margin-top: 1.5em; }
+    h2 { font-size: 1.75em; margin-top: 1.5em; }
+    h3 { font-size: 1.5em;  margin-top: 1.75em; }
+    h4 { font-size: 1.25em; margin-top: 1.25em; }
+    h1, h2, h3, h4 {
+      color: @text-color-highlight;
+    }
     img {
       max-width: 100%;
     }
