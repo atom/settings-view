@@ -4,16 +4,16 @@ _ = require 'underscore-plus'
 shell = require 'shell'
 
 module.exports =
-class AvailablePackageView extends View
+class PackageCard extends View
   Subscriber.includeInto(this)
 
   @content: ({name, description, version, repository}) ->
     # stars, downloads
     # lol wat
-    owner = AvailablePackageView::ownerFromRepository(repository)
+    owner = PackageCard::ownerFromRepository(repository)
     description ?= ''
 
-    @div class: 'available-package-view col-lg-8', =>
+    @div class: 'package-card col-lg-8', =>
       @div class: 'stats pull-right', =>
         @span class: "stats-item", =>
           @span class: 'icon icon-versions'
@@ -58,7 +58,7 @@ class AvailablePackageView extends View
     {@name} = @pack
 
     @handlePackageEvents()
-    @handleControlsEvent()
+    @handleControlsEvent(opts)
     @updateEnablement()
     @loadCachedMetadata()
 
@@ -69,7 +69,10 @@ class AvailablePackageView extends View
 
     # The package is bundled with Atom, we don't need to do anything
     # beyond that.
-    return if atom.packages.isBundledPackage(@pack.name)
+    if atom.packages.isBundledPackage(@pack.name)
+      # core themes only have a settings option, no status
+      @statusIndicator.hide() if @type is 'theme'
+      return
 
     # The package is not bundled with Atom, but is already installed
     # we only need to show the uninstall button.
@@ -100,7 +103,7 @@ class AvailablePackageView extends View
               Version #{packageVersion} is not the latest version available for this package, but it's the latest that is compatible with your version of Atom.
               """
 
-            @pack = pack.versions[packageVersion]
+            @installablePack = pack.versions[packageVersion]
             @installButton.show()
           else
             @versionValue.addClass('text-danger')
@@ -110,18 +113,28 @@ class AvailablePackageView extends View
             """
             console.error("No available version compatible with the installed Atom version: #{atom.getVersion()}")
 
-  handleControlsEvent: ->
-    @installButton.on 'click', =>
+  handleControlsEvent: (opts) ->
+    if opts?.onSettingsView
+      @settingsButton.remove()
+    else
+      @on 'click', =>
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
+      @settingsButton.on 'click', =>
+        event.stopPropagation()
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
+
+    @installButton.on 'click', (event) =>
+      event.stopPropagation()
       @install()
 
-    @uninstallButton.on 'click', =>
+    @uninstallButton.on 'click', (event) =>
+      event.stopPropagation()
       @uninstall()
 
-    @settingsButton.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
-
-    @packageName.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
+    @packageName.on 'click', (event) =>
+      event.stopPropagation()
+      packageType = if @pack.theme then 'themes' else 'packages'
+      shell.openExternal("https://atom.io/#{packageType}/#{@pack.name}")
 
     @enablementButton.on 'click', =>
       if @isDisabled()
@@ -200,6 +213,7 @@ class AvailablePackageView extends View
         @uninstallButton.hide()
         @settingsButton.hide()
         @enablementButton.hide()
+        @statusIndicator.hide()
 
     if @isInstalled() or @isDisabled()
       @installButton.hide()
@@ -220,8 +234,8 @@ class AvailablePackageView extends View
 
   install: ->
     @installButton.addClass('is-installing')
-    @packageManager.emit('package-installing', @pack)
-    @packageManager.install @pack, (error) =>
+    @packageManager.emit('package-installing', @installablePack ? @pack)
+    @packageManager.install @installablePack ? @pack, (error) =>
       @installButton.removeClass('is-installing')
       if error?
         console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)

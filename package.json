@@ -1,18 +1,20 @@
 {
   "name": "settings-view",
-  "version": "0.183.0",
+  "version": "0.184.0",
   "main": "./lib/main",
   "description": "Edit config settings, install packages, and change themes",
   "license": "MIT",
   "dependencies": {
     "async": "~0.2.9",
     "atom-space-pen-views": "^2.0.2",
+    "cheerio": "0.15.0",
     "emissary": "1.x",
     "fs-plus": "^2.4",
     "fuzzaldrin": "^2.1",
     "glob": "4.3.1",
     "q": "^1.1.2",
-    "request": "^2.40.0",
+    "request": "2.49.0",
+    "roaster": "^1.1.2",
     "season": "^5.0.2",
     "semver": "~4.2",
     "underscore-plus": "^1.0.6"

@@ -1,11 +1,10 @@
-AvailablePackageView = require '../lib/available-package-view'
 PackageManager = require '../lib/package-manager'
+PackageCard = require '../lib/package-card'
 
-describe "AvailablePackageView", ->
+describe "PackageCard", ->
   setPackageStatusSpies = (opts) ->
-    spyOn(AvailablePackageView.prototype, 'isInstalled').andReturn(opts.installed)
-    spyOn(AvailablePackageView.prototype, 'isDisabled').andReturn(opts.disabled)
-
+    spyOn(PackageCard.prototype, 'isInstalled').andReturn(opts.installed)
+    spyOn(PackageCard.prototype, 'isDisabled').andReturn(opts.disabled)
 
   beforeEach ->
     @packageManager = jasmine.createSpyObj('packageManager', ['on', 'getClient', 'emit', 'install', 'uninstall', 'requestPackage', 'getLatestCompatibleVersion', 'satisfiesVersion', 'normalizeVersion'])
@@ -30,14 +29,14 @@ describe "AvailablePackageView", ->
 
   it "doesn't show the disable control for a theme", ->
     setPackageStatusSpies {installed: true, disabled: false}
-    view = new AvailablePackageView {theme: 'syntax', name: 'test-theme'}, @packageManager
+    view = new PackageCard {theme: 'syntax', name: 'test-theme'}, @packageManager
     expect(view.enablementButton.css('display')).toBe('none')
 
   it "can be disabled if installed", ->
     setPackageStatusSpies {installed: true, disabled: false}
     spyOn(atom.packages, 'disablePackage').andReturn(true)
 
-    view = new AvailablePackageView {name: 'test-package'}, @packageManager
+    view = new PackageCard {name: 'test-package'}, @packageManager
     expect(view.enablementButton.find('.disable-text').text()).toBe('Disable')
     view.enablementButton.click()
     expect(atom.packages.disablePackage).toHaveBeenCalled()
@@ -45,7 +44,7 @@ describe "AvailablePackageView", ->
   it "can be uninstalled if installed", ->
     setPackageStatusSpies {installed: true, disabled: false}
 
-    view = new AvailablePackageView {name: 'test-package'}, @packageManager
+    view = new PackageCard {name: 'test-package'}, @packageManager
     expect(view.uninstallButton.css('display')).not.toBe('none')
     view.uninstallButton.click()
     expect(@packageManager.uninstall).toHaveBeenCalled()
@@ -53,7 +52,7 @@ describe "AvailablePackageView", ->
   it "can be installed if currently not installed", ->
     setPackageStatusSpies {installed: false, disabled: false}
 
-    view = new AvailablePackageView {name: 'test-package'}, @packageManager
+    view = new PackageCard {name: 'test-package'}, @packageManager
     expect(view.installButton.css('display')).not.toBe('none')
     expect(view.uninstallButton.css('display')).toBe('none')
     view.installButton.click()
@@ -81,7 +80,7 @@ describe "AvailablePackageView", ->
 
     setPackageStatusSpies {installed: false, disabled: false}
 
-    view = new AvailablePackageView {
+    view = new PackageCard {
       name: 'test-package'
       version: '0.1.0'
       engines:
@@ -124,7 +123,7 @@ describe "AvailablePackageView", ->
 
     setPackageStatusSpies {installed: false, disabled: false}
 
-    view = new AvailablePackageView {
+    view = new PackageCard {
       name: 'test-package'
       version: '0.1.0'
       engines:
@@ -160,7 +159,7 @@ describe "AvailablePackageView", ->
 
     setPackageStatusSpies {installed: false, disabled: false}
 
-    view = new AvailablePackageView {
+    view = new PackageCard {
       name: 'test-package'
       engines:
         atom: '>=99.0.0'
