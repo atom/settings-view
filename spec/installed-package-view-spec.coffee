@@ -62,7 +62,7 @@ describe "PackageDetailView", ->
       keybindingsTable = view.find('.package-keymap-table tbody')
       expect(keybindingsTable.children().length).toBe 0
 
-  fit "displays the correct enablement state", ->
+  it "displays the correct enablement state", ->
     packageCard = null
 
     waitsForPromise ->
