@@ -63,18 +63,21 @@ describe "PackageDetailView", ->
       expect(keybindingsTable.children().length).toBe 0
 
   fit "displays the correct enablement state", ->
-    availablePackageView = null
+    packageCard = null
 
     waitsForPromise ->
       atom.packages.activatePackage('status-bar')
 
     runs ->
       expect(atom.packages.isPackageActive('status-bar')).toBe(true)
+      pack = atom.packages.getLoadedPackage('status-bar')
+      view = new PackageDetailView(pack, new PackageManager())
+      packageCard = view.find('.package-card')
+
+    runs ->
+      # Trigger observeDisabledPackages() here
+      # because it is not default in specs
+      atom.packages.observeDisabledPackages()
       atom.packages.disablePackage('status-bar')
       expect(atom.packages.isPackageDisabled('status-bar')).toBe(true)
-
-      pack = atom.packages.getLoadedPackage('status-bar')
-      view = new InstalledPackageView(pack, new PackageManager())
-      availablePackageView = view.find('.available-package-view')
-      console.log(availablePackageView)
-      expect(availablePackageView.hasClass('disabled')).toBe(true)
+      expect(packageCard.hasClass('disabled')).toBe(true)
