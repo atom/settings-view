@@ -151,7 +151,10 @@ class PackageManager
       activateOnSuccess = not atom.packages.isPackageDisabled(name)
     activateOnFailure = atom.packages.isPackageActive(name)
     atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
-    atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
+    if atom.packages.isPackageLoaded(name)
+      # remove old version from node.js module cache
+      delete require.cache[atom.packages.getLoadedPackage(name).getMainModulePath()]
+      atom.packages.unloadPackage(name)
 
     args = ['install', "#{name}@#{newVersion}"]
     exit = (code, stdout, stderr) =>
