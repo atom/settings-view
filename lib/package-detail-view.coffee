@@ -20,7 +20,7 @@ class PackageDetailView extends View
   Subscriber.includeInto(this)
 
   @content: (pack, packageManager) ->
-    @div =>
+    @div class: 'package-detail', =>
       @ol outlet: 'breadcrumbContainer', class: 'native-key-bindings breadcrumb', tabindex: -1, =>
         @li =>
           @a outlet: 'breadcrumb'

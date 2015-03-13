@@ -247,6 +247,18 @@
     // End copy-paste from atom.io
 
   }
+
+  // Remove hover styles if it's in a detail view
+  .package-detail .package-card {
+    cursor: auto;
+    &:hover {
+      background-color: lighten(@tool-panel-background-color, 8%);
+    }
+    &.disabled {
+      background-color: lighten(@tool-panel-background-color, 5%);
+    }
+  }
+
 }
 
 @-webkit-keyframes available-package-is-installing {
