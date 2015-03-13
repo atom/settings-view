@@ -15,6 +15,10 @@
     background-color: lighten(@tool-panel-background-color, 8%);
     overflow: hidden;
 
+    &:hover {
+      background-color: lighten(@tool-panel-background-color, 10%);
+    }
+
     &.disabled {
       background-color: lighten(@tool-panel-background-color, 5%);
       .body,
@@ -27,10 +31,6 @@
       &:hover {
         background-color: lighten(@tool-panel-background-color, 4%);
       }
-    }
-
-    &:hover {
-      background-color: lighten(@tool-panel-background-color, 5%);
     }
 
     &.col-lg-4 {
