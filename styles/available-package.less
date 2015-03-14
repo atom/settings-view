@@ -1,5 +1,6 @@
 @import "octicon-mixins";
 @import "ui-variables";
+@import "variables";
 
 .settings-view {
 
@@ -12,19 +13,19 @@
     font-size: 1.2em;
     border-radius: @component-border-radius*2;
     border: 1px solid @base-border-color;
-    background-color: lighten(@tool-panel-background-color, 8%);
+    background-color: @package-card-background-color;
     overflow: hidden;
     cursor: pointer;
 
     &:hover {
-      background-color: lighten(@tool-panel-background-color, 10%);
+      background-color: contrast(@package-card-background-color, darken(@package-card-background-color, 2%), lighten(@package-card-background-color, 2%));
     }
     &:active {
-      background-color: lighten(@tool-panel-background-color, 8%);
+      background-color: @package-card-background-color;
     }
 
     &.disabled {
-      background-color: lighten(@tool-panel-background-color, 5%);
+      background-color: darken(@package-card-background-color, 3%);
       .body,
       .avatar,
       .author,
@@ -47,7 +48,7 @@
       color: @text-color;
       border-radius: @component-border-radius*2;
       border: 1px solid @base-border-color;
-      background-color: lighten(@tool-panel-background-color, 8%);
+      background-color: @package-card-background-color;
 
       .caption {
         width: 100%;
@@ -252,10 +253,10 @@
   .package-detail .package-card {
     cursor: auto;
     &:hover {
-      background-color: lighten(@tool-panel-background-color, 8%);
+      background-color: @package-card-background-color;
     }
     &.disabled {
-      background-color: lighten(@tool-panel-background-color, 5%);
+      background-color: darken(@package-card-background-color, 3%);
     }
   }
 
