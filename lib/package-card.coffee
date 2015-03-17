@@ -141,7 +141,6 @@ class PackageCard extends View
         atom.packages.enablePackage(@pack.name)
       else
         atom.packages.disablePackage(@pack.name)
-      @updateEnablement()
       false
 
   detached: ->
@@ -187,6 +186,12 @@ class PackageCard extends View
         .removeClass('is-disabled')
 
   handlePackageEvents: ->
+    atom.packages.onDidDeactivatePackage (pack) =>
+      @updateEnablement() if pack.name is @pack.name
+
+    atom.packages.onDidActivatePackage (pack) =>
+      @updateEnablement() if pack.name is @pack.name
+      
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
       @installButton.prop('disabled', false)
       unless error?
