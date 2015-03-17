@@ -7,23 +7,18 @@ describe "PackageCard", ->
     spyOn(PackageCard.prototype, 'isDisabled').andReturn(opts.disabled)
 
   beforeEach ->
-    @packageManager = jasmine.createSpyObj('packageManager', ['on', 'getClient', 'emit', 'install', 'uninstall', 'requestPackage', 'getLatestCompatibleVersion', 'satisfiesVersion', 'normalizeVersion'])
-    @packageManager.getLatestCompatibleVersion.andCallFake ->
-      PackageManager.prototype.getLatestCompatibleVersion(arguments...)
-    @packageManager.satisfiesVersion.andCallFake ->
-      PackageManager.prototype.satisfiesVersion(arguments...)
+    @packageManager = jasmine.createSpyObj('packageManager', ['on', 'getClient', 'emit', 'install', 'uninstall', 'loadCompatiblePackageVersion', 'satisfiesVersion', 'normalizeVersion'])
     @packageManager.normalizeVersion.andCallFake ->
       PackageManager.prototype.normalizeVersion(arguments...)
+    @packageManager.satisfiesVersion.andCallFake ->
+      PackageManager.prototype.satisfiesVersion(arguments...)
     @packageManager.getClient.andCallFake -> jasmine.createSpyObj('client', ['avatar', 'package'])
-    @packageManager.requestPackage.andCallFake (packageName, callback) ->
+    @packageManager.loadCompatiblePackageVersion.andCallFake (packageName, callback) ->
       pack =
         name: packageName
-        releases:
-          latest: '0.1.0'
-        versions:
-          '0.1.0':
-            engines:
-              atom: '>0.50.0'
+        version: '0.1.0'
+        engines:
+          atom: '>0.50.0'
 
       callback(null, pack)
 
@@ -59,22 +54,12 @@ describe "PackageCard", ->
     expect(@packageManager.install).toHaveBeenCalled()
 
   it "can be installed if currently not installed and package latest release engine match atom version", ->
-    @packageManager.requestPackage.andCallFake (packageName, callback) ->
+    @packageManager.loadCompatiblePackageVersion.andCallFake (packageName, callback) ->
       pack =
         name: packageName
-        releases:
-          latest: '0.1.0'
-        versions:
-          '0.0.1':
-            name: packageName
-            version: '0.0.1'
-            engines:
-              atom: '>0.0.0'
-          '0.1.0':
-            name: packageName
-            version: '0.1.0'
-            engines:
-              atom: '>0.50.0'
+        version: '0.1.0'
+        engines:
+          atom: '>0.50.0'
 
       callback(null, pack)
 
@@ -88,7 +73,7 @@ describe "PackageCard", ->
     }, @packageManager
 
     # In that case there's no need to make a request to get all the versions
-    expect(@packageManager.requestPackage).not.toHaveBeenCalled()
+    expect(@packageManager.loadCompatiblePackageVersion).not.toHaveBeenCalled()
 
     expect(view.installButton.css('display')).not.toBe('none')
     expect(view.uninstallButton.css('display')).toBe('none')
@@ -102,22 +87,12 @@ describe "PackageCard", ->
     })
 
   it "can be installed with a previous version whose engine match the current atom version", ->
-    @packageManager.requestPackage.andCallFake (packageName, callback) ->
+    @packageManager.loadCompatiblePackageVersion.andCallFake (packageName, callback) ->
       pack =
         name: packageName
-        releases:
-          latest: '0.1.0'
-        versions:
-          '0.0.1':
-            name: packageName
-            version: '0.0.1'
-            engines:
-              atom: '>0.50.0'
-          '0.1.0':
-            name: packageName
-            version: '0.0.1'
-            engines:
-              atom: '>99.0.0'
+        version: '0.0.1'
+        engines:
+          atom: '>0.50.0'
 
       callback(null, pack)
 
@@ -145,15 +120,9 @@ describe "PackageCard", ->
     })
 
   it "can't be installed if there is no version compatible with the current atom version", ->
-    @packageManager.requestPackage.andCallFake (packageName, callback) ->
+    @packageManager.loadCompatiblePackageVersion.andCallFake (packageName, callback) ->
       pack =
         name: packageName
-        releases:
-          latest: '0.1.0'
-        versions:
-          '0.1.0':
-            engines:
-              atom: '>99.0.0'
 
       callback(null, pack)
 

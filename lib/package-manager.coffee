@@ -108,6 +108,24 @@ class PackageManager
         error.stderr = stderr
         callback(error)
 
+  loadCompatiblePackageVersion: (packageName, callback) ->
+    args = ['view', packageName, '--json', '--compatible', @normalizeVersion(atom.getVersion())]
+
+    @runCommand args, (code, stdout, stderr) ->
+      if code is 0
+        try
+          packages = JSON.parse(stdout) ? []
+        catch error
+          callback(error)
+          return
+
+        callback(null, packages)
+      else
+        error = new Error("Fetching package '#{packageName}' failed.")
+        error.stdout = stdout
+        error.stderr = stderr
+        callback(error)
+
   getInstalled: ->
     Q.nbind(@loadInstalled, this)()
 
@@ -119,42 +137,6 @@ class PackageManager
 
   getPackage: (packageName) ->
     @packagePromises[packageName] ?= Q.nbind(@loadPackage, this, packageName)()
-
-  # Request package information from the atom.io API for a given package name.
-  #
-  # packageName - The string name of the package to request.
-  # callback - The function to invoke when the request completes with an error
-  #            as the first argument and an object as the second.
-  requestPackage: (packageName, callback) ->
-    requestSettings =
-      url: "#{apm.getAtomPackagesUrl()}/#{packageName}"
-      json: true
-    request.get requestSettings, (error, response, body={}) ->
-      if error?
-        callback("Request for package information failed: #{error.message}")
-      else if response.statusCode isnt 200
-        message = request.getErrorMessage(response, body)
-        callback("Request for package information failed: #{message}")
-      else
-        if body.releases.latest
-          callback(null, body)
-        else
-          callback("No releases available for #{packageName}")
-
-  getLatestCompatibleVersion: (pack) ->
-    atomVersion = @normalizeVersion(atom.getVersion())
-    return pack.releases.latest unless atomVersion?
-
-    latestVersion = null
-    for version, metadata of pack.versions ? {}
-      continue unless metadata
-      continue unless semver.valid(version)
-      continue unless @satisfiesVersion(atomVersion, metadata)
-
-      latestVersion ?= version
-      latestVersion = version if semver.gt(version, latestVersion)
-
-    latestVersion
 
   satisfiesVersion: (version, metadata) ->
     engine = metadata.engines?.atom ? '*'

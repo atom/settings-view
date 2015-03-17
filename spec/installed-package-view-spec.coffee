@@ -5,7 +5,7 @@ PackageManager = require '../lib/package-manager'
 
 describe "PackageDetailView", ->
   beforeEach ->
-    spyOn(PackageManager.prototype, 'requestPackage').andCallFake ->
+    spyOn(PackageManager.prototype, 'loadCompatiblePackageVersion').andCallFake ->
 
   it "displays the grammars registered by the package", ->
     settingsPanels = null

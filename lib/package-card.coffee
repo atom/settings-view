@@ -87,10 +87,11 @@ class PackageCard extends View
       if @packageManager.satisfiesVersion(atomVersion, @pack)
         @installButton.show()
       else
-        @packageManager.requestPackage @pack.name, (err, pack) =>
+        @packageManager.loadCompatiblePackageVersion @pack.name, (err, pack) =>
           return console.error(err) if err?
 
-          packageVersion = @packageManager.getLatestCompatibleVersion(pack)
+          packageVersion = pack.version
+
           # A compatible version exist, we activate the install button and
           # replace @pack so that the install action installs the compatible
           # version of the package.
@@ -103,7 +104,7 @@ class PackageCard extends View
               Version #{packageVersion} is not the latest version available for this package, but it's the latest that is compatible with your version of Atom.
               """
 
-            @installablePack = pack.versions[packageVersion]
+            @installablePack = pack
             @installButton.show()
           else
             @versionValue.addClass('text-danger')
@@ -191,7 +192,7 @@ class PackageCard extends View
 
     atom.packages.onDidActivatePackage (pack) =>
       @updateEnablement() if pack.name is @pack.name
-      
+
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
       @installButton.prop('disabled', false)
       unless error?
