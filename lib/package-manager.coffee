@@ -3,9 +3,6 @@ _ = require 'underscore-plus'
 {Emitter} = require 'emissary'
 Q = require 'q'
 semver = require 'semver'
-url = require 'url'
-apm = require 'apm'
-request = require 'apm/lib/request'
 
 Client = require './atom-io-client'
 
