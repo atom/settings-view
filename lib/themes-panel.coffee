@@ -100,6 +100,9 @@ class ThemesPanel extends View
       @activeUiTheme = @uiMenu.val()
       @scheduleUpdateThemeConfig()
 
+  focus: ->
+    @filterEditor.focus()
+
   detached: ->
     @unsubscribe()
     @disposables.dispose()
