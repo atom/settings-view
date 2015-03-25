@@ -68,7 +68,10 @@ class PackageCard extends View
     if atom.packages.isBundledPackage(@pack.name) and @type is 'theme'
       @statusIndicator.hide()
 
-    if opts?.onSettingsView or not @hasSettings(@pack)
+    unless @hasSettings(@pack)
+      @settingsButton.hide()
+
+    if opts?.onSettingsView
       @settingsButton.remove()
     else
       @on 'click', =>

@@ -42,7 +42,7 @@ describe "PackageCard", ->
     view.installButton.click()
     expect(@packageManager.install).toHaveBeenCalled()
 
-  xit "hides the settings button if a package has no settings", ->
-    setPackageStatusSpies {installed: true, disabled: false, hasSettings: false}
+  it "hides the settings button if a package has no settings", ->
+    setPackageStatusSpies {installed: true, disabled: false, hasSettings: true}
     view = new PackageCard {name: 'test-package'}, @packageManager
-    expect(view.settingsButton).not.toExist()
+    expect(view.settingsButton.css('display')).toBe('none')
