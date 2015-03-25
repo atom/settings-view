@@ -68,7 +68,7 @@ class PackageCard extends View
     if atom.packages.isBundledPackage(@pack.name) and @type is 'theme'
       @statusIndicator.hide()
 
-    if opts?.onSettingsView
+    if opts?.onSettingsView or not @hasSettings(@pack)
       @settingsButton.remove()
     else
       @on 'click', =>
@@ -145,7 +145,7 @@ class PackageCard extends View
 
     atom.packages.onDidActivatePackage (pack) =>
       @updateEnablement() if pack.name is @pack.name
-      
+
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
       @installButton.prop('disabled', false)
       unless error?
@@ -186,6 +186,9 @@ class PackageCard extends View
   isInstalled: -> atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)
 
   isDisabled: -> atom.packages.isPackageDisabled(@pack.name)
+
+  hasSettings: (pack) ->
+    if atom.config.get(pack.name)? then true else false
 
   subscribeToPackageEvent: (event, callback) ->
     @subscribe @packageManager, event, (pack, error) =>
