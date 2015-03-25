@@ -4,6 +4,7 @@ describe "PackageCard", ->
   setPackageStatusSpies = (opts) ->
     spyOn(PackageCard.prototype, 'isInstalled').andReturn(opts.installed)
     spyOn(PackageCard.prototype, 'isDisabled').andReturn(opts.disabled)
+    spyOn(PackageCard.prototype, 'hasSettings').andReturn(opts.hasSettings)
 
 
   beforeEach ->
@@ -42,6 +43,6 @@ describe "PackageCard", ->
     expect(@packageManager.install).toHaveBeenCalled()
 
   xit "hides the settings button if a package has no settings", ->
-    setPackageStatusSpies {installed: true, disabled: false}
+    setPackageStatusSpies {installed: true, disabled: false, hasSettings: false}
     view = new PackageCard {name: 'test-package'}, @packageManager
     expect(view.settingsButton).not.toExist()
