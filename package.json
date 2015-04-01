@@ -13,7 +13,7 @@
     "fuzzaldrin": "^2.1",
     "glob": "4.3.1",
     "q": "^1.1.2",
-    "request": "2.49.0",
+    "request": "^2.40",
     "roaster": "^1.1.2",
     "season": "^5.0.2",
     "semver": "~4.2",
