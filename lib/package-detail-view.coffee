@@ -42,7 +42,7 @@ class PackageDetailView extends View
           @p outlet: 'startupTime', class: 'text icon icon-dashboard native-key-bindings', tabindex: -1
 
           @div outlet: 'buttons', class: 'btn-wrap-group', =>
-            @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io', =>
+            @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io'
             @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
             @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'CHANGELOG'
             @button outlet: 'licenseButton', class: 'btn btn-default icon icon-law', 'LICENSE'
@@ -64,7 +64,7 @@ class PackageDetailView extends View
 
   beforeShow: (opts) ->
     if opts?.back
-      @breadcrumb.text(opts.back).on 'click', () =>
+      @breadcrumb.text(opts.back).on 'click', =>
         @parents('.settings-view').view()?.showPanel(opts.back)
     else
       @breadcrumbContainer.hide()
