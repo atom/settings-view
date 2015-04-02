@@ -191,7 +191,7 @@ class PackageCard extends View
   isDisabled: -> atom.packages.isPackageDisabled(@pack.name)
 
   hasSettings: (pack) ->
-    if atom.config.get(pack.name)? then true else false
+    atom.config.get(pack.name)?
 
   subscribeToPackageEvent: (event, callback) ->
     @subscribe @packageManager, event, (pack, error) =>
