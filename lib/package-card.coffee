@@ -37,9 +37,9 @@ class PackageCard extends View
           @div class: 'btn-group', =>
             @button type: 'button', class: 'btn btn-info icon icon-cloud-download install-button', outlet: 'installButton', 'Install'
           @div outlet: 'buttons', class: 'btn-group', =>
-            @button type: 'button', class: 'btn icon icon-gear',           outlet: 'settingsButton', 'Settings'
-            @button type: 'button', class: 'btn icon icon-trashcan',       outlet: 'uninstallButton', 'Uninstall'
-            @button type: 'button', class: 'btn icon icon-playback-pause', outlet: 'enablementButton', =>
+            @button type: 'button', class: 'btn icon icon-gear settings',           outlet: 'settingsButton', 'Settings'
+            @button type: 'button', class: 'btn icon icon-trashcan uninstall',       outlet: 'uninstallButton', 'Uninstall'
+            @button type: 'button', class: 'btn icon icon-playback-pause enablement', outlet: 'enablementButton', =>
               @span class: 'disable-text', 'Disable'
             @button type: 'button', class: 'btn status-indicator', tabindex: -1, outlet: 'statusIndicator'
 
@@ -69,7 +69,7 @@ class PackageCard extends View
       @statusIndicator.hide()
 
     unless @hasSettings(@pack)
-      @settingsButton.hide()
+      @settingsButton.remove()
 
     if opts?.onSettingsView
       @settingsButton.remove()
