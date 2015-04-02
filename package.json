@@ -29,5 +29,8 @@
         "^1.0.0": "consumeStatusBar"
       }
     }
+  },
+  "devDependencies": {
+    "coffeelint": "^1.9.3"
   }
 }
