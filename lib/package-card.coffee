@@ -37,9 +37,9 @@ class PackageCard extends View
           @div class: 'btn-group', =>
             @button type: 'button', class: 'btn btn-info icon icon-cloud-download install-button', outlet: 'installButton', 'Install'
           @div outlet: 'buttons', class: 'btn-group', =>
-            @button type: 'button', class: 'btn icon icon-gear',           outlet: 'settingsButton', 'Settings'
-            @button type: 'button', class: 'btn icon icon-trashcan',       outlet: 'uninstallButton', 'Uninstall'
-            @button type: 'button', class: 'btn icon icon-playback-pause', outlet: 'enablementButton', =>
+            @button type: 'button', class: 'btn icon icon-gear settings',             outlet: 'settingsButton', 'Settings'
+            @button type: 'button', class: 'btn icon icon-trashcan uninstall',        outlet: 'uninstallButton', 'Uninstall'
+            @button type: 'button', class: 'btn icon icon-playback-pause enablement', outlet: 'enablementButton', =>
               @span class: 'disable-text', 'Disable'
             @button type: 'button', class: 'btn status-indicator', tabindex: -1, outlet: 'statusIndicator'
 
@@ -67,6 +67,9 @@ class PackageCard extends View
     # core themes only have a settings option, no status
     if atom.packages.isBundledPackage(@pack.name) and @type is 'theme'
       @statusIndicator.hide()
+
+    unless @hasSettings(@pack)
+      @settingsButton.remove()
 
     if opts?.onSettingsView
       @settingsButton.remove()
@@ -145,7 +148,7 @@ class PackageCard extends View
 
     atom.packages.onDidActivatePackage (pack) =>
       @updateEnablement() if pack.name is @pack.name
-      
+
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
       @installButton.prop('disabled', false)
       unless error?
@@ -186,6 +189,9 @@ class PackageCard extends View
   isInstalled: -> atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)
 
   isDisabled: -> atom.packages.isPackageDisabled(@pack.name)
+
+  hasSettings: (pack) ->
+    atom.config.get(pack.name)?
 
   subscribeToPackageEvent: (event, callback) ->
     @subscribe @packageManager, event, (pack, error) =>
