@@ -64,9 +64,10 @@ class PackageCard extends View
       @installButton.remove()
       @uninstallButton.remove()
 
-    # core themes only have a settings option, no status
-    if atom.packages.isBundledPackage(@pack.name) and @type is 'theme'
+    # themes have no status and cannot be dis/enabled
+    if @type is 'theme'
       @statusIndicator.remove()
+      @enablementButton.remove()
 
     unless @hasSettings(@pack)
       @settingsButton.remove()
