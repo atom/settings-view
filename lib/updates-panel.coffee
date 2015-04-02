@@ -36,7 +36,7 @@ class UpdatesPanel extends View
 
   beforeShow: (opts) ->
     if opts?.back
-      @breadcrumb.text(opts.back).on 'click', () =>
+      @breadcrumb.text(opts.back).on 'click', =>
         @parents('.settings-view').view()?.showPanel(opts.back)
     if opts?.updates
       @availableUpdates = opts.updates
