@@ -84,7 +84,6 @@ class InstallPanel extends View
         @loadFeaturedPackages()
         @performSearch()
 
-
     @searchThemesButton.on 'click', =>
       unless @searchThemesButton.hasClass('selected')
         @searchType = 'themes'
@@ -126,7 +125,7 @@ class InstallPanel extends View
       packageRow.append(new PackageCard(pack, @packageManager, back: 'Install'))
 
   filterPackages: (packages, themes) ->
-    packages.filter ({theme}) =>
+    packages.filter ({theme}) ->
       if themes
         theme
       else
