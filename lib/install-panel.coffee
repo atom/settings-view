@@ -22,7 +22,7 @@ class InstallPanel extends View
 
           @div class: 'text native-key-bindings', tabindex: -1, =>
             @span class: 'icon icon-question'
-            @span outlet: 'publishedToText'
+            @span outlet: 'publishedToText', 'Packages are published to '
             @a class: 'link', outlet: "openAtomIo", "atom.io"
             @span " and are installed to #{path.join(fs.getHomeDirectory(), '.atom', 'packages')}"
 
@@ -56,7 +56,6 @@ class InstallPanel extends View
 
     @searchEditorView.getModel().setPlaceholderText('Search packages')
     @searchType = 'packages'
-    @publishedToText.text("#{@searchType[0].toUpperCase() + @searchType.slice(1)} are published to ")
     @handleSearchEvents()
 
     @loadFeaturedPackages()
@@ -80,7 +79,7 @@ class InstallPanel extends View
         @searchPackagesButton.addClass('selected')
         @searchThemesButton.removeClass('selected')
         @searchEditorView.getModel().setPlaceholderText('Search packages')
-        @publishedToText.text("#{@searchType[0].toUpperCase() + @searchType.slice(1)} are published to ")
+        @publishedToText.text('Packages are published to ')
         @atomIoURL = 'https://atom.io/packages'
         @loadFeaturedPackages()
         @performSearch()
@@ -92,7 +91,7 @@ class InstallPanel extends View
         @searchThemesButton.addClass('selected')
         @searchPackagesButton.removeClass('selected')
         @searchEditorView.getModel().setPlaceholderText('Search themes')
-        @publishedToText.text("#{@searchType[0].toUpperCase() + @searchType.slice(1)} are published to ")
+        @publishedToText.text('Themes are published to ')
         @atomIoURL = 'https://atom.io/themes'
         @loadFeaturedPackages(true)
         @performSearch()
