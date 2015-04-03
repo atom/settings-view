@@ -53,6 +53,9 @@ class InstalledPackagesPanel extends View
 
     @loadPackages()
 
+  focus: ->
+    @filterEditor.focus()
+
   detached: ->
     @unsubscribe()
 
