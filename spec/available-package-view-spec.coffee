@@ -55,4 +55,4 @@ describe "PackageCard", ->
   it "removes the settings button if a package has no settings", ->
     setPackageStatusSpies {installed: true, disabled: false, hasSettings: false}
     view = new PackageCard {name: 'test-package'}, @packageManager
-    expect(view.find('.btn.settings')).not.toExist()
+    expect(view.find.settingsButton).not.toExist()
