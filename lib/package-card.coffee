@@ -61,12 +61,13 @@ class PackageCard extends View
     @loadCachedMetadata()
 
     if atom.packages.isBundledPackage(@pack.name)
-      @installButton.hide()
-      @uninstallButton.hide()
+      @installButton.remove()
+      @uninstallButton.remove()
 
-    # core themes only have a settings option, no status
-    if atom.packages.isBundledPackage(@pack.name) and @type is 'theme'
-      @statusIndicator.hide()
+    # themes have no status and cannot be dis/enabled
+    if @type is 'theme'
+      @statusIndicator.remove()
+      @enablementButton.remove()
 
     unless @hasSettings(@pack)
       @settingsButton.remove()

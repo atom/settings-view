@@ -14,7 +14,17 @@ describe "PackageCard", ->
   it "doesn't show the disable control for a theme", ->
     setPackageStatusSpies {installed: true, disabled: false}
     view = new PackageCard {theme: 'syntax', name: 'test-theme'}, @packageManager
-    expect(view.enablementButton.css('display')).toBe('none')
+    expect(view.find.enablementButton).not.toExist()
+
+  it "doesn't show the status indicator for a theme", ->
+    setPackageStatusSpies {installed: true, disabled: false}
+    view = new PackageCard {theme: 'syntax', name: 'test-theme'}, @packageManager
+    expect(view.find.statusIndicatorButton).not.toExist()
+
+  it "doesn't show the settings button for a theme", ->
+    setPackageStatusSpies {installed: true, disabled: false}
+    view = new PackageCard {theme: 'syntax', name: 'test-theme'}, @packageManager
+    expect(view.find.settingsButton).not.toExist()
 
   it "can be disabled if installed", ->
     setPackageStatusSpies {installed: true, disabled: false}
@@ -42,7 +52,7 @@ describe "PackageCard", ->
     view.installButton.click()
     expect(@packageManager.install).toHaveBeenCalled()
 
-  it "hides the settings button if a package has no settings", ->
+  it "removes the settings button if a package has no settings", ->
     setPackageStatusSpies {installed: true, disabled: false, hasSettings: false}
     view = new PackageCard {name: 'test-package'}, @packageManager
-    expect(view.find('.btn.settings')).not.toExist()
+    expect(view.find.settingsButton).not.toExist()
