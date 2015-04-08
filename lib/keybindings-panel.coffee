@@ -51,8 +51,8 @@ class KeybindingsPanel extends View
       keyBinding = $(target).closest('tr').data('keyBinding')
       @writeKeyBindingToClipboard(keyBinding)
 
-    @disposables.add atom.keymap.onDidReloadKeymap => @loadKeyBindings()
-    @disposables.add atom.keymap.onDidUnloadKeymap => @loadKeyBindings()
+    @disposables.add atom.keymaps.onDidReloadKeymap => @loadKeyBindings()
+    @disposables.add atom.keymaps.onDidUnloadKeymap => @loadKeyBindings()
 
     @loadKeyBindings()
 
@@ -61,7 +61,7 @@ class KeybindingsPanel extends View
 
   loadKeyBindings: ->
     @keybindingRows.empty()
-    @keyBindings = _.sortBy(atom.keymap.getKeyBindings(), 'keystrokes')
+    @keyBindings = _.sortBy(atom.keymaps.getKeyBindings(), 'keystrokes')
     @appendKeyBindings(@keyBindings)
     @filterKeyBindings(@keyBindings, @searchEditorView.getText())
 
@@ -112,7 +112,7 @@ class KeybindingsPanel extends View
         @td class: 'selector', selector
 
   writeKeyBindingToClipboard: ({selector, keystrokes, command}) ->
-    keymapExtension = path.extname(atom.keymap.getUserKeymapPath())
+    keymapExtension = path.extname(atom.keymaps.getUserKeymapPath())
     if keymapExtension is '.cson'
       content = """
         '#{selector}':
@@ -142,7 +142,7 @@ class KeybindingsPanel extends View
 
     if filePath.indexOf(path.join(atom.getLoadSettings().resourcePath, 'keymaps')) is 0
       'Core'
-    else if filePath is atom.keymap.getUserKeymapPath()
+    else if filePath is atom.keymaps.getUserKeymapPath()
       'User'
     else
       pathParts = filePath.split(path.sep)
