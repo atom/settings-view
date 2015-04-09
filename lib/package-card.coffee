@@ -150,6 +150,9 @@ class PackageCard extends View
     atom.packages.onDidActivatePackage (pack) =>
       @updateEnablement() if pack.name is @pack.name
 
+    atom.config.onDidChange 'core.disabledPackages', =>
+      @updateEnablement()
+
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
       @installButton.prop('disabled', false)
       unless error?
