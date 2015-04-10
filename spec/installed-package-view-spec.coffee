@@ -83,7 +83,7 @@ describe "PackageDetailView", ->
         expect(atom.packages.isPackageDisabled('status-bar')).toBe(true)
         expect(packageCard.hasClass('disabled')).toBe(true)
 
-  describe "whent he package is not active", ->
+  describe "when the package is not active", ->
     it "displays the correct enablement state", ->
       atom.packages.loadPackage('status-bar')
       expect(atom.packages.isPackageActive('status-bar')).toBe(false)
