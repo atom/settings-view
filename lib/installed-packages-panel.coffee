@@ -22,6 +22,13 @@ class InstalledPackagesPanel extends View
 
           @div outlet: 'updateErrors'
 
+          @section class: 'sub-section dev-packages', =>
+            @h3 class: 'sub-section-heading icon icon-package', =>
+              @text 'Development Packages'
+              @span outlet: 'devCount', class:'section-heading-count badge badge-flexible', '…'
+            @div outlet: 'devPackages', class: 'container package-container', =>
+              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
+
           @section class: 'sub-section installed-packages', =>
             @h3 class: 'sub-section-heading icon icon-package', =>
               @text 'Community Packages'
@@ -34,13 +41,6 @@ class InstalledPackagesPanel extends View
               @text 'Core Packages'
               @span outlet: 'coreCount', class:'section-heading-count badge badge-flexible', '…'
             @div outlet: 'corePackages', class: 'container package-container', =>
-              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
-
-          @section class: 'sub-section dev-packages', =>
-            @h3 class: 'sub-section-heading icon icon-package', =>
-              @text 'Development Packages'
-              @span outlet: 'devCount', class:'section-heading-count badge badge-flexible', '…'
-            @div outlet: 'devPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
   initialize: (@packageManager) ->
