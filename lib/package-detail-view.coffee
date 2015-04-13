@@ -53,11 +53,16 @@ class PackageDetailView extends View
       @div outlet: 'sections'
 
   initialize: (@pack, @packageManager) ->
+    @activate()
     @populate()
     @handleButtonEvents()
     @updateFileButtons()
     @checkForUpdate()
     @subscribeToPackageManager()
+
+  activate: ->
+    # Package.activateConfig() is part of the Private package API and should not be used outside of core.
+    @pack.activateConfig() if not atom.packages.isPackageActive(@pack.name)
 
   detached: ->
     @unsubscribe()
