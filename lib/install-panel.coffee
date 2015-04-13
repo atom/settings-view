@@ -5,7 +5,7 @@ fs = require 'fs-plus'
 {$, $$, TextEditorView, View} = require 'atom-space-pen-views'
 {Subscriber} = require 'emissary'
 
-AvailablePackageView = require './available-package-view'
+PackageCard = require './package-card'
 Client = require './atom-io-client'
 ErrorView = require './error-view'
 PackageManager = require './package-manager'
@@ -22,7 +22,7 @@ class InstallPanel extends View
 
           @div class: 'text native-key-bindings', tabindex: -1, =>
             @span class: 'icon icon-question'
-            @span 'Packages are published to  '
+            @span outlet: 'publishedToText', 'Packages are published to '
             @a class: 'link', outlet: "openAtomIo", "atom.io"
             @span " and are installed to #{path.join(fs.getHomeDirectory(), '.atom', 'packages')}"
 
@@ -47,8 +47,9 @@ class InstallPanel extends View
   initialize: (@packageManager) ->
     client = $('.settings-view').view()?.client
     @client = @packageManager.getClient()
+    @atomIoURL = 'https://atom.io/packages'
     @openAtomIo.on 'click', =>
-      require('shell').openExternal('https://atom.io/packages')
+      require('shell').openExternal(@atomIoURL)
       false
 
     @searchMessage.hide()
@@ -69,7 +70,7 @@ class InstallPanel extends View
     @subscribe @packageManager, 'package-install-failed', (pack, error) =>
       @searchErrors.append(new ErrorView(@packageManager, error))
 
-    @searchEditorView.on 'core:confirm', =>
+    @subscribe atom.commands.add @searchEditorView.element, 'core:confirm', =>
       @performSearch()
 
     @searchPackagesButton.on 'click', =>
@@ -78,9 +79,10 @@ class InstallPanel extends View
         @searchPackagesButton.addClass('selected')
         @searchThemesButton.removeClass('selected')
         @searchEditorView.getModel().setPlaceholderText('Search packages')
+        @publishedToText.text('Packages are published to ')
+        @atomIoURL = 'https://atom.io/packages'
         @loadFeaturedPackages()
         @performSearch()
-
 
     @searchThemesButton.on 'click', =>
       unless @searchThemesButton.hasClass('selected')
@@ -88,6 +90,8 @@ class InstallPanel extends View
         @searchThemesButton.addClass('selected')
         @searchPackagesButton.removeClass('selected')
         @searchEditorView.getModel().setPlaceholderText('Search themes')
+        @publishedToText.text('Themes are published to ')
+        @atomIoURL = 'https://atom.io/themes'
         @loadFeaturedPackages(true)
         @performSearch()
 
@@ -118,10 +122,10 @@ class InstallPanel extends View
     for pack, index in packages
       packageRow = $$ -> @div class: 'row'
       container.append(packageRow)
-      packageRow.append(new AvailablePackageView(pack, @packageManager))
+      packageRow.append(new PackageCard(pack, @packageManager, back: 'Install'))
 
   filterPackages: (packages, themes) ->
-    packages.filter ({theme}) =>
+    packages.filter ({theme}) ->
       if themes
         theme
       else

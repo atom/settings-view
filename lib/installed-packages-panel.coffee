@@ -3,7 +3,7 @@ _ = require 'underscore-plus'
 {Subscriber} = require 'emissary'
 fuzzaldrin = require 'fuzzaldrin'
 
-AvailablePackageView = require './available-package-view'
+PackageCard = require './package-card'
 ErrorView = require './error-view'
 
 module.exports =
@@ -52,6 +52,9 @@ class InstalledPackagesPanel extends View
     @filterEditor.getModel().onDidStopChanging => @matchPackages()
 
     @loadPackages()
+
+  focus: ->
+    @filterEditor.focus()
 
   detached: ->
     @unsubscribe()
@@ -108,7 +111,7 @@ class InstalledPackagesPanel extends View
     for pack, index in packages
       packageRow = $$ -> @div class: 'row'
       container.append(packageRow)
-      packView = new AvailablePackageView(pack, @packageManager, {back: 'Packages'})
+      packView = new PackageCard(pack, @packageManager, {back: 'Packages'})
       packageViews.push(packView) # used for search filterin'
       packageRow.append(packView)
 
@@ -136,11 +139,11 @@ class InstalledPackagesPanel extends View
       @coreCount.text @packages.core.length
       @devCount.text @packages.dev.length
     else
-      community = @communityPackages.find('.available-package-view:not(.hidden)').length
+      community = @communityPackages.find('.package-card:not(.hidden)').length
       @communityCount.text "#{community}/#{@packages.user.length}"
-      dev = @devPackages.find('.available-package-view:not(.hidden)').length
+      dev = @devPackages.find('.package-card:not(.hidden)').length
       @devCount.text "#{dev}/#{@packages.dev.length}"
-      core = @corePackages.find('.available-package-view:not(.hidden)').length
+      core = @corePackages.find('.package-card:not(.hidden)').length
       @coreCount.text "#{core}/#{@packages.core.length}"
 
   matchPackages: ->

@@ -10,7 +10,7 @@
   .breadcrumb {
     margin-bottom: 0;
     padding: @breadcrumb-padding;
-    font-size: 13px;
+    font-size: 1.2em;
     color: @text-color-subtle;
     list-style: none;
 
@@ -87,8 +87,7 @@
   }
 
   .checkbox {
-    font-size: 13px;
-    padding-left: @component-padding*2.4;
+    padding-left: 2.25em;
     .setting-title {
       display: inline-block;
     }
@@ -98,9 +97,9 @@
     display: inline-block;
     position: relative;
     font-size: inherit;
-    margin: 0 0 0 -@component-padding*2.4;
-    width: 1.2em;
-    height: 1.2em;
+    margin: 0 0 0 -2.25em;
+    width: 1.5em;
+    height: 1.5em;
     cursor: pointer;
     outline: 0;
     border-radius: @component-border-radius;
@@ -119,9 +118,9 @@
     &:after {
       content: "";
       position: absolute;
-      top: .9em;
-      left: .45em;
-      height: .15em;
+      top: 1.1em;
+      left: .6em;
+      height: .16em;
       min-height: 2px;
       border-radius: 1px;
       background-color: @base-background-color;
@@ -130,11 +129,11 @@
       transition: transform .1s cubic-bezier(0.5, 0.15, 0.2, 1), opacity .1s cubic-bezier(0.5, 0.15, 0.2, 1);
     }
     &:before {
-      width: .4em;
+      width: .45em;
       transform: rotate(225deg) scale(0);
     }
     &:after {
-      width: .8em;
+      width: .9em;
       margin: -1px;
       transform: rotate(-45deg) scale(0);
       transition-delay: .05s;
@@ -161,7 +160,6 @@
   }
 
   .color {
-    font-size: 13px;
     padding-left: 5em;
     .setting-title {
       margin-top: .15em;
@@ -251,7 +249,7 @@
   .section .section-heading {
     margin-bottom: @component-padding*2;
     color: @text-color-highlight;
-    font-size: 20px;
+    font-size: 1.75em;
     font-weight: bold;
     line-height: 1;
     -webkit-user-select: none;
@@ -273,7 +271,7 @@
 
   .sub-section-heading {
     color: @text-color-highlight;
-    font-size: 16px;
+    font-size: 1.4em;
     font-weight: bold;
     line-height: 1;
   }
@@ -284,12 +282,12 @@
   }
 
   .setting-title {
+    font-size: 1.2em;
     -webkit-user-select: none;
   }
 
   .setting-description {
     color: @text-color-subtle;
-    font-size: 10px;
     -webkit-user-select: none;
     cursor: default;
 
@@ -308,8 +306,8 @@
 
   .config-menu {
     flex: 1.6;
-    min-width: 150px;
-    max-width: 200px;
+    min-width: 180px;
+    max-width: 240px;
     user-select: none;
     padding-top: @component-padding;
     background-color: lighten(@base-background-color, 2%);
@@ -332,7 +330,6 @@
       li > a {
         border-radius: 1px !important;
         padding: 12px 14px;
-        font-size: @font-size + 1px;
         font-weight: bold;
         line-height: 16px;
         opacity: .85;
@@ -359,7 +356,6 @@
       }
 
       .package-version {
-        font-size: 11px;
         line-height: 16px;
         margin-left: 5px;
         font-weight: normal;
@@ -367,7 +363,6 @@
       }
 
       .package-author {
-        font-size: 11px;
         font-weight: normal;
         display: block;
         color: #999;
@@ -416,11 +411,10 @@
   .settings-panel {
     label {
       color: @text-color;
-      font-size: 13px;
     }
 
     .control-group + .control-group {
-      margin-top:  @component-padding*1.5;
+      margin-top:  1.5em;
     }
 
     .control-group .editor-container {
@@ -432,7 +426,7 @@
     }
   }
 
-  .installed-package-view {
+  .package-detail-view {
     .package-keymap-table,
     .package-grammars-table,
     .package-snippets-table {
@@ -489,8 +483,8 @@
     flex-flow: column;
 
     .themes-label {
+      font-size: 1.25em;
       font-weight: bold;
-      font-size: 14px;
     }
 
     .theme-chooser {
@@ -676,6 +670,19 @@
     margin: 0 @component-padding/2 @component-padding/2 0;
   }
 
+  .package-readme {
+    font-size: 1.25em;
+    h1 { font-size: 2em;    margin-top: 1.5em; }
+    h2 { font-size: 1.75em; margin-top: 1.5em; }
+    h3 { font-size: 1.5em;  margin-top: 1.75em; }
+    h4 { font-size: 1.25em; margin-top: 1.25em; }
+    h1, h2, h3, h4 {
+      color: @text-color-highlight;
+    }
+    img {
+      max-width: 100%;
+    }
+  }
 }
 
 .clearfix {

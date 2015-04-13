@@ -1,8 +1,8 @@
 path = require 'path'
-InstalledPackageView = require '../lib/installed-package-view'
+PackageDetailView = require '../lib/package-detail-view'
 PackageManager = require '../lib/package-manager'
 
-describe "InstalledPackageView", ->
+describe "PackageDetailView", ->
   it "displays the grammars registered by the package", ->
     settingsPanels = null
 
@@ -11,7 +11,7 @@ describe "InstalledPackageView", ->
 
     runs ->
       pack = atom.packages.getActivePackage('language-test')
-      view = new InstalledPackageView(pack, new PackageManager())
+      view = new PackageDetailView(pack, new PackageManager())
       settingsPanels = view.find('.package-grammars .settings-panel')
 
     waitsFor ->
@@ -35,7 +35,7 @@ describe "InstalledPackageView", ->
 
     runs ->
       pack = atom.packages.getActivePackage('language-test')
-      view = new InstalledPackageView(pack, new PackageManager())
+      view = new PackageDetailView(pack, new PackageManager())
       snippetsTable = view.find('.package-snippets-table tbody')
 
     waitsFor ->
@@ -58,20 +58,56 @@ describe "InstalledPackageView", ->
 
     runs ->
       pack = atom.packages.getActivePackage('language-test')
-      view = new InstalledPackageView(pack, new PackageManager())
+      view = new PackageDetailView(pack, new PackageManager())
       keybindingsTable = view.find('.package-keymap-table tbody')
       expect(keybindingsTable.children().length).toBe 0
 
-  it 'should load the config for inactive packages', ->
-    atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-config'))
+  describe "when the package is active", ->
+    it "displays the correct enablement state", ->
+      packageCard = null
 
-    waitsFor ->
-      atom.packages.isPackageLoaded('package-with-config') is true
+      waitsForPromise ->
+        atom.packages.activatePackage('status-bar')
 
-    runs ->
-      expect(atom.config.get('package-with-config.setting')).toBe undefined
+      runs ->
+        expect(atom.packages.isPackageActive('status-bar')).toBe(true)
+        pack = atom.packages.getLoadedPackage('status-bar')
+        view = new PackageDetailView(pack, new PackageManager())
+        packageCard = view.find('.package-card')
 
-      pack = atom.packages.getLoadedPackage('package-with-config')
-      view = new InstalledPackageView(pack, new PackageManager())
+      runs ->
+        # Trigger observeDisabledPackages() here
+        # because it is not default in specs
+        atom.packages.observeDisabledPackages()
+        atom.packages.disablePackage('status-bar')
+        expect(atom.packages.isPackageDisabled('status-bar')).toBe(true)
+        expect(packageCard.hasClass('disabled')).toBe(true)
 
-      expect(atom.config.get('package-with-config.setting')).toBe 'something'
+  describe "when the package is not active", ->
+    it "displays the correct enablement state", ->
+      atom.packages.loadPackage('status-bar')
+      expect(atom.packages.isPackageActive('status-bar')).toBe(false)
+      pack = atom.packages.getLoadedPackage('status-bar')
+      view = new PackageDetailView(pack, new PackageManager())
+      packageCard = view.find('.package-card')
+
+      # Trigger observeDisabledPackages() here
+      # because it is not default in specs
+      atom.packages.observeDisabledPackages()
+      atom.packages.disablePackage('status-bar')
+      expect(atom.packages.isPackageDisabled('status-bar')).toBe(true)
+      expect(packageCard.hasClass('disabled')).toBe(true)
+
+    it "still loads the config schema for the package", ->
+      atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-config'))
+
+      waitsFor ->
+        atom.packages.isPackageLoaded('package-with-config') is true
+
+      runs ->
+        expect(atom.config.get('package-with-config.setting')).toBe undefined
+
+        pack = atom.packages.getLoadedPackage('package-with-config')
+        view = new PackageDetailView(pack, new PackageManager())
+
+        expect(atom.config.get('package-with-config.setting')).toBe 'something'

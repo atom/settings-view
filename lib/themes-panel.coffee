@@ -7,7 +7,7 @@ _ = require 'underscore-plus'
 {$$, TextEditorView, View} = require 'atom-space-pen-views'
 {Subscriber} = require 'emissary'
 
-AvailablePackageView = require './available-package-view'
+PackageCard = require './package-card'
 ErrorView = require './error-view'
 PackageManager = require './package-manager'
 
@@ -99,6 +99,9 @@ class ThemesPanel extends View
     @uiMenu.change =>
       @activeUiTheme = @uiMenu.val()
       @scheduleUpdateThemeConfig()
+
+  focus: ->
+    @filterEditor.focus()
 
   detached: ->
     @unsubscribe()
@@ -210,7 +213,7 @@ class ThemesPanel extends View
     for pack, index in packages
       packageRow = $$ -> @div class: 'row'
       container.append(packageRow)
-      packView = new AvailablePackageView(pack, @packageManager, {back: 'Themes'})
+      packView = new PackageCard(pack, @packageManager, {back: 'Themes'})
       packageViews.push(packView) # used for search filterin'
       packageRow.append(packView)
 
@@ -238,11 +241,11 @@ class ThemesPanel extends View
       @coreCount.text "#{@packages.core.length}"
       @devCount.text "#{@packages.dev.length}"
     else
-      community = @communityPackages.find('.available-package-view:not(.hidden)').length
+      community = @communityPackages.find('.package-card:not(.hidden)').length
       @communityCount.text "#{community}/#{@packages.user.length}"
-      dev = @devPackages.find('.available-package-view:not(.hidden)').length
+      dev = @devPackages.find('.package-card:not(.hidden)').length
       @devCount.text "#{dev}/#{@packages.dev.length}"
-      core = @corePackages.find('.available-package-view:not(.hidden)').length
+      core = @corePackages.find('.package-card:not(.hidden)').length
       @coreCount.text "#{core}/#{@packages.core.length}"
 
   matchPackages: ->

@@ -1,22 +1,31 @@
 @import "octicon-mixins";
 @import "ui-variables";
+@import "variables";
 
 .settings-view {
 
   // TODO: Somehow unify the "card".
 
-  .available-package-view {
+  .package-card {
     padding: @component-padding*1.5;
     margin-bottom: @component-padding;
     list-style-type: none;
-    font-size: 13px;
+    font-size: 1.2em;
     border-radius: @component-border-radius*2;
     border: 1px solid @base-border-color;
-    background-color: lighten(@tool-panel-background-color, 8%);
+    background-color: @package-card-background-color;
     overflow: hidden;
+    cursor: pointer;
+
+    &:hover {
+      background-color: contrast(@package-card-background-color, darken(@package-card-background-color, 2%), lighten(@package-card-background-color, 2%));
+    }
+    &:active {
+      background-color: @package-card-background-color;
+    }
 
     &.disabled {
-      background-color: lighten(@tool-panel-background-color, 5%);
+      background-color: @package-card-disabled-background-color;
       .body,
       .avatar,
       .author,
@@ -39,7 +48,7 @@
       color: @text-color;
       border-radius: @component-border-radius*2;
       border: 1px solid @base-border-color;
-      background-color: lighten(@tool-panel-background-color, 8%);
+      background-color: @package-card-background-color;
 
       .caption {
         width: 100%;
@@ -57,8 +66,6 @@
     }
 
     .description {
-      font-size: 12px;
-      line-height: 18px;
       color: @text-color;
       overflow: hidden;
       min-height: 38px;
@@ -70,8 +77,6 @@
     }
 
     .downloads {
-      font-size: 12px;
-      line-height: 12px;
       color: @text-color-highlight;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -127,10 +132,6 @@
         display: inline-block;
         vertical-align: top;
 
-        a.social-count {
-          font-size: 13px;
-        }
-
         .star-button {
           padding: 0 6px;
 
@@ -183,7 +184,6 @@
 
       .value {
         color: #999;
-        font-size: 13px;
       }
     }
 
@@ -248,6 +248,18 @@
     // End copy-paste from atom.io
 
   }
+
+  // Remove hover styles if it's in a detail view
+  .package-detail .package-card {
+    cursor: auto;
+    &:hover {
+      background-color: @package-card-background-color;
+    }
+    &.disabled {
+      background-color: @package-card-disabled-background-color;
+    }
+  }
+
 }
 
 @-webkit-keyframes available-package-is-installing {

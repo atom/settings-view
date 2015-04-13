@@ -4,16 +4,16 @@ _ = require 'underscore-plus'
 shell = require 'shell'
 
 module.exports =
-class AvailablePackageView extends View
+class PackageCard extends View
   Subscriber.includeInto(this)
 
   @content: ({name, description, version, repository}) ->
     # stars, downloads
     # lol wat
-    owner = AvailablePackageView::ownerFromRepository(repository)
+    owner = PackageCard::ownerFromRepository(repository)
     description ?= ''
 
-    @div class: 'available-package-view col-lg-8', =>
+    @div class: 'package-card col-lg-8', =>
       @div class: 'stats pull-right', =>
         @span class: "stats-item", =>
           @span class: 'icon icon-versions'
@@ -37,9 +37,9 @@ class AvailablePackageView extends View
           @div class: 'btn-group', =>
             @button type: 'button', class: 'btn btn-info icon icon-cloud-download install-button', outlet: 'installButton', 'Install'
           @div outlet: 'buttons', class: 'btn-group', =>
-            @button type: 'button', class: 'btn icon icon-gear',           outlet: 'settingsButton', 'Settings'
-            @button type: 'button', class: 'btn icon icon-trashcan',       outlet: 'uninstallButton', 'Uninstall'
-            @button type: 'button', class: 'btn icon icon-playback-pause', outlet: 'enablementButton', =>
+            @button type: 'button', class: 'btn icon icon-gear settings',             outlet: 'settingsButton', 'Settings'
+            @button type: 'button', class: 'btn icon icon-trashcan uninstall',        outlet: 'uninstallButton', 'Uninstall'
+            @button type: 'button', class: 'btn icon icon-playback-pause enablement', outlet: 'enablementButton', =>
               @span class: 'disable-text', 'Disable'
             @button type: 'button', class: 'btn status-indicator', tabindex: -1, outlet: 'statusIndicator'
 
@@ -61,27 +61,44 @@ class AvailablePackageView extends View
     @loadCachedMetadata()
 
     if atom.packages.isBundledPackage(@pack.name)
-      @installButton.hide()
-      @uninstallButton.hide()
+      @installButton.remove()
+      @uninstallButton.remove()
 
-    @installButton.on 'click', =>
+    # themes have no status and cannot be dis/enabled
+    if @type is 'theme'
+      @statusIndicator.remove()
+      @enablementButton.remove()
+
+    unless @hasSettings(@pack)
+      @settingsButton.remove()
+
+    if opts?.onSettingsView
+      @settingsButton.remove()
+    else
+      @on 'click', =>
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
+      @settingsButton.on 'click', =>
+        event.stopPropagation()
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
+
+    @installButton.on 'click', (event) =>
+      event.stopPropagation()
       @install()
 
-    @uninstallButton.on 'click', =>
+    @uninstallButton.on 'click', (event) =>
+      event.stopPropagation()
       @uninstall()
 
-    @settingsButton.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
-
-    @packageName.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back})
+    @packageName.on 'click', (event) =>
+      event.stopPropagation()
+      packageType = if @pack.theme then 'themes' else 'packages'
+      shell.openExternal("https://atom.io/#{packageType}/#{@pack.name}")
 
     @enablementButton.on 'click', =>
       if @isDisabled()
         atom.packages.enablePackage(@pack.name)
       else
         atom.packages.disablePackage(@pack.name)
-      @updateEnablement()
       false
 
   detached: ->
@@ -127,6 +144,15 @@ class AvailablePackageView extends View
         .removeClass('is-disabled')
 
   handlePackageEvents: ->
+    atom.packages.onDidDeactivatePackage (pack) =>
+      @updateEnablement() if pack.name is @pack.name
+
+    atom.packages.onDidActivatePackage (pack) =>
+      @updateEnablement() if pack.name is @pack.name
+
+    atom.config.onDidChange 'core.disabledPackages', =>
+      @updateEnablement()
+
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
       @installButton.prop('disabled', false)
       unless error?
@@ -153,6 +179,7 @@ class AvailablePackageView extends View
         @uninstallButton.hide()
         @settingsButton.hide()
         @enablementButton.hide()
+        @statusIndicator.hide()
 
     if @isInstalled() or @isDisabled()
       @installButton.hide()
@@ -166,6 +193,9 @@ class AvailablePackageView extends View
   isInstalled: -> atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)
 
   isDisabled: -> atom.packages.isPackageDisabled(@pack.name)
+
+  hasSettings: (pack) ->
+    atom.config.get(pack.name)?
 
   subscribeToPackageEvent: (event, callback) ->
     @subscribe @packageManager, event, (pack, error) =>

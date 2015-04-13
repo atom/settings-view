@@ -1,24 +1,36 @@
 {
   "name": "settings-view",
-  "version": "0.174.0",
+  "version": "0.190.0",
   "main": "./lib/main",
   "description": "Edit config settings, install packages, and change themes",
   "license": "MIT",
   "dependencies": {
     "async": "~0.2.9",
     "atom-space-pen-views": "^2.0.2",
+    "cheerio": "0.15.0",
     "emissary": "1.x",
     "fs-plus": "^2.4",
     "fuzzaldrin": "^2.1",
     "glob": "4.3.1",
-    "q": "~1.0.1",
-    "request": "2.49.0",
+    "q": "^1.1.2",
+    "request": "^2.40",
+    "roaster": "^1.1.2",
     "season": "^5.0.2",
-    "semver": "~2.2.1",
+    "semver": "~4.2",
     "underscore-plus": "^1.0.6"
   },
   "repository": "https://github.com/atom/settings-view",
   "engines": {
     "atom": "*"
+  },
+  "consumedServices": {
+    "status-bar": {
+      "versions": {
+        "^1.0.0": "consumeStatusBar"
+      }
+    }
+  },
+  "devDependencies": {
+    "coffeelint": "^1.9.3"
   }
 }

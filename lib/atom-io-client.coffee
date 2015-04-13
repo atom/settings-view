@@ -1,8 +1,8 @@
 fs = require 'fs-plus'
 path = require 'path'
 
-glob = require 'glob'
-request = require 'request'
+glob = null    # defer until used
+request = null # defer until used
 
 module.exports =
 class AtomIoClient
@@ -65,6 +65,7 @@ class AtomIoClient
         callback(error, null)
 
   request: (path, callback) ->
+    request ?= require 'request'
     request "#{@baseURL}#{path}", (err, res, body) =>
       try
         data = JSON.parse(body)
@@ -115,6 +116,7 @@ class AtomIoClient
     path.join @getCachePath(), "#{login}-#{Date.now()}"
 
   cachedAvatar: (login, callback) ->
+    glob ?= require 'glob'
     glob @avatarGlob(login), (err, files) =>
       files.sort().reverse()
       for imagePath in files
@@ -134,6 +136,7 @@ class AtomIoClient
       writeStream.on 'finish', -> callback(null, imagePath)
       writeStream.on 'error', (error) -> callback(error)
 
+      request ?= require 'request'
       readStream = request("https://github.com/#{login}.png")
       readStream.on 'error', (error) -> callback(error)
       readStream.pipe(writeStream)
