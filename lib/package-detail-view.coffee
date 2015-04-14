@@ -62,7 +62,8 @@ class PackageDetailView extends View
 
   activate: ->
     # Package.activateConfig() is part of the Private package API and should not be used outside of core.
-    @pack.activateConfig() if not atom.packages.isPackageActive(@pack.name)
+    if atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageActive(@pack.name)
+      @pack.activateConfig()
 
   detached: ->
     @unsubscribe()
@@ -90,6 +91,7 @@ class PackageDetailView extends View
   updateInstalledState: ->
     @sections.empty()
     @updateFileButtons()
+    @activate()
 
     if @isInstalled()
       @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
