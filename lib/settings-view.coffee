@@ -17,6 +17,14 @@ ThemesPanel = require './themes-panel'
 InstalledPackagesPanel = require './installed-packages-panel'
 UpdatesPanel = require './updates-panel'
 
+class PanelsScrollView extends ScrollView
+  @content: ->
+    # Set tabindex to 0 so it can receive focus to get keyboard events
+    @div class: 'panels', tabindex: '0'
+
+  initialize: ->
+    super
+
 module.exports =
 class SettingsView extends ScrollView
   Subscriber.includeInto(this)
@@ -28,7 +36,7 @@ class SettingsView extends ScrollView
           @div class: 'panel-menu-separator', outlet: 'menuSeparator'
         @div class: 'button-area', =>
           @button class: 'btn btn-default icon icon-link-external', outlet: 'openDotAtom', 'Open Config Folder'
-      @div class: 'panels', outlet: 'panels'
+      @subview 'panels', new PanelsScrollView
 
   initialize: ({@uri, activePanelName}={}) ->
     super
@@ -56,6 +64,9 @@ class SettingsView extends ScrollView
     @panelsByName = {}
     @on 'click', '.panels-menu li a, .panels-packages li a', (e) =>
       @showPanel($(e.target).closest('li').attr('name'))
+
+    @on 'focus', =>
+      @focusActivePanel()
 
     @openDotAtom.on 'click', ->
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
@@ -150,9 +161,7 @@ class SettingsView extends ScrollView
     @sidebar.find('.active').removeClass('active')
     @sidebar.find("[name='#{name}']").addClass('active')
 
-  focus: ->
-    super
-
+  focusActivePanel: ->
     # Pass focus to panel that is currently visible
     for panel in @panels.children()
       child = $(panel)

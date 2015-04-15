@@ -4,7 +4,7 @@ SettingsPanel = require './settings-panel'
 module.exports =
 class GeneralPanel extends View
   @content: ->
-    @div =>
+    @div tabindex: 0, =>
       @form class: 'general-panel section', =>
         @div outlet: "loadingElement", class: 'alert alert-info loading-area icon icon-hourglass', "Loading settings"
 
