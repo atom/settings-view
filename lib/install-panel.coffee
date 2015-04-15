@@ -24,7 +24,7 @@ class InstallPanel extends View
             @span class: 'icon icon-question'
             @span outlet: 'publishedToText', 'Packages are published to '
             @a class: 'link', outlet: "openAtomIo", "atom.io"
-            @span " and are installed to #{path.join(fs.getHomeDirectory(), '.atom', 'packages')}"
+            @span " and are installed to #{path.join(process.env.ATOM_HOME, 'packages')}"
 
           @div class: 'search-container clearfix', =>
             @div class: 'editor-container', =>
