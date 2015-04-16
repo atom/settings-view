@@ -16,6 +16,7 @@
     background-color: @package-card-background-color;
     overflow: hidden;
     cursor: pointer;
+    -webkit-user-select: none;
 
     &:hover {
       background-color: contrast(@package-card-background-color, darken(@package-card-background-color, 2%), lighten(@package-card-background-color, 2%));
@@ -251,7 +252,7 @@
 
   // Remove hover styles if it's in a detail view
   .package-detail .package-card {
-    cursor: auto;
+    cursor: default;
     &:hover {
       background-color: @package-card-background-color;
     }
