@@ -38,9 +38,9 @@ class PackageCard extends View
           @div class: 'btn-group', =>
             @button type: 'button', class: 'btn btn-info icon icon-cloud-download install-button', outlet: 'installButton', 'Install'
           @div outlet: 'buttons', class: 'btn-group', =>
-            @button type: 'button', class: 'btn icon icon-gear',           outlet: 'settingsButton', 'Settings'
-            @button type: 'button', class: 'btn icon icon-trashcan',       outlet: 'uninstallButton', 'Uninstall'
-            @button type: 'button', class: 'btn icon icon-playback-pause', outlet: 'enablementButton', =>
+            @button type: 'button', class: 'btn icon icon-gear settings',             outlet: 'settingsButton', 'Settings'
+            @button type: 'button', class: 'btn icon icon-trashcan uninstall',        outlet: 'uninstallButton', 'Uninstall'
+            @button type: 'button', class: 'btn icon icon-playback-pause enablement', outlet: 'enablementButton', =>
               @span class: 'disable-text', 'Disable'
             @button type: 'button', class: 'btn status-indicator', tabindex: -1, outlet: 'statusIndicator'
 
@@ -62,39 +62,34 @@ class PackageCard extends View
     @updateEnablement()
     @loadCachedMetadata()
 
-    # We hide install/uninstall buttons until we know how to treat this
-    # package.
-    @installButton.hide()
-    @uninstallButton.hide()
-
-    # The package is bundled with Atom, we don't need to do anything
-    # beyond that.
     if atom.packages.isBundledPackage(@pack.name)
-      # core themes only have a settings option, no status
-      @statusIndicator.hide() if @type is 'theme'
-      return
+      @installButton.hide()
+      @uninstallButton.hide()
 
-    # The package is not bundled with Atom, but is already installed
-    # we only need to show the uninstall button.
-    if @isInstalled()
-      @uninstallButton.show()
+    # themes have no status and cannot be dis/enabled
+    if @type is 'theme'
+      @statusIndicator.hide()
+      @enablementButton.hide()
+
+    unless @hasSettings(@pack)
+      @settingsButton.hide()
+
     # The package is not bundled with Atom and is not installed so we'll have
     # to find a package version that is compatible with this Atom version.
-    else
+    unless @isInstalled()
+      @uninstallButton.hide()
       atomVersion = @packageManager.normalizeVersion(atom.getVersion())
-      # The latest version is compatible with the current Atom version, no need
-      # to make a request to get all versions.
-      if @packageManager.satisfiesVersion(atomVersion, @pack)
-        @installButton.show()
-      else
+      # The latest version is not compatible with the current Atom version,
+      # we need to make a request to get the latest compatible version.
+      unless @packageManager.satisfiesVersion(atomVersion, @pack)
         @packageManager.loadCompatiblePackageVersion @pack.name, (err, pack) =>
           return console.error(err) if err?
 
           packageVersion = pack.version
 
           # A compatible version exist, we activate the install button and
-          # replace @pack so that the install action installs the compatible
-          # version of the package.
+          # set @installablePack so that the install action installs the
+          # compatible version of the package.
           if packageVersion
             @versionValue.text(packageVersion)
             if packageVersion isnt @pack.version
@@ -105,8 +100,8 @@ class PackageCard extends View
               """
 
             @installablePack = pack
-            @installButton.show()
           else
+            @installButton.hide()
             @versionValue.addClass('text-danger')
             @packageMessage.addClass('text-danger')
             @packageMessage.append """
@@ -169,7 +164,7 @@ class PackageCard extends View
     if @type is 'theme'
       return @enablementButton.hide()
 
-    if atom.packages.isPackageDisabled(@pack.name)
+    if @isDisabled()
       @addClass('disabled')
       @enablementButton.find('.disable-text').text('Enable')
       @enablementButton
@@ -192,6 +187,9 @@ class PackageCard extends View
 
     atom.packages.onDidActivatePackage (pack) =>
       @updateEnablement() if pack.name is @pack.name
+
+    atom.config.onDidChange 'core.disabledPackages', =>
+      @updateEnablement()
 
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
       @installButton.prop('disabled', false)
@@ -233,6 +231,9 @@ class PackageCard extends View
   isInstalled: -> atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)
 
   isDisabled: -> atom.packages.isPackageDisabled(@pack.name)
+
+  hasSettings: (pack) ->
+    atom.config.get(pack.name)?
 
   subscribeToPackageEvent: (event, callback) ->
     @subscribe @packageManager, event, (pack, error) =>

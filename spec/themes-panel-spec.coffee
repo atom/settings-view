@@ -6,11 +6,14 @@ Q = require 'q'
 
 PackageManager = require '../lib/package-manager'
 ThemesPanel = require '../lib/themes-panel'
+SettingsView = require '../lib/settings-view'
 
 describe "ThemesPanel", ->
   [panel, packageManager, reloadedHandler] = []
+  settingsView = null
 
   beforeEach ->
+    settingsView = new SettingsView
     atom.packages.loadPackage('atom-light-ui')
     atom.packages.loadPackage('atom-dark-ui')
     atom.packages.loadPackage('atom-light-syntax')
@@ -30,6 +33,7 @@ describe "ThemesPanel", ->
       spyOn(packageManager, 'getFeatured').andCallFake (callback) ->
         Q([themeMetadata])
       panel = new ThemesPanel(packageManager)
+      settingsView.addPanel('Themes', null, -> panel)
 
       # Make updates synchronous
       spyOn(panel, 'scheduleUpdateThemeConfig').andCallFake -> @updateThemeConfig()
@@ -63,3 +67,8 @@ describe "ThemesPanel", ->
       runs ->
         expect(panel.uiMenu.val()).toBe 'atom-light-ui'
         expect(panel.syntaxMenu.val()).toBe 'atom-light-syntax'
+
+  xdescribe "when the themes panel is navigated to", ->
+    xit "focuses the search filter", ->
+      settingsView.showPanel('Themes')
+      expect(panel.filterEditor.hasFocus()).toBe true

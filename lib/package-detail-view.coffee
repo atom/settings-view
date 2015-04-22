@@ -42,7 +42,7 @@ class PackageDetailView extends View
           @p outlet: 'startupTime', class: 'text icon icon-dashboard native-key-bindings', tabindex: -1
 
           @div outlet: 'buttons', class: 'btn-wrap-group', =>
-            @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io', =>
+            @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io'
             @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
             @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'CHANGELOG'
             @button outlet: 'licenseButton', class: 'btn btn-default icon icon-law', 'LICENSE'
@@ -53,18 +53,24 @@ class PackageDetailView extends View
       @div outlet: 'sections'
 
   initialize: (@pack, @packageManager) ->
+    @activate()
     @populate()
     @handleButtonEvents()
     @updateFileButtons()
     @checkForUpdate()
     @subscribeToPackageManager()
 
+  activate: ->
+    # Package.activateConfig() is part of the Private package API and should not be used outside of core.
+    if atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageActive(@pack.name)
+      @pack.activateConfig()
+
   detached: ->
     @unsubscribe()
 
   beforeShow: (opts) ->
     if opts?.back
-      @breadcrumb.text(opts.back).on 'click', () =>
+      @breadcrumb.text(opts.back).on 'click', =>
         @parents('.settings-view').view()?.showPanel(opts.back)
     else
       @breadcrumbContainer.hide()
@@ -85,6 +91,7 @@ class PackageDetailView extends View
   updateInstalledState: ->
     @sections.empty()
     @updateFileButtons()
+    @activate()
 
     if @isInstalled()
       @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
@@ -92,10 +99,11 @@ class PackageDetailView extends View
       @sections.append(new PackageGrammarsView(@pack.path))
       @sections.append(new PackageSnippetsView(@pack.path))
       @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
-
     else
       @startupTime.hide()
       @openButton.hide()
+
+    @openButton.hide() if atom.packages.isBundledPackage(@pack.name)
 
     readme = if @pack.metadata.readme then @pack.metadata.readme else null
     if @readmePath and not readme

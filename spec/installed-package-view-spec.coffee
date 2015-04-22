@@ -65,22 +65,52 @@ describe "PackageDetailView", ->
       keybindingsTable = view.find('.package-keymap-table tbody')
       expect(keybindingsTable.children().length).toBe 0
 
-  it "displays the correct enablement state", ->
-    packageCard = null
+  describe "when the package is active", ->
+    it "displays the correct enablement state", ->
+      packageCard = null
 
-    waitsForPromise ->
-      atom.packages.activatePackage('status-bar')
+      waitsForPromise ->
+        atom.packages.activatePackage('status-bar')
 
-    runs ->
-      expect(atom.packages.isPackageActive('status-bar')).toBe(true)
+      runs ->
+        expect(atom.packages.isPackageActive('status-bar')).toBe(true)
+        pack = atom.packages.getLoadedPackage('status-bar')
+        view = new PackageDetailView(pack, new PackageManager())
+        packageCard = view.find('.package-card')
+
+      runs ->
+        # Trigger observeDisabledPackages() here
+        # because it is not default in specs
+        atom.packages.observeDisabledPackages()
+        atom.packages.disablePackage('status-bar')
+        expect(atom.packages.isPackageDisabled('status-bar')).toBe(true)
+        expect(packageCard.hasClass('disabled')).toBe(true)
+
+  describe "when the package is not active", ->
+    it "displays the correct enablement state", ->
+      atom.packages.loadPackage('status-bar')
+      expect(atom.packages.isPackageActive('status-bar')).toBe(false)
       pack = atom.packages.getLoadedPackage('status-bar')
       view = new PackageDetailView(pack, new PackageManager())
       packageCard = view.find('.package-card')
 
-    runs ->
       # Trigger observeDisabledPackages() here
       # because it is not default in specs
       atom.packages.observeDisabledPackages()
       atom.packages.disablePackage('status-bar')
       expect(atom.packages.isPackageDisabled('status-bar')).toBe(true)
       expect(packageCard.hasClass('disabled')).toBe(true)
+
+    it "still loads the config schema for the package", ->
+      atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-config'))
+
+      waitsFor ->
+        atom.packages.isPackageLoaded('package-with-config') is true
+
+      runs ->
+        expect(atom.config.get('package-with-config.setting')).toBe undefined
+
+        pack = atom.packages.getLoadedPackage('package-with-config')
+        view = new PackageDetailView(pack, new PackageManager())
+
+        expect(atom.config.get('package-with-config.setting')).toBe 'something'

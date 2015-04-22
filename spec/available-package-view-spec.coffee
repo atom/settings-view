@@ -5,6 +5,7 @@ describe "PackageCard", ->
   setPackageStatusSpies = (opts) ->
     spyOn(PackageCard.prototype, 'isInstalled').andReturn(opts.installed)
     spyOn(PackageCard.prototype, 'isDisabled').andReturn(opts.disabled)
+    spyOn(PackageCard.prototype, 'hasSettings').andReturn(opts.hasSettings)
 
   beforeEach ->
     @packageManager = jasmine.createSpyObj('packageManager', ['on', 'getClient', 'emit', 'install', 'uninstall', 'loadCompatiblePackageVersion', 'satisfiesVersion', 'normalizeVersion'])
@@ -25,7 +26,17 @@ describe "PackageCard", ->
   it "doesn't show the disable control for a theme", ->
     setPackageStatusSpies {installed: true, disabled: false}
     view = new PackageCard {theme: 'syntax', name: 'test-theme'}, @packageManager
-    expect(view.enablementButton.css('display')).toBe('none')
+    expect(view.find.enablementButton).not.toExist()
+
+  it "doesn't show the status indicator for a theme", ->
+    setPackageStatusSpies {installed: true, disabled: false}
+    view = new PackageCard {theme: 'syntax', name: 'test-theme'}, @packageManager
+    expect(view.find.statusIndicatorButton).not.toExist()
+
+  it "doesn't show the settings button for a theme", ->
+    setPackageStatusSpies {installed: true, disabled: false}
+    view = new PackageCard {theme: 'syntax', name: 'test-theme'}, @packageManager
+    expect(view.find.settingsButton).not.toExist()
 
   it "can be disabled if installed", ->
     setPackageStatusSpies {installed: true, disabled: false}
@@ -140,3 +151,8 @@ describe "PackageCard", ->
     expect(view.enablementButton.css('display')).toBe('none')
     expect(view.versionValue).toHaveClass('text-danger')
     expect(view.packageMessage).toHaveClass('text-danger')
+
+  it "removes the settings button if a package has no settings", ->
+    setPackageStatusSpies {installed: true, disabled: false, hasSettings: false}
+    view = new PackageCard {name: 'test-package'}, @packageManager
+    expect(view.find.settingsButton).not.toExist()
