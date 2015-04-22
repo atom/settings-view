@@ -17,7 +17,7 @@ class PackageCard extends View
       @div class: 'stats pull-right', =>
         @span class: "stats-item", =>
           @span class: 'icon icon-versions'
-          @span class:'value', version
+          @span outlet: 'versionValue', class:'value', String(version)
 
         @span class: 'stats-item', =>
           @span class: 'icon icon-cloud-download'
@@ -27,6 +27,7 @@ class PackageCard extends View
         @h4 class: 'card-name', =>
           @a outlet: 'packageName', name
         @span outlet: 'packageDescription', class: 'package-description', description
+        @div outlet: 'packageMessage', class: 'package-message'
 
       @div class: 'meta', =>
         @div class: 'meta-user', =>
@@ -57,21 +58,58 @@ class PackageCard extends View
     {@name} = @pack
 
     @handlePackageEvents()
+    @handleControlsEvent(opts)
     @updateEnablement()
     @loadCachedMetadata()
 
     if atom.packages.isBundledPackage(@pack.name)
-      @installButton.remove()
-      @uninstallButton.remove()
+      @installButton.hide()
+      @uninstallButton.hide()
 
     # themes have no status and cannot be dis/enabled
     if @type is 'theme'
-      @statusIndicator.remove()
-      @enablementButton.remove()
+      @statusIndicator.hide()
+      @enablementButton.hide()
 
     unless @hasSettings(@pack)
-      @settingsButton.remove()
+      @settingsButton.hide()
 
+    # The package is not bundled with Atom and is not installed so we'll have
+    # to find a package version that is compatible with this Atom version.
+    unless @isInstalled()
+      @uninstallButton.hide()
+      atomVersion = @packageManager.normalizeVersion(atom.getVersion())
+      # The latest version is not compatible with the current Atom version,
+      # we need to make a request to get the latest compatible version.
+      unless @packageManager.satisfiesVersion(atomVersion, @pack)
+        @packageManager.loadCompatiblePackageVersion @pack.name, (err, pack) =>
+          return console.error(err) if err?
+
+          packageVersion = pack.version
+
+          # A compatible version exist, we activate the install button and
+          # set @installablePack so that the install action installs the
+          # compatible version of the package.
+          if packageVersion
+            @versionValue.text(packageVersion)
+            if packageVersion isnt @pack.version
+              @versionValue.addClass('text-warning')
+              @packageMessage.addClass('text-warning')
+              @packageMessage.text """
+              Version #{packageVersion} is not the latest version available for this package, but it's the latest that is compatible with your version of Atom.
+              """
+
+            @installablePack = pack
+          else
+            @installButton.hide()
+            @versionValue.addClass('text-danger')
+            @packageMessage.addClass('text-danger')
+            @packageMessage.append """
+            There's no version of this package that is compatible with your Atom version. The version must satisfy #{@pack.engines.atom}.
+            """
+            console.error("No available version compatible with the installed Atom version: #{atom.getVersion()}")
+
+  handleControlsEvent: (opts) ->
     if opts?.onSettingsView
       @settingsButton.remove()
     else
@@ -126,7 +164,7 @@ class PackageCard extends View
     if @type is 'theme'
       return @enablementButton.hide()
 
-    if atom.packages.isPackageDisabled(@pack.name)
+    if @isDisabled()
       @addClass('disabled')
       @enablementButton.find('.disable-text').text('Enable')
       @enablementButton
@@ -203,8 +241,8 @@ class PackageCard extends View
 
   install: ->
     @installButton.addClass('is-installing')
-    @packageManager.emit('package-installing', @pack)
-    @packageManager.install @pack, (error) =>
+    @packageManager.emit('package-installing', @installablePack ? @pack)
+    @packageManager.install @installablePack ? @pack, (error) =>
       @installButton.removeClass('is-installing')
       if error?
         console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)

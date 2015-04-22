@@ -3,7 +3,6 @@ _ = require 'underscore-plus'
 {Emitter} = require 'emissary'
 Q = require 'q'
 semver = require 'semver'
-url = require 'url'
 
 Client = require './atom-io-client'
 
@@ -112,6 +111,24 @@ class PackageManager
         error.stderr = stderr
         callback(error)
 
+  loadCompatiblePackageVersion: (packageName, callback) ->
+    args = ['view', packageName, '--json', '--compatible', @normalizeVersion(atom.getVersion())]
+
+    @runCommand args, (code, stdout, stderr) ->
+      if code is 0
+        try
+          packages = JSON.parse(stdout) ? []
+        catch error
+          callback(error)
+          return
+
+        callback(null, packages)
+      else
+        error = new Error("Fetching package '#{packageName}' failed.")
+        error.stdout = stdout
+        error.stderr = stderr
+        callback(error)
+
   getInstalled: ->
     Q.nbind(@loadInstalled, this)()
 
@@ -123,6 +140,15 @@ class PackageManager
 
   getPackage: (packageName) ->
     @packagePromises[packageName] ?= Q.nbind(@loadPackage, this, packageName)()
+
+  satisfiesVersion: (version, metadata) ->
+    engine = metadata.engines?.atom ? '*'
+    return false unless semver.validRange(engine)
+    return semver.satisfies(version, engine)
+
+  normalizeVersion: (version) ->
+    [version] = version.split('-') if typeof version is 'string'
+    version
 
   search: (query, options = {}) ->
     deferred = Q.defer()

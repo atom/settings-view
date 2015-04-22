@@ -9,6 +9,7 @@ describe 'InstalledPackagesPanel', ->
   beforeEach ->
     @packageManager = new PackageManager
     @installed = JSON.parse fs.readFileSync(path.join(__dirname, 'fixtures', 'installed.json'))
+    spyOn(@packageManager, 'loadCompatiblePackageVersion').andCallFake ->
     spyOn(@packageManager, 'getInstalled').andReturn Q(@installed)
     @panel = new InstalledPackagesPanel(@packageManager)
 

@@ -6,6 +6,7 @@ describe "package updates status view", ->
   beforeEach ->
     outdatedPackage =
       name: 'out-dated'
+    spyOn(PackageManager.prototype, 'loadCompatiblePackageVersion').andCallFake ->
     spyOn(PackageManager.prototype, 'getOutdated').andCallFake -> Q([outdatedPackage])
     jasmine.attachToDOM(atom.views.getView(atom.workspace))
 
