@@ -35,7 +35,13 @@ class PackageManager
     args = ['ls', '--json']
     @runCommand args, (code, stdout, stderr) ->
       if code is 0
-        packages = JSON.parse(stdout)
+        try
+          packages = JSON.parse(stdout)
+        catch parseError
+          error = new Error('Fetching local packages failed.')
+          error.stdout = ''
+          error.stderr = parseError.message
+          return callback(error)
         callback(null, packages)
       else
         error = new Error('Fetching local packages failed.')
