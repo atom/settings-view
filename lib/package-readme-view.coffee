@@ -11,7 +11,7 @@ class PackageReadmeView extends View
     @section class: 'section', =>
       @div class: 'section-container', =>
         @div class: 'section-heading icon icon-book', 'README'
-        @div class: 'package-readme', outlet: 'packageReadme'
+        @div class: 'package-readme native-key-bindings', tabindex: -1, outlet: 'packageReadme'
 
   initialize: (readme) ->
     readme = readme || "### No README."
@@ -21,7 +21,7 @@ class PackageReadmeView extends View
       @packageReadme.append(sanitize(content))
 
   sanitize = (html) ->
-    o = cheerio.load("<div>#{html}</div>")
+    o = cheerio.load(html)
     o('script').remove()
     attributesToRemove = [
       'onabort'
