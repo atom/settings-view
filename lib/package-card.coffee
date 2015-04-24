@@ -68,11 +68,11 @@ class PackageCard extends View
 
     # themes have no status and cannot be dis/enabled
     if @type is 'theme'
-      @statusIndicator.hide()
-      @enablementButton.hide()
+      @statusIndicator.remove()
+      @enablementButton.remove()
 
     unless @hasSettings(@pack)
-      @settingsButton.hide()
+      @settingsButton.remove()
 
     # The package is not bundled with Atom and is not installed so we'll have
     # to find a package version that is compatible with this Atom version.
