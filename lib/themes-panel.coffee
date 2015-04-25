@@ -151,6 +151,17 @@ class ThemesPanel extends View
     @activeUiTheme = @getActiveUiTheme()
     @activeSyntaxTheme = @getActiveSyntaxTheme()
     @populateThemeMenus()
+
+    if not atom.config.get(@activeUiTheme)?
+      @currentUiThemeSettings.hide()
+    else
+      @currentUiThemeSettings.show()
+
+    if not atom.config.get(@activeSyntaxTheme)?
+      @currentSyntaxThemeSettings.hide()
+    else
+      @currentSyntaxThemeSettings.show()
+
     @handleCurrentThemeButtons()
 
   handleCurrentThemeButtons: ->
