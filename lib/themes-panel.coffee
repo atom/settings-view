@@ -92,6 +92,8 @@ class ThemesPanel extends View
       @populateThemeMenus()
 
     @disposables.add atom.themes.onDidChangeActiveThemes => @updateActiveThemes()
+    @disposables.add atom.tooltips.add(@currentUiThemeSettings, {title: 'Settings'})
+    @disposables.add atom.tooltips.add(@currentSyntaxThemeSettings, {title: 'Settings'})
     @updateActiveThemes()
 
     @filterEditor.getModel().onDidStopChanging => @matchPackages()
@@ -173,6 +175,7 @@ class ThemesPanel extends View
       @currentSyntaxThemeSettings.hide()
     else
       @currentSyntaxThemeSettings.show()
+
 
   # Populate the theme menus from the theme manager's active themes
   populateThemeMenus: ->
