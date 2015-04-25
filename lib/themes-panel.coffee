@@ -32,6 +32,7 @@ class ThemesPanel extends View
                   @div class: 'setting-title themes-label text', 'UI Theme'
                   @div class: 'setting-description text theme-description', 'This styles the tabs, status bar, tree view, and dropdowns'
                 @select outlet: 'uiMenu', class: 'form-control'
+                @button outlet: 'currentUiThemeSettings', class: 'btn icon icon-gear'
 
             @div class: 'themes-picker-item control-group', =>
               @div class: 'controls', =>
@@ -39,12 +40,13 @@ class ThemesPanel extends View
                   @div class: 'setting-title themes-label text', 'Syntax Theme'
                   @div class: 'setting-description text theme-description', 'This styles the text inside the editor'
                 @select outlet: 'syntaxMenu', class: 'form-control'
+                @button outlet: 'currentSyntaxThemeSettings', class: 'btn icon icon-gear'
 
       @section class: 'section', =>
         @div class: 'section-container', =>
           @div class: 'section-heading icon icon-paintcan', =>
             @text 'Installed Themes'
-            @span outlet: 'totalPackages', class:'section-heading-count badge badge-flexible', '…'
+            @span outlet: 'totalPackages', class: 'section-heading-count badge badge-flexible', '…'
           @div class: 'editor-container', =>
             @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter themes by name')
 
@@ -80,7 +82,7 @@ class ThemesPanel extends View
     @subscribe @packageManager, 'theme-install-failed theme-uninstall-failed', (pack, error) =>
       @themeErrors.append(new ErrorView(@packageManager, error))
 
-    @openUserStysheet.on 'click', =>
+    @openUserStysheet.on 'click', ->
       atom.commands.dispatch(atom.views.getView(atom.workspace), 'application:open-your-stylesheet')
       false
 
@@ -147,6 +149,16 @@ class ThemesPanel extends View
     @activeUiTheme = @getActiveUiTheme()
     @activeSyntaxTheme = @getActiveSyntaxTheme()
     @populateThemeMenus()
+    @handleCurrentThemeButtons()
+
+  handleCurrentThemeButtons: ->
+    @currentUiThemeSettings.on 'click', (event) =>
+      event.stopPropagation()
+      @parents('.settings-view').view()?.showPanel(@activeUiTheme, {back: 'Themes', pack: @activeUiTheme})
+
+    @currentSyntaxThemeSettings.on 'click', (event) =>
+      event.stopPropagation()
+      @parents('.settings-view').view()?.showPanel(@activeSyntaxTheme, {back: 'Themes', pack: @activeSyntaxTheme})
 
   # Populate the theme menus from the theme manager's active themes
   populateThemeMenus: ->
