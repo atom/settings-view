@@ -31,7 +31,7 @@ class ThemesPanel extends View
                 @label class: 'control-label', =>
                   @div class: 'setting-title themes-label text', 'UI Theme'
                   @div class: 'setting-description text theme-description', 'This styles the tabs, status bar, tree view, and dropdowns'
-                @div class: 'select-wrapper', =>
+                @div class: 'select-container', =>
                   @select outlet: 'uiMenu', class: 'form-control'
                   @button outlet: 'currentUiThemeSettings', class: 'btn icon icon-gear current-theme-settings'
 
@@ -40,7 +40,7 @@ class ThemesPanel extends View
                 @label class: 'control-label', =>
                   @div class: 'setting-title themes-label text', 'Syntax Theme'
                   @div class: 'setting-description text theme-description', 'This styles the text inside the editor'
-                @div class: 'select-wrapper', =>
+                @div class: 'select-container', =>
                   @select outlet: 'syntaxMenu', class: 'form-control'
                   @button outlet: 'currentSyntaxThemeSettings', class: 'btn icon icon-gear current-theme-settings'
 
