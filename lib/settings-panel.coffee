@@ -74,7 +74,7 @@ class SettingsPanel extends View
         if type is 'checkbox'
           input.prop('checked', value)
         else
-          value = value.toHexString() if value? and type is 'color'
+          value = value?.toHexString?() ? value if type is 'color'
           input.val(value) if value
 
       input.on 'change', =>
