@@ -37,9 +37,7 @@ class PackageManager
         try
           packages = JSON.parse(stdout)
         catch parseError
-          error = new Error('Fetching local packages failed.')
-          error.stdout = ''
-          error.stderr = parseError.message
+          error = createJsonParseError('Fetching local packages failed.', parseError, stdout)
           return callback(error)
         callback(null, packages)
       else
@@ -62,9 +60,9 @@ class PackageManager
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
-        catch error
-          callback(error)
-          return
+        catch parseError
+          error = createJsonParseError('Fetching featured packages failed.', parseError, stdout)
+          return callback(error)
 
         callback(null, packages)
       else
@@ -82,9 +80,9 @@ class PackageManager
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
-        catch error
-          callback(error)
-          return
+        catch parseError
+          error = createJsonParseError('Fetching outdated packages and themes failed.', parseError, stdout)
+          return callback(error)
 
         callback(null, packages)
       else
@@ -100,9 +98,9 @@ class PackageManager
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
-        catch error
-          callback(error)
-          return
+        catch parseError
+          error = createJsonParseError("Fetching package '#{packageName}' failed.", parseError, stdout)
+          return callback(error)
 
         callback(null, packages)
       else
@@ -118,9 +116,9 @@ class PackageManager
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
-        catch error
-          callback(error)
-          return
+        catch parseError
+          error = createJsonParseError("Fetching package '#{packageName}' failed.", parseError, stdout)
+          return callback(error)
 
         callback(null, packages)
       else
@@ -164,7 +162,8 @@ class PackageManager
         try
           packages = JSON.parse(stdout) ? []
           deferred.resolve(packages)
-        catch error
+        catch parseError
+          error = createJsonParseError("Searching for \u201C#{query}\u201D failed.", parseError, stdout)
           deferred.reject(error)
       else
         error = new Error("Searching for \u201C#{query}\u201D failed.")
@@ -298,3 +297,9 @@ class PackageManager
     theme = pack.theme ? pack.metadata?.theme
     eventName = if theme then "theme-#{eventName}" else "package-#{eventName}"
     @emit eventName, pack, error
+
+createJsonParseError = (message, parseError, stdout) ->
+  error = new Error(message)
+  error.stdout = ''
+  error.stderr = "#{parseError.message}: #{stdout}"
+  error
