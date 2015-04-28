@@ -21,7 +21,9 @@ Want to learn more?  You may want to check the [Getting Started: Atom Basics](ht
 * `settings-view:install-packages-and-themes` - Opens up the _Install_ section within the Settings View
 
 ### Keybindings
-<kbd>⌘+,</kbd> (Mac) or <kbd>Ctrl+,</kbd> (Windows/Linux) - `settings-view:open`
+|Command|Windows|Mac|Linux|
+|-------|-------|---|-----|
+|`settings-view:open`|<kbd>Ctrl+,</kbd>|<kbd>⌘+,</kbd>|<kbd>Ctrl+,</kbd>|
 Custom keybindings can easily be added by referencing the above commands.
 
 ![Settings View](https://cloud.githubusercontent.com/assets/1476/5624241/d29ffbe6-9516-11e4-8bfe-e91623977bc7.png)
