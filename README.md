@@ -25,7 +25,7 @@ Want to learn more?  Check out the [Getting Started: Atom Basics](https://atom.i
 ### Keybindings
 |Command|Windows|Mac|Linux|
 |-------|-------|---|-----|
-|`settings-view:open`|<kbd>Ctrl+,</kbd>|<kbd>⌘+,</kbd>|<kbd>Ctrl+,</kbd>|
+|`settings-view:open`|<kbd>Ctrl-,</kbd>|<kbd>⌘-,</kbd>|<kbd>Ctrl-,</kbd>|
 Custom keybindings can easily be added by referencing the above commands.
 
 ### Contributing
