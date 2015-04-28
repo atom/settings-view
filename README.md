@@ -1,24 +1,26 @@
-# Settings View [![Build Status](https://travis-ci.org/atom/settings-view.svg?branch=master)](https://travis-ci.org/atom/settings-view)
+# Settings View [![Build Status](https://travis-ci.org/atom/settings-view.svg?branch=master)](https://travis-ci.org/atom/settings-view) [![Dependency Status](https://david-dm.org/atom/settings-view.svg)]((https://david-dm.org/atom/atom))
 
-Edit config settings, install packages, and change themes all from within Atom.
+Edit core config settings, install and configure packages, and change themes all from within Atom.
+
+![Settings View](https://cloud.githubusercontent.com/assets/1476/5624241/d29ffbe6-9516-11e4-8bfe-e91623977bc7.png)
 
 ## Usage
 You can open the Settings View by navigating to _Atom > Preferences_ (Mac), _File > Preferences_ (Windows), or _Edit > Preferences_ (Linux).
 
-In order to install new packages and themes, simply click on the _Install_ section located on the left-hand side.
+In order to install new packages and themes, click on the _Install_ section on the left-hand side.
 Once installed, community packages/themes (and their settings) are housed within their respective section.
 All packages/themes that have updates will be listed under the _Updates_ section.  Finally, all keybindings (including ones that community packages have added) are available in the _Keybindings_ section.
 
-Want to learn more?  You may want to check the [Getting Started: Atom Basics](https://atom.io/docs/latest/getting-started-atom-basics#settings-and-preferences) and [Using Atom: Atom Packages](https://atom.io/docs/latest/using-atom-atom-packages) sections in the flight manual.
+Want to learn more?  Check out the [Getting Started: Atom Basics](https://atom.io/docs/latest/getting-started-atom-basics#settings-and-preferences) and [Using Atom: Atom Packages](https://atom.io/docs/latest/using-atom-atom-packages) sections in the flight manual.
 
 ### Commands
-* `settings-view:open` - Opens up the Settings View
-* `settings-view:show-keybindings` - Opens up the _Keybindings_ section within the Settings View
-* `settings-view:uninstall-packages` - Opens up the _Packages_ section within the Settings View
-* `settings-view:change-themes` - Opens up the _Themes_ section within the Settings View
-* `settings-view:uninstall-themes` - Opens up the _Themes_ section within the Settings View
-* `settings-view:check-for-updates` - Opens up the _Updates_ section within the Settings View
-* `settings-view:install-packages-and-themes` - Opens up the _Install_ section within the Settings View
+* `settings-view:open` - Opens the Settings View
+* `settings-view:show-keybindings` - Opens the _Keybindings_ section of the Settings View
+* `settings-view:uninstall-packages` - Opens the _Packages_ section of the Settings View
+* `settings-view:change-themes` - Opens the _Themes_ section of the Settings View
+* `settings-view:uninstall-themes` - Opens the _Themes_ section of the Settings View
+* `settings-view:check-for-updates` - Opens the _Updates_ section of the Settings View
+* `settings-view:install-packages-and-themes` - Opens the _Install_ section of the Settings View
 
 ### Keybindings
 |Command|Windows|Mac|Linux|
@@ -27,9 +29,7 @@ Want to learn more?  You may want to check the [Getting Started: Atom Basics](ht
 Custom keybindings can easily be added by referencing the above commands.
 
 ### Contributing
-Want to help out?  Here's a helpful [starting point](https://github.com/atom/atom/blob/master/CONTRIBUTING.md) (you might also want to check out the [contributing to packages guide](https://github.com/atom/atom/blob/master/docs/contributing-to-packages.md) for some extra information).
-
-![Settings View](https://cloud.githubusercontent.com/assets/1476/5624241/d29ffbe6-9516-11e4-8bfe-e91623977bc7.png)
+Always feel free to help out!  Whether it's [filing bugs and feature requests](https://github.com/atom/settings-view/issues/new) or working on some of the [open issues](https://github.com/atom/settings-view/issues), Atom's [contributing guide](https://github.com/atom/atom/blob/master/CONTRIBUTING.md) will help get you started while the [guide for contributing to packages](https://github.com/atom/atom/blob/master/docs/contributing-to-packages.md) has some extra information.
 
 ## Copyright
 Copyright &copy; 2014 by [Github Inc](http://www.github.com). See [the license](LICENSE.md) for more details.
