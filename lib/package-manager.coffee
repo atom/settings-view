@@ -207,15 +207,17 @@ class PackageManager
     @emit('package-updating', pack)
     @runCommand(args, exit)
 
+  unload: (packageName) ->
+    if atom.packages.isPackageLoaded(name)
+      atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
+      atom.packages.unloadPackage(name)
+
   install: (pack, callback) ->
     {name, version, theme} = pack
     activateOnSuccess = not theme and not atom.packages.isPackageDisabled(name)
     activateOnFailure = atom.packages.isPackageActive(name)
 
-    if atom.packages.isPackageLoaded(name)
-      atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
-      atom.packages.unloadPackage(name)
-
+    @unload(name)
     args = ['install', "#{name}@#{version}"]
     exit = (code, stdout, stderr) =>
       if code is 0
@@ -244,7 +246,7 @@ class PackageManager
 
     @runCommand ['uninstall', '--hard', name], (code, stdout, stderr) =>
       if code is 0
-        atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
+        @unload(name)
         callback?()
         @emitPackageEvent 'uninstalled', pack
       else
