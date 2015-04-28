@@ -22,7 +22,7 @@ Want to learn more?  You may want to check the [Getting Started: Atom Basics](ht
 
 ### Keybindings
 <kbd>⌘+,</kbd> (Mac) or <kbd>Ctrl+,</kbd> (Windows/Linux) - `settings-view:open`
-Custom keybindings can easily be added by referencing the above commands
+Custom keybindings can easily be added by referencing the above commands.
 
 ![Settings View](https://cloud.githubusercontent.com/assets/1476/5624241/d29ffbe6-9516-11e4-8bfe-e91623977bc7.png)
 
