@@ -1,4 +1,4 @@
-# Settings View [![Build Status](https://travis-ci.org/atom/settings-view.svg?branch=master)](https://travis-ci.org/atom/settings-view) [![Dependency Status](https://david-dm.org/atom/settings-view.svg)]((https://david-dm.org/atom/atom))
+# Settings View [![Build Status](https://travis-ci.org/atom/settings-view.svg?branch=master)](https://travis-ci.org/atom/settings-view) [![Dependency Status](https://david-dm.org/atom/settings-view.svg)](https://david-dm.org/atom/atom)
 
 Edit core config settings, install and configure packages, and change themes all from within Atom.
 
