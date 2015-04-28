@@ -26,6 +26,9 @@ Want to learn more?  You may want to check the [Getting Started: Atom Basics](ht
 |`settings-view:open`|<kbd>Ctrl+,</kbd>|<kbd>⌘+,</kbd>|<kbd>Ctrl+,</kbd>|
 Custom keybindings can easily be added by referencing the above commands.
 
+### Contributing
+Want to help out?  Here's a helpful [starting point](https://github.com/atom/atom/blob/master/CONTRIBUTING.md) (you might also want to check out the [contributing to packages guide](https://github.com/atom/atom/blob/master/docs/contributing-to-packages.md) for some extra information).
+
 ![Settings View](https://cloud.githubusercontent.com/assets/1476/5624241/d29ffbe6-9516-11e4-8bfe-e91623977bc7.png)
 
 ## Copyright
