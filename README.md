@@ -5,9 +5,11 @@ Edit config settings, install packages, and change themes all from within Atom.
 ## Usage
 You can open the Settings View by navigating to _Atom > Preferences_ (Mac), _File > Preferences_ (Windows), or _Edit > Preferences_ (Linux).
 
-In order to install new packages or themes, simply click on the _Install_ section located on the left-hand side.
+In order to install new packages and themes, simply click on the _Install_ section located on the left-hand side.
 Once installed, community packages/themes (and their settings) are housed within their respective section.
 All packages/themes that have updates will be listed under the _Updates_ section.  Finally, all keybindings (including ones that community packages have added) are available in the _Keybindings_ section.
+
+Want to learn more?  You may want to check the [Getting Started: Atom Basics](https://atom.io/docs/latest/getting-started-atom-basics#settings-and-preferences) and [Using Atom: Atom Packages](https://atom.io/docs/latest/using-atom-atom-packages) sections in the flight manual.
 
 ### Commands
 * `settings-view:open` - Opens up the Settings View
