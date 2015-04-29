@@ -115,7 +115,7 @@ class PackageCard extends View
     else
       @on 'click', =>
         @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
-      @settingsButton.on 'click', =>
+      @settingsButton.on 'click', (event) =>
         event.stopPropagation()
         @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
 
