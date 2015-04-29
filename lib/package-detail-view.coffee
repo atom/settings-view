@@ -101,8 +101,11 @@ class PackageDetailView extends View
     if @isInstalled()
       @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
       @sections.append(new PackageKeymapView(@pack.name))
-      @sections.append(new PackageGrammarsView(@pack.path))
-      @sections.append(new PackageSnippetsView(@pack.path))
+
+      if @pack.path
+        @sections.append(new PackageGrammarsView(@pack.path))
+        @sections.append(new PackageSnippetsView(@pack.path))
+
       @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
     else
       @startupTime.hide()
