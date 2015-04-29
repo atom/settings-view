@@ -121,13 +121,15 @@ class PackageDetailView extends View
 
   subscribeToPackageManager: ->
     @subscribe @packageManager, 'theme-installed package-installed', (pack) =>
+      return unless @pack.name is pack.name
+
       @loadPackage()
       @updateInstalledState()
 
     @subscribe @packageManager, 'theme-uninstalled package-uninstalled', (pack) =>
-      @updateInstalledState()
+      @updateInstalledState() if @pack.name is pack.name
 
-    @subscribe @packageManager, 'theme-updated package-updated', (pack, newVersion) =>
+    @subscribe @packageManager, 'theme-updated package-updated', (pack) =>
       return unless @pack.name is pack.name
 
       @loadPackage()
