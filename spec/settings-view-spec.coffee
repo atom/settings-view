@@ -168,3 +168,6 @@ describe "SettingsView", ->
 
       runs ->
         settingsView.find('.package-card:not(.hidden):first').click()
+
+        packageDetail = settingsView.find('.package-detail').view()
+        expect(packageDetail.title.text()).toBe 'Settings View'
