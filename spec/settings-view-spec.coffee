@@ -151,3 +151,23 @@ describe "SettingsView", ->
         waits 1
         runs ->
           expect(settingsView.activePanelName).toBe 'Install'
+
+  describe "when an installed package is clicked from the Install panel", ->
+    it "displays the package details", ->
+      waitsFor ->
+        atom.packages.activatePackage('settings-view')
+
+      runs ->
+        settingsView.packageManager.getClient()
+        spyOn(settingsView.packageManager.client, 'featuredPackages').andCallFake (callback) ->
+          callback(null, [{name: 'settings-view'}])
+        settingsView.showPanel('Install')
+
+      waitsFor ->
+        settingsView.find('.package-card:not(.hidden)').length > 0
+
+      runs ->
+        settingsView.find('.package-card:not(.hidden):first').click()
+
+        packageDetail = settingsView.find('.package-detail').view()
+        expect(packageDetail.title.text()).toBe 'Settings View'

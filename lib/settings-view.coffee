@@ -33,7 +33,6 @@ class SettingsView extends ScrollView
   initialize: ({@uri, activePanelName}={}) ->
     super
     @packageManager = new PackageManager()
-    @handlePackageEvents()
 
     @panelToShow = activePanelName
     process.nextTick => @initializePanels()
@@ -44,11 +43,6 @@ class SettingsView extends ScrollView
   #TODO Remove both of these post 1.0
   onDidChangeTitle: -> new Disposable()
   onDidChangeModified: -> new Disposable()
-
-  handlePackageEvents: ->
-    @subscribe @packageManager, 'package-installed theme-installed', ({name}) =>
-      if pack = atom.packages.getLoadedPackage(name)
-        @addPackagePanel(pack)
 
   initializePanels: ->
     return if @panels.size > 0
@@ -67,7 +61,6 @@ class SettingsView extends ScrollView
     @addCorePanel 'Updates', 'cloud-download', => new UpdatesPanel(@packageManager)
     @addCorePanel 'Install', 'plus', => new InstallPanel(@packageManager)
 
-    @addPackagePanel(pack) for pack in @getPackages()
     @showPanel(@panelToShow) if @panelToShow
     @showPanel('Settings') unless @activePanelName
     @sidebar.width(@sidebar.width()) if @isOnDom()
@@ -114,10 +107,6 @@ class SettingsView extends ScrollView
         @a class: "icon icon-#{iconName}", name
     @menuSeparator.before(panelMenuItem)
     @addPanel(name, panelMenuItem, panel)
-
-  addPackagePanel: (pack) ->
-    @addPanel pack.name, null, =>
-      new PackageDetailView(pack, @packageManager)
 
   addPanel: (name, panelMenuItem, panelCreateCallback) ->
     @panelCreateCallbacks ?= {}
