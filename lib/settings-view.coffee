@@ -61,7 +61,6 @@ class SettingsView extends ScrollView
     @addCorePanel 'Updates', 'cloud-download', => new UpdatesPanel(@packageManager)
     @addCorePanel 'Install', 'plus', => new InstallPanel(@packageManager)
 
-    @addPackagePanel(pack) for pack in @getPackages()
     @showPanel(@panelToShow) if @panelToShow
     @showPanel('Settings') unless @activePanelName
     @sidebar.width(@sidebar.width()) if @isOnDom()
@@ -108,10 +107,6 @@ class SettingsView extends ScrollView
         @a class: "icon icon-#{iconName}", name
     @menuSeparator.before(panelMenuItem)
     @addPanel(name, panelMenuItem, panel)
-
-  addPackagePanel: (pack) ->
-    @addPanel pack.name, null, =>
-      new PackageDetailView(pack, @packageManager)
 
   addPanel: (name, panelMenuItem, panelCreateCallback) ->
     @panelCreateCallbacks ?= {}
