@@ -33,7 +33,6 @@ class SettingsView extends ScrollView
   initialize: ({@uri, activePanelName}={}) ->
     super
     @packageManager = new PackageManager()
-    @handlePackageEvents()
 
     @panelToShow = activePanelName
     process.nextTick => @initializePanels()
@@ -44,11 +43,6 @@ class SettingsView extends ScrollView
   #TODO Remove both of these post 1.0
   onDidChangeTitle: -> new Disposable()
   onDidChangeModified: -> new Disposable()
-
-  handlePackageEvents: ->
-    @subscribe @packageManager, 'package-installed theme-installed', ({name}) =>
-      if pack = atom.packages.getLoadedPackage(name)
-        @addPackagePanel(pack)
 
   initializePanels: ->
     return if @panels.size > 0
