@@ -2,7 +2,7 @@
 
 Edit core config settings, install and configure packages, and change themes all from within Atom.
 
-![Settings View](https://cloud.githubusercontent.com/assets/1476/5624241/d29ffbe6-9516-11e4-8bfe-e91623977bc7.png)
+![Settings View](https://cloud.githubusercontent.com/assets/378023/7410899/11bf973a-ef6e-11e4-981e-2e0d07d74670.png)
 
 ## Usage
 You can open the Settings View by navigating to _Atom > Preferences_ (Mac), _File > Preferences_ (Windows), or _Edit > Preferences_ (Linux).
