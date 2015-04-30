@@ -159,11 +159,17 @@ class ThemesPanel extends View
   handleCurrentThemeButtons: ->
     @currentUiThemeSettings.on 'click', (event) =>
       event.stopPropagation()
-      @parents('.settings-view').view()?.showPanel(@activeUiTheme, {back: 'Themes', pack: @activeUiTheme})
+      @parents('.settings-view').view()?.showPanel(@activeUiTheme, {
+        back: 'Themes',
+        pack: atom.themes.getActiveThemes().filter((theme) -> theme.metadata.theme is 'ui')[0].metadata
+      })
 
     @currentSyntaxThemeSettings.on 'click', (event) =>
       event.stopPropagation()
-      @parents('.settings-view').view()?.showPanel(@activeSyntaxTheme, {back: 'Themes', pack: @activeSyntaxTheme})
+      @parents('.settings-view').view()?.showPanel(@activeSyntaxTheme, {
+        back: 'Themes',
+        pack: atom.themes.getActiveThemes().filter((theme) -> theme.metadata.theme is 'ui')[0].metadata
+      })
 
   toggleCurrentThemeButtons: ->
     if atom.config.get(@activeUiTheme)?
