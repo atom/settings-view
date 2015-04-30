@@ -166,15 +166,15 @@ class ThemesPanel extends View
       @parents('.settings-view').view()?.showPanel(@activeSyntaxTheme, {back: 'Themes', pack: @activeSyntaxTheme})
 
   toggleCurrentThemeButtons: ->
-    if not atom.config.get(@activeUiTheme)?
-      @currentUiThemeSettings.hide()
-    else
+    if atom.config.get(@activeUiTheme)?
       @currentUiThemeSettings.show()
-
-    if not atom.config.get(@activeSyntaxTheme)?
-      @currentSyntaxThemeSettings.hide()
     else
+      @currentUiThemeSettings.hide()
+
+    if atom.config.get(@activeSyntaxTheme)?
       @currentSyntaxThemeSettings.show()
+    else
+      @currentSyntaxThemeSettings.hide()
 
 
   # Populate the theme menus from the theme manager's active themes
