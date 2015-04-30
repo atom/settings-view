@@ -118,6 +118,7 @@ class AtomIoClient
   cachedAvatar: (login, callback) ->
     glob ?= require 'glob'
     glob @avatarGlob(login), (err, files) =>
+      return callback(err) if err
       files.sort().reverse()
       for imagePath in files
         filename = path.basename(imagePath)
