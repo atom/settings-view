@@ -28,6 +28,23 @@ Want to learn more?  Check out the [Getting Started: Atom Basics](https://atom.i
 |`settings-view:open`|<kbd>Ctrl-,</kbd>|<kbd>Cmd-,</kbd>|<kbd>Ctrl-,</kbd>|
 Custom keybindings can be added by referencing the above commands.  To learn more, visit the [Using Atom: Basic Customization](https://atom.io/docs/latest/using-atom-basic-customization#customizing-key-bindings) or [Behind Atom: Keymaps In-Depth](https://atom.io/docs/latest/behind-atom-keymaps-in-depth) sections in the flight manual.
 
+### Customize
+The Settings View package uses the `ui-variables` to match a theme's color scheme. You can still customize the UI in your `styles.less` file. For example:
+
+```less
+// Change the color of the titles
+.settings-view .section .section-heading {
+  color: white;
+}
+
+// Change the font size of the setting descriptions
+.settings-view .setting-description {
+  font-size: 13px;
+}
+```
+
+Use the DevTools to find the more selectors.
+
 ### Contributing
 Always feel free to help out!  Whether it's [filing bugs and feature requests](https://github.com/atom/settings-view/issues/new) or working on some of the [open issues](https://github.com/atom/settings-view/issues), Atom's [contributing guide](https://github.com/atom/atom/blob/master/CONTRIBUTING.md) will help get you started while the [guide for contributing to packages](https://github.com/atom/atom/blob/master/docs/contributing-to-packages.md) has some extra information.
 
