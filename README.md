@@ -14,13 +14,17 @@ All packages/themes that have updates will be listed under the _Updates_ section
 Want to learn more?  Check out the [Getting Started: Atom Basics](https://atom.io/docs/latest/getting-started-atom-basics#settings-and-preferences) and [Using Atom: Atom Packages](https://atom.io/docs/latest/using-atom-atom-packages) sections in the flight manual.
 
 ### Commands
-* `settings-view:open` - Opens the Settings View
-* `settings-view:show-keybindings` - Opens the _Keybindings_ section of the Settings View
-* `settings-view:uninstall-packages` - Opens the _Packages_ section of the Settings View
-* `settings-view:change-themes` - Opens the _Themes_ section of the Settings View
-* `settings-view:uninstall-themes` - Opens the _Themes_ section of the Settings View
-* `settings-view:check-for-updates` - Opens the _Updates_ section of the Settings View
-* `settings-view:install-packages-and-themes` - Opens the _Install_ section of the Settings View
+All of the following commands are under the `atom-workspace` selector.
+
+|Command|Description|
+|-------|-----------|
+|`settings-view:open`|Opens the Settings View|
+|`settings-view:show-keybindings`|Opens the _Keybindings_ section of the Settings View|
+|`settings-view:uninstall-packages`|Opens the _Packages_ section of the Settings View|
+|`settings-view:change-themes`|Opens the _Themes_ section of the Settings View|
+|`settings-view:uninstall-themes`|Opens the _Themes_ section of the Settings View|
+|`settings-view:check-for-updates`|Opens the _Updates_ section of the Settings View|
+|`settings-view:install-packages-and-themes`|Opens the _Install_ section of the Settings View|
 
 ### Keybindings
 |Command|Linux|OS X|Windows|
@@ -28,7 +32,7 @@ Want to learn more?  Check out the [Getting Started: Atom Basics](https://atom.i
 |`settings-view:open`|<kbd>Ctrl-,</kbd>|<kbd>Cmd-,</kbd>|<kbd>Ctrl-,</kbd>|
 Custom keybindings can be added by referencing the above commands.  To learn more, visit the [Using Atom: Basic Customization](https://atom.io/docs/latest/using-atom-basic-customization#customizing-key-bindings) or [Behind Atom: Keymaps In-Depth](https://atom.io/docs/latest/behind-atom-keymaps-in-depth) sections in the flight manual.
 
-### Customize
+## Customize
 The Settings View package uses the `ui-variables` to match a theme's color scheme. You can still customize the UI in your `styles.less` file. For example:
 
 ```less
@@ -43,9 +47,9 @@ The Settings View package uses the `ui-variables` to match a theme's color schem
 }
 ```
 
-Use the DevTools to find the more selectors.
+Use the [developer tools](https://atom.io/docs/v0.196.0/hacking-atom-creating-a-theme#developer-tools) to find more selectors.
 
-### Contributing
+## Contributing
 Always feel free to help out!  Whether it's [filing bugs and feature requests](https://github.com/atom/settings-view/issues/new) or working on some of the [open issues](https://github.com/atom/settings-view/issues), Atom's [contributing guide](https://github.com/atom/atom/blob/master/CONTRIBUTING.md) will help get you started while the [guide for contributing to packages](https://github.com/atom/atom/blob/master/docs/contributing-to-packages.md) has some extra information.
 
 ## License
