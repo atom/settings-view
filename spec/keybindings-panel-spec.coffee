@@ -73,3 +73,19 @@ describe "KeybindingsPanel", ->
         expect(row.find('.command').text()).toBe 'core:undo'
         expect(row.find('.source').text()).toBe 'User'
         expect(row.find('.selector').text()).toBe '.editor'
+
+  describe "when searching key bindings", ->
+    it "find case-insensitive results", ->
+      keyBindings.push
+        source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps", keystrokes: 'F11', command: 'window:toggle-full-screen', selector: 'body'
+      atom.keymaps.emitter.emit 'did-reload-keymap'
+
+      panel.filterKeyBindings keyBindings, 'f11'
+
+      expect(panel.keybindingRows.children().length).toBe 1
+
+      row = panel.keybindingRows.children(':first')
+      expect(row.find('.keystroke').text()).toBe 'F11'
+      expect(row.find('.command').text()).toBe 'window:toggle-full-screen'
+      expect(row.find('.source').text()).toBe 'Core'
+      expect(row.find('.selector').text()).toBe 'body'
