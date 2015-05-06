@@ -171,7 +171,6 @@ class PackageManager
       args.push '--themes'
     else if options.packages
       args.push '--packages'
-
     errorMessage = "Searching for \u201C#{query}\u201D failed."
 
     apmProcess = @runCommand args, (code, stdout, stderr) ->
