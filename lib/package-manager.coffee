@@ -32,21 +32,22 @@ class PackageManager
 
   loadInstalled: (callback) ->
     args = ['ls', '--json']
+    errorMessage = 'Fetching local packages failed.'
     apmProcess = @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout)
         catch parseError
-          error = createJsonParseError('Fetching local packages failed.', parseError, stdout)
+          error = createJsonParseError(errorMessage, parseError, stdout)
           return callback(error)
         callback(null, packages)
       else
-        error = new Error('Fetching local packages failed.')
+        error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr
         callback(error)
 
-    handleProcessErrors(apmProcess, 'Fetching local packages failed.', callback)
+    handleProcessErrors(apmProcess, errorMessage, callback)
 
   loadFeatured: (loadThemes, callback) ->
     unless callback
@@ -57,85 +58,89 @@ class PackageManager
     version = atom.getVersion()
     args.push('--themes') if loadThemes
     args.push('--compatible', version) if semver.valid(version)
+    errorMessage = 'Fetching featured packages failed.'
 
     apmProcess = @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
         catch parseError
-          error = createJsonParseError('Fetching featured packages failed.', parseError, stdout)
+          error = createJsonParseError(errorMessage, parseError, stdout)
           return callback(error)
 
         callback(null, packages)
       else
-        error = new Error('Fetching featured packages failed.')
+        error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr
         callback(error)
 
-    handleProcessErrors(apmProcess, 'Fetching featured packages failed.', callback)
+    handleProcessErrors(apmProcess, errorMessage, callback)
 
   loadOutdated: (callback) ->
     args = ['outdated', '--json']
     version = atom.getVersion()
     args.push('--compatible', version) if semver.valid(version)
+    errorMessage = 'Fetching outdated packages and themes failed.'
 
     apmProcess = @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
         catch parseError
-          error = createJsonParseError('Fetching outdated packages and themes failed.', parseError, stdout)
+          error = createJsonParseError(errorMessage, parseError, stdout)
           return callback(error)
 
         callback(null, packages)
       else
-        error = new Error('Fetching outdated packages and themes failed.')
+        error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr
         callback(error)
 
-    handleProcessErrors(apmProcess, 'Fetching outdated packages and themes failed.', callback)
+    handleProcessErrors(apmProcess, errorMessage, callback)
 
   loadPackage: (packageName, callback) ->
     args = ['view', packageName, '--json']
+    errorMessage = "Fetching package '#{packageName}' failed."
 
     apmProcess = @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
         catch parseError
-          error = createJsonParseError("Fetching package '#{packageName}' failed.", parseError, stdout)
+          error = createJsonParseError(errorMessage, parseError, stdout)
           return callback(error)
 
         callback(null, packages)
       else
-        error = new Error("Fetching package '#{packageName}' failed.")
+        error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr
         callback(error)
 
-    handleProcessErrors(apmProcess, "Fetching package '#{packageName}' failed.", callback)
+    handleProcessErrors(apmProcess, errorMessage, callback)
 
   loadCompatiblePackageVersion: (packageName, callback) ->
     args = ['view', packageName, '--json', '--compatible', @normalizeVersion(atom.getVersion())]
+    errorMessage = "Fetching package '#{packageName}' failed."
 
     apmProcess = @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
         catch parseError
-          error = createJsonParseError("Fetching package '#{packageName}' failed.", parseError, stdout)
+          error = createJsonParseError(errorMessage, parseError, stdout)
           return callback(error)
 
         callback(null, packages)
       else
-        error = new Error("Fetching package '#{packageName}' failed.")
+        error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr
         callback(error)
 
-    handleProcessErrors(apmProcess, "Fetching package '#{packageName}' failed.", callback)
+    handleProcessErrors(apmProcess, errorMessage, callback)
 
   getInstalled: ->
     Q.nbind(@loadInstalled, this)()
@@ -167,23 +172,25 @@ class PackageManager
     else if options.packages
       args.push '--packages'
 
+    errorMessage = "Searching for \u201C#{query}\u201D failed."
+
     apmProcess = @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
           deferred.resolve(packages)
         catch parseError
-          error = createJsonParseError("Searching for \u201C#{query}\u201D failed.", parseError, stdout)
+          error = createJsonParseError(errorMessage, parseError, stdout)
           deferred.reject(error)
       else
-        error = new Error("Searching for \u201C#{query}\u201D failed.")
+        error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr
         deferred.reject(error)
 
     apmProcess.onWillThrowError ({error, handle}) ->
         handle()
-        deferred.reject(createProcessError("Searching for \u201C#{query}\u201D failed.", error))
+        deferred.reject(createProcessError(errorMessage, error))
 
     deferred.promise
 
@@ -262,6 +269,7 @@ class PackageManager
 
     atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
 
+    errorMessage = "Uninstalling \u201C#{name}\u201D failed."
     onError = (error) =>
       @emitPackageEvent 'uninstall-failed', pack, error
       callback(error)
@@ -272,12 +280,12 @@ class PackageManager
         callback?()
         @emitPackageEvent 'uninstalled', pack
       else
-        error = new Error("Uninstalling \u201C#{name}\u201D failed.")
+        error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr
         onError(error)
 
-    handleProcessErrors(apmProcess, "Uninstalling \u201C#{name}\u201D failed.", onError)
+    handleProcessErrors(apmProcess, errorMessage, onError)
 
   canUpgrade: (installedPackage, availableVersion) ->
     return false unless installedPackage?
