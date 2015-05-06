@@ -32,7 +32,7 @@ class PackageManager
 
   loadInstalled: (callback) ->
     args = ['ls', '--json']
-    @runCommand args, (code, stdout, stderr) ->
+    apmProcess = @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout)
@@ -46,6 +46,8 @@ class PackageManager
         error.stderr = stderr
         callback(error)
 
+    handleProcessErrors(apmProcess, 'Fetching local packages failed.', callback)
+
   loadFeatured: (loadThemes, callback) ->
     unless callback
       callback = loadThemes
@@ -56,7 +58,7 @@ class PackageManager
     args.push('--themes') if loadThemes
     args.push('--compatible', version) if semver.valid(version)
 
-    @runCommand args, (code, stdout, stderr) ->
+    apmProcess = @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
@@ -71,12 +73,14 @@ class PackageManager
         error.stderr = stderr
         callback(error)
 
+    handleProcessErrors(apmProcess, 'Fetching featured packages failed.', callback)
+
   loadOutdated: (callback) ->
     args = ['outdated', '--json']
     version = atom.getVersion()
     args.push('--compatible', version) if semver.valid(version)
 
-    @runCommand args, (code, stdout, stderr) ->
+    apmProcess = @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
@@ -91,10 +95,12 @@ class PackageManager
         error.stderr = stderr
         callback(error)
 
+    handleProcessErrors(apmProcess, 'Fetching outdated packages and themes failed.', callback)
+
   loadPackage: (packageName, callback) ->
     args = ['view', packageName, '--json']
 
-    @runCommand args, (code, stdout, stderr) ->
+    apmProcess = @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
@@ -108,11 +114,13 @@ class PackageManager
         error.stdout = stdout
         error.stderr = stderr
         callback(error)
+
+    handleProcessErrors(apmProcess, "Fetching package '#{packageName}' failed.", callback)
 
   loadCompatiblePackageVersion: (packageName, callback) ->
     args = ['view', packageName, '--json', '--compatible', @normalizeVersion(atom.getVersion())]
 
-    @runCommand args, (code, stdout, stderr) ->
+    apmProcess = @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
@@ -126,6 +134,8 @@ class PackageManager
         error.stdout = stdout
         error.stderr = stderr
         callback(error)
+
+    handleProcessErrors(apmProcess, "Fetching package '#{packageName}' failed.", callback)
 
   getInstalled: ->
     Q.nbind(@loadInstalled, this)()
@@ -157,7 +167,7 @@ class PackageManager
     else if options.packages
       args.push '--packages'
 
-    @runCommand args, (code, stdout, stderr) ->
+    apmProcess = @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
@@ -170,6 +180,10 @@ class PackageManager
         error.stdout = stdout
         error.stderr = stderr
         deferred.reject(error)
+
+    apmProcess.onWillThrowError ({error, handle}) ->
+        handle()
+        deferred.reject(createProcessError("Searching for \u201C#{query}\u201D failed.", error))
 
     deferred.promise
 
@@ -218,6 +232,12 @@ class PackageManager
 
     @unload(name)
     args = ['install', "#{name}@#{version}"]
+
+    onError = (error) =>
+      error.packageInstallError = not theme
+      @emitPackageEvent 'install-failed', pack, error
+      callback(error)
+
     exit = (code, stdout, stderr) =>
       if code is 0
         if activateOnSuccess
@@ -232,18 +252,21 @@ class PackageManager
         error = new Error("Installing \u201C#{name}@#{version}\u201D failed.")
         error.stdout = stdout
         error.stderr = stderr
-        error.packageInstallError = not theme
-        @emitPackageEvent 'install-failed', pack, error
-        callback(error)
+        onError(error)
 
-    @runCommand(args, exit)
+    apmProcess = @runCommand(args, exit)
+    handleProcessErrors(apmProcess, "Installing \u201C#{name}@#{version}\u201D failed.", onError)
 
   uninstall: (pack, callback) ->
     {name} = pack
 
     atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
 
-    @runCommand ['uninstall', '--hard', name], (code, stdout, stderr) =>
+    onError = (error) =>
+      @emitPackageEvent 'uninstall-failed', pack, error
+      callback(error)
+
+    apmProcess = @runCommand ['uninstall', '--hard', name], (code, stdout, stderr) =>
       if code is 0
         @unload(name)
         callback?()
@@ -252,8 +275,9 @@ class PackageManager
         error = new Error("Uninstalling \u201C#{name}\u201D failed.")
         error.stdout = stdout
         error.stderr = stderr
-        @emitPackageEvent 'uninstall-failed', pack, error
-        callback(error)
+        onError(error)
+
+    handleProcessErrors(apmProcess, "Uninstalling \u201C#{name}\u201D failed.", onError)
 
   canUpgrade: (installedPackage, availableVersion) ->
     return false unless installedPackage?
@@ -275,11 +299,15 @@ class PackageManager
   checkNativeBuildTools: ->
     deferred = Q.defer()
 
-    @runCommand ['install', '--check'], (code, stdout, stderr) =>
+    apmProcess = @runCommand ['install', '--check'], (code, stdout, stderr) =>
       if code is 0
         deferred.resolve()
       else
         deferred.reject(new Error())
+
+    apmProcess.onWillThrowError ({error, handle}) ->
+        handle()
+        deferred.reject(error)
 
     deferred.promise
 
@@ -303,3 +331,14 @@ createJsonParseError = (message, parseError, stdout) ->
   error.stdout = ''
   error.stderr = "#{parseError.message}: #{stdout}"
   error
+
+createProcessError = (message, processError) ->
+  error = new Error(message)
+  error.stdout = ''
+  error.stderr = processError.message
+  error
+
+handleProcessErrors = (apmProcess, message, callback) ->
+  apmProcess.onWillThrowError ({error, handle}) ->
+      handle()
+      callback(createProcessError(message, error))
