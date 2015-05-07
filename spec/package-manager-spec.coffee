@@ -24,6 +24,7 @@ describe "package manager", ->
     runs ->
       expect(installCallback.argsForCall[0][0].message).toBe "Installing \u201Cfoo@1.0.0\u201D failed."
       expect(installCallback.argsForCall[0][0].packageInstallError).toBe true
+      expect(installCallback.argsForCall[0][0].stderr).toContain 'ENOENT'
 
       packageManager.uninstall {name: 'foo'}, uninstallCallback
 
@@ -32,6 +33,7 @@ describe "package manager", ->
 
     runs ->
       expect(uninstallCallback.argsForCall[0][0].message).toBe "Uninstalling \u201Cfoo\u201D failed."
+      expect(uninstallCallback.argsForCall[0][0].stderr).toContain 'ENOENT'
 
       packageManager.update {name: 'foo'}, '1.0.0', updateCallback
 
@@ -41,3 +43,4 @@ describe "package manager", ->
     runs ->
       expect(updateCallback.argsForCall[0][0].message).toBe "Updating to \u201Cfoo@1.0.0\u201D failed."
       expect(updateCallback.argsForCall[0][0].packageInstallError).toBe true
+      expect(updateCallback.argsForCall[0][0].stderr).toContain 'ENOENT'
