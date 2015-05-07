@@ -38,7 +38,7 @@ class KeybindingsPanel extends View
     @otherPlatformPattern = new RegExp("\\.platform-(?!#{_.escapeRegExp(process.platform)}\\b)")
     @platformPattern = new RegExp("\\.platform-#{_.escapeRegExp(process.platform)}\\b")
 
-    @openUserKeymap.on 'click', =>
+    @openUserKeymap.on 'click', ->
       atom.commands.dispatch(atom.views.getView(atom.workspace), 'application:open-your-keymap')
       false
 

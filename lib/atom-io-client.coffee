@@ -61,7 +61,7 @@ class AtomIoClient
         localStorage.setItem(@cacheKeyForPath(key), JSON.stringify(cached))
         # end copypasta
         callback(null, packages)
-      .catch (error) =>
+      .catch (error) ->
         callback(error, null)
 
   request: (path, callback) ->
@@ -154,7 +154,7 @@ class AtomIoClient
         if error and error.code isnt 'ENOENT' # Ignore cache paths that don't exist
           console.warn("Error deleting avatar (#{error.code}): #{avatarPath}")
 
-    fs.readdir @getCachePath(), (error, _files) =>
+    fs.readdir @getCachePath(), (error, _files) ->
       _files ?= []
       files = {}
       for filename in _files
