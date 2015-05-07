@@ -347,5 +347,5 @@ createProcessError = (message, processError) ->
 
 handleProcessErrors = (apmProcess, message, callback) ->
   apmProcess.onWillThrowError ({error, handle}) ->
-      handle()
-      callback(createProcessError(message, error))
+    handle()
+    callback(createProcessError(message, error))
