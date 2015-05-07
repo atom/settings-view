@@ -239,6 +239,7 @@ class PackageManager
     @unload(name)
     args = ['install', "#{name}@#{version}"]
 
+    errorMessage = "Installing \u201C#{name}@#{version}\u201D failed."
     onError = (error) =>
       error.packageInstallError = not theme
       @emitPackageEvent 'install-failed', pack, error
@@ -255,13 +256,13 @@ class PackageManager
         @emitPackageEvent 'installed', pack
       else
         atom.packages.activatePackage(name) if activateOnFailure
-        error = new Error("Installing \u201C#{name}@#{version}\u201D failed.")
+        error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr
         onError(error)
 
     apmProcess = @runCommand(args, exit)
-    handleProcessErrors(apmProcess, "Installing \u201C#{name}@#{version}\u201D failed.", onError)
+    handleProcessErrors(apmProcess, errorMessage, onError)
 
   uninstall: (pack, callback) ->
     {name} = pack
