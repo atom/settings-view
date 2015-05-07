@@ -204,6 +204,12 @@ class PackageManager
     atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
     atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
 
+    errorMessage = "Updating to \u201C#{name}@#{newVersion}\u201D failed."
+    onError = (error) =>
+      error.packageInstallError = not theme
+      @emitPackageEvent 'update-failed', pack, error
+      callback(error)
+
     args = ['install', "#{name}@#{newVersion}"]
     exit = (code, stdout, stderr) =>
       if code is 0
@@ -216,15 +222,14 @@ class PackageManager
         @emitPackageEvent 'updated', pack
       else
         atom.packages.activatePackage(name) if activateOnFailure
-        error = new Error("Updating to \u201C#{name}@#{newVersion}\u201D failed.")
+        error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr
-        error.packageInstallError = not theme
-        @emitPackageEvent 'update-failed', pack, error
-        callback(error)
+        onError(error)
 
     @emit('package-updating', pack)
-    @runCommand(args, exit)
+    apmProcess = @runCommand(args, exit)
+    handleProcessErrors(apmProcess, errorMessage, onError)
 
   unload: (packageName) ->
     if atom.packages.isPackageLoaded(name)

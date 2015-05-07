@@ -9,9 +9,11 @@ describe "package manager", ->
     waitsForPromise shouldReject: true, -> packageManager.getInstalled()
     waitsForPromise shouldReject: true, -> packageManager.getOutdated()
     waitsForPromise shouldReject: true, -> packageManager.getFeatured()
+    waitsForPromise shouldReject: true, -> packageManager.getPackage('foo')
 
     installCallback = jasmine.createSpy('installCallback')
     uninstallCallback = jasmine.createSpy('uninstallCallback')
+    updateCallback = jasmine.createSpy('updateCallback')
 
     runs ->
       packageManager.install {name: 'foo', version: '1.0.0'}, installCallback
@@ -23,7 +25,6 @@ describe "package manager", ->
       expect(installCallback.argsForCall[0][0].message).toBe "Installing \u201Cfoo@1.0.0\u201D failed."
       expect(installCallback.argsForCall[0][0].packageInstallError).toBe true
 
-    runs ->
       packageManager.uninstall {name: 'foo'}, uninstallCallback
 
     waitsFor ->
@@ -31,3 +32,12 @@ describe "package manager", ->
 
     runs ->
       expect(uninstallCallback.argsForCall[0][0].message).toBe "Uninstalling \u201Cfoo\u201D failed."
+
+      packageManager.update {name: 'foo'}, '1.0.0', updateCallback
+
+    waitsFor ->
+      updateCallback.callCount is 1
+
+    runs ->
+      expect(updateCallback.argsForCall[0][0].message).toBe "Updating to \u201Cfoo@1.0.0\u201D failed."
+      expect(updateCallback.argsForCall[0][0].packageInstallError).toBe true
