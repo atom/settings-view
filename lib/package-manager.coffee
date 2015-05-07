@@ -187,9 +187,8 @@ class PackageManager
         error.stderr = stderr
         deferred.reject(error)
 
-    apmProcess.onWillThrowError ({error, handle}) ->
-      handle()
-      deferred.reject(createProcessError(errorMessage, error))
+    handleProcessErrors apmProcess, errorMessage, (error) ->
+      deferred.reject(error)
 
     deferred.promise
 
