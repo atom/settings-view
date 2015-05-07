@@ -188,8 +188,8 @@ class PackageManager
         deferred.reject(error)
 
     apmProcess.onWillThrowError ({error, handle}) ->
-        handle()
-        deferred.reject(createProcessError(errorMessage, error))
+      handle()
+      deferred.reject(createProcessError(errorMessage, error))
 
     deferred.promise
 
@@ -319,8 +319,8 @@ class PackageManager
         deferred.reject(new Error())
 
     apmProcess.onWillThrowError ({error, handle}) ->
-        handle()
-        deferred.reject(error)
+      handle()
+      deferred.reject(error)
 
     deferred.promise
 
