@@ -80,7 +80,7 @@ class ThemesPanel extends View
     @subscribe @packageManager, 'theme-install-failed theme-uninstall-failed', (pack, error) =>
       @themeErrors.append(new ErrorView(@packageManager, error))
 
-    @openUserStysheet.on 'click', =>
+    @openUserStysheet.on 'click', ->
       atom.commands.dispatch(atom.views.getView(atom.workspace), 'application:open-your-stylesheet')
       false
 
