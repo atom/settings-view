@@ -68,22 +68,27 @@ describe "ThemesPanel", ->
         expect(panel.uiMenu.val()).toBe 'atom-light-ui'
         expect(panel.syntaxMenu.val()).toBe 'atom-light-syntax'
 
-  fdescribe "when the active UI theme's settings button is clicked", ->
+  fdescribe "when the active UI theme has settings", ->
     beforeEach ->
       atom.packages.loadPackage('ui-theme-with-config')
       atom.packages.loadPackage('syntax-theme-with-config')
       atom.config.set('core.themes', ['ui-theme-with-config', 'syntax-theme-with-config'])
+      jasmine.attachToDOM(settingsView.element)
 
-    it "navigates to that theme's detail view", ->
-      expect(atom.config.get('core.themes')).toEqual ['ui-theme-with-config', 'syntax-theme-with-config']
-      panel.currentUiThemeSettings.click()
+    it "displays a settings button", ->
+      expect(panel.find.currentUiThemeSettings).toExist()
 
-      waitsFor ->
-        settingsView.find('.package-card:not(.hidden)').length > 0
+    describe "when the active UI theme's settings button is clicked", ->
+      it "navigates to that theme's detail view", ->
+        expect(atom.config.get('core.themes')).toEqual ['ui-theme-with-config', 'syntax-theme-with-config']
+        panel.currentUiThemeSettings.click()
 
-      runs ->
-        packageDetail = settingsView.find('.package-detail').view()
-        expect(packageDetail.title.text()).toBe 'Ui Theme With Config'
+        waitsFor ->
+          settingsView.find('.package-card:not(.hidden)').length > 0
+
+        runs ->
+          packageDetail = settingsView.find('.package-detail').view()
+          expect(packageDetail.title.text()).toBe 'Ui Theme With Config'
 
   xdescribe "when the themes panel is navigated to", ->
     xit "focuses the search filter", ->
