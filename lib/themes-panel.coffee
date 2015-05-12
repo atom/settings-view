@@ -31,20 +31,24 @@ class ThemesPanel extends View
                 @label class: 'control-label', =>
                   @div class: 'setting-title themes-label text', 'UI Theme'
                   @div class: 'setting-description text theme-description', 'This styles the tabs, status bar, tree view, and dropdowns'
-                @select outlet: 'uiMenu', class: 'form-control'
+                @div class: 'select-container', =>
+                  @select outlet: 'uiMenu', class: 'form-control'
+                  @button outlet: 'activeUiThemeSettings', class: 'btn icon icon-gear active-theme-settings'
 
             @div class: 'themes-picker-item control-group', =>
               @div class: 'controls', =>
                 @label class: 'control-label', =>
                   @div class: 'setting-title themes-label text', 'Syntax Theme'
                   @div class: 'setting-description text theme-description', 'This styles the text inside the editor'
-                @select outlet: 'syntaxMenu', class: 'form-control'
+                @div class: 'select-container', =>
+                  @select outlet: 'syntaxMenu', class: 'form-control'
+                  @button outlet: 'activeSyntaxThemeSettings', class: 'btn icon icon-gear active-theme-settings'
 
       @section class: 'section', =>
         @div class: 'section-container', =>
           @div class: 'section-heading icon icon-paintcan', =>
             @text 'Installed Themes'
-            @span outlet: 'totalPackages', class:'section-heading-count badge badge-flexible', '…'
+            @span outlet: 'totalPackages', class: 'section-heading-count badge badge-flexible', '…'
           @div class: 'editor-container', =>
             @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter themes by name')
 
@@ -88,6 +92,8 @@ class ThemesPanel extends View
       @populateThemeMenus()
 
     @disposables.add atom.themes.onDidChangeActiveThemes => @updateActiveThemes()
+    @disposables.add atom.tooltips.add(@activeUiThemeSettings, {title: 'Settings'})
+    @disposables.add atom.tooltips.add(@activeSyntaxThemeSettings, {title: 'Settings'})
     @updateActiveThemes()
 
     @filterEditor.getModel().onDidStopChanging => @matchPackages()
@@ -147,6 +153,43 @@ class ThemesPanel extends View
     @activeUiTheme = @getActiveUiTheme()
     @activeSyntaxTheme = @getActiveSyntaxTheme()
     @populateThemeMenus()
+    @toggleActiveThemeButtons()
+    @handleActiveThemeButtonEvents()
+
+  handleActiveThemeButtonEvents: ->
+    @activeUiThemeSettings.on 'click', (event) =>
+      event.stopPropagation()
+      activeUiTheme = atom.themes.getActiveThemes().filter((theme) -> theme.metadata.theme is 'ui')[0]?.metadata
+      if activeUiTheme?
+        @parents('.settings-view').view()?.showPanel(@activeUiTheme, {
+          back: 'Themes',
+          pack: activeUiTheme
+        })
+
+    @activeSyntaxThemeSettings.on 'click', (event) =>
+      event.stopPropagation()
+      activeSyntaxTheme = atom.themes.getActiveThemes().filter((theme) -> theme.metadata.theme is 'syntax')[0]?.metadata
+      if activeSyntaxTheme?
+        @parents('.settings-view').view()?.showPanel(@activeSyntaxTheme, {
+          back: 'Themes',
+          pack: activeSyntaxTheme
+        })
+
+  toggleActiveThemeButtons: ->
+    if @hasSettings(@activeUiTheme)
+      @activeUiThemeSettings.show()
+    else
+      @activeUiThemeSettings.hide()
+
+    if @hasSettings(@activeSyntaxTheme)
+      @activeSyntaxThemeSettings.show()
+    else
+      @activeSyntaxThemeSettings.hide()
+
+  hasSettings: (keyPath) ->
+    for key, value of atom.config.get(keyPath)
+      return true
+    false
 
   # Populate the theme menus from the theme manager's active themes
   populateThemeMenus: ->
