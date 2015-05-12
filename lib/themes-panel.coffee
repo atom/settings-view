@@ -154,9 +154,9 @@ class ThemesPanel extends View
     @activeSyntaxTheme = @getActiveSyntaxTheme()
     @populateThemeMenus()
     @toggleActiveThemeButtons()
-    @handleActiveThemeButtons()
+    @handleActiveThemeButtonEvents()
 
-  handleActiveThemeButtons: ->
+  handleActiveThemeButtonEvents: ->
     @activeUiThemeSettings.on 'click', (event) =>
       event.stopPropagation()
       activeUiTheme = atom.themes.getActiveThemes().filter((theme) -> theme.metadata.theme is 'ui')[0]?.metadata
