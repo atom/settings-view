@@ -192,7 +192,7 @@ describe "SettingsView", ->
         settingsView.showPanel('Themes')
         panel = settingsView.find('.themes-panel').view()
 
-    describe "when the syntax theme's settings button is clicked", ->
+    describe "when the UI theme's settings button is clicked", ->
       it "navigates to that theme's detail view", ->
         jasmine.attachToDOM(settingsView.element)
         expect(panel.currentUiThemeSettings).toBeVisible()
