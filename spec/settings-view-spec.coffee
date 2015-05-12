@@ -198,17 +198,17 @@ describe "SettingsView", ->
     describe "when the UI theme's settings button is clicked", ->
       it "navigates to that theme's detail view", ->
         jasmine.attachToDOM(settingsView.element)
-        expect(panel.currentUiThemeSettings).toBeVisible()
+        expect(panel.activeUiThemeSettings).toBeVisible()
 
-        panel.currentUiThemeSettings.click()
+        panel.activeUiThemeSettings.click()
         packageDetail = settingsView.find('.package-detail').view()
         expect(packageDetail.title.text()).toBe 'Ui Theme With Config'
 
     describe "when the syntax theme's settings button is clicked", ->
       it "navigates to that theme's detail view", ->
         jasmine.attachToDOM(settingsView.element)
-        expect(panel.currentSyntaxThemeSettings).toBeVisible()
+        expect(panel.activeSyntaxThemeSettings).toBeVisible()
 
-        panel.currentSyntaxThemeSettings.click()
+        panel.activeSyntaxThemeSettings.click()
         packageDetail = settingsView.find('.package-detail').view()
         expect(packageDetail.title.text()).toBe 'Syntax Theme With Config'

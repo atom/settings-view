@@ -33,7 +33,7 @@ class ThemesPanel extends View
                   @div class: 'setting-description text theme-description', 'This styles the tabs, status bar, tree view, and dropdowns'
                 @div class: 'select-container', =>
                   @select outlet: 'uiMenu', class: 'form-control'
-                  @button outlet: 'currentUiThemeSettings', class: 'btn icon icon-gear current-theme-settings'
+                  @button outlet: 'activeUiThemeSettings', class: 'btn icon icon-gear active-theme-settings'
 
             @div class: 'themes-picker-item control-group', =>
               @div class: 'controls', =>
@@ -42,7 +42,7 @@ class ThemesPanel extends View
                   @div class: 'setting-description text theme-description', 'This styles the text inside the editor'
                 @div class: 'select-container', =>
                   @select outlet: 'syntaxMenu', class: 'form-control'
-                  @button outlet: 'currentSyntaxThemeSettings', class: 'btn icon icon-gear current-theme-settings'
+                  @button outlet: 'activeSyntaxThemeSettings', class: 'btn icon icon-gear active-theme-settings'
 
       @section class: 'section', =>
         @div class: 'section-container', =>
@@ -92,8 +92,8 @@ class ThemesPanel extends View
       @populateThemeMenus()
 
     @disposables.add atom.themes.onDidChangeActiveThemes => @updateActiveThemes()
-    @disposables.add atom.tooltips.add(@currentUiThemeSettings, {title: 'Settings'})
-    @disposables.add atom.tooltips.add(@currentSyntaxThemeSettings, {title: 'Settings'})
+    @disposables.add atom.tooltips.add(@activeUiThemeSettings, {title: 'Settings'})
+    @disposables.add atom.tooltips.add(@activeSyntaxThemeSettings, {title: 'Settings'})
     @updateActiveThemes()
 
     @filterEditor.getModel().onDidStopChanging => @matchPackages()
@@ -153,11 +153,11 @@ class ThemesPanel extends View
     @activeUiTheme = @getActiveUiTheme()
     @activeSyntaxTheme = @getActiveSyntaxTheme()
     @populateThemeMenus()
-    @toggleCurrentThemeButtons()
-    @handleCurrentThemeButtons()
+    @toggleActiveThemeButtons()
+    @handleActiveThemeButtons()
 
-  handleCurrentThemeButtons: ->
-    @currentUiThemeSettings.on 'click', (event) =>
+  handleActiveThemeButtons: ->
+    @activeUiThemeSettings.on 'click', (event) =>
       event.stopPropagation()
       activeUiTheme = atom.themes.getActiveThemes().filter((theme) -> theme.metadata.theme is 'ui')[0]?.metadata
       if activeUiTheme?
@@ -166,7 +166,7 @@ class ThemesPanel extends View
           pack: activeUiTheme
         })
 
-    @currentSyntaxThemeSettings.on 'click', (event) =>
+    @activeSyntaxThemeSettings.on 'click', (event) =>
       event.stopPropagation()
       activeSyntaxTheme = atom.themes.getActiveThemes().filter((theme) -> theme.metadata.theme is 'syntax')[0]?.metadata
       if activeSyntaxTheme?
@@ -175,16 +175,16 @@ class ThemesPanel extends View
           pack: activeSyntaxTheme
         })
 
-  toggleCurrentThemeButtons: ->
+  toggleActiveThemeButtons: ->
     if @hasSettings(@activeUiTheme)
-      @currentUiThemeSettings.show()
+      @activeUiThemeSettings.show()
     else
-      @currentUiThemeSettings.hide()
+      @activeUiThemeSettings.hide()
 
     if @hasSettings(@activeSyntaxTheme)
-      @currentSyntaxThemeSettings.show()
+      @activeSyntaxThemeSettings.show()
     else
-      @currentSyntaxThemeSettings.hide()
+      @activeSyntaxThemeSettings.hide()
 
   hasSettings: (keyPath) ->
     for key, value of atom.config.get(keyPath)
