@@ -159,17 +159,21 @@ class ThemesPanel extends View
   handleCurrentThemeButtons: ->
     @currentUiThemeSettings.on 'click', (event) =>
       event.stopPropagation()
-      @parents('.settings-view').view()?.showPanel(@activeUiTheme, {
-        back: 'Themes',
-        pack: atom.themes.getActiveThemes().filter((theme) -> theme.metadata.theme is 'ui')[0].metadata
-      })
+      activeUiTheme = atom.themes.getActiveThemes().filter((theme) -> theme.metadata.theme is 'ui')[0]?.metadata
+      if activeUiTheme?
+        @parents('.settings-view').view()?.showPanel(@activeUiTheme, {
+          back: 'Themes',
+          pack: activeUiTheme
+        })
 
     @currentSyntaxThemeSettings.on 'click', (event) =>
       event.stopPropagation()
-      @parents('.settings-view').view()?.showPanel(@activeSyntaxTheme, {
-        back: 'Themes',
-        pack: atom.themes.getActiveThemes().filter((theme) -> theme.metadata.theme is 'ui')[0].metadata
-      })
+      activeSyntaxTheme = atom.themes.getActiveThemes().filter((theme) -> theme.metadata.theme is 'syntax')[0]?.metadata
+      if activeSyntaxTheme?
+        @parents('.settings-view').view()?.showPanel(@activeSyntaxTheme, {
+          back: 'Themes',
+          pack: activeSyntaxTheme
+        })
 
   toggleCurrentThemeButtons: ->
     if atom.config.get(@activeUiTheme)?
@@ -181,7 +185,6 @@ class ThemesPanel extends View
       @currentSyntaxThemeSettings.show()
     else
       @currentSyntaxThemeSettings.hide()
-
 
   # Populate the theme menus from the theme manager's active themes
   populateThemeMenus: ->
