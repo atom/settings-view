@@ -45,3 +45,19 @@ module.exports =
       if packages.length > 0
         PackageUpdatesStatusView = require './package-updates-status-view'
         packageUpdatesStatusView = new PackageUpdatesStatusView(statusBar, packages)
+
+        itemText = 'them'
+        packageText = 'packages'
+        if packages.length is 1
+          itemText = 'it'
+          packageText = 'package'
+        notification = atom.notifications.addInfo "You have #{packages.length} outdated #{packageText}. Please upgrade #{itemText}.",
+          description: 'Keeping packages up to date helps keep things speedy and breakage to a minimum. Upgrade often!'
+          detail: (pack.name for pack in packages).join(', ')
+          dismissable: true
+          buttons: [{
+            text: 'View and Upgrade Outdated Packages',
+            onDidClick: ->
+              atom.commands.dispatch(atom.views.getView(atom.workspace), 'settings-view:check-for-package-updates')
+              notification.dismiss()
+          }]
