@@ -13,6 +13,7 @@ class UpdatesPanel extends View
         @div class: 'section-container updates-container', =>
           @h1 class: 'section-heading icon icon-cloud-download', 'Available Updates', =>
             @button outlet: 'updateAllButton', class: 'pull-right update-all-button btn btn-primary', 'Update All'
+            @button outlet: 'checkButton', class: 'pull-right update-all-button btn btn', 'Check For Updates'
 
           @div class: 'text native-key-bindings', tabindex: -1, =>
             @span class: 'icon icon-question'
@@ -25,12 +26,13 @@ class UpdatesPanel extends View
           @div outlet: 'updatesContainer', class: 'container package-container'
 
   initialize: (@packageManager) ->
-    @noUpdatesMessage.hide()
-    @updateAllButton.hide()
     @updateAllButton.on 'click', =>
       @updateAllButton.prop('disabled', true)
       for updateView in @updatesContainer.find('.package-update-view')
         $(updateView).view()?.upgrade?()
+    @checkButton.on 'click', =>
+      @checkForUpdates()
+
     @checkForUpdates()
 
     @openBlogPost.on 'click', =>
@@ -59,13 +61,16 @@ class UpdatesPanel extends View
   checkForUpdates: ->
     @noUpdatesMessage.hide()
     @updateAllButton.hide()
+    @checkButton.prop('disabled', true)
 
     @checkingMessage.show()
 
     @packageManager.getOutdated()
       .then (@availableUpdates) =>
+        @checkButton.prop('disabled', false)
         @addUpdateViews()
       .catch (error) =>
+        @checkButton.prop('disabled', false)
         @checkingMessage.hide()
         @updateErrors.append(new ErrorView(@packageManager, error))
 
