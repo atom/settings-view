@@ -149,6 +149,9 @@ class PackageCard extends View
       repo = repository
     else
       repo = repository.url
+      if repo.match 'git@github'
+        repoName = repo.split(':')[1]
+        repo = "https://github.com/#{repoName}"
     repo.match(loginRegex)?[1] ? ''
 
   loadCachedMetadata: ->
