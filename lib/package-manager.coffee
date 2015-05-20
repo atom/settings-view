@@ -306,6 +306,9 @@ class PackageManager
   getRepositoryUrl: ({metadata}) ->
     {repository} = metadata
     repoUrl = repository?.url ? repository ? ''
+    if repoUrl.match 'git@github'
+      repoName = repoUrl.split(':')[1]
+      repoUrl = "https://github.com/#{repoName}"
     repoUrl.replace(/\.git$/, '').replace(/\/+$/, '')
 
   checkNativeBuildTools: ->
