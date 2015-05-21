@@ -23,6 +23,7 @@ class SettingsPanel extends View
         'showInvisibles'
         'softWrap'
         'softWrapAtPreferredLineLength'
+        'softWrapHangingIndent'
         'tabLength'
       ]
       settings = {}
