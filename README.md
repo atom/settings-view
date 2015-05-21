@@ -5,7 +5,7 @@ Edit core config settings, install and configure packages, and change themes all
 ![Settings View](https://cloud.githubusercontent.com/assets/378023/7413735/2473cc46-ef89-11e4-9786-63797d04a916.png)
 
 ## Usage
-You can open the Settings View by navigating to _Atom > Preferences_ (Mac), _File > Preferences_ (Windows), or _Edit > Preferences_ (Linux).
+You can open the Settings View by navigating to _Edit > Preferences_ (Linux), _Atom > Preferences_ (OS X), or _File > Preferences_ (Windows).
 
 In order to install new packages and themes, click on the _Install_ section on the left-hand side.
 Once installed, community packages/themes and their settings are housed within their respective section.
@@ -13,23 +13,18 @@ All packages/themes that have updates will be listed under the _Updates_ section
 
 Want to learn more?  Check out the [Getting Started: Atom Basics](https://atom.io/docs/latest/getting-started-atom-basics#settings-and-preferences) and [Using Atom: Atom Packages](https://atom.io/docs/latest/using-atom-atom-packages) sections in the flight manual.
 
-### Commands
+### Commands and Keybindings
 All of the following commands are under the `atom-workspace` selector.
 
-|Command|Description|
-|-------|-----------|
-|`settings-view:open`|Opens the Settings View|
+|Command|Description|Keybinding (Linux)|Keybinding (OS X)|Keybinding (Windows)|
+|-------|-----------|------------------|-----------------|--------------------|
+|`settings-view:open`|Opens the Settings View|<kbd>Ctrl-,</kbd>|<kbd>Cmd-,</kbd>|<kbd>Ctrl-,</kbd>|
 |`settings-view:show-keybindings`|Opens the _Keybindings_ section of the Settings View|
 |`settings-view:uninstall-packages`|Opens the _Packages_ section of the Settings View|
 |`settings-view:change-themes`|Opens the _Themes_ section of the Settings View|
 |`settings-view:uninstall-themes`|Opens the _Themes_ section of the Settings View|
 |`settings-view:check-for-updates`|Opens the _Updates_ section of the Settings View|
 |`settings-view:install-packages-and-themes`|Opens the _Install_ section of the Settings View|
-
-### Keybindings
-|Command|Linux|OS X|Windows|
-|-------|-------|---|-----|
-|`settings-view:open`|<kbd>Ctrl-,</kbd>|<kbd>Cmd-,</kbd>|<kbd>Ctrl-,</kbd>|
 Custom keybindings can be added by referencing the above commands.  To learn more, visit the [Using Atom: Basic Customization](https://atom.io/docs/latest/using-atom-basic-customization#customizing-key-bindings) or [Behind Atom: Keymaps In-Depth](https://atom.io/docs/latest/behind-atom-keymaps-in-depth) sections in the flight manual.
 
 ## Customize
