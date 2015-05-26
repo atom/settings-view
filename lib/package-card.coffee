@@ -17,7 +17,7 @@ class PackageCard extends View
       @div class: 'stats pull-right', =>
         @span class: "stats-item", =>
           @span class: 'icon icon-versions'
-          @span outlet: 'versionValue', class:'value', String(version)
+          @span outlet: 'versionValue', class: 'value', String(version)
 
         @span class: 'stats-item', =>
           @span class: 'icon icon-cloud-download'

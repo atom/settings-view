@@ -75,7 +75,7 @@ class KeybindingsPanel extends View
       searchString = "#{selector}#{keystrokes}#{command}#{source}".toLowerCase()
       continue unless searchString
 
-      if /^\s*$/.test(filterString) or searchString.indexOf(filterString?.toLowerCase()) != -1
+      if /^\s*$/.test(filterString) or searchString.indexOf(filterString?.toLowerCase()) isnt -1
         @appendKeyBinding(keyBinding)
 
   appendKeyBindings: (keyBindings) ->

@@ -57,21 +57,21 @@ class ThemesPanel extends View
           @section class: 'sub-section installed-packages', =>
             @h3 class: 'sub-section-heading icon icon-paintcan', =>
               @text 'Community Themes'
-              @span outlet: 'communityCount', class:'section-heading-count badge badge-flexible', '…'
+              @span outlet: 'communityCount', class: 'section-heading-count badge badge-flexible', '…'
             @div outlet: 'communityPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
           @section class: 'sub-section core-packages', =>
             @h3 class: 'sub-section-heading icon icon-paintcan', =>
               @text 'Core Themes'
-              @span outlet: 'coreCount', class:'section-heading-count badge badge-flexible', '…'
+              @span outlet: 'coreCount', class: 'section-heading-count badge badge-flexible', '…'
             @div outlet: 'corePackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
           @section class: 'sub-section dev-packages', =>
             @h3 class: 'sub-section-heading icon icon-paintcan', =>
               @text 'Development Themes'
-              @span outlet: 'devCount', class:'section-heading-count badge badge-flexible', '…'
+              @span outlet: 'devCount', class: 'section-heading-count badge badge-flexible', '…'
             @div outlet: 'devPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
@@ -246,7 +246,7 @@ class ThemesPanel extends View
     packages.sort (left, right) ->
       leftStatus = atom.packages.isPackageDisabled(left.name)
       rightStatus = atom.packages.isPackageDisabled(right.name)
-      if leftStatus == rightStatus
+      if leftStatus is rightStatus
         return 0
       else if leftStatus > rightStatus
         return 1

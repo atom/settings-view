@@ -14,7 +14,7 @@ class PackageReadmeView extends View
         @div class: 'package-readme native-key-bindings', tabindex: -1, outlet: 'packageReadme'
 
   initialize: (readme) ->
-    readme = readme || "### No README."
+    readme = readme or "### No README."
     roaster readme, (err, content) =>
       if err
         @packageReadme.append("<h3>Error parsing README</h3>")
