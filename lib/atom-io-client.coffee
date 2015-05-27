@@ -94,7 +94,7 @@ class AtomIoClient
 
     unless options.force
       # Set `force` to true if we can't reach the network.
-      options.force = !@online()
+      options.force = not @online()
 
     cached = localStorage.getItem(@cacheKeyForPath(packagePath))
     cached = if cached then JSON.parse(cached)

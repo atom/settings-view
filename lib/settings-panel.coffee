@@ -159,12 +159,12 @@ class SettingsPanel extends View
       value?.toString()
 
   parseValue: (type, value) ->
-    if value == ''
+    if value is ''
       value = undefined
-    else if type == 'number'
+    else if type is 'number'
       floatValue = parseFloat(value)
       value = floatValue unless isNaN(floatValue)
-    else if type == 'array'
+    else if type is 'array'
       arrayValue = (value or '').split(',')
       value = (val.trim() for val in arrayValue when val)
 

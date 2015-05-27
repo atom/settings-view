@@ -35,7 +35,7 @@ class UpdatesPanel extends View
 
     @checkForUpdates()
 
-    @openBlogPost.on 'click', =>
+    @openBlogPost.on 'click', ->
       require('shell').openExternal('http://blog.atom.io/2015/05/01/removing-deprecated-apis.html')
       false
 
