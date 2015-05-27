@@ -21,7 +21,7 @@ describe "package updates status view", ->
 
   describe "when packages are outdated", ->
     it "adds a tile to the status bar", ->
-      expect($('status-bar .package-updates-status-view').text()).toBe '1 update!'
+      expect($('status-bar .package-updates-status-view').text()).toBe '1 update'
 
     it "adds a notification", ->
       notification = atom.notifications.getNotifications()[0]
