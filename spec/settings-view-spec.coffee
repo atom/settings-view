@@ -152,6 +152,37 @@ describe "SettingsView", ->
         runs ->
           expect(settingsView.activePanelName).toBe 'Install'
 
+      it "passes the URI to a pane's beforeShow() method on settings view initialization", ->
+        InstallPanel = require '../lib/install-panel'
+        spyOn(InstallPanel::, 'beforeShow')
+
+        waitsForPromise ->
+          atom.workspace.open('atom://config/install/package:something').then (s) -> settingsView = s
+
+        waits 1
+        runs ->
+          expect(settingsView.activePanelName).toBe 'Install'
+          expect(InstallPanel::beforeShow).toHaveBeenCalledWith {uri: 'atom://config/install/package:something'}
+
+      it "passes the URI to a pane's beforeShow() method after initialization", ->
+        InstallPanel = require '../lib/install-panel'
+        spyOn(InstallPanel::, 'beforeShow')
+
+        waitsForPromise ->
+          atom.workspace.open('atom://config').then (s) -> settingsView = s
+
+        waits 1
+        runs ->
+          expect(settingsView.activePanelName).toBe 'Settings'
+
+        waitsForPromise ->
+          atom.workspace.open('atom://config/install/package:something').then (s) -> settingsView = s
+
+        waits 1
+        runs ->
+          expect(settingsView.activePanelName).toBe 'Install'
+          expect(InstallPanel::beforeShow).toHaveBeenCalledWith {uri: 'atom://config/install/package:something'}
+
   describe "when an installed package is clicked from the Install panel", ->
     it "displays the package details", ->
       waitsFor ->

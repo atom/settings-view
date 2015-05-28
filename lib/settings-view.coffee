@@ -34,7 +34,7 @@ class SettingsView extends ScrollView
     super
     @packageManager = new PackageManager()
 
-    @panelToShow = activePanelName
+    @deferredPanel = {name: activePanelName}
     process.nextTick => @initializePanels()
 
   detached: ->
@@ -61,14 +61,14 @@ class SettingsView extends ScrollView
     @addCorePanel 'Updates', 'cloud-download', => new UpdatesPanel(@packageManager)
     @addCorePanel 'Install', 'plus', => new InstallPanel(@packageManager)
 
-    @showPanel(@panelToShow) if @panelToShow
+    @showDeferredPanel()
     @showPanel('Settings') unless @activePanelName
     @sidebar.width(@sidebar.width()) if @isOnDom()
 
   serialize: ->
     deserializer: 'SettingsView'
     version: 2
-    activePanelName: @activePanelName ? @panelToShow
+    activePanelName: @activePanelName ? @deferredPanel?.name
     uri: @uri
 
   getPackages: ->
@@ -111,9 +111,9 @@ class SettingsView extends ScrollView
   addPanel: (name, panelMenuItem, panelCreateCallback) ->
     @panelCreateCallbacks ?= {}
     @panelCreateCallbacks[name] = panelCreateCallback
-    @showPanel(name) if @panelToShow is name
+    @showDeferredPanel() if @deferredPanel?.name is name
 
-  getOrCreatePanel: (name, opts) ->
+  getOrCreatePanel: (name, options) ->
     panel = @panelsByName?[name]
     # These nested conditionals are not great but I feel like it's the most
     # expedient thing to do - I feel like the "right way" involves refactoring
@@ -121,11 +121,11 @@ class SettingsView extends ScrollView
     unless panel?
       callback = @panelCreateCallbacks?[name]
 
-      if opts?.pack and not callback
+      if options?.pack and not callback
         callback = =>
           # sigh
-          opts.pack.metadata = opts.pack
-          new PackageDetailView(opts.pack, @packageManager)
+          options.pack.metadata = options.pack
+          new PackageDetailView(options.pack, @packageManager)
 
       if callback
         panel = callback()
@@ -152,18 +152,23 @@ class SettingsView extends ScrollView
           child.focus()
         return
 
-  showPanel: (name, opts) ->
-    if panel = @getOrCreatePanel(name, opts)
+  showDeferredPanel: ->
+    return unless @deferredPanel?
+    {name, options} = @deferredPanel
+    @showPanel(name, options)
+
+  showPanel: (name, options) ->
+    if panel = @getOrCreatePanel(name, options)
       @panels.children().hide()
       @panels.append(panel) unless $.contains(@panels[0], panel[0])
-      panel.beforeShow?(opts)
+      panel.beforeShow?(options)
       panel.show()
       panel.focus()
       @makePanelMenuActive(name)
       @activePanelName = name
-      @panelToShow = null
+      @deferredPanel = null
     else
-      @panelToShow = name
+      @deferredPanel = {name, options}
 
   removePanel: (name) ->
     if panel = @panelsByName?[name]

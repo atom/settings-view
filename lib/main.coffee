@@ -7,9 +7,9 @@ createSettingsView = (params) ->
   SettingsView ?= require './settings-view'
   settingsView = new SettingsView(params)
 
-openPanel = (panelName) ->
+openPanel = (panelName, uri) ->
   settingsView ?= createSettingsView({uri: configUri})
-  settingsView.showPanel(panelName)
+  settingsView.showPanel(panelName, {uri})
 
 deserializer =
   name: 'SettingsView'
@@ -22,11 +22,11 @@ module.exports =
   activate: ->
     atom.workspace.addOpener (uri) ->
       if uri.startsWith(configUri)
-        settingsView = createSettingsView({uri})
+        settingsView ?= createSettingsView({uri})
         if match = /config\/([a-z]+)/gi.exec(uri)
           panelName = match[1]
           panelName = panelName[0].toUpperCase() + panelName.slice(1)
-          openPanel(panelName)
+          openPanel(panelName, uri)
         settingsView
 
     atom.commands.add 'atom-workspace',
@@ -37,6 +37,10 @@ module.exports =
       'settings-view:uninstall-themes': -> atom.workspace.open("#{configUri}/themes")
       'settings-view:uninstall-packages': -> atom.workspace.open("#{configUri}/packages")
       'settings-view:check-for-package-updates': -> atom.workspace.open("#{configUri}/updates")
+
+  deactivate: ->
+    settingsView.remove()
+    settingsView = null
 
   consumeStatusBar: (statusBar) ->
     PackageManager = require './package-manager'
