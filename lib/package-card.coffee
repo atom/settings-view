@@ -26,6 +26,8 @@ class PackageCard extends View
       @div class: 'body', =>
         @h4 class: 'card-name', =>
           @a outlet: 'packageName', name
+          @span ' '
+          @span class: 'deprecation-badge highlight-warning inline-block', 'Deprecated'
         @span outlet: 'packageDescription', class: 'package-description', description
         @div outlet: 'packageMessage', class: 'package-message'
 
@@ -102,12 +104,26 @@ class PackageCard extends View
             @installablePack = pack
           else
             @installButton.hide()
-            @versionValue.addClass('text-danger')
-            @packageMessage.addClass('text-danger')
+            @versionValue.addClass('text-error')
+            @packageMessage.addClass('text-error')
             @packageMessage.append """
             There's no version of this package that is compatible with your Atom version. The version must satisfy #{@pack.engines.atom}.
             """
             console.error("No available version compatible with the installed Atom version: #{atom.getVersion()}")
+
+    if @isDeprecated()
+      marked = require 'marked'
+      info = atom.packages.getPackageDeprecationInfo(pack.name)
+      @packageMessage.addClass('text-warning')
+      if info?.message
+        @packageMessage.html marked(info.message)
+      else if info?.hasDeprecations
+        @packageMessage.text 'This package has deprecations. There may be an updated version without deprecations.'
+      else if info?.hasAlternative and alt = info?.alternative
+        if alt is 'core'
+          @packageMessage.html marked("The features in `#{pack.name}` have been added to core. Please disable or uninstall this package.")
+        else
+          @packageMessage.html marked("`#{pack.name}` has been replaced by `#{alt}`. Please uninstall this package and install `#{alt}`.")
 
   handleControlsEvent: (opts) ->
     if opts?.onSettingsView
@@ -166,6 +182,11 @@ class PackageCard extends View
   updateEnablement: ->
     if @type is 'theme'
       return @enablementButton.hide()
+
+    if @isDeprecated()
+      @addClass('deprecated')
+    else
+      @removeClass('deprecated')
 
     if @isDisabled()
       @addClass('disabled')
@@ -234,6 +255,8 @@ class PackageCard extends View
   isInstalled: -> atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)
 
   isDisabled: -> atom.packages.isPackageDisabled(@pack.name)
+
+  isDeprecated: -> atom.packages.isPackageDeprecated(@pack.name)
 
   hasSettings: (pack) ->
     for key, value of atom.config.get(pack.name)

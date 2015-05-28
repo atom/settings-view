@@ -35,6 +35,26 @@
       }
     }
 
+    &.deprecated, {
+      background-color: @package-card-disabled-background-color;
+      // .body,
+      .avatar,
+      .author,
+      .stats {
+        opacity: .5;
+      }
+    }
+
+    .deprecation-badge {
+      display: none;
+      font-size: .75em;
+      text-transform: uppercase;
+    }
+
+    &.deprecated .deprecation-badge {
+      display: inline;
+    }
+
     &.col-lg-4 {
       min-width: 190px;
       padding: @component-padding 0;
@@ -75,6 +95,10 @@
       display: -webkit-box;
       -webkit-line-clamp: 2; /* number of lines to show */
       -webkit-box-orient: vertical;
+    }
+
+    .package-message p:last-child {
+      margin: 0;
     }
 
     .downloads {

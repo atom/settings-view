@@ -22,6 +22,14 @@ class InstalledPackagesPanel extends View
 
           @div outlet: 'updateErrors'
 
+          @section class: 'sub-section deprecated-packages', =>
+            @h3 class: 'sub-section-heading icon icon-package', =>
+              @text 'Deprecated Packages'
+              @span outlet: 'deprecatedCount', class: 'section-heading-count badge badge-flexible', '…'
+            @p 'Atom does not load deprecated packages. These packages may have updates available.'
+            @div outlet: 'deprecatedPackages', class: 'container package-container', =>
+              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
+
           @section class: 'sub-section installed-packages', =>
             @h3 class: 'sub-section-heading icon icon-package', =>
               @text 'Community Packages'
@@ -63,7 +71,7 @@ class InstalledPackagesPanel extends View
     packages.dev = packages.dev.filter ({theme}) -> not theme
     packages.user = packages.user.filter ({theme}) -> not theme
     packages.core = packages.core.filter ({theme}) -> not theme
-
+    packages.deprecated = packages.user.filter ({name}) -> atom.packages.isPackageDeprecated(name)
     packages
 
   loadPackages: ->
@@ -89,6 +97,9 @@ class InstalledPackagesPanel extends View
 
         _.each @addPackageViews(@devPackages, @packages.dev), (v) => @packageViews.push(v)
         @devCount.text @packages.dev.length
+
+        _.each @addPackageViews(@deprecatedPackages, @packages.deprecated), (v) => @packageViews.push(v)
+        @deprecatedCount.text @packages.deprecated.length
 
       .catch (error) =>
         @loadingMessage.hide()
