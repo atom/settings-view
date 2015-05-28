@@ -64,6 +64,10 @@ class PackageCard extends View
     @updateEnablement()
     @loadCachedMetadata()
 
+    @packageMessage.on 'click', 'a', (e) ->
+      atom.workspace.open(href) if href = this.getAttribute('href')
+      false
+
     if atom.packages.isBundledPackage(@pack.name)
       @installButton.hide()
       @uninstallButton.hide()
@@ -123,7 +127,9 @@ class PackageCard extends View
         if alt is 'core'
           @packageMessage.html marked("The features in `#{pack.name}` have been added to core. Please disable or uninstall this package.")
         else
-          @packageMessage.html marked("`#{pack.name}` has been replaced by `#{alt}`. Please uninstall this package and install `#{alt}`.")
+          @packageMessage.html marked """
+            `#{pack.name}` has been replaced by `#{alt}`. Please uninstall this package and install [`#{alt}`](atom://config/install/package:#{alt}).
+          """
 
   handleControlsEvent: (opts) ->
     if opts?.onSettingsView
