@@ -75,6 +75,13 @@ class InstalledPackagesPanel extends View
     packages
 
   loadPackages: ->
+    packagesWithUpdates = {}
+    @packageManager.getOutdated().then (packages) =>
+      console.log packages
+      for {name, latestVersion} in packages
+        packagesWithUpdates[name] = latestVersion
+      @displayPackageUpdates(packagesWithUpdates)
+
     @packageViews = []
     @packageManager.getInstalled()
       .then (packages) =>
@@ -101,9 +108,16 @@ class InstalledPackagesPanel extends View
         _.each @addPackageViews(@deprecatedPackages, @packages.deprecated), (v) => @packageViews.push(v)
         @deprecatedCount.text @packages.deprecated.length
 
+        @displayPackageUpdates(packagesWithUpdates)
+
       .catch (error) =>
         @loadingMessage.hide()
         @featuredErrors.append(new ErrorView(@packageManager, error))
+
+  displayPackageUpdates: (packagesWithUpdates) ->
+    for packageView in @packageViews
+      if newVersion = packagesWithUpdates[packageView.pack.name]
+        packageView.displayUpdate(newVersion)
 
   addPackageViews: (container, packages) ->
     container.empty()

@@ -10,6 +10,8 @@ Client = require './atom-io-client'
 ErrorView = require './error-view'
 PackageManager = require './package-manager'
 
+PackageNameRegex = /config\/install\/(package|theme):([a-z0-9-_]+)/i
+
 module.exports =
 class InstallPanel extends View
   Subscriber.includeInto(this)
@@ -110,7 +112,6 @@ class InstallPanel extends View
       @searchEditorView.setText(packageName)
       @performSearch()
 
-  PackageNameRegex = /config\/install\/(package|theme):([a-z0-9-_]+)/i
   extractQueryFromURI: (uri) ->
     matches = PackageNameRegex.exec(uri)
     if matches?
