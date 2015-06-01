@@ -111,6 +111,7 @@ class InstalledPackagesPanel extends View
         @displayPackageUpdates(packagesWithUpdates)
 
       .catch (error) =>
+        console.error error.message, error.stack
         @loadingMessage.hide()
         @featuredErrors.append(new ErrorView(@packageManager, error))
 
