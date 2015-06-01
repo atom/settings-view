@@ -118,7 +118,7 @@ class InstalledPackagesPanel extends View
   displayPackageUpdates: (packagesWithUpdates) ->
     for packageView in @packageViews
       if newVersion = packagesWithUpdates[packageView.pack.name]
-        packageView.displayUpdate(newVersion)
+        packageView.displayAvailableUpdate(newVersion)
 
   addPackageViews: (container, packages) ->
     container.empty()
