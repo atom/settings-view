@@ -336,8 +336,13 @@ class PackageCard extends View
     @subscribe @packageManager, event, (pack, error) =>
       callback(pack, error) if pack.name is @pack.name
 
+  ###
+  Section: Methods that should be on a Package model
+  ###
+
   install: ->
     @installButton.addClass('is-installing')
+    # SKETCH: we shouldnt be emitting this event here
     @packageManager.emit('package-installing', @installablePack ? @pack)
     @packageManager.install @installablePack ? @pack, (error) =>
       @installButton.removeClass('is-installing')
@@ -349,6 +354,7 @@ class PackageCard extends View
           atom.packages.enablePackage(@pack.name)
 
   uninstall: ->
+    # SKETCH: we shouldnt be emitting this event here
     @packageManager.emit('package-uninstalling', @pack)
     @packageManager.uninstall @pack, (error) =>
       if error?
