@@ -1,10 +1,13 @@
 PackageManager = require '../lib/package-manager'
 
 describe "package manager", ->
-  it "handle errors spawning apm", ->
+  [packageManager] = []
+
+  beforeEach ->
     spyOn(atom.packages, 'getApmPath').andReturn('/an/invalid/apm/command/to/run')
     packageManager = new PackageManager()
 
+  it "handle errors spawning apm", ->
     waitsForPromise shouldReject: true, -> packageManager.search('test')
     waitsForPromise shouldReject: true, -> packageManager.getInstalled()
     waitsForPromise shouldReject: true, -> packageManager.getOutdated()
@@ -44,3 +47,17 @@ describe "package manager", ->
       expect(updateCallback.argsForCall[0][0].message).toBe "Updating to \u201Cfoo@1.0.0\u201D failed."
       expect(updateCallback.argsForCall[0][0].packageInstallError).toBe true
       expect(updateCallback.argsForCall[0][0].stderr).toContain 'ENOENT'
+
+  describe "installing", ->
+    [runArgs, runCallback] = []
+
+    beforeEach ->
+      spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
+        runArgs = args
+        runCallback = callback
+        onWillThrowError: ->
+
+    it "installs the latest version when a package version is not specified", ->
+      packageManager.install {name:'something'}, ->
+      expect(packageManager.runCommand).toHaveBeenCalled()
+      expect(runArgs).toEqual ['install', 'something']

@@ -241,7 +241,10 @@ class PackageManager
     activateOnFailure = atom.packages.isPackageActive(name)
 
     @unload(name)
-    args = ['install', "#{name}@#{version}"]
+    if version?
+      args = ['install', "#{name}@#{version}"]
+    else
+      args = ['install', "#{name}"]
 
     errorMessage = "Installing \u201C#{name}@#{version}\u201D failed."
     onError = (error) =>
