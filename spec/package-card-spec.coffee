@@ -176,6 +176,47 @@ fdescribe "PackageCard", ->
         expect(card.packageMessage.text()).toContain 'has been replaced by not-installed-package'
         expect(card.packageMessage).toHaveClass 'text-warning'
 
+      it "uninstalls the old package, and installs the new when the install alternative button is clicked", ->
+        [installCallback, uninstallCallback] = []
+        packageManager.runCommand.andCallFake (args, callback) ->
+          if args[0] is 'install'
+            installCallback = callback
+          else if args[0] is 'uninstall'
+            uninstallCallback = callback
+          onWillThrowError: ->
+
+        spyOn(packageManager, 'install').andCallThrough()
+        spyOn(packageManager, 'uninstall').andCallThrough()
+        spyOn(atom.packages, 'activatePackage')
+
+        card.installAlternativeButton.click()
+
+        expect(card.installAlternativeButton[0].disabled).toBe(true)
+        expect(card.installAlternativeButton).toHaveClass('is-installing')
+
+        expect(packageManager.uninstall).toHaveBeenCalled()
+        expect(packageManager.uninstall.mostRecentCall.args[0].name).toEqual('package-with-config')
+
+        expect(packageManager.install).toHaveBeenCalled()
+        expect(packageManager.install.mostRecentCall.args[0]).toEqual({name: 'not-installed-package'})
+
+        uninstallCallback(0, '', '')
+
+        waits 1
+        runs ->
+          expect(card.installAlternativeButton[0].disabled).toBe(true)
+          expect(card.installAlternativeButton).toHaveClass('is-installing')
+          installCallback(0, '', '')
+
+        waits 1
+        runs ->
+          expect(card.installAlternativeButton[0].disabled).toBe(false)
+          expect(card.installAlternativeButton).not.toHaveClass('is-installing')
+          expect(card.updateButtonGroup).not.toBeVisible()
+          expect(card.installButtonGroup).not.toBeVisible()
+          expect(card.packageActionButtonGroup).not.toBeVisible()
+          expect(card.installAlternativeButtonGroup).not.toBeVisible()
+
     describe "when hasAlternative is true and alternative is an installed package", ->
       beforeEach ->
         atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'language-test'))
