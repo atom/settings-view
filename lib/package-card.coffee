@@ -149,6 +149,10 @@ class PackageCard extends View
       event.stopPropagation()
       @installAlternative()
 
+    @updateButton.on 'click', (event) =>
+      event.stopPropagation()
+      @update()
+
     @packageName.on 'click', (event) =>
       event.stopPropagation()
       packageType = if @pack.theme then 'themes' else 'packages'
@@ -226,6 +230,11 @@ class PackageCard extends View
       @displayNotInstalledState()
 
   displayInstalledState: ->
+    if @newVersion
+      @updateButtonGroup.show()
+    else
+      @updateButtonGroup.hide()
+
     @installButtonGroup.hide()
     @installAlternativeButtonGroup.hide()
     @packageActionButtonGroup.show()
@@ -285,10 +294,11 @@ class PackageCard extends View
       marked ?= require 'marked'
       @packageMessage.html marked(message)
 
-  displayAvailableUpdate: (newVersion) ->
-    @updateButtonGroup.show()
-    message = @getDeprecationMessage(newVersion)
-    @packageMessage.html marked(message) if message?
+  displayAvailableUpdate: (@newVersion) ->
+    @updateInterfaceState()
+    message = @getDeprecationMessage(@newVersion)
+    marked ?= require 'marked'
+    @packageMessage.html(marked(message)) if message?
 
   getDeprecationMessage: (newVersion) ->
     info = @getPackageDeprecationMetadata()
@@ -320,6 +330,11 @@ class PackageCard extends View
       @installButton.prop('disabled', true)
       @installButton.addClass('is-installing')
 
+    @subscribeToPackageEvent 'package-updating', (pack) =>
+      @updateInterfaceState()
+      @updateButton.prop('disabled', true)
+      @updateButton.addClass('is-installing')
+
     @subscribeToPackageEvent 'package-installing-alternative', ({pack, alternative}) =>
       @updateInterfaceState()
       @installAlternativeButton.prop('disabled', true)
@@ -332,6 +347,14 @@ class PackageCard extends View
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
       @installButton.prop('disabled', false)
       @installButton.removeClass('is-installing')
+      @updateInterfaceState()
+
+    @subscribeToPackageEvent 'package-updated theme-updated package-update-failed theme-update-failed', (pack, error) =>
+      if version = atom.packages.getLoadedPackage(@pack.name)?.metadata?.version
+        @pack.version = version
+      @newVersion = null
+      @updateButton.prop('disabled', false)
+      @updateButton.removeClass('is-installing')
       @updateInterfaceState()
 
     @subscribeToPackageEvent 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', (pack, error) =>
@@ -370,6 +393,15 @@ class PackageCard extends View
     @packageManager.install @installablePack ? @pack, (error) =>
       if error?
         console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
+      else
+        # if a package was disabled before installing it, re-enable it
+        atom.packages.enablePackage(@pack.name) if @isDisabled()
+
+  update: ->
+    return unless @newVersion
+    @packageManager.update @installablePack ? @pack, @newVersion, (error) =>
+      if error?
+        console.error("Updating #{@type} #{@pack.name} to v#{@newVersion} failed", error.stack ? error, error.stderr)
       else
         # if a package was disabled before installing it, re-enable it
         atom.packages.enablePackage(@pack.name) if @isDisabled()

@@ -112,11 +112,13 @@ describe "PackageCard", ->
         expect(card.enablementButton).toBeVisible()
         expect(card.enablementButton.text()).toBe 'Disable'
 
+    # NOTE: the mocking here is pretty delicate
     describe "when hasDeprecations is true and there is an update is available", ->
       beforeEach ->
         spyOn(PackageCard::, 'isDeprecated').andCallFake (version) ->
           semver = require 'semver'
-          semver.satisfies(version ? '1.0.0', '<=1.0.1')
+          version = version ? card?.pack?.version ? '1.0.0'
+          semver.satisfies(version, '<=1.0.1')
         spyOn(PackageCard::, 'getPackageDeprecationMetadata').andReturn
           hasDeprecations: true
           version: '<=1.0.1'
@@ -124,15 +126,70 @@ describe "PackageCard", ->
         card = new PackageCard(pack, packageManager)
         jasmine.attachToDOM(card[0])
 
-      it "explains that the update WILL fix the deprecations when the new version is higher than the max version", ->
-        card.displayAvailableUpdate('1.1.0')
-        expect(card.packageMessage.text()).not.toContain 'no update available'
-        expect(card.packageMessage.text()).toContain 'without deprecations'
-
       it "explains that the update WILL NOT fix the deprecations when the new version isnt higher than the max version", ->
         card.displayAvailableUpdate('1.0.1')
         expect(card.packageMessage.text()).not.toContain 'no update available'
         expect(card.packageMessage.text()).toContain 'still contains deprecations'
+
+      describe "when the available update fixes deprecations", ->
+        it "explains that the update WILL fix the deprecations when the new version is higher than the max version", ->
+          card.displayAvailableUpdate('1.1.0')
+          expect(card.packageMessage.text()).not.toContain 'no update available'
+          expect(card.packageMessage.text()).toContain 'without deprecations'
+
+          expect(card.updateButtonGroup).toBeVisible()
+          expect(card.installButtonGroup).not.toBeVisible()
+          expect(card.packageActionButtonGroup).toBeVisible()
+          expect(card.installAlternativeButtonGroup).not.toBeVisible()
+          expect(card.uninstallButton).toBeVisible()
+          expect(card.enablementButton).toBeVisible()
+          expect(card.enablementButton.text()).toBe 'Disable'
+
+        it "updates the package when the update button is clicked", ->
+          expect(atom.packages.getLoadedPackage('package-with-config')).toBeTruthy()
+
+          [updateCallback] = []
+          packageManager.runCommand.andCallFake (args, callback) ->
+            updateCallback = callback
+            onWillThrowError: ->
+          spyOn(packageManager, 'update').andCallThrough()
+
+          originalLoadPackage = atom.packages.loadPackage
+          spyOn(atom.packages, 'loadPackage').andCallFake ->
+            pack = originalLoadPackage.call(atom.packages, path.join(__dirname, 'fixtures', 'package-with-config'))
+            pack.metadata.version = '1.1.0' if pack?
+            pack
+
+          card.displayAvailableUpdate('1.1.0')
+          expect(card.updateButtonGroup).toBeVisible()
+
+          expect(atom.packages.getLoadedPackage('package-with-config')).toBeTruthy()
+          card.updateButton.click()
+
+          expect(card.updateButton[0].disabled).toBe true
+          expect(card.updateButton).toHaveClass 'is-installing'
+
+          expect(packageManager.update).toHaveBeenCalled()
+          expect(packageManager.update.mostRecentCall.args[0].name).toEqual 'package-with-config'
+          expect(packageManager.runCommand).toHaveBeenCalled()
+          expect(card).toHaveClass 'deprecated'
+
+          updateCallback(0, '', '')
+
+          waitsFor ->
+            atom.packages.isPackageActive('package-with-config')
+
+          runs ->
+            expect(card.updateButton[0].disabled).toBe false
+            expect(card.updateButton).not.toHaveClass 'is-installing'
+            expect(card.updateButtonGroup).not.toBeVisible()
+            expect(card.installButtonGroup).not.toBeVisible()
+            expect(card.packageActionButtonGroup).toBeVisible()
+            expect(card.installAlternativeButtonGroup).not.toBeVisible()
+
+            expect(card).not.toHaveClass 'deprecated'
+            expect(card.packageMessage).not.toHaveClass 'text-warning'
+            expect(card.packageMessage.text()).toBe ''
 
     describe "when hasAlternative is true and alternative is core", ->
       beforeEach ->

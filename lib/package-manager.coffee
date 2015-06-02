@@ -212,13 +212,14 @@ class PackageManager
     args = ['install', "#{name}@#{newVersion}"]
     exit = (code, stdout, stderr) =>
       if code is 0
-        if activateOnSuccess
+        activation = if activateOnSuccess
           atom.packages.activatePackage(name)
         else
           atom.packages.loadPackage(name)
 
-        callback?()
-        @emitPackageEvent 'updated', pack
+        Promise.resolve(activation).then =>
+          callback?()
+          @emitPackageEvent 'updated', pack
       else
         atom.packages.activatePackage(name) if activateOnFailure
         error = new Error(errorMessage)
