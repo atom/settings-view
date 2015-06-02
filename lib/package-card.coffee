@@ -190,6 +190,7 @@ class PackageCard extends View
       @downloadCount.text data.downloads?.toLocaleString()
 
   updateInterfaceState: ->
+    @versionValue.text(@pack.version)
     @updateInstalledState()
     @updateDisabledState()
     @updateDeprecatedState()
@@ -241,7 +242,12 @@ class PackageCard extends View
     @uninstallButton.show()
 
   displayNotInstalledState: ->
-    @installButtonGroup.show()
+    if @newVersion
+      @updateButtonGroup.show()
+      @installButtonGroup.hide()
+    else
+      @updateButtonGroup.hide()
+      @installButtonGroup.show()
     @installAlternativeButtonGroup.hide()
     @packageActionButtonGroup.hide()
 

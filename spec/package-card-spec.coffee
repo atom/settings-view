@@ -96,6 +96,7 @@ describe "PackageCard", ->
           hasDeprecations: true
           version: '<=1.0.0'
         pack = atom.packages.getLoadedPackage('package-with-config')
+        pack.version = pack.metadata.version
         card = new PackageCard(pack, packageManager)
         jasmine.attachToDOM(card[0])
 
@@ -123,6 +124,7 @@ describe "PackageCard", ->
           hasDeprecations: true
           version: '<=1.0.1'
         pack = atom.packages.getLoadedPackage('package-with-config')
+        pack.version = pack.metadata.version
         card = new PackageCard(pack, packageManager)
         jasmine.attachToDOM(card[0])
 
@@ -174,6 +176,11 @@ describe "PackageCard", ->
           expect(packageManager.runCommand).toHaveBeenCalled()
           expect(card).toHaveClass 'deprecated'
 
+          expect(card.updateButtonGroup).toBeVisible()
+          expect(card.installButtonGroup).not.toBeVisible()
+          expect(card.packageActionButtonGroup).not.toBeVisible()
+          expect(card.installAlternativeButtonGroup).not.toBeVisible()
+
           updateCallback(0, '', '')
 
           waitsFor ->
@@ -190,6 +197,7 @@ describe "PackageCard", ->
             expect(card).not.toHaveClass 'deprecated'
             expect(card.packageMessage).not.toHaveClass 'text-warning'
             expect(card.packageMessage.text()).toBe ''
+            expect(card.versionValue.text()).toBe '1.1.0'
 
     describe "when hasAlternative is true and alternative is core", ->
       beforeEach ->
