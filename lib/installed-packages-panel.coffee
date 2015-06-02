@@ -77,7 +77,6 @@ class InstalledPackagesPanel extends View
   loadPackages: ->
     packagesWithUpdates = {}
     @packageManager.getOutdated().then (packages) =>
-      console.log packages
       for {name, latestVersion} in packages
         packagesWithUpdates[name] = latestVersion
       @displayPackageUpdates(packagesWithUpdates)
