@@ -59,12 +59,12 @@ describe "package manager", ->
         onWillThrowError: ->
 
     it "installs the latest version when a package version is not specified", ->
-      packageManager.install {name:'something'}, ->
+      packageManager.install {name: 'something'}, ->
       expect(packageManager.runCommand).toHaveBeenCalled()
       expect(runArgs).toEqual ['install', 'something']
 
     it "installs the package@version when a version is specified", ->
-      packageManager.install {name:'something', version: '0.2.3'}, ->
+      packageManager.install {name: 'something', version: '0.2.3'}, ->
       expect(packageManager.runCommand).toHaveBeenCalled()
       expect(runArgs).toEqual ['install', 'something@0.2.3']
 
