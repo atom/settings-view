@@ -52,7 +52,7 @@ class PackageCard extends View
                 @span class: 'disable-text', 'Disable'
               @button type: 'button', class: 'btn status-indicator', tabindex: -1, outlet: 'statusIndicator'
 
-  initialize: (@pack, @packageManager, opts) ->
+  initialize: (@pack, @packageManager, options) ->
     # It might be useful to either wrap @pack in a class that has a ::validate
     # method, or add a method here. At the moment I think all cases of malformed
     # package metadata are handled here and in ::content but belt and suspenders,
@@ -66,7 +66,7 @@ class PackageCard extends View
     {@name} = @pack
 
     @handlePackageEvents()
-    @handleButtonEvents(opts)
+    @handleButtonEvents(options)
     @loadCachedMetadata()
 
     @packageMessage.on 'click', 'a', (e) ->
@@ -87,8 +87,6 @@ class PackageCard extends View
       @settingsButton.remove()
 
     @updateButtonGroup.hide()
-    @installAlternativeButtonGroup.hide()
-    @enablementButton.hide() if @type is 'theme'
 
     @updateForUninstalledCommunityPackage() unless @isInstalled()
     @updateInterfaceState()
@@ -129,15 +127,15 @@ class PackageCard extends View
           """
           console.error("No available version compatible with the installed Atom version: #{atom.getVersion()}")
 
-  handleButtonEvents: (opts) ->
-    if opts?.onSettingsView
+  handleButtonEvents: (options) ->
+    if options?.onSettingsView
       @settingsButton.remove()
     else
       @on 'click', =>
-        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: options?.back, pack: @pack})
       @settingsButton.on 'click', (event) =>
         event.stopPropagation()
-        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: options?.back, pack: @pack})
 
     @installButton.on 'click', (event) =>
       event.stopPropagation()
@@ -202,6 +200,7 @@ class PackageCard extends View
 
   displayEnabledState: ->
     @removeClass('disabled')
+    @enablementButton.hide() if @type is 'theme'
     @enablementButton.find('.disable-text').text('Disable')
     @enablementButton
       .addClass('icon-playback-pause')
