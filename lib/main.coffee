@@ -39,7 +39,7 @@ module.exports =
       'settings-view:check-for-package-updates': -> atom.workspace.open("#{configUri}/updates")
 
   deactivate: ->
-    settingsView.remove()
+    settingsView?.remove()
     settingsView = null
 
   consumeStatusBar: (statusBar) ->
