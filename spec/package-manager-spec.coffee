@@ -90,7 +90,7 @@ describe "package manager", ->
       packageManager.on 'package-installing-alternative', installingEvent
       packageManager.on 'package-installed-alternative', installedEvent
 
-      packageManager.installAlternative({name:'language-test'}, 'a-new-package', installedCallback)
+      packageManager.installAlternative({name: 'language-test'}, 'a-new-package', installedCallback)
       expect(packageManager.runCommand).toHaveBeenCalled()
       expect(packageManager.runCommand.calls[0].args[0]).toEqual(['uninstall', '--hard', 'language-test'])
       expect(packageManager.runCommand.calls[1].args[0]).toEqual(['install', 'a-new-package'])
