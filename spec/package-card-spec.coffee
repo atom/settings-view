@@ -2,7 +2,7 @@ path = require 'path'
 PackageCard = require '../lib/package-card'
 PackageManager = require '../lib/package-manager'
 
-fdescribe "PackageCard", ->
+describe "PackageCard", ->
   [card, packageManager] = []
 
   beforeEach ->
