@@ -230,7 +230,7 @@ class PackageManager
     apmProcess = @runCommand(args, exit)
     handleProcessErrors(apmProcess, errorMessage, onError)
 
-  unload: (packageName) ->
+  unload: (name) ->
     if atom.packages.isPackageLoaded(name)
       atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
       atom.packages.unloadPackage(name)
@@ -268,6 +268,7 @@ class PackageManager
         error.stderr = stderr
         onError(error)
 
+    @emitPackageEvent('installing', pack)
     apmProcess = @runCommand(args, exit)
     handleProcessErrors(apmProcess, errorMessage, onError)
 
@@ -281,6 +282,7 @@ class PackageManager
       @emitPackageEvent 'uninstall-failed', pack, error
       callback(error)
 
+    @emitPackageEvent('uninstalling', pack)
     apmProcess = @runCommand ['uninstall', '--hard', name], (code, stdout, stderr) =>
       if code is 0
         @unload(name)

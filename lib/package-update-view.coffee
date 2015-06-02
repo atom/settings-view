@@ -75,7 +75,6 @@ class PackageUpdateView extends View
       callback(pack, error) if pack.name is @pack.name
 
   uninstall: ->
-    @packageManager.emit('package-uninstalling', @pack)
     @packageManager.uninstall @pack, (error) =>
       if error?
         console.error("Uninstalling #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
