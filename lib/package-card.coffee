@@ -70,7 +70,8 @@ class PackageCard extends View
     @loadCachedMetadata()
 
     @packageMessage.on 'click', 'a', (e) ->
-      if href = this.getAttribute('href') and href.startsWith('atom:')
+      href = this.getAttribute('href')
+      if href?.startsWith('atom:')
         atom.workspace.open(href)
         false
 
