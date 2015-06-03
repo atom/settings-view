@@ -177,6 +177,22 @@ describe "PackageCard", ->
       card.uninstallButton.click()
       expect(packageManager.uninstall).toHaveBeenCalled()
 
+    it "shows the settings, uninstall, and enable buttons when disabled", ->
+      atom.config.set('package-with-config.setting', 'something')
+      pack = atom.packages.getLoadedPackage('package-with-config')
+      spyOn(atom.packages, 'isPackageDisabled').andReturn(true)
+      card = new PackageCard(pack, packageManager)
+      jasmine.attachToDOM(card[0])
+
+      expect(card.updateButtonGroup).not.toBeVisible()
+      expect(card.installButtonGroup).not.toBeVisible()
+      expect(card.installAlternativeButtonGroup).not.toBeVisible()
+
+      expect(card.settingsButton).toBeVisible()
+      expect(card.uninstallButton).toBeVisible()
+      expect(card.enablementButton).toBeVisible()
+      expect(card.enablementButton.text()).toBe 'Enable'
+
     it "shows the settings, uninstall, and disable buttons", ->
       atom.config.set('package-with-config.setting', 'something')
       pack = atom.packages.getLoadedPackage('package-with-config')

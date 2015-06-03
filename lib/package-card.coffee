@@ -365,7 +365,7 @@ class PackageCard extends View
       @installAlternativeButton.removeClass('is-installing')
       @updateInterfaceState()
 
-  isInstalled: -> atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)
+  isInstalled: -> atom.packages.isPackageLoaded(@pack.name) or atom.packages.isPackageDisabled(@pack.name)
 
   isDisabled: -> atom.packages.isPackageDisabled(@pack.name)
 
