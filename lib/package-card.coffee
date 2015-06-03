@@ -62,8 +62,6 @@ class PackageCard extends View
 
     @type = if @pack.theme then 'theme' else 'package'
 
-    owner = ownerFromRepository(@pack.repository)
-    @filterText = "#{@pack.name} #{owner}"
     {@name} = @pack
 
     @handlePackageEvents()
