@@ -46,32 +46,37 @@ module.exports =
   consumeStatusBar: (statusBar) ->
     PackageManager = require './package-manager'
     packageManager = new PackageManager()
-    packageManager.getInstalled().then (packages) ->
-      deprecatedPackages = packages.user.filter ({name, version}) ->
-        atom.packages.isDeprecatedPackage(name, version)
-      return unless deprecatedPackages.length
-
-      were = 'were'
-      have = 'have'
-      packageText = 'packages'
-      if packages.length is 1
-        packageText = 'package'
-        were = 'was'
-        have = 'has'
-      notification = atom.notifications.addWarning "#{deprecatedPackages.length} #{packageText} #{have} deprecations and #{were} not loaded.",
-        description: 'This message will show one time. You can view deprecated packages in the settings view.'
-        detail: (pack.name for pack in deprecatedPackages).join(', ')
-        dismissable: true
-        buttons: [{
-          text: 'View Deprecated Packages',
-          onDidClick: ->
-            atom.commands.dispatch(atom.views.getView(atom.workspace), 'settings-view:view-packages')
-            notification.dismiss()
-        }]
-    .catch (error) ->
-      console.log error.message, error.stack
-
     packageManager.getOutdated().then (packages) ->
       if packages.length > 0
         PackageUpdatesStatusView = require './package-updates-status-view'
         packageUpdatesStatusView = new PackageUpdatesStatusView(statusBar, packages)
+
+    unless localStorage.getItem('hasSeenDeprecatedNotification')
+      packageManager.getInstalled().then (packages) =>
+        @showDeprecatedNotification(packages)
+      .catch (error) ->
+        console.log error.message, error.stack
+
+  showDeprecatedNotification: (packages) ->
+    deprecatedPackages = packages.user.filter ({name, version}) ->
+      atom.packages.isDeprecatedPackage(name, version)
+    return unless deprecatedPackages.length
+
+    were = 'were'
+    have = 'have'
+    packageText = 'packages'
+    if packages.length is 1
+      packageText = 'package'
+      were = 'was'
+      have = 'has'
+    notification = atom.notifications.addWarning "#{deprecatedPackages.length} #{packageText} #{have} deprecations and #{were} not loaded.",
+      description: 'This message will show only one time. Deprecated packages can be viewed in the settings view.'
+      detail: (pack.name for pack in deprecatedPackages).join(', ')
+      dismissable: true
+      buttons: [{
+        text: 'View Deprecated Packages',
+        onDidClick: ->
+          atom.commands.dispatch(atom.views.getView(atom.workspace), 'settings-view:view-packages')
+          notification.dismiss()
+      }]
+    localStorage.setItem('hasSeenDeprecatedNotification', true)
