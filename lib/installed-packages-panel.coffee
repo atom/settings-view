@@ -68,10 +68,15 @@ class InstalledPackagesPanel extends View
       user: new ListView(@items.user, @communityPackages, @createPackageCard)
       deprecated: new ListView(@items.deprecated, @deprecatedPackages, @createPackageCard)
 
+    @filterEditor.getModel().onDidStopChanging => @matchPackages()
+
     @subscribe @packageManager, 'package-install-failed theme-install-failed package-uninstall-failed theme-uninstall-failed package-update-failed theme-update-failed', (pack, error) =>
       @updateErrors.append(new ErrorView(@packageManager, error))
 
-    @filterEditor.getModel().onDidStopChanging => @matchPackages()
+    debouncedLoadPackages = _.debounce =>
+      @loadPackages()
+    , 300
+    @subscribe @packageManager, 'package-updated package-installed package-uninstalled package-installed-alternative', debouncedLoadPackages
 
     @loadPackages()
 
@@ -152,9 +157,11 @@ class InstalledPackagesPanel extends View
         @featuredErrors.append(new ErrorView(@packageManager, error))
 
   displayPackageUpdates: (packagesWithUpdates) ->
-    for packageView in @packageViews
-      if newVersion = packagesWithUpdates[packageView.pack.name]
-        packageView.displayAvailableUpdate(newVersion)
+    for packageType in ['dev', 'core', 'user', 'deprecated']
+      for packageView in @itemViews[packageType].getViews()
+        packageCard = packageView.find('.package-card').view()
+        if newVersion = packagesWithUpdates[packageCard.pack.name]
+          packageCard.displayAvailableUpdate(newVersion)
 
   createPackageCard: (pack) =>
     packageRow = $$ -> @div class: 'row'

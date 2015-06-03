@@ -12,6 +12,7 @@ class List
     (item for item in @items when filterFn(item))
 
   setItems: (items) ->
+    items = items.slice(0)
     setToAdd = difference(items, @items, @key)
     setToRemove = difference(@items, items, @key)
 

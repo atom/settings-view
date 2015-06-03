@@ -27,3 +27,9 @@ describe 'List', ->
     expect(addHandler.mostRecentCall.args[0]).toEqual {name: 'three', text: 'c'}
     expect(removeHandler.mostRecentCall.args[0]).toEqual {name: 'one', text: 'a'}
     expect(list.getItems()).toEqual items
+
+    addHandler.reset()
+    removeHandler.reset()
+    items.push {name: 'four'}
+    list.setItems(items)
+    expect(addHandler.callCount).toBe 1
