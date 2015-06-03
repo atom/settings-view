@@ -3,6 +3,7 @@ _ = require 'underscore-plus'
 {Subscriber} = require 'emissary'
 shell = require 'shell'
 marked = null
+{ownerFromRepository} = require './utils'
 
 module.exports =
 class PackageCard extends View
@@ -11,7 +12,7 @@ class PackageCard extends View
   @content: ({name, description, version, repository}) ->
     # stars, downloads
     # lol wat
-    owner = PackageCard::ownerFromRepository(repository)
+    owner = ownerFromRepository(repository)
     description ?= ''
 
     @div class: 'package-card col-lg-8', =>
@@ -61,7 +62,7 @@ class PackageCard extends View
 
     @type = if @pack.theme then 'theme' else 'package'
 
-    owner = @ownerFromRepository(@pack.repository)
+    owner = ownerFromRepository(@pack.repository)
     @filterText = "#{@pack.name} #{owner}"
     {@name} = @pack
 
@@ -169,20 +170,8 @@ class PackageCard extends View
   detached: ->
     @unsubscribe()
 
-  ownerFromRepository: (repository) ->
-    return '' unless repository
-    loginRegex = /github\.com\/([\w-]+)\/.+/
-    if typeof(repository) is "string"
-      repo = repository
-    else
-      repo = repository.url
-      if repo.match 'git@github'
-        repoName = repo.split(':')[1]
-        repo = "https://github.com/#{repoName}"
-    repo.match(loginRegex)?[1] ? ''
-
   loadCachedMetadata: ->
-    @client.avatar @ownerFromRepository(@pack.repository), (err, avatarPath) =>
+    @client.avatar ownerFromRepository(@pack.repository), (err, avatarPath) =>
       @avatar.attr 'src', "file://#{avatarPath}" if avatarPath
 
     @client.package @pack.name, (err, data) =>

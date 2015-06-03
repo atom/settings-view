@@ -11,6 +11,8 @@ class ListView
     @list.onDidRemoveItem (item) => @removeView(item)
     @addViews()
 
+  getViews: -> @views
+
   filterViews: (filterFn) ->
     (@viewMap.get(item) for item in @list.filterItems(filterFn))
 
