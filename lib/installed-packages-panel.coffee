@@ -13,6 +13,7 @@ ListView = require './list-view'
 module.exports =
 class InstalledPackagesPanel extends View
   Subscriber.includeInto(this)
+  @loadPackagesDelay: 300
 
   @content: ->
     @div =>
@@ -73,10 +74,12 @@ class InstalledPackagesPanel extends View
     @subscribe @packageManager, 'package-install-failed theme-install-failed package-uninstall-failed theme-uninstall-failed package-update-failed theme-update-failed', (pack, error) =>
       @updateErrors.append(new ErrorView(@packageManager, error))
 
-    debouncedLoadPackages = _.debounce =>
-      @loadPackages()
-    , 300
-    @subscribe @packageManager, 'package-updated package-installed package-uninstalled package-installed-alternative', debouncedLoadPackages
+    loadPackagesTimeout = null
+    @subscribe @packageManager, 'package-updated package-installed package-uninstalled package-installed-alternative', =>
+      clearTimeout(loadPackagesTimeout)
+      loadPackagesTimeout = setTimeout =>
+        @loadPackages()
+      , InstalledPackagesPanel.loadPackagesDelay
 
     @loadPackages()
 

@@ -59,6 +59,7 @@ describe 'InstalledPackagesPanel', ->
     @packageManager.install({name: 'another-user-package'})
     installCallback(0, '', '')
 
+    advanceClock InstalledPackagesPanel.loadPackagesDelay
     waits 1
     runs ->
       expect(@panel.communityCount.text().trim()).toBe '2'
@@ -78,6 +79,7 @@ describe 'InstalledPackagesPanel', ->
     @packageManager.uninstall({name: 'user-package'})
     uninstallCallback(0, '', '')
 
+    advanceClock InstalledPackagesPanel.loadPackagesDelay
     waits 1
     runs ->
       expect(@panel.communityCount.text().trim()).toBe '0'
@@ -115,6 +117,10 @@ describe 'InstalledPackagesPanel', ->
       expect(PackageCard::displayAvailableUpdate).toHaveBeenCalledWith('1.1.0')
       @packageManager.update({name: 'user-package'})
       updateCallback(0, '', '')
+
+    waits 1
+    runs ->
+      advanceClock InstalledPackagesPanel.loadPackagesDelay
 
     waits 1
     runs ->
