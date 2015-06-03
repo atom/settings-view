@@ -1,4 +1,3 @@
-_ = require 'underscore-plus'
 {Emitter} = require 'atom'
 
 module.exports =
@@ -8,6 +7,9 @@ class List
     @emitter = new Emitter
 
   getItems: -> @items
+
+  filterItems: (filterFn) ->
+    (item for item in @items when filterFn(item))
 
   setItems: (items) ->
     setToAdd = difference(items, @items, @key)
