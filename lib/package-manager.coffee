@@ -312,7 +312,7 @@ class PackageManager
     Promise.all([uninstallPromise, installPromise]).then =>
       callback(null, eventArg)
       @emit('package-installed-alternative', eventArg)
-    .catch (error) ->
+    .catch (error) =>
       console.error error.message, error.stack
       callback(error, eventArg)
       @emit('package-install-alternative-failed', eventArg, error)
