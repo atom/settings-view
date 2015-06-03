@@ -27,7 +27,7 @@ class InstalledPackagesPanel extends View
 
           @div outlet: 'updateErrors'
 
-          @section class: 'sub-section deprecated-packages', =>
+          @section outlet: 'deprecatedSection', class: 'sub-section deprecated-packages', =>
             @h3 class: 'sub-section-heading icon icon-package', =>
               @text 'Deprecated Packages'
               @span outlet: 'deprecatedCount', class: 'section-heading-count badge badge-flexible', '…'
@@ -146,6 +146,10 @@ class InstalledPackagesPanel extends View
         @communityPackages.find('.alert.loading-area').remove()
         @items.user.setItems(@packages.user)
 
+        if @packages.deprecated.length
+          @deprecatedSection.show()
+        else
+          @deprecatedSection.hide()
         @deprecatedPackages.find('.alert.loading-area').remove()
         @items.deprecated.setItems(@packages.deprecated)
 

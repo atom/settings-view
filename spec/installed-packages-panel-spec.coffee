@@ -90,6 +90,7 @@ describe 'InstalledPackagesPanel', ->
     promise = new Promise (r) -> resolve = r
     jasmine.unspy(@packageManager, 'getOutdated')
     spyOn(@packageManager, 'getOutdated').andReturn(promise)
+    jasmine.attachToDOM(@panel[0])
 
     [updateCallback] = []
     spyOn(atom.packages, 'isDeprecatedPackage').andCallFake =>
@@ -102,10 +103,12 @@ describe 'InstalledPackagesPanel', ->
     spyOn(atom.packages, 'activatePackage').andCallFake (name) =>
       @installed.user[0].version = '1.1.0'
 
+    expect(@panel.deprecatedSection).not.toBeVisible()
     @panel.loadPackages()
 
     waits 1
     runs ->
+      expect(@panel.deprecatedSection).toBeVisible()
       expect(@panel.deprecatedCount.text().trim()).toBe '1'
       expect(@panel.deprecatedPackages.find('.package-card:not(.hidden)').length).toBe 1
 
@@ -124,5 +127,6 @@ describe 'InstalledPackagesPanel', ->
 
     waits 1
     runs ->
+      expect(@panel.deprecatedSection).not.toBeVisible()
       expect(@panel.deprecatedCount.text().trim()).toBe '0'
       expect(@panel.deprecatedPackages.find('.package-card:not(.hidden)').length).toBe 0
