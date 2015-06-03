@@ -68,8 +68,8 @@ class PackageCard extends View
     @handleButtonEvents(options)
     @loadCachedMetadata()
 
-    @packageMessage.on 'click', 'a', (e) ->
-      href = this.getAttribute('href')
+    @packageMessage.on 'click', 'a', ->
+      href = @getAttribute('href')
       if href?.startsWith('atom:')
         atom.workspace.open(href)
         false
