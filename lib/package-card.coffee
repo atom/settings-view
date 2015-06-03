@@ -88,6 +88,7 @@ class PackageCard extends View
 
     @updateButtonGroup.hide()
 
+    @hasCompatibleVersion = true
     @updateForUninstalledCommunityPackage() unless @isInstalled()
     @updateInterfaceState()
 
@@ -119,6 +120,7 @@ class PackageCard extends View
 
           @installablePack = pack
         else
+          @hasCompatibleVersion = false
           @installButtonGroup.hide()
           @versionValue.addClass('text-error')
           @packageMessage.addClass('text-error')
@@ -178,7 +180,7 @@ class PackageCard extends View
       @downloadCount.text data.downloads?.toLocaleString()
 
   updateInterfaceState: ->
-    @versionValue.text(@pack.version)
+    @versionValue.text(@installablePack?.version ? @pack.version)
     @updateInstalledState()
     @updateDisabledState()
     @updateDeprecatedState()
@@ -230,7 +232,10 @@ class PackageCard extends View
     @uninstallButton.show()
 
   displayNotInstalledState: ->
-    if @newVersion
+    if not @hasCompatibleVersion
+      @installButtonGroup.hide()
+      @updateButtonGroup.hide()
+    else if @newVersion
       @updateButtonGroup.show()
       @installButtonGroup.hide()
     else
