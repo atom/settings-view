@@ -256,7 +256,7 @@ class PackageCard extends View
     @addClass('deprecated')
     @settingsButton[0].disabled = true
 
-    info = @getPackageDeprecationMetadata()
+    info = @getDeprecatedPackageMetadata()
     @packageMessage.addClass('text-warning')
 
     message = null
@@ -295,7 +295,7 @@ class PackageCard extends View
     @packageMessage.html(marked(message)) if message?
 
   getDeprecationMessage: (newVersion) ->
-    info = @getPackageDeprecationMetadata()
+    info = @getDeprecatedPackageMetadata()
     return unless info?.hasDeprecations
 
     if newVersion
@@ -364,9 +364,9 @@ class PackageCard extends View
 
   isDisabled: -> atom.packages.isPackageDisabled(@pack.name)
 
-  isDeprecated: (version) -> atom.packages.isPackageDeprecated(@pack.name, version ? @pack.version)
+  isDeprecated: (version) -> atom.packages.isDeprecatedPackage(@pack.name, version ? @pack.version)
 
-  getPackageDeprecationMetadata: -> atom.packages.getPackageDeprecationMetadata(@pack.name)
+  getDeprecatedPackageMetadata: -> atom.packages.getDeprecatedPackageMetadata(@pack.name)
 
   hasSettings: (pack) ->
     for key, value of atom.config.get(pack.name)
@@ -406,7 +406,7 @@ class PackageCard extends View
         console.error("Uninstalling #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
 
   installAlternative: ->
-    metadata = @getPackageDeprecationMetadata()
+    metadata = @getDeprecatedPackageMetadata()
     loadedPack = atom.packages.getLoadedPackage(metadata?.alternative)
     return unless metadata?.hasAlternative and metadata.alternative isnt 'core' and not loadedPack
 

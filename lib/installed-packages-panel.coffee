@@ -92,7 +92,7 @@ class InstalledPackagesPanel extends View
   filterPackages: (packages) ->
     packages.dev = packages.dev.filter ({theme}) -> not theme
     packages.user = packages.user.filter ({theme}) -> not theme
-    packages.deprecated = packages.user.filter ({name}) -> atom.packages.isPackageDeprecated(name)
+    packages.deprecated = packages.user.filter ({name, version}) -> atom.packages.isDeprecatedPackage(name, version)
     packages.core = packages.core.filter ({theme}) -> not theme
 
     for pack in packages.core

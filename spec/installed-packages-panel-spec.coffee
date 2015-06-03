@@ -92,7 +92,7 @@ describe 'InstalledPackagesPanel', ->
     spyOn(@packageManager, 'getOutdated').andReturn(promise)
 
     [updateCallback] = []
-    spyOn(atom.packages, 'isPackageDeprecated').andCallFake =>
+    spyOn(atom.packages, 'isDeprecatedPackage').andCallFake =>
       return true if @installed.user[0].version is '1.0.0'
       false
     spyOn(@packageManager, 'runCommand').andCallFake (args, callback) ->
