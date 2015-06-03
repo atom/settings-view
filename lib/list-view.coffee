@@ -29,7 +29,6 @@ class ListView
 
   removeView: (item) ->
     view = @viewMap.get(item)
-    console.log item, view.html()
     if view?
       index = @views.indexOf(view)
       @views.splice(index, 1) if index > -1
