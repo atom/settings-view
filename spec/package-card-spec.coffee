@@ -3,23 +3,40 @@ PackageCard = require '../lib/package-card'
 PackageManager = require '../lib/package-manager'
 
 describe "PackageCard", ->
+  setPackageStatusSpies = (opts) ->
+    spyOn(PackageCard.prototype, 'isInstalled').andReturn(opts.installed)
+    spyOn(PackageCard.prototype, 'isDisabled').andReturn(opts.disabled)
+    spyOn(PackageCard.prototype, 'hasSettings').andReturn(opts.hasSettings)
+
   [card, packageManager] = []
 
   beforeEach ->
     packageManager = new PackageManager()
     spyOn(packageManager, 'runCommand')
 
-  ###
-  Holy button states.
+  it "doesn't show the disable control for a theme", ->
+    setPackageStatusSpies {installed: true, disabled: false}
+    card = new PackageCard({theme: 'syntax', name: 'test-theme'}, packageManager)
+    jasmine.attachToDOM(card[0])
+    expect(card.enablementButton).not.toBeVisible()
 
-  not installed: install
-  disabled: settings?, uninstall, disable
-  hasDeprecations, no update: disabled-settings, uninstall, disable
-  hasDeprecations, has update: update, disabled-settings, uninstall, disable
-  hasAlternative; core: uninstall
-  hasAlternative; package, alt not installed: install new-package
-  hasAlternative; package, alt installed: uninstall
-  ###
+  it "doesn't show the status indicator for a theme", ->
+    setPackageStatusSpies {installed: true, disabled: false}
+    card = new PackageCard {theme: 'syntax', name: 'test-theme'}, packageManager
+    jasmine.attachToDOM(card[0])
+    expect(card.statusIndicatorButton).not.toBeVisible()
+
+  it "doesn't show the settings button for a theme", ->
+    setPackageStatusSpies {installed: true, disabled: false}
+    card = new PackageCard {theme: 'syntax', name: 'test-theme'}, packageManager
+    jasmine.attachToDOM(card[0])
+    expect(card.settingsButton).not.toBeVisible()
+
+  it "removes the settings button if a package has no settings", ->
+    setPackageStatusSpies {installed: true, disabled: false, hasSettings: false}
+    card = new PackageCard {name: 'test-package'}, packageManager
+    jasmine.attachToDOM(card[0])
+    expect(card.settingsButton).not.toBeVisible()
 
   describe "when the package is not installed", ->
     it "shows the settings, uninstall, and disable buttons", ->
@@ -37,11 +54,128 @@ describe "PackageCard", ->
       expect(card.installAlternativeButtonGroup).not.toBeVisible()
       expect(card.packageActionButtonGroup).not.toBeVisible()
 
+    it "can be installed if currently not installed", ->
+      setPackageStatusSpies {installed: false, disabled: false}
+      spyOn(packageManager, 'install')
+
+      card = new PackageCard {name: 'test-package'}, packageManager
+      expect(card.installButton.css('display')).not.toBe('none')
+      expect(card.uninstallButton.css('display')).toBe('none')
+      card.installButton.click()
+      expect(packageManager.install).toHaveBeenCalled()
+
+    it "can be installed if currently not installed and package latest release engine match atom version", ->
+      spyOn(packageManager, 'install')
+      spyOn(packageManager, 'loadCompatiblePackageVersion').andCallFake (packageName, callback) ->
+        pack =
+          name: packageName
+          version: '0.1.0'
+          engines:
+            atom: '>0.50.0'
+
+        callback(null, pack)
+
+      setPackageStatusSpies {installed: false, disabled: false}
+
+      card = new PackageCard {
+        name: 'test-package'
+        version: '0.1.0'
+        engines:
+          atom: '>0.50.0'
+      }, packageManager
+
+      # In that case there's no need to make a request to get all the versions
+      expect(packageManager.loadCompatiblePackageVersion).not.toHaveBeenCalled()
+
+      expect(card.installButton.css('display')).not.toBe('none')
+      expect(card.uninstallButton.css('display')).toBe('none')
+      card.installButton.click()
+      expect(packageManager.install).toHaveBeenCalled()
+      expect(packageManager.install.mostRecentCall.args[0]).toEqual({
+        name: 'test-package'
+        version: '0.1.0'
+        engines:
+          atom: '>0.50.0'
+      })
+
+    it "can be installed with a previous version whose engine match the current atom version", ->
+      spyOn(packageManager, 'install')
+      spyOn(packageManager, 'loadCompatiblePackageVersion').andCallFake (packageName, callback) ->
+        pack =
+          name: packageName
+          version: '0.0.1'
+          engines:
+            atom: '>0.50.0'
+
+        callback(null, pack)
+
+      setPackageStatusSpies {installed: false, disabled: false}
+
+      card = new PackageCard {
+        name: 'test-package'
+        version: '0.1.0'
+        engines:
+          atom: '>99.0.0'
+      }, packageManager
+
+      expect(card.installButton.css('display')).not.toBe('none')
+      expect(card.uninstallButton.css('display')).toBe('none')
+      expect(card.versionValue.text()).toBe('0.0.1')
+      expect(card.versionValue).toHaveClass('text-warning')
+      expect(card.packageMessage).toHaveClass('text-warning')
+      card.installButton.click()
+      expect(packageManager.install).toHaveBeenCalled()
+      expect(packageManager.install.mostRecentCall.args[0]).toEqual({
+        name: 'test-package'
+        version: '0.0.1'
+        engines:
+          atom: '>0.50.0'
+      })
+
+    it "can't be installed if there is no version compatible with the current atom version", ->
+      spyOn(packageManager, 'loadCompatiblePackageVersion').andCallFake (packageName, callback) ->
+        pack =
+          name: packageName
+
+        callback(null, pack)
+
+      setPackageStatusSpies {installed: false, disabled: false}
+
+      pack =
+        name: 'test-package'
+        engines:
+          atom: '>=99.0.0'
+      card = new PackageCard(pack , packageManager)
+      jasmine.attachToDOM(card[0])
+
+      expect(card.installButtonGroup).not.toBeVisible()
+      expect(card.packageActionButtonGroup).not.toBeVisible()
+      expect(card.versionValue).toHaveClass('text-error')
+      expect(card.packageMessage).toHaveClass('text-error')
+
   describe "when the package is installed", ->
     beforeEach ->
       atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-config'))
       waitsFor ->
         atom.packages.isPackageLoaded('package-with-config') is true
+
+    it "can be disabled if installed", ->
+      setPackageStatusSpies {installed: true, disabled: false}
+      spyOn(atom.packages, 'disablePackage').andReturn(true)
+
+      card = new PackageCard {name: 'test-package'}, packageManager
+      expect(card.enablementButton.find('.disable-text').text()).toBe('Disable')
+      card.enablementButton.click()
+      expect(atom.packages.disablePackage).toHaveBeenCalled()
+
+    it "can be uninstalled if installed", ->
+      setPackageStatusSpies {installed: true, disabled: false}
+      spyOn(packageManager, 'uninstall')
+
+      card = new PackageCard {name: 'test-package'}, packageManager
+      expect(card.uninstallButton.css('display')).not.toBe('none')
+      card.uninstallButton.click()
+      expect(packageManager.uninstall).toHaveBeenCalled()
 
     it "shows the settings, uninstall, and disable buttons", ->
       atom.config.set('package-with-config.setting', 'something')
@@ -92,7 +226,7 @@ describe "PackageCard", ->
     describe "when hasDeprecations is true and NO update is available", ->
       beforeEach ->
         spyOn(PackageCard::, 'isDeprecated').andReturn(true)
-        spyOn(PackageCard::, 'getPackageDeprecationMetadata').andReturn
+        spyOn(PackageCard::, 'getDeprecatedPackageMetadata').andReturn
           hasDeprecations: true
           version: '<=1.0.0'
         pack = atom.packages.getLoadedPackage('package-with-config')
@@ -120,7 +254,7 @@ describe "PackageCard", ->
           semver = require 'semver'
           version = version ? card?.pack?.version ? '1.0.0'
           semver.satisfies(version, '<=1.0.1')
-        spyOn(PackageCard::, 'getPackageDeprecationMetadata').andReturn
+        spyOn(PackageCard::, 'getDeprecatedPackageMetadata').andReturn
           hasDeprecations: true
           version: '<=1.0.1'
         pack = atom.packages.getLoadedPackage('package-with-config')
@@ -202,7 +336,7 @@ describe "PackageCard", ->
     describe "when hasAlternative is true and alternative is core", ->
       beforeEach ->
         spyOn(PackageCard::, 'isDeprecated').andReturn true
-        spyOn(PackageCard::, 'getPackageDeprecationMetadata').andReturn
+        spyOn(PackageCard::, 'getDeprecatedPackageMetadata').andReturn
           hasAlternative: true
           alternative: 'core'
         pack = atom.packages.getLoadedPackage('package-with-config')
@@ -224,7 +358,7 @@ describe "PackageCard", ->
     describe "when hasAlternative is true and alternative is a package that has not been installed", ->
       beforeEach ->
         spyOn(PackageCard::, 'isDeprecated').andReturn true
-        spyOn(PackageCard::, 'getPackageDeprecationMetadata').andReturn
+        spyOn(PackageCard::, 'getDeprecatedPackageMetadata').andReturn
           hasAlternative: true
           alternative: 'not-installed-package'
         pack = atom.packages.getLoadedPackage('package-with-config')
@@ -290,7 +424,7 @@ describe "PackageCard", ->
 
         runs ->
           spyOn(PackageCard::, 'isDeprecated').andReturn true
-          spyOn(PackageCard::, 'getPackageDeprecationMetadata').andReturn
+          spyOn(PackageCard::, 'getDeprecatedPackageMetadata').andReturn
             hasAlternative: true
             alternative: 'language-test'
           pack = atom.packages.getLoadedPackage('package-with-config')
