@@ -34,8 +34,9 @@ module.exports =
       'settings-view:show-keybindings': -> atom.workspace.open("#{configUri}/keybindings")
       'settings-view:change-themes': -> atom.workspace.open("#{configUri}/themes")
       'settings-view:install-packages-and-themes': -> atom.workspace.open("#{configUri}/install")
+      'settings-view:view-installed-themes': -> atom.workspace.open("#{configUri}/themes")
       'settings-view:uninstall-themes': -> atom.workspace.open("#{configUri}/themes")
-      'settings-view:view-packages': -> atom.workspace.open("#{configUri}/packages")
+      'settings-view:view-installed-packages': -> atom.workspace.open("#{configUri}/packages")
       'settings-view:uninstall-packages': -> atom.workspace.open("#{configUri}/packages")
       'settings-view:check-for-package-updates': -> atom.workspace.open("#{configUri}/updates")
 
@@ -76,7 +77,7 @@ module.exports =
       buttons: [{
         text: 'View Deprecated Packages',
         onDidClick: ->
-          atom.commands.dispatch(atom.views.getView(atom.workspace), 'settings-view:view-packages')
+          atom.commands.dispatch(atom.views.getView(atom.workspace), 'settings-view:view-installed-packages')
           notification.dismiss()
       }]
     localStorage.setItem('hasSeenDeprecatedNotification', true)
