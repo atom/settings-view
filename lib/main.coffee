@@ -35,6 +35,7 @@ module.exports =
       'settings-view:change-themes': -> atom.workspace.open("#{configUri}/themes")
       'settings-view:install-packages-and-themes': -> atom.workspace.open("#{configUri}/install")
       'settings-view:uninstall-themes': -> atom.workspace.open("#{configUri}/themes")
+      'settings-view:view-packages': -> atom.workspace.open("#{configUri}/packages")
       'settings-view:uninstall-packages': -> atom.workspace.open("#{configUri}/packages")
       'settings-view:check-for-package-updates': -> atom.workspace.open("#{configUri}/updates")
 
@@ -45,23 +46,32 @@ module.exports =
   consumeStatusBar: (statusBar) ->
     PackageManager = require './package-manager'
     packageManager = new PackageManager()
+    packageManager.getInstalled().then (packages) ->
+      deprecatedPackages = packages.user.filter ({name, version}) ->
+        atom.packages.isDeprecatedPackage(name, version)
+      return unless deprecatedPackages.length
+
+      were = 'were'
+      have = 'have'
+      packageText = 'packages'
+      if packages.length is 1
+        packageText = 'package'
+        were = 'was'
+        have = 'has'
+      notification = atom.notifications.addWarning "#{deprecatedPackages.length} #{packageText} #{have} deprecations and #{were} not loaded.",
+        description: 'This message will show one time. You can view deprecated packages in the settings view.'
+        detail: (pack.name for pack in deprecatedPackages).join(', ')
+        dismissable: true
+        buttons: [{
+          text: 'View Deprecated Packages',
+          onDidClick: ->
+            atom.commands.dispatch(atom.views.getView(atom.workspace), 'settings-view:view-packages')
+            notification.dismiss()
+        }]
+    .catch (error) ->
+      console.log error.message, error.stack
+
     packageManager.getOutdated().then (packages) ->
       if packages.length > 0
         PackageUpdatesStatusView = require './package-updates-status-view'
         packageUpdatesStatusView = new PackageUpdatesStatusView(statusBar, packages)
-
-        itemText = 'them'
-        packageText = 'packages'
-        if packages.length is 1
-          itemText = 'it'
-          packageText = 'package'
-        notification = atom.notifications.addInfo "You have #{packages.length} outdated #{packageText}. Please upgrade #{itemText}.",
-          description: 'Keeping packages up to date helps keep things speedy and breakage to a minimum. Upgrade often!'
-          detail: (pack.name for pack in packages).join(', ')
-          dismissable: true
-          buttons: [{
-            text: 'View and Upgrade Outdated Packages',
-            onDidClick: ->
-              atom.commands.dispatch(atom.views.getView(atom.workspace), 'settings-view:check-for-package-updates')
-              notification.dismiss()
-          }]
