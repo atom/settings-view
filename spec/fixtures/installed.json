@@ -5,7 +5,8 @@
       "theme": "syntax"
     },
     {
-      "name": "core-package"
+      "name": "core-package",
+      "version": "1.0.0"
     }
   ],
   "user": [
@@ -14,7 +15,8 @@
       "theme": "syntax"
     },
     {
-      "name": "user-package"
+      "name": "user-package",
+      "version": "1.0.0"
     }
   ],
   "dev": [
@@ -23,7 +25,8 @@
       "theme": "syntax"
     },
     {
-      "name": "dev-package"
+      "name": "dev-package",
+      "version": "1.0.0"
     }
   ]
 }

@@ -10,6 +10,8 @@ Client = require './atom-io-client'
 ErrorView = require './error-view'
 PackageManager = require './package-manager'
 
+PackageNameRegex = /config\/install\/(package|theme):([a-z0-9-_]+)/i
+
 module.exports =
 class InstallPanel extends View
   Subscriber.includeInto(this)
@@ -75,25 +77,48 @@ class InstallPanel extends View
 
     @searchPackagesButton.on 'click', =>
       unless @searchPackagesButton.hasClass('selected')
-        @searchType = 'packages'
-        @searchPackagesButton.addClass('selected')
-        @searchThemesButton.removeClass('selected')
-        @searchEditorView.getModel().setPlaceholderText('Search packages')
-        @publishedToText.text('Packages are published to ')
-        @atomIoURL = 'https://atom.io/packages'
-        @loadFeaturedPackages()
+        @setSearchType('package')
         @performSearch()
 
     @searchThemesButton.on 'click', =>
       unless @searchThemesButton.hasClass('selected')
-        @searchType = 'themes'
-        @searchThemesButton.addClass('selected')
-        @searchPackagesButton.removeClass('selected')
-        @searchEditorView.getModel().setPlaceholderText('Search themes')
-        @publishedToText.text('Themes are published to ')
-        @atomIoURL = 'https://atom.io/themes'
-        @loadFeaturedPackages(true)
+        @setSearchType('theme')
         @performSearch()
+
+  setSearchType: (searchType) ->
+    if searchType is 'theme'
+      @searchType = 'themes'
+      @searchThemesButton.addClass('selected')
+      @searchPackagesButton.removeClass('selected')
+      @searchEditorView.getModel().setPlaceholderText('Search themes')
+      @publishedToText.text('Themes are published to ')
+      @atomIoURL = 'https://atom.io/themes'
+      @loadFeaturedPackages(true)
+    else if searchType is 'package'
+      @searchType = 'packages'
+      @searchPackagesButton.addClass('selected')
+      @searchThemesButton.removeClass('selected')
+      @searchEditorView.getModel().setPlaceholderText('Search packages')
+      @publishedToText.text('Packages are published to ')
+      @atomIoURL = 'https://atom.io/packages'
+      @loadFeaturedPackages()
+
+  beforeShow: (options) ->
+    return unless options?.uri?
+    query = @extractQueryFromURI(options.uri)
+    if query?
+      {searchType, packageName} = query
+      @setSearchType(searchType)
+      @searchEditorView.setText(packageName)
+      @performSearch()
+
+  extractQueryFromURI: (uri) ->
+    matches = PackageNameRegex.exec(uri)
+    if matches?
+      [__, searchType, packageName] = matches
+      {searchType, packageName}
+    else
+      null
 
   performSearch: ->
     if query = @searchEditorView.getText().trim()

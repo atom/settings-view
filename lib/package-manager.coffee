@@ -11,12 +11,20 @@ Q.stopUnhandledRejectionTracking()
 module.exports =
 class PackageManager
   Emitter.includeInto(this)
-
   constructor: ->
     @packagePromises = []
+    @availablePackageCache = null
 
   getClient: ->
     @client ?= new Client(this)
+
+  isPackageInstalled: (packageName) ->
+    if atom.packages.isPackageLoaded(packageName) or atom.packages.isPackageDisabled(packageName)
+      true
+    else if packageNames = @getAvailablePackageNames()
+      packageNames.indexOf(packageName) > -1
+    else
+      false
 
   runCommand: (args, callback) ->
     command = atom.packages.getApmPath()
@@ -33,13 +41,14 @@ class PackageManager
   loadInstalled: (callback) ->
     args = ['ls', '--json']
     errorMessage = 'Fetching local packages failed.'
-    apmProcess = @runCommand args, (code, stdout, stderr) ->
+    apmProcess = @runCommand args, (code, stdout, stderr) =>
       if code is 0
         try
           packages = JSON.parse(stdout)
         catch parseError
           error = createJsonParseError(errorMessage, parseError, stdout)
           return callback(error)
+        @cacheAvailablePackageNames(packages)
         callback(null, packages)
       else
         error = new Error(errorMessage)
@@ -212,13 +221,14 @@ class PackageManager
     args = ['install', "#{name}@#{newVersion}"]
     exit = (code, stdout, stderr) =>
       if code is 0
-        if activateOnSuccess
+        activation = if activateOnSuccess
           atom.packages.activatePackage(name)
         else
           atom.packages.loadPackage(name)
 
-        callback?()
-        @emitPackageEvent 'updated', pack
+        Promise.resolve(activation).then =>
+          callback?()
+          @emitPackageEvent 'updated', pack
       else
         atom.packages.activatePackage(name) if activateOnFailure
         error = new Error(errorMessage)
@@ -230,7 +240,7 @@ class PackageManager
     apmProcess = @runCommand(args, exit)
     handleProcessErrors(apmProcess, errorMessage, onError)
 
-  unload: (packageName) ->
+  unload: (name) ->
     if atom.packages.isPackageLoaded(name)
       atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
       atom.packages.unloadPackage(name)
@@ -241,7 +251,10 @@ class PackageManager
     activateOnFailure = atom.packages.isPackageActive(name)
 
     @unload(name)
-    args = ['install', "#{name}@#{version}"]
+    if version?
+      args = ['install', "#{name}@#{version}"]
+    else
+      args = ['install', "#{name}"]
 
     errorMessage = "Installing \u201C#{name}@#{version}\u201D failed."
     onError = (error) =>
@@ -265,6 +278,7 @@ class PackageManager
         error.stderr = stderr
         onError(error)
 
+    @emitPackageEvent('installing', pack)
     apmProcess = @runCommand(args, exit)
     handleProcessErrors(apmProcess, errorMessage, onError)
 
@@ -278,6 +292,7 @@ class PackageManager
       @emitPackageEvent 'uninstall-failed', pack, error
       callback(error)
 
+    @emitPackageEvent('uninstalling', pack)
     apmProcess = @runCommand ['uninstall', '--hard', name], (code, stdout, stderr) =>
       if code is 0
         @unload(name)
@@ -290,6 +305,26 @@ class PackageManager
         onError(error)
 
     handleProcessErrors(apmProcess, errorMessage, onError)
+
+  installAlternative: (pack, alternativePackageName, callback) ->
+    eventArg = {pack, alternative: alternativePackageName}
+    @emit('package-installing-alternative', eventArg)
+
+    uninstallPromise = new Promise (resolve, reject) =>
+      @uninstall pack, (error) ->
+        if error then reject(error) else resolve()
+
+    installPromise = new Promise (resolve, reject) =>
+      @install {name: alternativePackageName}, (error) ->
+        if error then reject(error) else resolve()
+
+    Promise.all([uninstallPromise, installPromise]).then =>
+      callback(null, eventArg)
+      @emit('package-installed-alternative', eventArg)
+    .catch (error) =>
+      console.error error.message, error.stack
+      callback(error, eventArg)
+      @emit('package-install-alternative-failed', eventArg, error)
 
   canUpgrade: (installedPackage, availableVersion) ->
     return false unless installedPackage?
@@ -325,6 +360,16 @@ class PackageManager
       deferred.reject(error)
 
     deferred.promise
+
+  cacheAvailablePackageNames: (packages) ->
+    @availablePackageCache = []
+    for packageType in ['core', 'user', 'dev']
+      packageNames = (pack.name for pack in packages[packageType])
+      @availablePackageCache.push(packageNames...)
+    @availablePackageCache
+
+  getAvailablePackageNames: ->
+    @availablePackageCache
 
   # Emits the appropriate event for the given package.
   #
