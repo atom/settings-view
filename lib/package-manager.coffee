@@ -11,12 +11,20 @@ Q.stopUnhandledRejectionTracking()
 module.exports =
 class PackageManager
   Emitter.includeInto(this)
-
   constructor: ->
     @packagePromises = []
+    @availablePackageCache = null
 
   getClient: ->
     @client ?= new Client(this)
+
+  isPackageInstalled: (packageName) ->
+    if atom.packages.isPackageLoaded(packageName) or atom.packages.isPackageDisabled(packageName)
+      true
+    else if packageNames = @getAvailablePackageNames()
+      packageNames.indexOf(packageName) > -1
+    else
+      false
 
   runCommand: (args, callback) ->
     command = atom.packages.getApmPath()
@@ -33,13 +41,14 @@ class PackageManager
   loadInstalled: (callback) ->
     args = ['ls', '--json']
     errorMessage = 'Fetching local packages failed.'
-    apmProcess = @runCommand args, (code, stdout, stderr) ->
+    apmProcess = @runCommand args, (code, stdout, stderr) =>
       if code is 0
         try
           packages = JSON.parse(stdout)
         catch parseError
           error = createJsonParseError(errorMessage, parseError, stdout)
           return callback(error)
+        @cacheAvailablePackageNames(packages)
         callback(null, packages)
       else
         error = new Error(errorMessage)
@@ -351,6 +360,16 @@ class PackageManager
       deferred.reject(error)
 
     deferred.promise
+
+  cacheAvailablePackageNames: (packages) ->
+    @availablePackageCache = []
+    for packageType in ['core', 'user', 'dev']
+      packageNames = (pack.name for pack in packages[packageType])
+      @availablePackageCache.push(packageNames...)
+    @availablePackageCache
+
+  getAvailablePackageNames: ->
+    @availablePackageCache
 
   # Emits the appropriate event for the given package.
   #

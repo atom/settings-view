@@ -49,6 +49,22 @@ describe "package manager", ->
       expect(updateCallback.argsForCall[0][0].packageInstallError).toBe true
       expect(updateCallback.argsForCall[0][0].stderr).toContain 'ENOENT'
 
+  describe "::isPackageInstalled()", ->
+    it "returns false a package is not installed", ->
+      expect(packageManager.isPackageInstalled('some-package')).toBe false
+
+    it "returns true when a package is loaded", ->
+      spyOn(atom.packages, 'isPackageLoaded').andReturn true
+      expect(packageManager.isPackageInstalled('some-package')).toBe true
+
+    it "returns true when a package is disabled", ->
+      spyOn(atom.packages, 'isPackageDisabled').andReturn true
+      expect(packageManager.isPackageInstalled('some-package')).toBe true
+
+    it "returns true when a package is in the availablePackageCache", ->
+      spyOn(packageManager, 'getAvailablePackageNames').andReturn ['some-package']
+      expect(packageManager.isPackageInstalled('some-package')).toBe true
+
   describe "::install()", ->
     [runArgs, runCallback] = []
 

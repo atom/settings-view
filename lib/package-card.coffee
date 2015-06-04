@@ -212,6 +212,11 @@ class PackageCard extends View
     @statusIndicator
       .addClass('is-disabled')
 
+    if @isDeprecated()
+      @enablementButton.prop('disabled', true)
+    else
+      @enablementButton.prop('disabled', false)
+
   # Section: installed state updates
 
   updateInstalledState: ->
@@ -274,7 +279,7 @@ class PackageCard extends View
       @enablementButton.remove()
     else if info?.hasAlternative and alt = info?.alternative
       isInstalled = @isInstalled()
-      if isInstalled and atom.packages.getLoadedPackage(alt)
+      if isInstalled and @packageManager.isPackageInstalled(alt)
         message = "`#{@pack.name}` has been replaced by `#{alt}` which is already installed. Please uninstall this package."
         @settingsButton.remove()
         @enablementButton.remove()
@@ -365,7 +370,7 @@ class PackageCard extends View
       @installAlternativeButton.removeClass('is-installing')
       @updateInterfaceState()
 
-  isInstalled: -> atom.packages.isPackageLoaded(@pack.name) or atom.packages.isPackageDisabled(@pack.name)
+  isInstalled: -> @packageManager.isPackageInstalled(@pack.name)
 
   isDisabled: -> atom.packages.isPackageDisabled(@pack.name)
 

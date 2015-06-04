@@ -241,7 +241,8 @@ describe "PackageCard", ->
 
     describe "when hasDeprecations is true and NO update is available", ->
       beforeEach ->
-        spyOn(PackageCard::, 'isDeprecated').andReturn(true)
+        spyOn(PackageCard::, 'isDeprecated').andReturn true
+        spyOn(PackageCard::, 'isInstalled').andReturn true
         spyOn(PackageCard::, 'getDeprecatedPackageMetadata').andReturn
           hasDeprecations: true
           version: '<=1.0.0'
@@ -251,6 +252,8 @@ describe "PackageCard", ->
         jasmine.attachToDOM(card[0])
 
       it "shows the correct state", ->
+        spyOn(atom.packages, 'isPackageDisabled').andReturn false
+        card.updateInterfaceState()
         expect(card.updateButtonGroup).not.toBeVisible()
         expect(card.installButtonGroup).not.toBeVisible()
         expect(card.installAlternativeButtonGroup).not.toBeVisible()
@@ -262,6 +265,23 @@ describe "PackageCard", ->
         expect(card.uninstallButton).toBeVisible()
         expect(card.enablementButton).toBeVisible()
         expect(card.enablementButton.text()).toBe 'Disable'
+        expect(card.enablementButton.prop('disabled')).toBe false
+
+      it "displays a disabled enable button when the package is disabled", ->
+        spyOn(atom.packages, 'isPackageDisabled').andReturn true
+        card.updateInterfaceState()
+        expect(card.updateButtonGroup).not.toBeVisible()
+        expect(card.installButtonGroup).not.toBeVisible()
+        expect(card.installAlternativeButtonGroup).not.toBeVisible()
+
+        expect(card).toHaveClass 'deprecated'
+        expect(card.packageMessage.text()).toContain 'no update available'
+        expect(card.packageMessage).toHaveClass 'text-warning'
+        expect(card.settingsButton[0].disabled).toBe true
+        expect(card.uninstallButton).toBeVisible()
+        expect(card.enablementButton).toBeVisible()
+        expect(card.enablementButton.text()).toBe 'Enable'
+        expect(card.enablementButton.prop('disabled')).toBe true
 
     # NOTE: the mocking here is pretty delicate
     describe "when hasDeprecations is true and there is an update is available", ->
@@ -328,7 +348,6 @@ describe "PackageCard", ->
 
           expect(card.updateButtonGroup).toBeVisible()
           expect(card.installButtonGroup).not.toBeVisible()
-          expect(card.packageActionButtonGroup).not.toBeVisible()
           expect(card.installAlternativeButtonGroup).not.toBeVisible()
 
           updateCallback(0, '', '')
@@ -351,7 +370,10 @@ describe "PackageCard", ->
 
     describe "when hasAlternative is true and alternative is core", ->
       beforeEach ->
-        spyOn(PackageCard::, 'isDeprecated').andReturn true
+        spyOn(atom.packages, 'isDeprecatedPackage').andReturn true
+        spyOn(atom.packages, 'isPackageLoaded').andReturn false
+        spyOn(atom.packages, 'isPackageDisabled').andReturn false
+        spyOn(packageManager, 'getAvailablePackageNames').andReturn(['package-with-config'])
         spyOn(PackageCard::, 'getDeprecatedPackageMetadata').andReturn
           hasAlternative: true
           alternative: 'core'
