@@ -187,9 +187,9 @@ class InstalledPackagesPanel extends View
         filterText = "#{pack.name} #{owner}"
         fuzzaldrin.score(filterText, text) > 0
 
-      for view in allViews
+      for view in allViews when view
         view.find('.package-card').hide().addClass('hidden')
-      for view in activeViews
+      for view in activeViews when view
         view.find('.package-card').show().removeClass('hidden')
 
     @updateSectionCounts()
