@@ -23,6 +23,7 @@ class SettingsPanel extends View
         'showInvisibles'
         'softWrap'
         'softWrapAtPreferredLineLength'
+        'softWrapHangingIndent'
         'tabLength'
       ]
       settings = {}
@@ -74,7 +75,7 @@ class SettingsPanel extends View
         if type is 'checkbox'
           input.prop('checked', value)
         else
-          value = value.toHexString() if value? and type is 'color'
+          value = value?.toHexString?() ? value if type is 'color'
           input.val(value) if value
 
       input.on 'change', =>
@@ -158,12 +159,12 @@ class SettingsPanel extends View
       value?.toString()
 
   parseValue: (type, value) ->
-    if value == ''
+    if value is ''
       value = undefined
-    else if type == 'number'
+    else if type is 'number'
       floatValue = parseFloat(value)
       value = floatValue unless isNaN(floatValue)
-    else if type == 'array'
+    else if type is 'array'
       arrayValue = (value or '').split(',')
       value = (val.trim() for val in arrayValue when val)
 

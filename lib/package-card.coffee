@@ -17,7 +17,7 @@ class PackageCard extends View
       @div class: 'stats pull-right', =>
         @span class: "stats-item", =>
           @span class: 'icon icon-versions'
-          @span outlet: 'versionValue', class:'value', String(version)
+          @span outlet: 'versionValue', class: 'value', String(version)
 
         @span class: 'stats-item', =>
           @span class: 'icon icon-cloud-download'
@@ -115,7 +115,7 @@ class PackageCard extends View
     else
       @on 'click', =>
         @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
-      @settingsButton.on 'click', =>
+      @settingsButton.on 'click', (event) =>
         event.stopPropagation()
         @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
 
@@ -149,6 +149,9 @@ class PackageCard extends View
       repo = repository
     else
       repo = repository.url
+      if repo.match 'git@github'
+        repoName = repo.split(':')[1]
+        repo = "https://github.com/#{repoName}"
     repo.match(loginRegex)?[1] ? ''
 
   loadCachedMetadata: ->
@@ -233,7 +236,9 @@ class PackageCard extends View
   isDisabled: -> atom.packages.isPackageDisabled(@pack.name)
 
   hasSettings: (pack) ->
-    atom.config.get(pack.name)?
+    for key, value of atom.config.get(pack.name)
+      return true
+    false
 
   subscribeToPackageEvent: (event, callback) ->
     @subscribe @packageManager, event, (pack, error) =>

@@ -1,6 +1,6 @@
 {
   "name": "settings-view",
-  "version": "0.195.0",
+  "version": "0.206.0",
   "main": "./lib/main",
   "description": "Edit config settings, install packages, and change themes",
   "license": "MIT",
@@ -31,6 +31,6 @@
     }
   },
   "devDependencies": {
-    "coffeelint": "^1.9.3"
+    "coffeelint": "^1.9.7"
   }
 }

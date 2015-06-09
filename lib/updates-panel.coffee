@@ -13,6 +13,12 @@ class UpdatesPanel extends View
         @div class: 'section-container updates-container', =>
           @h1 class: 'section-heading icon icon-cloud-download', 'Available Updates', =>
             @button outlet: 'updateAllButton', class: 'pull-right update-all-button btn btn-primary', 'Update All'
+            @button outlet: 'checkButton', class: 'pull-right update-all-button btn btn', 'Check for Updates'
+
+          @div class: 'text native-key-bindings', tabindex: -1, =>
+            @span class: 'icon icon-question'
+            @span 'Deprecated APIs will be removed when Atom 1.0 is released in June. Please update your packages. '
+            @a class: 'link', outlet: 'openBlogPost', 'Learn more\u2026'
 
           @div outlet: 'updateErrors'
           @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
@@ -20,13 +26,18 @@ class UpdatesPanel extends View
           @div outlet: 'updatesContainer', class: 'container package-container'
 
   initialize: (@packageManager) ->
-    @noUpdatesMessage.hide()
-    @updateAllButton.hide()
     @updateAllButton.on 'click', =>
       @updateAllButton.prop('disabled', true)
       for updateView in @updatesContainer.find('.package-update-view')
         $(updateView).view()?.upgrade?()
+    @checkButton.on 'click', =>
+      @checkForUpdates()
+
     @checkForUpdates()
+
+    @openBlogPost.on 'click', ->
+      require('shell').openExternal('http://blog.atom.io/2015/05/01/removing-deprecated-apis.html')
+      false
 
     @subscribe @packageManager, 'package-update-failed theme-update-failed', (pack, error) =>
       @updateErrors.append(new ErrorView(@packageManager, error))
@@ -50,13 +61,16 @@ class UpdatesPanel extends View
   checkForUpdates: ->
     @noUpdatesMessage.hide()
     @updateAllButton.hide()
+    @checkButton.prop('disabled', true)
 
     @checkingMessage.show()
 
     @packageManager.getOutdated()
       .then (@availableUpdates) =>
+        @checkButton.prop('disabled', false)
         @addUpdateViews()
       .catch (error) =>
+        @checkButton.prop('disabled', false)
         @checkingMessage.hide()
         @updateErrors.append(new ErrorView(@packageManager, error))
 

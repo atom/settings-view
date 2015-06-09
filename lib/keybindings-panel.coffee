@@ -38,7 +38,7 @@ class KeybindingsPanel extends View
     @otherPlatformPattern = new RegExp("\\.platform-(?!#{_.escapeRegExp(process.platform)}\\b)")
     @platformPattern = new RegExp("\\.platform-#{_.escapeRegExp(process.platform)}\\b")
 
-    @openUserKeymap.on 'click', =>
+    @openUserKeymap.on 'click', ->
       atom.commands.dispatch(atom.views.getView(atom.workspace), 'application:open-your-keymap')
       false
 
@@ -72,10 +72,10 @@ class KeybindingsPanel extends View
     @keybindingRows.empty()
     for keyBinding in keyBindings
       {selector, keystrokes, command, source} = keyBinding
-      searchString = "#{selector}#{keystrokes}#{command}#{source}"
+      searchString = "#{selector}#{keystrokes}#{command}#{source}".toLowerCase()
       continue unless searchString
 
-      if /^\s*$/.test(filterString) or searchString.indexOf(filterString) != -1
+      if /^\s*$/.test(filterString) or searchString.indexOf(filterString?.toLowerCase()) isnt -1
         @appendKeyBinding(keyBinding)
 
   appendKeyBindings: (keyBindings) ->

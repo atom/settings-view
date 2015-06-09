@@ -151,3 +151,64 @@ describe "SettingsView", ->
         waits 1
         runs ->
           expect(settingsView.activePanelName).toBe 'Install'
+
+  describe "when an installed package is clicked from the Install panel", ->
+    it "displays the package details", ->
+      waitsFor ->
+        atom.packages.activatePackage('settings-view')
+
+      runs ->
+        settingsView.packageManager.getClient()
+        spyOn(settingsView.packageManager.client, 'featuredPackages').andCallFake (callback) ->
+          callback(null, [{name: 'settings-view'}])
+        settingsView.showPanel('Install')
+
+      waitsFor ->
+        settingsView.find('.package-card:not(.hidden)').length > 0
+
+      runs ->
+        settingsView.find('.package-card:not(.hidden):first').click()
+
+        packageDetail = settingsView.find('.package-detail').view()
+        expect(packageDetail.title.text()).toBe 'Settings View'
+
+  describe "when the active theme has settings", ->
+    panel = null
+
+    beforeEach ->
+      atom.packages.packageDirPaths.push(path.join(__dirname, 'fixtures'))
+      atom.packages.loadPackage('ui-theme-with-config')
+      atom.packages.loadPackage('syntax-theme-with-config')
+      atom.config.set('core.themes', ['ui-theme-with-config', 'syntax-theme-with-config'])
+
+      reloadedHandler = jasmine.createSpy('reloadedHandler')
+      atom.themes.onDidChangeActiveThemes(reloadedHandler)
+      atom.themes.activatePackages()
+
+      waitsFor "themes to be reloaded", ->
+        reloadedHandler.callCount is 1
+
+      runs ->
+        settingsView.showPanel('Themes')
+        panel = settingsView.find('.themes-panel').view()
+
+    afterEach ->
+      atom.themes.unwatchUserStylesheet()
+
+    describe "when the UI theme's settings button is clicked", ->
+      it "navigates to that theme's detail view", ->
+        jasmine.attachToDOM(settingsView.element)
+        expect(panel.activeUiThemeSettings).toBeVisible()
+
+        panel.activeUiThemeSettings.click()
+        packageDetail = settingsView.find('.package-detail').view()
+        expect(packageDetail.title.text()).toBe 'Ui Theme With Config'
+
+    describe "when the syntax theme's settings button is clicked", ->
+      it "navigates to that theme's detail view", ->
+        jasmine.attachToDOM(settingsView.element)
+        expect(panel.activeSyntaxThemeSettings).toBeVisible()
+
+        panel.activeSyntaxThemeSettings.click()
+        packageDetail = settingsView.find('.package-detail').view()
+        expect(packageDetail.title.text()).toBe 'Syntax Theme With Config'
