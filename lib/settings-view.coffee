@@ -2,7 +2,6 @@ path = require 'path'
 _ = require 'underscore-plus'
 {$, $$, ScrollView, TextEditorView} = require 'atom-space-pen-views'
 {Disposable} = require 'atom'
-{Subscriber} = require 'emissary'
 async = require 'async'
 CSON = require 'season'
 fuzzaldrin = require 'fuzzaldrin'
@@ -19,7 +18,6 @@ UpdatesPanel = require './updates-panel'
 
 module.exports =
 class SettingsView extends ScrollView
-  Subscriber.includeInto(this)
 
   @content: ->
     @div class: 'settings-view pane-item', tabindex: -1, =>
@@ -36,9 +34,6 @@ class SettingsView extends ScrollView
 
     @deferredPanel = {name: activePanelName}
     process.nextTick => @initializePanels()
-
-  detached: ->
-    @unsubscribe()
 
   #TODO Remove both of these post 1.0
   onDidChangeTitle: -> new Disposable()

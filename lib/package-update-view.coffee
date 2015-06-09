@@ -1,10 +1,8 @@
 _ = require 'underscore-plus'
 {View} = require 'atom-space-pen-views'
-{Subscriber} = require 'emissary'
 
 module.exports =
 class PackageUpdateView extends View
-  Subscriber.includeInto(this)
 
   @content: ({name, description}) ->
     @div class: 'col-md-6 package-update-view', =>
@@ -36,7 +34,7 @@ class PackageUpdateView extends View
 
   detached: ->
     @statusTooltip?.dispose()
-    @unsubscribe()
+    @packageManagerSubscription.dispose()
 
   handlePackageEvents: ->
     @subscribeToPackageEvent 'package-updated theme-updated package-update-failed theme-update-failed', (pack, error) =>
@@ -71,7 +69,7 @@ class PackageUpdateView extends View
     @uninstallButton.prop('disabled', not enabled)
 
   subscribeToPackageEvent: (event, callback) ->
-    @subscribe @packageManager, event, (pack, error) =>
+    @packageManagerSubscription = @packageManager.on event, (pack, error) =>
       callback(pack, error) if pack.name is @pack.name
 
   uninstall: ->

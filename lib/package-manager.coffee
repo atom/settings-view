@@ -1,6 +1,6 @@
 _ = require 'underscore-plus'
-{BufferedProcess} = require 'atom'
-{Emitter} = require 'emissary'
+{BufferedProcess, CompositeDisposable} = require 'atom'
+{Emitter} = require 'event-kit'
 Q = require 'q'
 semver = require 'semver'
 
@@ -10,10 +10,10 @@ Q.stopUnhandledRejectionTracking()
 
 module.exports =
 class PackageManager
-  Emitter.includeInto(this)
   constructor: ->
     @packagePromises = []
     @availablePackageCache = null
+    @emitter = new Emitter
 
   getClient: ->
     @client ?= new Client(this)
@@ -236,7 +236,7 @@ class PackageManager
         error.stderr = stderr
         onError(error)
 
-    @emit('package-updating', pack)
+    @emitter.emit 'package-updating', pack
     apmProcess = @runCommand(args, exit)
     handleProcessErrors(apmProcess, errorMessage, onError)
 
@@ -308,7 +308,7 @@ class PackageManager
 
   installAlternative: (pack, alternativePackageName, callback) ->
     eventArg = {pack, alternative: alternativePackageName}
-    @emit('package-installing-alternative', eventArg)
+    @emitter.emit 'package-installing-alternative', eventArg
 
     uninstallPromise = new Promise (resolve, reject) =>
       @uninstall pack, (error) ->
@@ -320,11 +320,11 @@ class PackageManager
 
     Promise.all([uninstallPromise, installPromise]).then =>
       callback(null, eventArg)
-      @emit('package-installed-alternative', eventArg)
+      @emitter.emit 'package-installed-alternative', eventArg
     .catch (error) =>
       console.error error.message, error.stack
       callback(error, eventArg)
-      @emit('package-install-alternative-failed', eventArg, error)
+      @emitter.emit 'package-install-alternative-failed', eventArg, error
 
   canUpgrade: (installedPackage, availableVersion) ->
     return false unless installedPackage?
@@ -384,7 +384,13 @@ class PackageManager
   emitPackageEvent: (eventName, pack, error) ->
     theme = pack.theme ? pack.metadata?.theme
     eventName = if theme then "theme-#{eventName}" else "package-#{eventName}"
-    @emit eventName, pack, error
+    @emitter.emit eventName, pack, error
+
+  on: (selectors, callback) ->
+    subscriptions = new CompositeDisposable
+    selectors.split(" ").forEach (selector) =>
+      subscriptions.add @emitter.on selector, callback
+    subscriptions
 
 createJsonParseError = (message, parseError, stdout) ->
   error = new Error(message)

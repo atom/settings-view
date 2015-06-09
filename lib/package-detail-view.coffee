@@ -5,7 +5,6 @@ _ = require 'underscore-plus'
 fs = require 'fs-plus'
 shell = require 'shell'
 {View} = require 'atom-space-pen-views'
-{Subscriber} = require 'emissary'
 
 ErrorView = require './error-view'
 PackageCard = require './package-card'
@@ -17,7 +16,6 @@ SettingsPanel = require './settings-panel'
 
 module.exports =
 class PackageDetailView extends View
-  Subscriber.includeInto(this)
 
   @content: (pack, packageManager) ->
     @div class: 'package-detail', =>
@@ -71,7 +69,7 @@ class PackageDetailView extends View
       @pack.activateConfig()
 
   detached: ->
-    @unsubscribe()
+    # @unsubscribe()
 
   beforeShow: (opts) ->
     if opts?.back
@@ -120,16 +118,16 @@ class PackageDetailView extends View
     @sections.append(new PackageReadmeView(readme))
 
   subscribeToPackageManager: ->
-    @subscribe @packageManager, 'theme-installed package-installed', (pack) =>
+    @packageManager.on 'theme-installed package-installed', (pack) =>
       return unless @pack.name is pack.name
 
       @loadPackage()
       @updateInstalledState()
 
-    @subscribe @packageManager, 'theme-uninstalled package-uninstalled', (pack) =>
+    @packageManager.on 'theme-uninstalled package-uninstalled', (pack) =>
       @updateInstalledState() if @pack.name is pack.name
 
-    @subscribe @packageManager, 'theme-updated package-updated', (pack) =>
+    @packageManager.on 'theme-updated package-updated', (pack) =>
       return unless @pack.name is pack.name
 
       @loadPackage()

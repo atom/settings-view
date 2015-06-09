@@ -1,13 +1,11 @@
 _ = require 'underscore-plus'
 {View} = require 'atom-space-pen-views'
-{Subscriber} = require 'emissary'
 shell = require 'shell'
 marked = null
 {ownerFromRepository} = require './utils'
 
 module.exports =
 class PackageCard extends View
-  Subscriber.includeInto(this)
 
   @content: ({name, description, version, repository}) ->
     # stars, downloads
@@ -168,7 +166,7 @@ class PackageCard extends View
       false
 
   detached: ->
-    @unsubscribe()
+    @packageManagerSubscription.dispose()
 
   loadCachedMetadata: ->
     @client.avatar ownerFromRepository(@pack.repository), (err, avatarPath) =>
@@ -384,7 +382,7 @@ class PackageCard extends View
     false
 
   subscribeToPackageEvent: (event, callback) ->
-    @subscribe @packageManager, event, (pack, error) =>
+    @packageManagerSubscription = @packageManager.on event, (pack, error) =>
       packageName = pack.name
       packageName = pack.pack.name if pack.pack?
       callback(pack, error) if packageName is @pack.name

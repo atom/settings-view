@@ -9,6 +9,7 @@
     "atom-space-pen-views": "^2.0.2",
     "cheerio": "0.15.0",
     "emissary": "1.x",
+    "event-kit": "1.2.0",
     "fs-plus": "^2.4",
     "fuzzaldrin": "^2.1",
     "glob": "4.3.1",

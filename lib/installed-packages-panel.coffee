@@ -1,6 +1,6 @@
 _ = require 'underscore-plus'
 {$$, TextEditorView, View} = require 'atom-space-pen-views'
-{Subscriber} = require 'emissary'
+{CompositeDisposable} = require 'atom'
 fuzzaldrin = require 'fuzzaldrin'
 
 PackageCard = require './package-card'
@@ -12,7 +12,6 @@ ListView = require './list-view'
 
 module.exports =
 class InstalledPackagesPanel extends View
-  Subscriber.includeInto(this)
   @loadPackagesDelay: 300
 
   @content: ->
@@ -71,11 +70,12 @@ class InstalledPackagesPanel extends View
 
     @filterEditor.getModel().onDidStopChanging => @matchPackages()
 
-    @subscribe @packageManager, 'package-install-failed theme-install-failed package-uninstall-failed theme-uninstall-failed package-update-failed theme-update-failed', (pack, error) =>
+    @packageManagerSubscriptions = new CompositeDisposable
+    @packageManagerSubscriptions.add @packageManager.on 'package-install-failed theme-install-failed package-uninstall-failed theme-uninstall-failed package-update-failed theme-update-failed', (pack, error) =>
       @updateErrors.append(new ErrorView(@packageManager, error))
 
     loadPackagesTimeout = null
-    @subscribe @packageManager, 'package-updated package-installed package-uninstalled package-installed-alternative', =>
+    @packageManagerSubscriptions.add @packageManager.on 'package-updated package-installed package-uninstalled package-installed-alternative', =>
       clearTimeout(loadPackagesTimeout)
       loadPackagesTimeout = setTimeout =>
         @loadPackages()
@@ -87,7 +87,7 @@ class InstalledPackagesPanel extends View
     @filterEditor.focus()
 
   detached: ->
-    @unsubscribe()
+    @packageManagerSubscriptions.dispose()
 
   filterPackages: (packages) ->
     packages.dev = packages.dev.filter ({theme}) -> not theme
