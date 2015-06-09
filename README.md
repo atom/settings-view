@@ -42,7 +42,7 @@ The Settings View package uses the `ui-variables` to match a theme's color schem
 }
 ```
 
-Use the [developer tools](https://atom.io/docs/v0.196.0/hacking-atom-creating-a-theme#developer-tools) to find more selectors.
+Use the [developer tools](https://atom.io/docs/latest/hacking-atom-creating-a-theme#developer-tools) to find more selectors.
 
 ## Contributing
 Always feel free to help out!  Whether it's [filing bugs and feature requests](https://github.com/atom/settings-view/issues/new) or working on some of the [open issues](https://github.com/atom/settings-view/issues), Atom's [contributing guide](https://github.com/atom/atom/blob/master/CONTRIBUTING.md) will help get you started while the [guide for contributing to packages](https://github.com/atom/atom/blob/master/docs/contributing-to-packages.md) has some extra information.
