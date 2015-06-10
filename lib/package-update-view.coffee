@@ -25,14 +25,20 @@ class PackageUpdateView extends View
 
     @handlePackageEvents()
 
-    @upgradeButton.on 'click', =>
+    @on 'click', =>
+      @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Updates', pack: @pack})
+
+    @upgradeButton.on 'click', (event) =>
+      event.stopPropagation()
       @upgrade()
 
-    @uninstallButton.on 'click', =>
+    @uninstallButton.on 'click', (event) =>
+      event.stopPropagation()
       @uninstall()
 
     @settingsButton.on 'click', =>
-      @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Available Updates'})
+      event.stopPropagation()
+      @parents('.settings-view').view()?.showPanel(@pack.name, {back: 'Updates', pack: @pack})
 
   detached: ->
     @statusTooltip?.dispose()
