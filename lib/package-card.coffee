@@ -63,6 +63,8 @@ class PackageCard extends View
 
     {@name} = @pack
 
+    @newVersion = @pack.latestVersion unless @pack.latestVersion is @pack.version
+
     @handlePackageEvents()
     @handleButtonEvents(options)
     @loadCachedMetadata()
@@ -83,7 +85,7 @@ class PackageCard extends View
       @installButtonGroup.remove()
       @uninstallButton.remove()
 
-    @updateButtonGroup.hide()
+    @updateButtonGroup.hide() unless @newVersion
 
     @hasCompatibleVersion = true
     @updateForUninstalledCommunityPackage() unless @isInstalled()
