@@ -130,7 +130,7 @@ describe "SettingsView", ->
       focusIsWithinActivePanel = ->
         activePanel = settingsView.panelsByName[settingsView.activePanelName]
         # Return true if the element that has the focus, or its ancestors, is the activePanel
-        $(document.activeElement).parents().addBack().toArray().indexOf(activePanel.element) != -1
+        $(document.activeElement).parents().addBack().toArray().indexOf(activePanel.element) isnt -1
 
       beforeEach ->
         settingsView = null
