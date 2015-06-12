@@ -16,6 +16,7 @@
     background-color: @package-card-background-color;
     overflow: hidden;
     cursor: pointer;
+    -webkit-user-select: none;
 
     &:hover {
       background-color: contrast(@package-card-background-color, darken(@package-card-background-color, 2%), lighten(@package-card-background-color, 2%));
@@ -32,6 +33,26 @@
       .stats {
         opacity: .5;
       }
+    }
+
+    &.deprecated, {
+      background-color: @package-card-disabled-background-color;
+      // .body,
+      .avatar,
+      .author,
+      .stats {
+        opacity: .5;
+      }
+    }
+
+    .deprecation-badge {
+      display: none;
+      font-size: .75em;
+      text-transform: uppercase;
+    }
+
+    &.deprecated .deprecation-badge {
+      display: inline;
     }
 
     &.col-lg-4 {
@@ -74,6 +95,10 @@
       display: -webkit-box;
       -webkit-line-clamp: 2; /* number of lines to show */
       -webkit-box-orient: vertical;
+    }
+
+    .package-message p:last-child {
+      margin: 0;
     }
 
     .downloads {
@@ -230,6 +255,10 @@
           background: @background-color-warning;
         }
       }
+
+      .btn-toolbar > .btn-group {
+        float: left;
+      }
     }
 
     .meta-lower {
@@ -246,12 +275,11 @@
     }
 
     // End copy-paste from atom.io
-
   }
 
   // Remove hover styles if it's in a detail view
   .package-detail .package-card {
-    cursor: auto;
+    cursor: default;
     &:hover {
       background-color: @package-card-background-color;
     }

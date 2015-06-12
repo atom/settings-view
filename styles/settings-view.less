@@ -86,8 +86,25 @@
     }
   }
 
+  .select-container {
+    display: flex;
+    align-items: stretch;
+  }
+
+  .btn.active-theme-settings {
+    margin-left: 2px;
+    &::before {
+      margin-right: 0;
+      text-align: left;
+    }
+  }
+
   .checkbox {
     padding-left: 2.25em;
+    label {
+      padding-left: 0;
+      display: block;
+    }
     .setting-title {
       display: inline-block;
     }
@@ -97,7 +114,8 @@
     display: inline-block;
     position: relative;
     font-size: inherit;
-    margin: 0 0 0 -2.25em;
+    margin: 0 .75em 0 -2.25em;
+    vertical-align: top;
     width: 1.5em;
     height: 1.5em;
     cursor: pointer;
@@ -274,6 +292,8 @@
     font-size: 1.4em;
     font-weight: bold;
     line-height: 1;
+    -webkit-user-select: none;
+    cursor: default;
   }
 
   .control-label {
@@ -308,6 +328,7 @@
     flex: 1.6;
     min-width: 180px;
     max-width: 240px;
+    -webkit-user-select: none;
     user-select: none;
     padding-top: @component-padding;
     background-color: lighten(@base-background-color, 2%);
@@ -400,11 +421,11 @@
     flex-flow: column;
     display: flex;
     position: relative;
-    overflow: auto;
 
     > div {
       flex: 1;
       min-width: 372px; // magic number: fit the Settings, Uninstall and Disable button
+      overflow: auto;
     }
   }
 
@@ -445,6 +466,10 @@
 
     .update-message {
       padding-right: @component-padding;
+    }
+
+    .link {
+      width: -webkit-fit-content; // prevents hover area being full-width
     }
 
     .link,
@@ -657,6 +682,7 @@
 
   .update-all-button {
     top: -4px; // visually centered to title
+    margin-left: 4px;
     right: 0;
     position: relative;
   }

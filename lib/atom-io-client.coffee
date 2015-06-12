@@ -61,7 +61,7 @@ class AtomIoClient
         localStorage.setItem(@cacheKeyForPath(key), JSON.stringify(cached))
         # end copypasta
         callback(null, packages)
-      .catch (error) =>
+      .catch (error) ->
         callback(error, null)
 
   request: (path, callback) ->
@@ -94,7 +94,7 @@ class AtomIoClient
 
     unless options.force
       # Set `force` to true if we can't reach the network.
-      options.force = !@online()
+      options.force = not @online()
 
     cached = localStorage.getItem(@cacheKeyForPath(packagePath))
     cached = if cached then JSON.parse(cached)
@@ -118,6 +118,7 @@ class AtomIoClient
   cachedAvatar: (login, callback) ->
     glob ?= require 'glob'
     glob @avatarGlob(login), (err, files) =>
+      return callback(err) if err
       files.sort().reverse()
       for imagePath in files
         filename = path.basename(imagePath)
@@ -153,7 +154,7 @@ class AtomIoClient
         if error and error.code isnt 'ENOENT' # Ignore cache paths that don't exist
           console.warn("Error deleting avatar (#{error.code}): #{avatarPath}")
 
-    fs.readdir @getCachePath(), (error, _files) =>
+    fs.readdir @getCachePath(), (error, _files) ->
       _files ?= []
       files = {}
       for filename in _files

@@ -53,12 +53,17 @@ class PackageDetailView extends View
       @div outlet: 'sections'
 
   initialize: (@pack, @packageManager) ->
+    @loadPackage()
     @activate()
     @populate()
     @handleButtonEvents()
     @updateFileButtons()
     @checkForUpdate()
     @subscribeToPackageManager()
+
+  loadPackage: ->
+    if loadedPackage = atom.packages.getLoadedPackage(@pack.name)
+      @pack = loadedPackage
 
   activate: ->
     # Package.activateConfig() is part of the Private package API and should not be used outside of core.
@@ -96,13 +101,17 @@ class PackageDetailView extends View
     if @isInstalled()
       @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
       @sections.append(new PackageKeymapView(@pack.name))
-      @sections.append(new PackageGrammarsView(@pack.path))
-      @sections.append(new PackageSnippetsView(@pack.path))
-      @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
 
+      if @pack.path
+        @sections.append(new PackageGrammarsView(@pack.path))
+        @sections.append(new PackageSnippetsView(@pack.path))
+
+      @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
     else
       @startupTime.hide()
       @openButton.hide()
+
+    @openButton.hide() if atom.packages.isBundledPackage(@pack.name)
 
     readme = if @pack.metadata.readme then @pack.metadata.readme else null
     if @readmePath and not readme
@@ -112,20 +121,21 @@ class PackageDetailView extends View
 
   subscribeToPackageManager: ->
     @subscribe @packageManager, 'theme-installed package-installed', (pack) =>
-      @pack = atom.packages.getLoadedPackage(pack.name)
+      return unless @pack.name is pack.name
+
+      @loadPackage()
       @updateInstalledState()
 
     @subscribe @packageManager, 'theme-uninstalled package-uninstalled', (pack) =>
-      @updateInstalledState()
+      @updateInstalledState() if @pack.name is pack.name
 
-    @subscribe @packageManager, 'theme-updated package-updated', (pack, newVersion) =>
+    @subscribe @packageManager, 'theme-updated package-updated', (pack) =>
       return unless @pack.name is pack.name
 
+      @loadPackage()
       @updateFileButtons()
       @updateArea.hide()
-      if updatedPackage = atom.packages.getLoadedPackage(@pack.name)
-        @pack = updatedPackage
-        @populate()
+      @populate()
 
   handleButtonEvents: ->
     @packageRepo.on 'click', =>
@@ -209,4 +219,5 @@ class PackageDetailView extends View
 
   # Even though the title of this view is hilariously "PackageDetailView",
   # the package might not be installed.
-  isInstalled: -> atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)
+  isInstalled: ->
+    atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)

@@ -2,6 +2,8 @@ _ = require 'underscore-plus'
 {View} = require 'atom-space-pen-views'
 {Subscriber} = require 'emissary'
 shell = require 'shell'
+marked = null
+{ownerFromRepository} = require './utils'
 
 module.exports =
 class PackageCard extends View
@@ -10,14 +12,14 @@ class PackageCard extends View
   @content: ({name, description, version, repository}) ->
     # stars, downloads
     # lol wat
-    owner = PackageCard::ownerFromRepository(repository)
+    owner = ownerFromRepository(repository)
     description ?= ''
 
     @div class: 'package-card col-lg-8', =>
       @div class: 'stats pull-right', =>
         @span class: "stats-item", =>
           @span class: 'icon icon-versions'
-          @span class:'value', version
+          @span outlet: 'versionValue', class: 'value', String(version)
 
         @span class: 'stats-item', =>
           @span class: 'icon icon-cloud-download'
@@ -26,7 +28,10 @@ class PackageCard extends View
       @div class: 'body', =>
         @h4 class: 'card-name', =>
           @a outlet: 'packageName', name
+          @span ' '
+          @span class: 'deprecation-badge highlight-warning inline-block', 'Deprecated'
         @span outlet: 'packageDescription', class: 'package-description', description
+        @div outlet: 'packageMessage', class: 'package-message'
 
       @div class: 'meta', =>
         @div class: 'meta-user', =>
@@ -34,16 +39,21 @@ class PackageCard extends View
             @img outlet: 'avatar', class: 'avatar', src: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' # A transparent gif so there is no "broken border"
           @a outlet: 'loginLink', class: 'author', href: "https://atom.io/users/#{owner}", owner
         @div class: 'meta-controls', =>
-          @div class: 'btn-group', =>
-            @button type: 'button', class: 'btn btn-info icon icon-cloud-download install-button', outlet: 'installButton', 'Install'
-          @div outlet: 'buttons', class: 'btn-group', =>
-            @button type: 'button', class: 'btn icon icon-gear settings',             outlet: 'settingsButton', 'Settings'
-            @button type: 'button', class: 'btn icon icon-trashcan uninstall',        outlet: 'uninstallButton', 'Uninstall'
-            @button type: 'button', class: 'btn icon icon-playback-pause enablement', outlet: 'enablementButton', =>
-              @span class: 'disable-text', 'Disable'
-            @button type: 'button', class: 'btn status-indicator', tabindex: -1, outlet: 'statusIndicator'
+          @div class: 'btn-toolbar', =>
+            @div outlet: 'updateButtonGroup', class: 'btn-group', =>
+              @button type: 'button', class: 'btn btn-info icon icon-cloud-download install-button', outlet: 'updateButton', 'Update'
+            @div outlet: 'installAlternativeButtonGroup', class: 'btn-group', =>
+              @button type: 'button', class: 'btn btn-info icon icon-cloud-download install-button', outlet: 'installAlternativeButton', 'Install Alternative'
+            @div outlet: 'installButtonGroup', class: 'btn-group', =>
+              @button type: 'button', class: 'btn btn-info icon icon-cloud-download install-button', outlet: 'installButton', 'Install'
+            @div outlet: 'packageActionButtonGroup', class: 'btn-group', =>
+              @button type: 'button', class: 'btn icon icon-gear settings',             outlet: 'settingsButton', 'Settings'
+              @button type: 'button', class: 'btn icon icon-trashcan uninstall',        outlet: 'uninstallButton', 'Uninstall'
+              @button type: 'button', class: 'btn icon icon-playback-pause enablement', outlet: 'enablementButton', =>
+                @span class: 'disable-text', 'Disable'
+              @button type: 'button', class: 'btn status-indicator', tabindex: -1, outlet: 'statusIndicator'
 
-  initialize: (@pack, @packageManager, opts) ->
+  initialize: (@pack, @packageManager, options) ->
     # It might be useful to either wrap @pack in a class that has a ::validate
     # method, or add a method here. At the moment I think all cases of malformed
     # package metadata are handled here and in ::content but belt and suspenders,
@@ -52,17 +62,21 @@ class PackageCard extends View
 
     @type = if @pack.theme then 'theme' else 'package'
 
-    owner = @ownerFromRepository(@pack.repository)
-    @filterText = "#{@pack.name} #{owner}"
     {@name} = @pack
 
     @handlePackageEvents()
-    @updateEnablement()
+    @handleButtonEvents(options)
     @loadCachedMetadata()
 
+    @packageMessage.on 'click', 'a', ->
+      href = @getAttribute('href')
+      if href?.startsWith('atom:')
+        atom.workspace.open(href)
+        false
+
     if atom.packages.isBundledPackage(@pack.name)
-      @installButton.remove()
-      @uninstallButton.remove()
+      @installButtonGroup.hide()
+      @uninstallButton.hide()
 
     # themes have no status and cannot be dis/enabled
     if @type is 'theme'
@@ -72,14 +86,58 @@ class PackageCard extends View
     unless @hasSettings(@pack)
       @settingsButton.remove()
 
-    if opts?.onSettingsView
+    @updateButtonGroup.hide()
+
+    @hasCompatibleVersion = true
+    @updateForUninstalledCommunityPackage() unless @isInstalled()
+    @updateInterfaceState()
+
+  updateForUninstalledCommunityPackage: ->
+    # The package is not bundled with Atom and is not installed so we'll have
+    # to find a package version that is compatible with this Atom version.
+
+    @uninstallButton.hide()
+    atomVersion = @packageManager.normalizeVersion(atom.getVersion())
+    # The latest version is not compatible with the current Atom version,
+    # we need to make a request to get the latest compatible version.
+    unless @packageManager.satisfiesVersion(atomVersion, @pack)
+      @packageManager.loadCompatiblePackageVersion @pack.name, (err, pack) =>
+        return console.error(err) if err?
+
+        packageVersion = pack.version
+
+        # A compatible version exist, we activate the install button and
+        # set @installablePack so that the install action installs the
+        # compatible version of the package.
+        if packageVersion
+          @versionValue.text(packageVersion)
+          if packageVersion isnt @pack.version
+            @versionValue.addClass('text-warning')
+            @packageMessage.addClass('text-warning')
+            @packageMessage.text """
+            Version #{packageVersion} is not the latest version available for this package, but it's the latest that is compatible with your version of Atom.
+            """
+
+          @installablePack = pack
+        else
+          @hasCompatibleVersion = false
+          @installButtonGroup.hide()
+          @versionValue.addClass('text-error')
+          @packageMessage.addClass('text-error')
+          @packageMessage.append """
+          There's no version of this package that is compatible with your Atom version. The version must satisfy #{@pack.engines.atom}.
+          """
+          console.error("No available version compatible with the installed Atom version: #{atom.getVersion()}")
+
+  handleButtonEvents: (options) ->
+    if options?.onSettingsView
       @settingsButton.remove()
     else
       @on 'click', =>
-        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
-      @settingsButton.on 'click', =>
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: options?.back, pack: @pack})
+      @settingsButton.on 'click', (event) =>
         event.stopPropagation()
-        @parents('.settings-view').view()?.showPanel(@pack.name, {back: opts?.back, pack: @pack})
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: options?.back, pack: @pack})
 
     @installButton.on 'click', (event) =>
       event.stopPropagation()
@@ -88,6 +146,14 @@ class PackageCard extends View
     @uninstallButton.on 'click', (event) =>
       event.stopPropagation()
       @uninstall()
+
+    @installAlternativeButton.on 'click', (event) =>
+      event.stopPropagation()
+      @installAlternative()
+
+    @updateButton.on 'click', (event) =>
+      event.stopPropagation()
+      @update()
 
     @packageName.on 'click', (event) =>
       event.stopPropagation()
@@ -104,17 +170,8 @@ class PackageCard extends View
   detached: ->
     @unsubscribe()
 
-  ownerFromRepository: (repository) ->
-    return '' unless repository
-    loginRegex = /github\.com\/([\w-]+)\/.+/
-    if typeof(repository) is "string"
-      repo = repository
-    else
-      repo = repository.url
-    repo.match(loginRegex)?[1] ? ''
-
   loadCachedMetadata: ->
-    @client.avatar @ownerFromRepository(@pack.repository), (err, avatarPath) =>
+    @client.avatar ownerFromRepository(@pack.repository), (err, avatarPath) =>
       @avatar.attr 'src', "file://#{avatarPath}" if avatarPath
 
     @client.package @pack.name, (err, data) =>
@@ -122,99 +179,248 @@ class PackageCard extends View
       @packageData = data
       @downloadCount.text data.downloads?.toLocaleString()
 
-  updateEnablement: ->
-    if @type is 'theme'
-      return @enablementButton.hide()
+  updateInterfaceState: ->
+    @versionValue.text(@installablePack?.version ? @pack.version)
+    @updateInstalledState()
+    @updateDisabledState()
+    @updateDeprecatedState()
 
-    if atom.packages.isPackageDisabled(@pack.name)
-      @addClass('disabled')
-      @enablementButton.find('.disable-text').text('Enable')
-      @enablementButton
-        .addClass('icon-playback-play')
-        .removeClass('icon-playback-pause')
-      @statusIndicator
-        .addClass('is-disabled')
+  # Section: disabled state updates
+
+  updateDisabledState: ->
+    if @isDisabled()
+      @displayDisabledState()
+    else if @hasClass('disabled')
+      @displayEnabledState()
+
+  displayEnabledState: ->
+    @removeClass('disabled')
+    @enablementButton.hide() if @type is 'theme'
+    @enablementButton.find('.disable-text').text('Disable')
+    @enablementButton
+      .addClass('icon-playback-pause')
+      .removeClass('icon-playback-play')
+    @statusIndicator
+      .removeClass('is-disabled')
+
+  displayDisabledState: ->
+    @addClass('disabled')
+    @enablementButton.find('.disable-text').text('Enable')
+    @enablementButton
+      .addClass('icon-playback-play')
+      .removeClass('icon-playback-pause')
+    @statusIndicator
+      .addClass('is-disabled')
+
+    if @isDeprecated()
+      @enablementButton.prop('disabled', true)
     else
-      @removeClass('disabled')
-      @enablementButton.find('.disable-text').text('Disable')
-      @enablementButton
-        .addClass('icon-playback-pause')
-        .removeClass('icon-playback-play')
-      @statusIndicator
-        .removeClass('is-disabled')
+      @enablementButton.prop('disabled', false)
+
+  # Section: installed state updates
+
+  updateInstalledState: ->
+    if @isInstalled()
+      @displayInstalledState()
+    else
+      @displayNotInstalledState()
+
+  displayInstalledState: ->
+    if @newVersion
+      @updateButtonGroup.show()
+    else
+      @updateButtonGroup.hide()
+
+    @installButtonGroup.hide()
+    @installAlternativeButtonGroup.hide()
+    @packageActionButtonGroup.show()
+    @uninstallButton.show()
+
+  displayNotInstalledState: ->
+    if not @hasCompatibleVersion
+      @installButtonGroup.hide()
+      @updateButtonGroup.hide()
+    else if @newVersion
+      @updateButtonGroup.show()
+      @installButtonGroup.hide()
+    else
+      @updateButtonGroup.hide()
+      @installButtonGroup.show()
+    @installAlternativeButtonGroup.hide()
+    @packageActionButtonGroup.hide()
+
+  # Section: deprecated state updates
+
+  updateDeprecatedState: ->
+    if @isDeprecated()
+      @displayDeprecatedState()
+    else if @hasClass('deprecated')
+      @displayUndeprecatedState()
+
+  displayUndeprecatedState: ->
+    @removeClass('deprecated')
+    @packageMessage.removeClass('text-warning')
+    @packageMessage.text('')
+
+  displayDeprecatedState: ->
+    @addClass('deprecated')
+    @settingsButton[0].disabled = true
+
+    info = @getDeprecatedPackageMetadata()
+    @packageMessage.addClass('text-warning')
+
+    message = null
+    if info?.hasDeprecations
+      message = @getDeprecationMessage()
+    else if info?.hasAlternative and info?.alternative and info?.alternative is 'core'
+      message = info.message ? "The features in `#{@pack.name}` have been added to core."
+      message += ' Please uninstall this package.'
+      @settingsButton.remove()
+      @enablementButton.remove()
+    else if info?.hasAlternative and alt = info?.alternative
+      isInstalled = @isInstalled()
+      if isInstalled and @packageManager.isPackageInstalled(alt)
+        message = "`#{@pack.name}` has been replaced by `#{alt}` which is already installed. Please uninstall this package."
+        @settingsButton.remove()
+        @enablementButton.remove()
+      else if isInstalled
+        message = "`#{@pack.name}` has been replaced by [`#{alt}`](atom://config/install/package:#{alt})."
+        @installAlternativeButton.text "Install #{alt}"
+        @installAlternativeButtonGroup.show()
+        @packageActionButtonGroup.hide()
+      else
+        message = "`#{@pack.name}` has been replaced by [`#{alt}`](atom://config/install/package:#{alt})."
+        @installButtonGroup.hide()
+        @installAlternativeButtonGroup.hide()
+        @packageActionButtonGroup.hide()
+
+    if message?
+      marked ?= require 'marked'
+      @packageMessage.html marked(message)
+
+  displayAvailableUpdate: (@newVersion) ->
+    @updateInterfaceState()
+    message = @getDeprecationMessage(@newVersion)
+    marked ?= require 'marked'
+    @packageMessage.html(marked(message)) if message?
+
+  getDeprecationMessage: (newVersion) ->
+    info = @getDeprecatedPackageMetadata()
+    return unless info?.hasDeprecations
+
+    if newVersion
+      if @isDeprecated(newVersion)
+        "An update to `v#{newVersion}` is available but still contains deprecations."
+      else
+        "An update to `v#{newVersion}` is available without deprecations."
+    else
+      if @isInstalled()
+        info.message ? 'This package has not been loaded due to using deprecated APIs. There is no update available.'
+      else
+        'This package has deprecations and is not installable.'
 
   handlePackageEvents: ->
     atom.packages.onDidDeactivatePackage (pack) =>
-      @updateEnablement() if pack.name is @pack.name
+      @updateDisabledState() if pack.name is @pack.name
 
     atom.packages.onDidActivatePackage (pack) =>
-      @updateEnablement() if pack.name is @pack.name
+      @updateDisabledState() if pack.name is @pack.name
 
     atom.config.onDidChange 'core.disabledPackages', =>
-      @updateEnablement()
+      @updateDisabledState()
+
+    @subscribeToPackageEvent 'package-installing', (pack) =>
+      @updateInterfaceState()
+      @installButton.prop('disabled', true)
+      @installButton.addClass('is-installing')
+
+    @subscribeToPackageEvent 'package-updating', (pack) =>
+      @updateInterfaceState()
+      @updateButton.prop('disabled', true)
+      @updateButton.addClass('is-installing')
+
+    @subscribeToPackageEvent 'package-installing-alternative', ({pack, alternative}) =>
+      @updateInterfaceState()
+      @installAlternativeButton.prop('disabled', true)
+      @installAlternativeButton.addClass('is-installing')
+
+    @subscribeToPackageEvent 'package-uninstalling', (pack) =>
+      @updateInterfaceState()
+      @installButton.prop('disabled', true)
 
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
       @installButton.prop('disabled', false)
-      unless error?
-        @updateEnablement()
+      @installButton.removeClass('is-installing')
+      @updateInterfaceState()
 
-        @installButton.hide()
-        @uninstallButton.show()
-        @settingsButton.show()
-        @enablementButton.show()
-        @statusIndicator.show()
-
-    @subscribeToPackageEvent 'package-installing', (pack) =>
-      @installButton.prop('disabled', true)
-      @installButton.show()
-      @uninstallButton.hide()
-
-    @subscribeToPackageEvent 'package-uninstalling', (pack) =>
-      @installButton.prop('disabled', true)
+    @subscribeToPackageEvent 'package-updated theme-updated package-update-failed theme-update-failed', (pack, error) =>
+      if version = atom.packages.getLoadedPackage(@pack.name)?.metadata?.version
+        @pack.version = version
+      @newVersion = null
+      @updateButton.prop('disabled', false)
+      @updateButton.removeClass('is-installing')
+      @updateInterfaceState()
 
     @subscribeToPackageEvent 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', (pack, error) =>
       @installButton.prop('disabled', false)
-      unless error?
-        @installButton.show()
-        @uninstallButton.hide()
-        @settingsButton.hide()
-        @enablementButton.hide()
-        @statusIndicator.hide()
+      @updateInterfaceState()
 
-    if @isInstalled() or @isDisabled()
-      @installButton.hide()
-      @uninstallButton.show()
-    else
-      @settingsButton.hide()
-      @uninstallButton.hide()
-      @enablementButton.hide()
-      @statusIndicator.hide()
+    @subscribeToPackageEvent 'package-installed-alternative package-install-alternative-failed', (pack, error) =>
+      @installAlternativeButton.prop('disabled', false)
+      @installAlternativeButton.removeClass('is-installing')
+      @updateInterfaceState()
 
-  isInstalled: -> atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)
+  isInstalled: -> @packageManager.isPackageInstalled(@pack.name)
 
   isDisabled: -> atom.packages.isPackageDisabled(@pack.name)
 
+  isDeprecated: (version) -> atom.packages.isDeprecatedPackage(@pack.name, version ? @pack.version)
+
+  getDeprecatedPackageMetadata: -> atom.packages.getDeprecatedPackageMetadata(@pack.name)
+
   hasSettings: (pack) ->
-    atom.config.get(pack.name)?
+    for key, value of atom.config.get(pack.name)
+      return true
+    false
 
   subscribeToPackageEvent: (event, callback) ->
     @subscribe @packageManager, event, (pack, error) =>
-      callback(pack, error) if pack.name is @pack.name
+      packageName = pack.name
+      packageName = pack.pack.name if pack.pack?
+      callback(pack, error) if packageName is @pack.name
+
+  ###
+  Section: Methods that should be on a Package model
+  ###
 
   install: ->
-    @installButton.addClass('is-installing')
-    @packageManager.emit('package-installing', @pack)
-    @packageManager.install @pack, (error) =>
-      @installButton.removeClass('is-installing')
+    @packageManager.install @installablePack ? @pack, (error) =>
       if error?
         console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
       else
         # if a package was disabled before installing it, re-enable it
-        if @isDisabled()
-          atom.packages.enablePackage(@pack.name)
+        atom.packages.enablePackage(@pack.name) if @isDisabled()
+
+  update: ->
+    return unless @newVersion
+    @packageManager.update @installablePack ? @pack, @newVersion, (error) =>
+      if error?
+        console.error("Updating #{@type} #{@pack.name} to v#{@newVersion} failed", error.stack ? error, error.stderr)
+      else
+        # if a package was disabled before installing it, re-enable it
+        atom.packages.enablePackage(@pack.name) if @isDisabled()
 
   uninstall: ->
-    @packageManager.emit('package-uninstalling', @pack)
     @packageManager.uninstall @pack, (error) =>
       if error?
         console.error("Uninstalling #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
+
+  installAlternative: ->
+    metadata = @getDeprecatedPackageMetadata()
+    loadedPack = atom.packages.getLoadedPackage(metadata?.alternative)
+    return unless metadata?.hasAlternative and metadata.alternative isnt 'core' and not loadedPack
+
+    {alternative} = metadata
+    @packageManager.installAlternative @pack, alternative, (error, {pack, alternative}) =>
+      if error?
+        console.error("Installing alternative `#{alternative}` #{@type} for #{@pack.name} failed", error.stack ? error, error.stderr)

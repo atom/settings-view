@@ -5,7 +5,7 @@ describe "KeybindingsPanel", ->
   [keyBindings, panel] = []
 
   beforeEach ->
-    expect(atom.keymap).toBeDefined()
+    expect(atom.keymaps).toBeDefined()
     keyBindings = [
       {
         source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps"
@@ -26,7 +26,7 @@ describe "KeybindingsPanel", ->
         selector: ".platform-a, .platform-b"
       }
     ]
-    spyOn(atom.keymap, 'getKeyBindings').andReturn(keyBindings)
+    spyOn(atom.keymaps, 'getKeyBindings').andReturn(keyBindings)
     panel = new KeybindingsPanel
 
   it "loads and displays core key bindings", ->
@@ -41,7 +41,7 @@ describe "KeybindingsPanel", ->
   describe "when a keybinding is copied", ->
     describe "when the keybinding file ends in .cson", ->
       it "writes a CSON snippet to the clipboard", ->
-        spyOn(atom.keymap, 'getUserKeymapPath').andReturn 'keymap.cson'
+        spyOn(atom.keymaps, 'getUserKeymapPath').andReturn 'keymap.cson'
         panel.find('.copy-icon').click()
         expect(atom.clipboard.read()).toBe """
           '.editor, .platform-test':
@@ -50,7 +50,7 @@ describe "KeybindingsPanel", ->
 
     describe "when the keybinding file ends in .json", ->
       it "writes a JSON snippet to the clipboard", ->
-        spyOn(atom.keymap, 'getUserKeymapPath').andReturn 'keymap.json'
+        spyOn(atom.keymaps, 'getUserKeymapPath').andReturn 'keymap.json'
         panel.find('.copy-icon').click()
         expect(atom.clipboard.read()).toBe """
           ".editor, .platform-test": {
@@ -73,3 +73,19 @@ describe "KeybindingsPanel", ->
         expect(row.find('.command').text()).toBe 'core:undo'
         expect(row.find('.source').text()).toBe 'User'
         expect(row.find('.selector').text()).toBe '.editor'
+
+  describe "when searching key bindings", ->
+    it "find case-insensitive results", ->
+      keyBindings.push
+        source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps", keystrokes: 'F11', command: 'window:toggle-full-screen', selector: 'body'
+      atom.keymaps.emitter.emit 'did-reload-keymap'
+
+      panel.filterKeyBindings keyBindings, 'f11'
+
+      expect(panel.keybindingRows.children().length).toBe 1
+
+      row = panel.keybindingRows.children(':first')
+      expect(row.find('.keystroke').text()).toBe 'F11'
+      expect(row.find('.command').text()).toBe 'window:toggle-full-screen'
+      expect(row.find('.source').text()).toBe 'Core'
+      expect(row.find('.selector').text()).toBe 'body'
