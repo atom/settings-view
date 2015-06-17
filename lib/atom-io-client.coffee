@@ -128,7 +128,7 @@ class AtomIoClient
       callback(null, null)
 
   avatarGlob: (login) ->
-    path.join @getCachePath(), "#{login}-*"
+    path.join @getCachePath(), "#{login}-*([0-9])"
 
   fetchAndCacheAvatar: (login, callback) ->
     if @online()
