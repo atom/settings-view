@@ -5,6 +5,7 @@ _ = require 'underscore-plus'
 fs = require 'fs-plus'
 shell = require 'shell'
 {View} = require 'atom-space-pen-views'
+{CompositeDisposable} = require 'atom'
 
 ErrorView = require './error-view'
 PackageCard = require './package-card'
@@ -51,6 +52,7 @@ class PackageDetailView extends View
       @div outlet: 'sections'
 
   initialize: (@pack, @packageManager) ->
+    @disposables = new CompositeDisposable()
     @loadPackage()
     @activate()
     @populate()
@@ -69,7 +71,7 @@ class PackageDetailView extends View
       @pack.activateConfig()
 
   detached: ->
-    # @unsubscribe()
+    @disposables.dispose()
 
   beforeShow: (opts) ->
     if opts?.back
@@ -118,16 +120,16 @@ class PackageDetailView extends View
     @sections.append(new PackageReadmeView(readme))
 
   subscribeToPackageManager: ->
-    @packageManager.on 'theme-installed package-installed', (pack) =>
+    @disposables.add @packageManager.on 'theme-installed package-installed', (pack) =>
       return unless @pack.name is pack.name
 
       @loadPackage()
       @updateInstalledState()
 
-    @packageManager.on 'theme-uninstalled package-uninstalled', (pack) =>
+    @disposables.add @packageManager.on 'theme-uninstalled package-uninstalled', (pack) =>
       @updateInstalledState() if @pack.name is pack.name
 
-    @packageManager.on 'theme-updated package-updated', (pack) =>
+    @disposables.add @packageManager.on 'theme-updated package-updated', (pack) =>
       return unless @pack.name is pack.name
 
       @loadPackage()
