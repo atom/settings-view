@@ -1,6 +1,5 @@
 _ = require 'underscore-plus'
-{BufferedProcess, CompositeDisposable} = require 'atom'
-{Emitter} = require 'event-kit'
+{BufferedProcess, CompositeDisposable, Emitter} = require 'atom'
 Q = require 'q'
 semver = require 'semver'
 
