@@ -62,6 +62,16 @@ class InstallPanel extends View
 
     @loadFeaturedPackages()
 
+  subscribeToEvents: ->
+    @subscribe @packageManager, 'package-install-failed', (pack, error) =>
+      @searchErrors.append(new ErrorView(@packageManager, error))
+
+    @subscribe atom.commands.add @searchEditorView.element, 'core:confirm', =>
+      @performSearch()
+
+  attached: ->
+    @subscribeToEvents()
+
   detached: ->
     @unsubscribe()
 
@@ -69,11 +79,7 @@ class InstallPanel extends View
     @searchEditorView.focus()
 
   handleSearchEvents: ->
-    @subscribe @packageManager, 'package-install-failed', (pack, error) =>
-      @searchErrors.append(new ErrorView(@packageManager, error))
-
-    @subscribe atom.commands.add @searchEditorView.element, 'core:confirm', =>
-      @performSearch()
+    @subscribeToEvents()
 
     @searchPackagesButton.on 'click', =>
       unless @searchPackagesButton.hasClass('selected')
