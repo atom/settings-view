@@ -30,10 +30,6 @@ class UpdatesPanel extends View
 
     @checkForUpdates()
 
-    @openBlogPost.on 'click', ->
-      require('shell').openExternal('http://blog.atom.io/2015/05/01/removing-deprecated-apis.html')
-      false
-
     @subscribe @packageManager, 'package-update-failed theme-update-failed', (pack, error) =>
       @updateErrors.append(new ErrorView(@packageManager, error))
 
