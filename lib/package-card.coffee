@@ -1,13 +1,12 @@
 _ = require 'underscore-plus'
 {View} = require 'atom-space-pen-views'
-{Subscriber} = require 'emissary'
+{CompositeDisposable} = require 'atom'
 shell = require 'shell'
 marked = null
 {ownerFromRepository} = require './utils'
 
 module.exports =
 class PackageCard extends View
-  Subscriber.includeInto(this)
 
   @content: ({name, description, version, repository}) ->
     # stars, downloads
@@ -54,6 +53,8 @@ class PackageCard extends View
               @button type: 'button', class: 'btn status-indicator', tabindex: -1, outlet: 'statusIndicator'
 
   initialize: (@pack, @packageManager, options) ->
+    @disposables = new CompositeDisposable()
+
     # It might be useful to either wrap @pack in a class that has a ::validate
     # method, or add a method here. At the moment I think all cases of malformed
     # package metadata are handled here and in ::content but belt and suspenders,
@@ -168,7 +169,7 @@ class PackageCard extends View
       false
 
   detached: ->
-    @unsubscribe()
+    @disposables.dispose()
 
   loadCachedMetadata: ->
     @client.avatar ownerFromRepository(@pack.repository), (err, avatarPath) =>
@@ -320,13 +321,13 @@ class PackageCard extends View
         'This package has deprecations and is not installable.'
 
   handlePackageEvents: ->
-    atom.packages.onDidDeactivatePackage (pack) =>
+    @disposables.add atom.packages.onDidDeactivatePackage (pack) =>
       @updateDisabledState() if pack.name is @pack.name
 
-    atom.packages.onDidActivatePackage (pack) =>
+    @disposables.add atom.packages.onDidActivatePackage (pack) =>
       @updateDisabledState() if pack.name is @pack.name
 
-    atom.config.onDidChange 'core.disabledPackages', =>
+    @disposables.add atom.config.onDidChange 'core.disabledPackages', =>
       @updateDisabledState()
 
     @subscribeToPackageEvent 'package-installing', (pack) =>
@@ -384,7 +385,7 @@ class PackageCard extends View
     false
 
   subscribeToPackageEvent: (event, callback) ->
-    @subscribe @packageManager, event, (pack, error) =>
+    @disposables.add @packageManager.on event, (pack, error) =>
       packageName = pack.name
       packageName = pack.pack.name if pack.pack?
       callback(pack, error) if packageName is @pack.name

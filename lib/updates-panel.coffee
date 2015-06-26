@@ -1,11 +1,9 @@
 {$, $$, View} = require 'atom-space-pen-views'
-{Subscriber} = require 'emissary'
 ErrorView = require './error-view'
 PackageUpdateView = require './package-update-view'
 
 module.exports =
 class UpdatesPanel extends View
-  Subscriber.includeInto(this)
 
   @content: ->
     @div =>
@@ -30,11 +28,11 @@ class UpdatesPanel extends View
 
     @checkForUpdates()
 
-    @subscribe @packageManager, 'package-update-failed theme-update-failed', (pack, error) =>
+    @packageManagerSubscription = @packageManager.on 'package-update-failed theme-update-failed', (pack, error) =>
       @updateErrors.append(new ErrorView(@packageManager, error))
 
   detached: ->
-    @unsubscribe()
+    @packageManagerSubscription.dispose()
 
   beforeShow: (opts) ->
     if opts?.back

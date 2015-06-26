@@ -3,7 +3,7 @@ path = require 'path'
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
 {$, $$, TextEditorView, View} = require 'atom-space-pen-views'
-{Subscriber} = require 'emissary'
+{CompositeDisposable} = require 'atom'
 
 PackageCard = require './package-card'
 Client = require './atom-io-client'
@@ -14,7 +14,6 @@ PackageNameRegex = /config\/install\/(package|theme):([a-z0-9-_]+)/i
 
 module.exports =
 class InstallPanel extends View
-  Subscriber.includeInto(this)
 
   @content: ->
     @div =>
@@ -47,6 +46,7 @@ class InstallPanel extends View
           @div outlet: 'featuredContainer', class: 'container package-container'
 
   initialize: (@packageManager) ->
+    @disposables = new CompositeDisposable()
     client = $('.settings-view').view()?.client
     @client = @packageManager.getClient()
     @atomIoURL = 'https://atom.io/packages'
@@ -63,16 +63,16 @@ class InstallPanel extends View
     @loadFeaturedPackages()
 
   detached: ->
-    @unsubscribe()
+    @disposables.dispose()
 
   focus: ->
     @searchEditorView.focus()
 
   handleSearchEvents: ->
-    @subscribe @packageManager, 'package-install-failed', (pack, error) =>
+    @disposables.add @packageManager.on 'package-install-failed', (pack, error) =>
       @searchErrors.append(new ErrorView(@packageManager, error))
 
-    @subscribe atom.commands.add @searchEditorView.element, 'core:confirm', =>
+    @disposables.add atom.commands.add @searchEditorView.element, 'core:confirm', =>
       @performSearch()
 
     @searchPackagesButton.on 'click', =>
