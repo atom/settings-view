@@ -60,6 +60,8 @@ class InstallPanel extends View
     @searchType = 'packages'
     @handleSearchEvents()
 
+    @searchEditorView.on 'keyup', (e) => @performSearch if e.key is 13
+
     @loadFeaturedPackages()
 
   detached: ->
@@ -121,7 +123,7 @@ class InstallPanel extends View
       null
 
   performSearch: ->
-    if query = @searchEditorView.getText().trim()
+    if @searchEditorView and query = @searchEditorView.getText().trim()
       @search(query)
 
   search: (query) ->
