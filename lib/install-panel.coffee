@@ -69,6 +69,9 @@ class InstallPanel extends View
     @searchEditorView.focus()
 
   handleSearchEvents: ->
+    @searchEditorView.on 'keyup', (e) =>
+      @performSearch() if e.which is 13
+
     @subscribe @packageManager, 'package-install-failed', (pack, error) =>
       @searchErrors.append(new ErrorView(@packageManager, error))
 
@@ -121,7 +124,7 @@ class InstallPanel extends View
       null
 
   performSearch: ->
-    if query = @searchEditorView.getText().trim()
+    if @searchEditorView and query = @searchEditorView.getText().trim()
       @search(query)
 
   search: (query) ->
