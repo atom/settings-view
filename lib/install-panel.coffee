@@ -60,8 +60,6 @@ class InstallPanel extends View
     @searchType = 'packages'
     @handleSearchEvents()
 
-    @searchEditorView.on 'keyup', (e) => @performSearch if e.key is 13
-
     @loadFeaturedPackages()
 
   detached: ->
@@ -71,6 +69,9 @@ class InstallPanel extends View
     @searchEditorView.focus()
 
   handleSearchEvents: ->
+    @searchEditorView.on 'keyup', (e) =>
+      @performSearch() if e.which is 13
+
     @subscribe @packageManager, 'package-install-failed', (pack, error) =>
       @searchErrors.append(new ErrorView(@packageManager, error))
 
