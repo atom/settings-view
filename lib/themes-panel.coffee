@@ -5,7 +5,6 @@ fuzzaldrin = require 'fuzzaldrin'
 _ = require 'underscore-plus'
 {CompositeDisposable} = require 'atom'
 {$$, TextEditorView, View} = require 'atom-space-pen-views'
-{Subscriber} = require 'emissary'
 
 PackageCard = require './package-card'
 ErrorView = require './error-view'
@@ -13,7 +12,6 @@ PackageManager = require './package-manager'
 
 module.exports =
 class ThemesPanel extends View
-  Subscriber.includeInto(this)
 
   @content: ->
     @div =>
@@ -81,14 +79,14 @@ class ThemesPanel extends View
     @packageViews = []
     @loadPackages()
 
-    @subscribe @packageManager, 'theme-install-failed theme-uninstall-failed', (pack, error) =>
+    @disposables.add @packageManager.on 'theme-install-failed theme-uninstall-failed', (pack, error) =>
       @themeErrors.append(new ErrorView(@packageManager, error))
 
     @openUserStysheet.on 'click', ->
       atom.commands.dispatch(atom.views.getView(atom.workspace), 'application:open-your-stylesheet')
       false
 
-    @subscribe @packageManager, 'theme-installed theme-uninstalled', =>
+    @disposables.add @packageManager.on 'theme-installed theme-uninstalled', =>
       @populateThemeMenus()
 
     @disposables.add atom.themes.onDidChangeActiveThemes => @updateActiveThemes()
@@ -110,7 +108,6 @@ class ThemesPanel extends View
     @filterEditor.focus()
 
   detached: ->
-    @unsubscribe()
     @disposables.dispose()
 
   filterThemes: (packages) ->
