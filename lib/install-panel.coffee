@@ -68,23 +68,19 @@ class InstallPanel extends View
     @searchEditorView.focus()
 
   handleSearchEvents: ->
-    console.log 'setup events'
     @disposables.add @packageManager.on 'package-install-failed', (pack, error) =>
       @searchErrors.append(new ErrorView(@packageManager, error))
 
     @disposables.add atom.commands.add @searchEditorView.element, 'core:confirm', =>
-      console.log 'confirm'
       @performSearch()
 
     @searchPackagesButton.on 'click', =>
-      unless @searchPackagesButton.hasClass('selected')
-        @setSearchType('package')
-        @performSearch()
+      @setSearchType('package') unless @searchPackagesButton.hasClass('selected')
+      @performSearch()
 
     @searchThemesButton.on 'click', =>
-      unless @searchThemesButton.hasClass('selected')
-        @setSearchType('theme')
-        @performSearch()
+      @setSearchType('theme') unless @searchThemesButton.hasClass('selected')
+      @performSearch()
 
   setSearchType: (searchType) ->
     if searchType is 'theme'
