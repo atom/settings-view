@@ -387,8 +387,8 @@ class PackageManager
 
   on: (selectors, callback) ->
     subscriptions = new CompositeDisposable
-    selectors.split(" ").forEach (selector) =>
-      subscriptions.add @emitter.on selector, callback
+    for selector in selectors.split(" ")
+      subscriptions.add @emitter.on(selector, callback)
     subscriptions
 
 createJsonParseError = (message, parseError, stdout) ->
