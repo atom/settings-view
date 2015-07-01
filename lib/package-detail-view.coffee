@@ -70,7 +70,7 @@ class PackageDetailView extends View
     if atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageActive(@pack.name)
       @pack.activateConfig()
 
-  detached: ->
+  dispose: ->
     @disposables.dispose()
 
   beforeShow: (opts) ->

@@ -31,7 +31,7 @@ class UpdatesPanel extends View
     @packageManagerSubscription = @packageManager.on 'package-update-failed theme-update-failed', (pack, error) =>
       @updateErrors.append(new ErrorView(@packageManager, error))
 
-  detached: ->
+  dispose: ->
     @packageManagerSubscription.dispose()
 
   beforeShow: (opts) ->

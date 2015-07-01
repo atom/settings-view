@@ -14,7 +14,6 @@ PackageNameRegex = /config\/install\/(package|theme):([a-z0-9-_]+)/i
 
 module.exports =
 class InstallPanel extends View
-
   @content: ->
     @div =>
       @div class: 'section packages', =>
@@ -62,7 +61,7 @@ class InstallPanel extends View
 
     @loadFeaturedPackages()
 
-  detached: ->
+  dispose: ->
     @disposables.dispose()
 
   focus: ->
@@ -76,14 +75,12 @@ class InstallPanel extends View
       @performSearch()
 
     @searchPackagesButton.on 'click', =>
-      unless @searchPackagesButton.hasClass('selected')
-        @setSearchType('package')
-        @performSearch()
+      @setSearchType('package') unless @searchPackagesButton.hasClass('selected')
+      @performSearch()
 
     @searchThemesButton.on 'click', =>
-      unless @searchThemesButton.hasClass('selected')
-        @setSearchType('theme')
-        @performSearch()
+      @setSearchType('theme') unless @searchThemesButton.hasClass('selected')
+      @performSearch()
 
   setSearchType: (searchType) ->
     if searchType is 'theme'

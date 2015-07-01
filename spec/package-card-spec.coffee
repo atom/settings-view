@@ -38,6 +38,12 @@ describe "PackageCard", ->
     jasmine.attachToDOM(card[0])
     expect(card.settingsButton).not.toBeVisible()
 
+  it "removes the uninstall button if a package has is a bundled package", ->
+    setPackageStatusSpies {installed: true, disabled: false, hasSettings: true}
+    card = new PackageCard {name: 'find-and-replace'}, packageManager
+    jasmine.attachToDOM(card[0])
+    expect(card.uninstallButton).not.toBeVisible()
+
   describe "when the package is not installed", ->
     it "shows the settings, uninstall, and disable buttons", ->
       pack =
@@ -403,11 +409,15 @@ describe "PackageCard", ->
         card = new PackageCard(pack, packageManager)
         jasmine.attachToDOM(card[0])
 
-      it "notifies that the package has been replaced, shows uninstallButton", ->
+      it "shows installAlternativeButton and uninstallButton", ->
         expect(card.updateButtonGroup).not.toBeVisible()
         expect(card.installButtonGroup).not.toBeVisible()
-        expect(card.packageActionButtonGroup).not.toBeVisible()
         expect(card.installAlternativeButtonGroup).toBeVisible()
+
+        expect(card.packageActionButtonGroup).toBeVisible()
+        expect(card.settingsButton).not.toBeVisible()
+        expect(card.uninstallButton).toBeVisible()
+        expect(card.enablementButton).not.toBeVisible()
 
         expect(card).toHaveClass 'deprecated'
         expect(card.packageMessage.text()).toContain 'has been replaced by not-installed-package'

@@ -9,8 +9,6 @@ module.exports =
 class PackageCard extends View
 
   @content: ({name, description, version, repository}) ->
-    # stars, downloads
-    # lol wat
     owner = ownerFromRepository(repository)
     description ?= ''
 
@@ -75,17 +73,15 @@ class PackageCard extends View
         atom.workspace.open(href)
         false
 
-    if atom.packages.isBundledPackage(@pack.name)
-      @installButtonGroup.hide()
-      @uninstallButton.hide()
-
     # themes have no status and cannot be dis/enabled
     if @type is 'theme'
       @statusIndicator.remove()
       @enablementButton.remove()
 
-    unless @hasSettings(@pack)
-      @settingsButton.remove()
+    @settingsButton.remove() unless @hasSettings(@pack)
+    if atom.packages.isBundledPackage(@pack.name)
+      @installButtonGroup.remove()
+      @uninstallButton.remove()
 
     @updateButtonGroup.hide()
 
@@ -168,7 +164,7 @@ class PackageCard extends View
         atom.packages.disablePackage(@pack.name)
       false
 
-  detached: ->
+  dispose: ->
     @disposables.dispose()
 
   loadCachedMetadata: ->
@@ -288,7 +284,9 @@ class PackageCard extends View
         message = "`#{@pack.name}` has been replaced by [`#{alt}`](atom://config/install/package:#{alt})."
         @installAlternativeButton.text "Install #{alt}"
         @installAlternativeButtonGroup.show()
-        @packageActionButtonGroup.hide()
+        @packageActionButtonGroup.show()
+        @settingsButton.remove()
+        @enablementButton.remove()
       else
         message = "`#{@pack.name}` has been replaced by [`#{alt}`](atom://config/install/package:#{alt})."
         @installButtonGroup.hide()
