@@ -9,8 +9,6 @@ module.exports =
 class PackageCard extends View
 
   @content: ({name, description, version, repository}) ->
-    # stars, downloads
-    # lol wat
     owner = ownerFromRepository(repository)
     description ?= ''
 
@@ -288,7 +286,9 @@ class PackageCard extends View
         message = "`#{@pack.name}` has been replaced by [`#{alt}`](atom://config/install/package:#{alt})."
         @installAlternativeButton.text "Install #{alt}"
         @installAlternativeButtonGroup.show()
-        @packageActionButtonGroup.hide()
+        @packageActionButtonGroup.show()
+        @settingsButton.remove()
+        @enablementButton.remove()
       else
         message = "`#{@pack.name}` has been replaced by [`#{alt}`](atom://config/install/package:#{alt})."
         @installButtonGroup.hide()

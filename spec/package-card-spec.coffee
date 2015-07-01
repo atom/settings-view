@@ -403,11 +403,15 @@ describe "PackageCard", ->
         card = new PackageCard(pack, packageManager)
         jasmine.attachToDOM(card[0])
 
-      it "notifies that the package has been replaced, shows uninstallButton", ->
+      it "shows installAlternativeButton and uninstallButton", ->
         expect(card.updateButtonGroup).not.toBeVisible()
         expect(card.installButtonGroup).not.toBeVisible()
-        expect(card.packageActionButtonGroup).not.toBeVisible()
         expect(card.installAlternativeButtonGroup).toBeVisible()
+
+        expect(card.packageActionButtonGroup).toBeVisible()
+        expect(card.settingsButton).not.toBeVisible()
+        expect(card.uninstallButton).toBeVisible()
+        expect(card.enablementButton).not.toBeVisible()
 
         expect(card).toHaveClass 'deprecated'
         expect(card.packageMessage.text()).toContain 'has been replaced by not-installed-package'
