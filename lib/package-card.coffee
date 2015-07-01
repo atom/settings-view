@@ -73,17 +73,15 @@ class PackageCard extends View
         atom.workspace.open(href)
         false
 
-    if atom.packages.isBundledPackage(@pack.name)
-      @installButtonGroup.hide()
-      @uninstallButton.hide()
-
     # themes have no status and cannot be dis/enabled
     if @type is 'theme'
       @statusIndicator.remove()
       @enablementButton.remove()
 
-    unless @hasSettings(@pack)
-      @settingsButton.remove()
+    @settingsButton.remove() unless @hasSettings(@pack)
+    if atom.packages.isBundledPackage(@pack.name)
+      @installButtonGroup.remove()
+      @uninstallButton.remove()
 
     @updateButtonGroup.hide()
 

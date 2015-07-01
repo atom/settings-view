@@ -38,6 +38,12 @@ describe "PackageCard", ->
     jasmine.attachToDOM(card[0])
     expect(card.settingsButton).not.toBeVisible()
 
+  it "removes the uninstall button if a package has is a bundled package", ->
+    setPackageStatusSpies {installed: true, disabled: false, hasSettings: true}
+    card = new PackageCard {name: 'find-and-replace'}, packageManager
+    jasmine.attachToDOM(card[0])
+    expect(card.uninstallButton).not.toBeVisible()
+
   describe "when the package is not installed", ->
     it "shows the settings, uninstall, and disable buttons", ->
       pack =
