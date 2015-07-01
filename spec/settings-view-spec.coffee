@@ -70,17 +70,18 @@ describe "SettingsView", ->
 
   describe "when the package is activated", ->
     [mainModule] = []
+
+    openWithCommand = (command) ->
+      atom.commands.dispatch(atom.views.getView(atom.workspace), command)
+      waitsFor ->
+        atom.workspace.getActivePaneItem()?
+
     beforeEach ->
       jasmine.attachToDOM(atom.views.getView(atom.workspace))
       waitsForPromise ->
         atom.packages.activatePackage('settings-view')
 
     describe "when the settings view is opened with a settings-view:* command", ->
-      openWithCommand = (command) ->
-        atom.commands.dispatch(atom.views.getView(atom.workspace), command)
-        waitsFor ->
-          atom.workspace.getActivePaneItem()?
-
       beforeEach ->
         settingsView = null
 
@@ -182,6 +183,32 @@ describe "SettingsView", ->
         runs ->
           expect(settingsView.activePanelName).toBe 'Install'
           expect(InstallPanel::beforeShow).toHaveBeenCalledWith {uri: 'atom://config/install/package:something'}
+
+    describe "when the package is then deactivated", ->
+      beforeEach ->
+        settingsView = null
+
+      it "calls the dispose method on all panels", ->
+        openWithCommand('settings-view:open')
+        runs ->
+          settingsView = atom.workspace.getActivePaneItem()
+          panels = [
+            settingsView.getOrCreatePanel('Settings')
+            settingsView.getOrCreatePanel('Keybindings')
+            settingsView.getOrCreatePanel('Packages')
+            settingsView.getOrCreatePanel('Themes')
+            settingsView.getOrCreatePanel('Updates')
+            settingsView.getOrCreatePanel('Install')
+          ]
+          for panel in panels
+            spyOn(panel, 'dispose')
+
+          atom.packages.deactivatePackage('settings-view')
+
+          for panel in panels
+            expect(panel.dispose).toHaveBeenCalled()
+
+          return
 
   describe "when an installed package is clicked from the Install panel", ->
     it "displays the package details", ->

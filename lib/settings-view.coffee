@@ -35,6 +35,11 @@ class SettingsView extends ScrollView
     @deferredPanel = {name: activePanelName}
     process.nextTick => @initializePanels()
 
+  dispose: ->
+    for name, panel of @panelsByName
+      panel.dispose?()
+    return
+
   #TODO Remove both of these post 1.0
   onDidChangeTitle: -> new Disposable()
   onDidChangeModified: -> new Disposable()

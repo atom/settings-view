@@ -86,7 +86,7 @@ class InstalledPackagesPanel extends View
   focus: ->
     @filterEditor.focus()
 
-  detached: ->
+  dispose: ->
     @packageManagerSubscriptions.dispose()
 
   filterPackages: (packages) ->

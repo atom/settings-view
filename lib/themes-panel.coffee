@@ -107,7 +107,7 @@ class ThemesPanel extends View
   focus: ->
     @filterEditor.focus()
 
-  detached: ->
+  dispose: ->
     @disposables.dispose()
 
   filterThemes: (packages) ->

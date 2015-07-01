@@ -14,7 +14,6 @@ PackageNameRegex = /config\/install\/(package|theme):([a-z0-9-_]+)/i
 
 module.exports =
 class InstallPanel extends View
-
   @content: ->
     @div =>
       @div class: 'section packages', =>
@@ -62,17 +61,19 @@ class InstallPanel extends View
 
     @loadFeaturedPackages()
 
-  detached: ->
+  dispose: ->
     @disposables.dispose()
 
   focus: ->
     @searchEditorView.focus()
 
   handleSearchEvents: ->
+    console.log 'setup events'
     @disposables.add @packageManager.on 'package-install-failed', (pack, error) =>
       @searchErrors.append(new ErrorView(@packageManager, error))
 
     @disposables.add atom.commands.add @searchEditorView.element, 'core:confirm', =>
+      console.log 'confirm'
       @performSearch()
 
     @searchPackagesButton.on 'click', =>

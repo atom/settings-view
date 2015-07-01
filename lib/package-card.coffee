@@ -168,7 +168,7 @@ class PackageCard extends View
         atom.packages.disablePackage(@pack.name)
       false
 
-  detached: ->
+  dispose: ->
     @disposables.dispose()
 
   loadCachedMetadata: ->

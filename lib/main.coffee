@@ -41,6 +41,7 @@ module.exports =
       'settings-view:check-for-package-updates': -> atom.workspace.open("#{configUri}/updates")
 
   deactivate: ->
+    settingsView?.dispose()
     settingsView?.remove()
     settingsView = null
 
