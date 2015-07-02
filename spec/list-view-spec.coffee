@@ -46,3 +46,26 @@ describe 'ListView', ->
     expect(views).toHaveLength 2
     expect(views[0].text()).toBe 'one|'
     expect(views[1].text()).toBe 'three|'
+
+  it 'filters views after an update', ->
+    items = [
+      {name: 'one', text: '', filterText: 'x'},
+      {name: 'two', text: '', filterText: 'y'}
+      {name: 'three', text: '', filterText: 'x'}
+      {name: 'four', text: '', filterText: 'z'}
+    ]
+    list.setItems(items)
+
+    items = [
+      {name: 'one', text: '', filterText: 'x'},
+      {name: 'two', text: '', filterText: 'y'}
+      {name: 'three', text: '', filterText: 'x'}
+      {name: 'four', text: '', filterText: 'z'}
+    ]
+    list.setItems(items)
+    views = view.filterViews (item) ->
+      item.filterText is 'x'
+
+    expect(views).toHaveLength 2
+    expect(views[0].text()).toBe 'one|'
+    expect(views[1].text()).toBe 'three|'
