@@ -129,5 +129,5 @@ describe "PackageDetailView", ->
         expect(pack.metadata.readme).toBe normalizePackageDataReadmeError
 
         view = new PackageDetailView(pack, new PackageManager())
-        expect(view.sections.packageReadme).not.toBe normalizePackageDataReadmeError
+        expect(view.sections.find('.package-readme').text()).not.toBe normalizePackageDataReadmeError
         expect(view.sections.find('.package-readme').text().trim()).toBe 'I am a Readme!'
