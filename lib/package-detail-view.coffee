@@ -15,6 +15,8 @@ PackageReadmeView = require './package-readme-view'
 PackageSnippetsView = require './package-snippets-view'
 SettingsPanel = require './settings-panel'
 
+NORMALIZE_PACKAGE_DATA_README_ERROR = 'ERROR: No README data found!'
+
 module.exports =
 class PackageDetailView extends View
 
@@ -113,7 +115,14 @@ class PackageDetailView extends View
 
     @openButton.hide() if atom.packages.isBundledPackage(@pack.name)
 
-    readme = if @pack.metadata.readme then @pack.metadata.readme else null
+    @renderReadme()
+
+  renderReadme: ->
+    if @pack.metadata.readme and @pack.metadata.readme.trim() isnt NORMALIZE_PACKAGE_DATA_README_ERROR
+      readme = @pack.metadata.readme
+    else
+      readme = null
+
     if @readmePath and not readme
       readme = fs.readFileSync(@readmePath, encoding: 'utf8')
 
