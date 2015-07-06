@@ -12,7 +12,7 @@ PackageManager = require './package-manager'
 
 List = require './list'
 ListView = require './list-view'
-{ownerFromRepository} = require './utils'
+{ownerFromRepository, packageComparatorAscending} = require './utils'
 
 module.exports =
 class ThemesPanel extends View
@@ -135,11 +135,17 @@ class ThemesPanel extends View
 
     packages
 
+  sortThemes: (packages) ->
+    packages.dev.sort(packageComparatorAscending)
+    packages.core.sort(packageComparatorAscending)
+    packages.user.sort(packageComparatorAscending)
+    packages
+
   loadPackages: ->
     @packageViews = []
     @packageManager.getInstalled()
       .then (packages) =>
-        @packages = @filterThemes(packages)
+        @packages = @sortThemes(@filterThemes(packages))
 
         @devPackages.find('.alert.loading-area').remove()
         @items.dev.setItems(@packages.dev)
