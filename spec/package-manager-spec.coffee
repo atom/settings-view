@@ -59,7 +59,7 @@ describe "package manager", ->
 
     it "returns true when a package is disabled", ->
       spyOn(atom.packages, 'isPackageDisabled').andReturn true
-      expect(packageManager.isPackageInstalled('some-package')).toBe true
+      expect(packageManager.isPackageInstalled('some-package')).toBe false
 
     it "returns true when a package is in the availablePackageCache", ->
       spyOn(packageManager, 'getAvailablePackageNames').andReturn ['some-package']

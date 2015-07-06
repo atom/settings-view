@@ -18,7 +18,7 @@ class PackageManager
     @client ?= new Client(this)
 
   isPackageInstalled: (packageName) ->
-    if atom.packages.isPackageLoaded(packageName) or atom.packages.isPackageDisabled(packageName)
+    if atom.packages.isPackageLoaded(packageName)
       true
     else if packageNames = @getAvailablePackageNames()
       packageNames.indexOf(packageName) > -1
