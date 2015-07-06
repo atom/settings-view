@@ -181,7 +181,7 @@ class InstalledPackagesPanel extends View
       allViews = @itemViews[packageType].getViews()
       activeViews = @itemViews[packageType].filterViews (pack) ->
         return true if text is ''
-        owner = pack.owner ? @ownerFromRepository(pack.repository)
+        owner = pack.owner ? ownerFromRepository(pack.repository)
         filterText = "#{pack.name} #{owner}"
         fuzzaldrin.score(filterText, text) > 0
 
