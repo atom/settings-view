@@ -45,7 +45,7 @@ class PackageCard extends View
               @button type: 'button', class: 'btn btn-info icon icon-cloud-download install-button', outlet: 'installButton', 'Install'
             @div outlet: 'packageActionButtonGroup', class: 'btn-group', =>
               @button type: 'button', class: 'btn icon icon-gear settings',             outlet: 'settingsButton', 'Settings'
-              @button type: 'button', class: 'btn icon icon-trashcan uninstall',        outlet: 'uninstallButton', 'Uninstall'
+              @button type: 'button', class: 'btn icon icon-trashcan uninstall-button', outlet: 'uninstallButton', 'Uninstall'
               @button type: 'button', class: 'btn icon icon-playback-pause enablement', outlet: 'enablementButton', =>
                 @span class: 'disable-text', 'Disable'
               @button type: 'button', class: 'btn status-indicator', tabindex: -1, outlet: 'statusIndicator'
@@ -328,12 +328,12 @@ class PackageCard extends View
     @disposables.add atom.config.onDidChange 'core.disabledPackages', =>
       @updateDisabledState()
 
-    @subscribeToPackageEvent 'package-installing', (pack) =>
+    @subscribeToPackageEvent 'package-installing theme-installing', (pack) =>
       @updateInterfaceState()
       @installButton.prop('disabled', true)
       @installButton.addClass('is-installing')
 
-    @subscribeToPackageEvent 'package-updating', (pack) =>
+    @subscribeToPackageEvent 'package-updating theme-updating', (pack) =>
       @updateInterfaceState()
       @updateButton.prop('disabled', true)
       @updateButton.addClass('is-installing')
@@ -343,9 +343,11 @@ class PackageCard extends View
       @installAlternativeButton.prop('disabled', true)
       @installAlternativeButton.addClass('is-installing')
 
-    @subscribeToPackageEvent 'package-uninstalling', (pack) =>
+    @subscribeToPackageEvent 'package-uninstalling theme-uninstalling', (pack) =>
       @updateInterfaceState()
-      @installButton.prop('disabled', true)
+      @enablementButton.prop('disabled', true)
+      @uninstallButton.prop('disabled', true)
+      @uninstallButton.addClass('is-uninstalling')
 
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
       @installButton.prop('disabled', false)
@@ -361,7 +363,9 @@ class PackageCard extends View
       @updateInterfaceState()
 
     @subscribeToPackageEvent 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', (pack, error) =>
-      @installButton.prop('disabled', false)
+      @enablementButton.prop('disabled', false)
+      @uninstallButton.prop('disabled', false)
+      @uninstallButton.removeClass('is-uninstalling')
       @updateInterfaceState()
 
     @subscribeToPackageEvent 'package-installed-alternative package-install-alternative-failed', (pack, error) =>
