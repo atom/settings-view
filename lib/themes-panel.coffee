@@ -16,6 +16,8 @@ ListView = require './list-view'
 
 module.exports =
 class ThemesPanel extends View
+  @loadPackagesDelay: 300
+
   @content: ->
     @div =>
       @div class: 'section packages themes-panel', =>
@@ -97,8 +99,11 @@ class ThemesPanel extends View
       false
 
     @disposables.add @packageManager.on 'theme-installed theme-uninstalled', =>
-      @populateThemeMenus()
-      @loadPackages()
+      clearTimeout(loadPackagesTimeout)
+      loadPackagesTimeout = setTimeout =>
+        @populateThemeMenus()
+        @loadPackages()
+      , ThemesPanel.loadPackagesDelay
 
     @disposables.add atom.themes.onDidChangeActiveThemes => @updateActiveThemes()
     @disposables.add atom.tooltips.add(@activeUiThemeSettings, {title: 'Settings'})

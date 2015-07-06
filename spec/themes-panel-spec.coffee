@@ -1,4 +1,5 @@
 path = require 'path'
+fs = require 'fs'
 
 _ = require 'underscore-plus'
 CSON = require 'season'
@@ -72,3 +73,56 @@ describe "ThemesPanel", ->
     xit "focuses the search filter", ->
       settingsView.showPanel('Themes')
       expect(panel.filterEditor.hasFocus()).toBe true
+
+  describe "theme lists", ->
+    [installed] = []
+    beforeEach ->
+      installed = JSON.parse fs.readFileSync(path.join(__dirname, 'fixtures', 'installed.json'))
+      spyOn(packageManager, 'loadCompatiblePackageVersion').andCallFake ->
+      spyOn(packageManager, 'getInstalled').andReturn Promise.resolve(installed)
+      panel = new ThemesPanel(packageManager)
+
+      waitsFor ->
+        packageManager.getInstalled.callCount is 1 and panel.communityCount.text().indexOf('…') < 0
+
+    it 'shows the themes', ->
+      expect(panel.communityCount.text().trim()).toBe '1'
+      expect(panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 1
+
+      expect(panel.coreCount.text().trim()).toBe '1'
+      expect(panel.corePackages.find('.package-card:not(.hidden)').length).toBe 1
+
+      expect(panel.devCount.text().trim()).toBe '1'
+      expect(panel.devPackages.find('.package-card:not(.hidden)').length).toBe 1
+
+    it 'filters themes by name', ->
+      panel.filterEditor.getModel().setText('user-')
+      window.advanceClock(panel.filterEditor.getModel().getBuffer().stoppedChangingDelay)
+      expect(panel.communityCount.text().trim()).toBe '1/1'
+      expect(panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 1
+
+      expect(panel.coreCount.text().trim()).toBe '0/1'
+      expect(panel.corePackages.find('.package-card:not(.hidden)').length).toBe 0
+
+      expect(panel.devCount.text().trim()).toBe '0/1'
+      expect(panel.devPackages.find('.package-card:not(.hidden)').length).toBe 0
+
+    it 'adds newly installed themes to the list', ->
+      [installCallback] = []
+      spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
+        installCallback = callback
+        onWillThrowError: ->
+      spyOn(atom.packages, 'loadPackage').andCallFake (name) =>
+        installed.user.push {name, theme: 'ui'}
+
+      expect(panel.communityCount.text().trim()).toBe '1'
+      expect(panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 1
+
+      packageManager.install({name: 'another-user-theme', theme: 'ui'})
+      installCallback(0, '', '')
+
+      advanceClock ThemesPanel.loadPackagesDelay
+      waits 1
+      runs ->
+        expect(panel.communityCount.text().trim()).toBe '2'
+        expect(panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 2
