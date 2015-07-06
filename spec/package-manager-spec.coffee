@@ -59,7 +59,7 @@ describe "package manager", ->
 
     it "returns true when a package is disabled", ->
       spyOn(atom.packages, 'isPackageDisabled').andReturn true
-      expect(packageManager.isPackageInstalled('some-package')).toBe true
+      expect(packageManager.isPackageInstalled('some-package')).toBe false
 
     it "returns true when a package is in the availablePackageCache", ->
       spyOn(packageManager, 'getAvailablePackageNames').andReturn ['some-package']
@@ -83,6 +83,32 @@ describe "package manager", ->
       packageManager.install {name: 'something', version: '0.2.3'}, ->
       expect(packageManager.runCommand).toHaveBeenCalled()
       expect(runArgs).toEqual ['install', 'something@0.2.3']
+
+    it "installs the package and adds the package to the available package names", ->
+      packageManager.cacheAvailablePackageNames(user: [{name: 'a-package'}])
+      packageManager.install {name: 'something', version: '0.2.3'}, ->
+
+      expect(packageManager.getAvailablePackageNames()).not.toContain('something')
+      runCallback(0, '', '')
+      expect(packageManager.getAvailablePackageNames()).toContain('something')
+
+  describe "::uninstall()", ->
+    [runArgs, runCallback] = []
+
+    beforeEach ->
+      spyOn(packageManager, 'unload')
+      spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
+        runArgs = args
+        runCallback = callback
+        onWillThrowError: ->
+
+    it "uninstalls the package and removes the package from the available package names", ->
+      packageManager.cacheAvailablePackageNames(user: [{name: 'something'}])
+      packageManager.uninstall {name: 'something'}, ->
+
+      expect(packageManager.getAvailablePackageNames()).toContain('something')
+      runCallback(0, '', '')
+      expect(packageManager.getAvailablePackageNames()).not.toContain('something')
 
   describe "::installAlternative", ->
     beforeEach ->

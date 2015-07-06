@@ -18,7 +18,7 @@ class PackageManager
     @client ?= new Client(this)
 
   isPackageInstalled: (packageName) ->
-    if atom.packages.isPackageLoaded(packageName) or atom.packages.isPackageDisabled(packageName)
+    if atom.packages.isPackageLoaded(packageName)
       true
     else if packageNames = @getAvailablePackageNames()
       packageNames.indexOf(packageName) > -1
@@ -268,6 +268,7 @@ class PackageManager
         else
           atom.packages.loadPackage(name)
 
+        @addPackageToAvailablePackageNames(name)
         callback?()
         @emitPackageEvent 'installed', pack
       else
@@ -295,6 +296,7 @@ class PackageManager
     apmProcess = @runCommand ['uninstall', '--hard', name], (code, stdout, stderr) =>
       if code is 0
         @unload(name)
+        @removePackageFromAvailablePackageNames(name)
         callback?()
         @emitPackageEvent 'uninstalled', pack
       else
@@ -363,8 +365,20 @@ class PackageManager
   cacheAvailablePackageNames: (packages) ->
     @availablePackageCache = []
     for packageType in ['core', 'user', 'dev']
+      continue unless packages[packageType]?
       packageNames = (pack.name for pack in packages[packageType])
       @availablePackageCache.push(packageNames...)
+    @availablePackageCache
+
+  addPackageToAvailablePackageNames: (packageName) ->
+    @availablePackageCache ?= []
+    @availablePackageCache.push(packageName) if @availablePackageCache.indexOf(packageName) < 0
+    @availablePackageCache
+
+  removePackageFromAvailablePackageNames: (packageName) ->
+    @availablePackageCache ?= []
+    index = @availablePackageCache.indexOf(packageName)
+    @availablePackageCache.splice(index, 1) if index > -1
     @availablePackageCache
 
   getAvailablePackageNames: ->
