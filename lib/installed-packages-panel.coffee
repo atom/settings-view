@@ -8,7 +8,7 @@ ErrorView = require './error-view'
 
 List = require './list'
 ListView = require './list-view'
-{ownerFromRepository} = require './utils'
+{ownerFromRepository, packageComparatorAscending} = require './utils'
 
 module.exports =
 class InstalledPackagesPanel extends View
@@ -104,24 +104,10 @@ class InstalledPackagesPanel extends View
     packages
 
   sortPackages: (packages) ->
-    comparator = (left, right) ->
-      leftStatus = atom.packages.isPackageDisabled(left.name)
-      rightStatus = atom.packages.isPackageDisabled(right.name)
-      if leftStatus is rightStatus
-        if left.name > right.name
-          -1
-        else if left.name < right.name
-          1
-        else
-          0
-      else if leftStatus > rightStatus
-        -1
-      else
-        1
-    packages.dev.sort(comparator)
-    packages.core.sort(comparator)
-    packages.user.sort(comparator)
-    packages.deprecated.sort(comparator)
+    packages.dev.sort(packageComparatorAscending)
+    packages.core.sort(packageComparatorAscending)
+    packages.user.sort(packageComparatorAscending)
+    packages.deprecated.sort(packageComparatorAscending)
     packages
 
   loadPackages: ->
