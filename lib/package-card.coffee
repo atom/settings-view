@@ -328,12 +328,12 @@ class PackageCard extends View
     @disposables.add atom.config.onDidChange 'core.disabledPackages', =>
       @updateDisabledState()
 
-    @subscribeToPackageEvent 'package-installing', (pack) =>
+    @subscribeToPackageEvent 'package-installing theme-installing', (pack) =>
       @updateInterfaceState()
       @installButton.prop('disabled', true)
       @installButton.addClass('is-installing')
 
-    @subscribeToPackageEvent 'package-updating', (pack) =>
+    @subscribeToPackageEvent 'package-updating theme-updating', (pack) =>
       @updateInterfaceState()
       @updateButton.prop('disabled', true)
       @updateButton.addClass('is-installing')
@@ -343,7 +343,7 @@ class PackageCard extends View
       @installAlternativeButton.prop('disabled', true)
       @installAlternativeButton.addClass('is-installing')
 
-    @subscribeToPackageEvent 'package-uninstalling', (pack) =>
+    @subscribeToPackageEvent 'package-uninstalling theme-uninstalling', (pack) =>
       @updateInterfaceState()
       @enablementButton.prop('disabled', true)
       @uninstallButton.prop('disabled', true)
