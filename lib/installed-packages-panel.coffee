@@ -56,7 +56,6 @@ class InstalledPackagesPanel extends View
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
   initialize: (@packageManager) ->
-    @packageViews = []
     @items =
       dev: new List('name')
       core: new List('name')
@@ -132,7 +131,6 @@ class InstalledPackagesPanel extends View
         packagesWithUpdates[name] = latestVersion
       @displayPackageUpdates(packagesWithUpdates)
 
-    @packageViews = []
     @packageManager.getInstalled()
       .then (packages) =>
         @packages = @sortPackages(@filterPackages(packages))
