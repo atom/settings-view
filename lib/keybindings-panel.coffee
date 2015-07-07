@@ -10,12 +10,12 @@ class KeybindingsPanel extends View
       @section class: 'keybinding-panel section', =>
         @div class: 'section-heading icon icon-keyboard', 'Keybindings'
 
-        @div class: 'text native-key-bindings', tabindex: -1, =>
+        @div class: 'text native-key-bindings text-selectable', tabindex: -1, =>
           @span class: 'icon icon-question'
           @span 'You can override these keybindings by copying '
           @span class: 'icon icon-clippy'
           @span 'and pasting them into '
-          @a class: 'link', outlet: 'openUserKeymap', 'your keymap file'
+          @a class: 'link-internal', outlet: 'openUserKeymap', 'your keymap file'
 
         @div class: 'editor-container', =>
           @subview 'searchEditorView', new TextEditorView(mini: true)

@@ -26,7 +26,7 @@ class ThemesPanel extends View
 
           @div class: 'text native-key-bindings text-selectable', tabindex: -1, =>
             @span class: 'icon icon-question', 'You can also style Atom by editing '
-            @a class: 'link', outlet: 'openUserStysheet', 'your stylesheet'
+            @a class: 'link-internal', outlet: 'openUserStysheet', 'your stylesheet'
 
           @div class: 'themes-picker', =>
             @div class: 'themes-picker-item control-group', =>
