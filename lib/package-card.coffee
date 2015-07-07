@@ -63,6 +63,8 @@ class PackageCard extends View
 
     {@name} = @pack
 
+    @newVersion = @pack.latestVersion unless @pack.latestVersion is @pack.version
+
     @handlePackageEvents()
     @handleButtonEvents(options)
     @loadCachedMetadata()
@@ -83,7 +85,7 @@ class PackageCard extends View
       @installButtonGroup.remove()
       @uninstallButton.remove()
 
-    @updateButtonGroup.hide()
+    @updateButtonGroup.hide() unless @newVersion
 
     @hasCompatibleVersion = true
     @updateForUninstalledCommunityPackage() unless @isInstalled()
@@ -225,6 +227,7 @@ class PackageCard extends View
   displayInstalledState: ->
     if @newVersion
       @updateButtonGroup.show()
+      @updateButton.text("Update to #{@newVersion}")
     else
       @updateButtonGroup.hide()
 
@@ -268,7 +271,7 @@ class PackageCard extends View
 
     message = null
     if info?.hasDeprecations
-      message = @getDeprecationMessage()
+      message = @getDeprecationMessage(@newVersion)
     else if info?.hasAlternative and info?.alternative and info?.alternative is 'core'
       message = info.message ? "The features in `#{@pack.name}` have been added to core."
       message += ' Please uninstall this package.'
@@ -299,9 +302,6 @@ class PackageCard extends View
 
   displayAvailableUpdate: (@newVersion) ->
     @updateInterfaceState()
-    message = @getDeprecationMessage(@newVersion)
-    marked ?= require 'marked'
-    @packageMessage.html(marked(message)) if message?
 
   getDeprecationMessage: (newVersion) ->
     info = @getDeprecatedPackageMetadata()
@@ -350,19 +350,20 @@ class PackageCard extends View
       @uninstallButton.addClass('is-uninstalling')
 
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
+      @pack.version = version if version = atom.packages.getLoadedPackage(@pack.name)?.metadata?.version
       @installButton.prop('disabled', false)
       @installButton.removeClass('is-installing')
       @updateInterfaceState()
 
     @subscribeToPackageEvent 'package-updated theme-updated package-update-failed theme-update-failed', (pack, error) =>
-      if version = atom.packages.getLoadedPackage(@pack.name)?.metadata?.version
-        @pack.version = version
+      @pack.version = version if version = atom.packages.getLoadedPackage(@pack.name)?.metadata?.version
       @newVersion = null
       @updateButton.prop('disabled', false)
       @updateButton.removeClass('is-installing')
       @updateInterfaceState()
 
     @subscribeToPackageEvent 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', (pack, error) =>
+      @newVersion = null
       @enablementButton.prop('disabled', false)
       @uninstallButton.prop('disabled', false)
       @uninstallButton.removeClass('is-uninstalling')

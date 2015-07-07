@@ -44,6 +44,20 @@ describe "PackageCard", ->
     jasmine.attachToDOM(card[0])
     expect(card.uninstallButton).not.toBeVisible()
 
+  it "displays the new version in the update button", ->
+    setPackageStatusSpies {installed: true, disabled: false, hasSettings: true}
+    card = new PackageCard {name: 'find-and-replace', version: '1.0.0', latestVersion: '1.2.0'}, packageManager
+    jasmine.attachToDOM(card[0])
+    expect(card.updateButton).toBeVisible()
+    expect(card.updateButton.text()).toContain 'Update to 1.2.0'
+
+  it "displays the new version in the update button when the package is disabled", ->
+    setPackageStatusSpies {installed: true, disabled: true, hasSettings: true}
+    card = new PackageCard {name: 'find-and-replace', version: '1.0.0', latestVersion: '1.2.0'}, packageManager
+    jasmine.attachToDOM(card[0])
+    expect(card.updateButton).toBeVisible()
+    expect(card.updateButton.text()).toContain 'Update to 1.2.0'
+
   describe "when the package is not installed", ->
     it "shows the settings, uninstall, and disable buttons", ->
       pack =
