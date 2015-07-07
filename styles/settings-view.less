@@ -34,6 +34,14 @@
     color: @text-color;
   }
 
+  .link {
+    color: @text-color-info;
+
+    &:hover, &:focus {
+      color: lighten(@text-color-info, 4%);
+    }
+  }
+
   .alert-type(@tx; @bg) {
     @alert-background-color: mix(@bg, @base-background-color, 10%);
     color: contrast(@alert-background-color, darken(@tx, 20%), lighten(@tx, 20%) );
