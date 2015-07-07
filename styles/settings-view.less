@@ -326,98 +326,6 @@
     }
   }
 
-  .config-menu {
-    flex: 1.6;
-    min-width: 180px;
-    max-width: 240px;
-    -webkit-user-select: none;
-    user-select: none;
-    padding-top: @component-padding;
-    background-color: lighten(@base-background-color, 2%);
-    border-right: 1px solid @base-border-color;
-    overflow-x: auto;
-
-    .icon:before {
-      text-align: center;
-    }
-
-    .panels-packages{
-      flex-grow: 1;
-      overflow: auto;
-      height: 0;
-
-      li + li {
-        margin-top: 0;
-      }
-
-      li > a {
-        border-radius: 1px !important;
-        padding: 12px 14px;
-        font-weight: bold;
-        line-height: 16px;
-        opacity: .85;
-        transition: opacity .1s ease-in;
-        box-shadow: inset 0 -1px 0 rgba(0,0,0, 7%);
-
-        &:hover {
-          opacity: 1;
-          box-shadow: inset 0 -1px 0 rgba(0,0,0, 7%) !important;
-        }
-      }
-
-      li:first-child {margin-top:2px;}
-      li:last-child {margin-bottom: 10px;}
-
-      li.active a, li.active a:hover {
-        opacity: 1;
-        box-shadow: 0 0 0 1px darken(#3c76dd, 10%) !important;
-
-        .package-author, .package-version {
-          color: #fff;
-          opacity: .6;
-        }
-      }
-
-      .package-version {
-        line-height: 16px;
-        margin-left: 5px;
-        font-weight: normal;
-        color: #999;
-      }
-
-      .package-author {
-        font-weight: normal;
-        display: block;
-        color: #999;
-      }
-    }
-
-    .button-area {
-      margin: 15px; // same as nav
-      > .btn {
-        width: 100%;
-      }
-    }
-
-    .nav > li {
-      margin-top: 0;
-      > a {
-        border-radius: 0;
-        white-space: nowrap;
-
-        &:hover {
-          color: @text-color-highlight;
-          background-color: @background-color-highlight;
-        }
-      }
-    }
-
-    .nav > li.active > a {
-      color: @text-color-selected;
-      background-color: @background-color-selected;
-    }
-  }
-
   .panels {
     flex: 8.4;
     flex-flow: column;
@@ -430,7 +338,6 @@
       overflow: auto;
     }
   }
-
 
   .packages {
     height: 100%;
