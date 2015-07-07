@@ -36,7 +36,7 @@ class PackageDetailView extends View
             @div class: 'row', =>
               @subview 'packageCard', new PackageCard(pack.metadata, packageManager, onSettingsView: true)
 
-          @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
+          @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link link-external'
 
           @p outlet: 'startupTime', class: 'text icon icon-dashboard native-key-bindings', tabindex: -1
 
