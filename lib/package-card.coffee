@@ -80,7 +80,7 @@ class PackageCard extends View
       @statusIndicator.remove()
       @enablementButton.remove()
 
-    @settingsButton.remove() unless @hasSettings(@pack)
+    @settingsButton.remove() unless @hasSettings()
     if atom.packages.isBundledPackage(@pack.name)
       @installButtonGroup.remove()
       @uninstallButton.remove()
@@ -382,10 +382,7 @@ class PackageCard extends View
 
   getDeprecatedPackageMetadata: -> atom.packages.getDeprecatedPackageMetadata(@pack.name)
 
-  hasSettings: (pack) ->
-    for key, value of atom.config.get(pack.name)
-      return true
-    false
+  hasSettings: -> @packageManager.packageHasSettings(@pack.name)
 
   subscribeToPackageEvent: (event, callback) ->
     @disposables.add @packageManager.on event, (pack, error) =>

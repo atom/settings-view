@@ -162,3 +162,14 @@ describe "package manager", ->
         expect(installedCallback).toHaveBeenCalled()
         expect(installedCallback.mostRecentCall.args[0]).toEqual null
         expect(installedCallback.mostRecentCall.args[1]).toEqual eventArg
+
+  describe "::packageHasSettings", ->
+    it "returns true when the pacakge has config", ->
+      atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-config'))
+      expect(packageManager.packageHasSettings('package-with-config')).toBe true
+
+    it "returns false when the pacakge does not have config", ->
+      expect(packageManager.packageHasSettings('random-package')).toBe false
+
+      atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'language-test'))
+      expect(packageManager.packageHasSettings('language-test')).toBe false

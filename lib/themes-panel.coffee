@@ -207,10 +207,7 @@ class ThemesPanel extends View
     else
       @activeSyntaxThemeSettings.hide()
 
-  hasSettings: (keyPath) ->
-    for key, value of atom.config.get(keyPath)
-      return true
-    false
+  hasSettings: (packageName) -> @packageManager.packageHasSettings(packageName)
 
   # Populate the theme menus from the theme manager's active themes
   populateThemeMenus: ->

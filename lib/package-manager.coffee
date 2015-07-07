@@ -25,6 +25,11 @@ class PackageManager
     else
       false
 
+  packageHasSettings: (packageName) ->
+    pack = atom.packages.getLoadedPackage(packageName)
+    pack.activateConfig() if pack? and not atom.packages.isPackageActive(packageName)
+    atom.config.getSchema(packageName)?
+
   runCommand: (args, callback) ->
     command = atom.packages.getApmPath()
     outputLines = []

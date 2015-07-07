@@ -266,6 +266,7 @@ describe "PackageCard", ->
     it "does not show the settings button when there are no settings", ->
       pack = atom.packages.getLoadedPackage('package-with-config')
       spyOn(PackageCard::, 'isDeprecated').andReturn(false)
+      spyOn(PackageCard::, 'hasSettings').andReturn(false)
       card = new PackageCard(pack, packageManager)
 
       jasmine.attachToDOM(card[0])
