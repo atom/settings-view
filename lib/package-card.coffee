@@ -350,13 +350,13 @@ class PackageCard extends View
       @uninstallButton.addClass('is-uninstalling')
 
     @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
+      @pack.version = version if version = atom.packages.getLoadedPackage(@pack.name)?.metadata?.version
       @installButton.prop('disabled', false)
       @installButton.removeClass('is-installing')
       @updateInterfaceState()
 
     @subscribeToPackageEvent 'package-updated theme-updated package-update-failed theme-update-failed', (pack, error) =>
-      if version = atom.packages.getLoadedPackage(@pack.name)?.metadata?.version
-        @pack.version = version
+      @pack.version = version if version = atom.packages.getLoadedPackage(@pack.name)?.metadata?.version
       @newVersion = null
       @updateButton.prop('disabled', false)
       @updateButton.removeClass('is-installing')
