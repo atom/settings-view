@@ -363,6 +363,7 @@ class PackageCard extends View
       @updateInterfaceState()
 
     @subscribeToPackageEvent 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', (pack, error) =>
+      @newVersion = null
       @enablementButton.prop('disabled', false)
       @uninstallButton.prop('disabled', false)
       @uninstallButton.removeClass('is-uninstalling')
