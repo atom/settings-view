@@ -227,6 +227,7 @@ class PackageCard extends View
   displayInstalledState: ->
     if @newVersion
       @updateButtonGroup.show()
+      @updateButton.text("Update to #{@newVersion}")
     else
       @updateButtonGroup.hide()
 
@@ -270,7 +271,7 @@ class PackageCard extends View
 
     message = null
     if info?.hasDeprecations
-      message = @getDeprecationMessage()
+      message = @getDeprecationMessage(@newVersion)
     else if info?.hasAlternative and info?.alternative and info?.alternative is 'core'
       message = info.message ? "The features in `#{@pack.name}` have been added to core."
       message += ' Please uninstall this package.'
@@ -301,9 +302,6 @@ class PackageCard extends View
 
   displayAvailableUpdate: (@newVersion) ->
     @updateInterfaceState()
-    message = @getDeprecationMessage(@newVersion)
-    marked ?= require 'marked'
-    @packageMessage.html(marked(message)) if message?
 
   getDeprecationMessage: (newVersion) ->
     info = @getDeprecatedPackageMetadata()
