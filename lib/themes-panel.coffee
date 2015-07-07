@@ -24,7 +24,7 @@ class ThemesPanel extends View
         @div class: 'section-container', =>
           @div class: 'section-heading icon icon-device-desktop', 'Choose a Theme'
 
-          @div class: 'text native-key-bindings', tabindex: -1, =>
+          @div class: 'text native-key-bindings text-selectable', tabindex: -1, =>
             @span class: 'icon icon-question', 'You can also style Atom by editing '
             @a class: 'link', outlet: 'openUserStysheet', 'your stylesheet'
 

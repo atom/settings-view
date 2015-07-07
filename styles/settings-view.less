@@ -592,11 +592,18 @@
   }
 
   .copy-icon {
-    cursor: pointer;
     padding-right: 2px;
 
     &:hover {
-      color: #2a6496;
+      &::before {
+        color: @button-background-color-selected;
+      }
+    }
+
+    &:active {
+      &::before {
+        color: lighten(@button-background-color-selected, 10%);
+      }
     }
   }
 
