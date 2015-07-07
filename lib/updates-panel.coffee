@@ -54,14 +54,15 @@ class UpdatesPanel extends View
 
     @checkingMessage.show()
 
-    @packageManager.getOutdated()
-      .then (@availableUpdates) =>
-        @checkButton.prop('disabled', false)
-        @addUpdateViews()
-      .catch (error) =>
-        @checkButton.prop('disabled', false)
-        @checkingMessage.hide()
-        @updateErrors.append(new ErrorView(@packageManager, error))
+    @packageManager.getInstalled().then =>
+      @packageManager.getOutdated()
+        .then (@availableUpdates) =>
+          @checkButton.prop('disabled', false)
+          @addUpdateViews()
+        .catch (error) =>
+          @checkButton.prop('disabled', false)
+          @checkingMessage.hide()
+          @updateErrors.append(new ErrorView(@packageManager, error))
 
   addUpdateViews: ->
     if @availableUpdates.length > 0
