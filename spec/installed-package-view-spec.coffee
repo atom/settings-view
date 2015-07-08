@@ -114,3 +114,20 @@ describe "PackageDetailView", ->
         view = new PackageDetailView(pack, new PackageManager())
 
         expect(atom.config.get('package-with-config.setting')).toBe 'something'
+
+  describe "when the package was not installed from atom.io", ->
+    normalizePackageDataReadmeError = 'ERROR: No README data found!'
+
+    it "still displays the Readme", ->
+      atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-readme'))
+
+      waitsFor ->
+        atom.packages.isPackageLoaded('package-with-readme') is true
+
+      runs ->
+        pack = atom.packages.getLoadedPackage('package-with-readme')
+        expect(pack.metadata.readme).toBe normalizePackageDataReadmeError
+
+        view = new PackageDetailView(pack, new PackageManager())
+        expect(view.sections.find('.package-readme').text()).not.toBe normalizePackageDataReadmeError
+        expect(view.sections.find('.package-readme').text().trim()).toBe 'I am a Readme!'
