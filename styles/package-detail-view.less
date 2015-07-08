@@ -1,0 +1,41 @@
+@import "ui-variables";
+
+.settings-view {
+  .package-detail-view {
+    .package-keymap-table,
+    .package-grammars-table,
+    .package-snippets-table {
+      padding-top: @component-padding;
+      padding-left: @component-padding;
+
+      td {
+        white-space: nowrap;
+      }
+
+      .snippet-body,
+      .snippet-prefix {
+        font-family: monospace;
+      }
+    }
+
+    .update-message {
+      padding-right: @component-padding;
+    }
+
+    .link {
+      width: -webkit-fit-content; // prevents hover area being full-width
+    }
+
+    .link,
+    .text {
+      margin: 0 15px @component-padding 15px;
+    }
+
+    .update-link,
+    .repo-link {
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

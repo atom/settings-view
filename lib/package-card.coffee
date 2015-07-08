@@ -24,7 +24,7 @@ class PackageCard extends View
 
       @div class: 'body', =>
         @h4 class: 'card-name', =>
-          @a outlet: 'packageName', name
+          @a outlet: 'packageName', class: 'link-external', name
           @span ' '
           @span class: 'deprecation-badge highlight-warning inline-block', 'Deprecated'
         @span outlet: 'packageDescription', class: 'package-description', description

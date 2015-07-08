@@ -20,10 +20,10 @@ class InstallPanel extends View
         @div class: 'section-container', =>
           @h1 outlet: 'installHeading', class: 'section-heading icon icon-cloud-download', 'Install Packages'
 
-          @div class: 'text native-key-bindings', tabindex: -1, =>
+          @div class: 'text native-key-bindings text-selectable', tabindex: -1, =>
             @span class: 'icon icon-question'
             @span outlet: 'publishedToText', 'Packages are published to '
-            @a class: 'link', outlet: "openAtomIo", "atom.io"
+            @a class: 'link-external', outlet: "openAtomIo", "atom.io"
             @span " and are installed to #{path.join(process.env.ATOM_HOME, 'packages')}"
 
           @div class: 'search-container clearfix', =>

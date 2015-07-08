@@ -11,7 +11,7 @@ class PackageReadmeView extends View
     @section class: 'section', =>
       @div class: 'section-container', =>
         @div class: 'section-heading icon icon-book', 'README'
-        @div class: 'package-readme native-key-bindings', tabindex: -1, outlet: 'packageReadme'
+        @div class: 'package-readme native-key-bindings text-selectable', tabindex: -1, outlet: 'packageReadme'
 
   initialize: (readme) ->
     readme = readme or "### No README."
