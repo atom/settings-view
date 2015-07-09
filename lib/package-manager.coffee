@@ -240,7 +240,7 @@ class PackageManager
         error.stderr = stderr
         onError(error)
 
-    @emitter.emit 'package-updating', pack
+    @emitter.emit('package-updating', {pack})
     apmProcess = @runCommand(args, exit)
     handleProcessErrors(apmProcess, errorMessage, onError)
 
@@ -314,7 +314,7 @@ class PackageManager
 
   installAlternative: (pack, alternativePackageName, callback) ->
     eventArg = {pack, alternative: alternativePackageName}
-    @emitter.emit 'package-installing-alternative', eventArg
+    @emitter.emit('package-installing-alternative', eventArg)
 
     uninstallPromise = new Promise (resolve, reject) =>
       @uninstall pack, (error) ->
@@ -326,11 +326,12 @@ class PackageManager
 
     Promise.all([uninstallPromise, installPromise]).then =>
       callback(null, eventArg)
-      @emitter.emit 'package-installed-alternative', eventArg
+      @emitter.emit('package-installed-alternative', eventArg)
     .catch (error) =>
       console.error error.message, error.stack
       callback(error, eventArg)
-      @emitter.emit 'package-install-alternative-failed', eventArg, error
+      eventArg.error = error
+      @emitter.emit('package-install-alternative-failed', eventArg)
 
   canUpgrade: (installedPackage, availableVersion) ->
     return false unless installedPackage?
@@ -402,7 +403,7 @@ class PackageManager
   emitPackageEvent: (eventName, pack, error) ->
     theme = pack.theme ? pack.metadata?.theme
     eventName = if theme then "theme-#{eventName}" else "package-#{eventName}"
-    @emitter.emit eventName, pack, error
+    @emitter.emit(eventName, {pack, error})
 
   on: (selectors, callback) ->
     subscriptions = new CompositeDisposable

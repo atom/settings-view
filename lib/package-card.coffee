@@ -328,48 +328,48 @@ class PackageCard extends View
     @disposables.add atom.config.onDidChange 'core.disabledPackages', =>
       @updateDisabledState()
 
-    @subscribeToPackageEvent 'package-installing theme-installing', (pack) =>
+    @subscribeToPackageEvent 'package-installing theme-installing', =>
       @updateInterfaceState()
       @installButton.prop('disabled', true)
       @installButton.addClass('is-installing')
 
-    @subscribeToPackageEvent 'package-updating theme-updating', (pack) =>
+    @subscribeToPackageEvent 'package-updating theme-updating', =>
       @updateInterfaceState()
       @updateButton.prop('disabled', true)
       @updateButton.addClass('is-installing')
 
-    @subscribeToPackageEvent 'package-installing-alternative', ({pack, alternative}) =>
+    @subscribeToPackageEvent 'package-installing-alternative', =>
       @updateInterfaceState()
       @installAlternativeButton.prop('disabled', true)
       @installAlternativeButton.addClass('is-installing')
 
-    @subscribeToPackageEvent 'package-uninstalling theme-uninstalling', (pack) =>
+    @subscribeToPackageEvent 'package-uninstalling theme-uninstalling', =>
       @updateInterfaceState()
       @enablementButton.prop('disabled', true)
       @uninstallButton.prop('disabled', true)
       @uninstallButton.addClass('is-uninstalling')
 
-    @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', (pack, error) =>
+    @subscribeToPackageEvent 'package-installed package-install-failed theme-installed theme-install-failed', =>
       @pack.version = version if version = atom.packages.getLoadedPackage(@pack.name)?.metadata?.version
       @installButton.prop('disabled', false)
       @installButton.removeClass('is-installing')
       @updateInterfaceState()
 
-    @subscribeToPackageEvent 'package-updated theme-updated package-update-failed theme-update-failed', (pack, error) =>
+    @subscribeToPackageEvent 'package-updated theme-updated package-update-failed theme-update-failed', =>
       @pack.version = version if version = atom.packages.getLoadedPackage(@pack.name)?.metadata?.version
       @newVersion = null
       @updateButton.prop('disabled', false)
       @updateButton.removeClass('is-installing')
       @updateInterfaceState()
 
-    @subscribeToPackageEvent 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', (pack, error) =>
+    @subscribeToPackageEvent 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', =>
       @newVersion = null
       @enablementButton.prop('disabled', false)
       @uninstallButton.prop('disabled', false)
       @uninstallButton.removeClass('is-uninstalling')
       @updateInterfaceState()
 
-    @subscribeToPackageEvent 'package-installed-alternative package-install-alternative-failed', (pack, error) =>
+    @subscribeToPackageEvent 'package-installed-alternative package-install-alternative-failed', =>
       @installAlternativeButton.prop('disabled', false)
       @installAlternativeButton.removeClass('is-installing')
       @updateInterfaceState()
@@ -385,7 +385,7 @@ class PackageCard extends View
   hasSettings: -> @packageManager.packageHasSettings(@pack.name)
 
   subscribeToPackageEvent: (event, callback) ->
-    @disposables.add @packageManager.on event, (pack, error) =>
+    @disposables.add @packageManager.on event, ({pack, error}) =>
       packageName = pack.name
       packageName = pack.pack.name if pack.pack?
       callback(pack, error) if packageName is @pack.name

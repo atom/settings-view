@@ -68,7 +68,7 @@ class InstallPanel extends View
     @searchEditorView.focus()
 
   handleSearchEvents: ->
-    @disposables.add @packageManager.on 'package-install-failed', (pack, error) =>
+    @disposables.add @packageManager.on 'package-install-failed', ({pack, error}) =>
       @searchErrors.append(new ErrorView(@packageManager, error))
 
     @disposables.add atom.commands.add @searchEditorView.element, 'core:confirm', =>

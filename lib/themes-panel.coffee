@@ -91,7 +91,7 @@ class ThemesPanel extends View
     @loadPackages()
 
     @disposables = new CompositeDisposable()
-    @disposables.add @packageManager.on 'theme-install-failed theme-uninstall-failed', (pack, error) =>
+    @disposables.add @packageManager.on 'theme-install-failed theme-uninstall-failed', ({pack, error}) =>
       @themeErrors.append(new ErrorView(@packageManager, error))
 
     @openUserStysheet.on 'click', ->

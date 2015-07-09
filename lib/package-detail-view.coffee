@@ -129,16 +129,16 @@ class PackageDetailView extends View
     @sections.append(new PackageReadmeView(readme))
 
   subscribeToPackageManager: ->
-    @disposables.add @packageManager.on 'theme-installed package-installed', (pack) =>
+    @disposables.add @packageManager.on 'theme-installed package-installed', ({pack}) =>
       return unless @pack.name is pack.name
 
       @loadPackage()
       @updateInstalledState()
 
-    @disposables.add @packageManager.on 'theme-uninstalled package-uninstalled', (pack) =>
+    @disposables.add @packageManager.on 'theme-uninstalled package-uninstalled', ({pack}) =>
       @updateInstalledState() if @pack.name is pack.name
 
-    @disposables.add @packageManager.on 'theme-updated package-updated', (pack) =>
+    @disposables.add @packageManager.on 'theme-updated package-updated', ({pack}) =>
       return unless @pack.name is pack.name
 
       @loadPackage()
