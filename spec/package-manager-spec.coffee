@@ -110,6 +110,16 @@ describe "package manager", ->
       runCallback(0, '', '')
       expect(packageManager.getAvailablePackageNames()).not.toContain('something')
 
+    it "removes the package from the core.disabledPackages list", ->
+      atom.config.set('core.disabledPackages', ['something'])
+
+      packageManager.cacheAvailablePackageNames(user: [{name: 'something'}])
+      packageManager.uninstall {name: 'something'}, ->
+
+      expect(atom.config.get('core.disabledPackages')).toContain('something')
+      runCallback(0, '', '')
+      expect(atom.config.get('core.disabledPackages')).not.toContain('something')
+
   describe "::installAlternative", ->
     beforeEach ->
       spyOn(atom.packages, 'activatePackage')

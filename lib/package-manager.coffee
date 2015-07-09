@@ -302,6 +302,7 @@ class PackageManager
       if code is 0
         @unload(name)
         @removePackageFromAvailablePackageNames(name)
+        @removePackageNameFromDisabledPackages(name)
         callback?()
         @emitPackageEvent 'uninstalled', pack
       else
@@ -367,6 +368,9 @@ class PackageManager
       deferred.reject(error)
 
     deferred.promise
+
+  removePackageNameFromDisabledPackages: (packageName) ->
+    atom.config.removeAtKeyPath('core.disabledPackages', packageName)
 
   cacheAvailablePackageNames: (packages) ->
     @availablePackageCache = []
