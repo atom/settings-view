@@ -352,6 +352,9 @@ class PackageManager
     if repoUrl.match 'git@github'
       repoName = repoUrl.split(':')[1]
       repoUrl = "https://github.com/#{repoName}"
+    if !repoUrl.match 'http:'
+      if repoUrl.match '/'
+        repoUrl = "https://www.github.com/#{repoUrl}"
     repoUrl.replace(/\.git$/, '').replace(/\/+$/, '')
 
   checkNativeBuildTools: ->
