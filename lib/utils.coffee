@@ -3,6 +3,9 @@ ownerFromRepository = (repository) ->
   loginRegex = /github\.com\/([\w-]+)\/.+/
   if typeof(repository) is "string"
     repo = repository
+    unless repo.match('http:')
+      if repo.match '/'
+        repo = "https://www.github.com/#{repo}"
   else
     repo = repository.url
     if repo.match 'git@github'
