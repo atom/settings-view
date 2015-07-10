@@ -56,7 +56,6 @@ class PackageDetailView extends View
     @populate()
     @handleButtonEvents()
     @updateFileButtons()
-    @checkForUpdate()
     @subscribeToPackageManager()
 
   loadPackage: ->
@@ -194,14 +193,6 @@ class PackageDetailView extends View
     loadTime = @pack.loadTime ? 0
     activateTime = @pack.activateTime ? 0
     loadTime + activateTime
-
-  checkForUpdate: ->
-    return if atom.packages.isBundledPackage(@pack.name)
-
-    @packageManager.getOutdated().then (packages) =>
-      for pack in packages when pack.name is @pack.name
-        if @packageManager.canUpgrade(@pack, pack.latestVersion)
-          @availableVersion = pack.latestVersion
 
   # Even though the title of this view is hilariously "PackageDetailView",
   # the package might not be installed.
