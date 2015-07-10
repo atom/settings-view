@@ -195,17 +195,8 @@ class PackageDetailView extends View
     activateTime = @pack.activateTime ? 0
     loadTime + activateTime
 
-  installUpdate: ->
-    return unless @availableVersion
-
-
-    @packageManager.update @pack, @availableVersion, (error) =>
-      if error?
-        @errors.append(new ErrorView(@packageManager, error))
-
   checkForUpdate: ->
     return if atom.packages.isBundledPackage(@pack.name)
-
 
     @packageManager.getOutdated().then (packages) =>
       for pack in packages when pack.name is @pack.name
