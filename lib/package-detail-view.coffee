@@ -30,10 +30,6 @@ class PackageDetailView extends View
 
       @section class: 'section', =>
         @form class: 'section-container package-detail-view', =>
-          @div outlet: 'updateArea', class: 'alert alert-success package-update', =>
-            @span outlet: 'updateLabel', class: 'icon icon-squirrel update-message'
-            @span outlet: 'updateLink', class: 'alert-link update-link icon icon-cloud-download', 'Install'
-
           @div class: 'container package-container', =>
             @div class: 'row', =>
               @subview 'packageCard', new PackageCard(pack.metadata, packageManager, onSettingsView: true)
@@ -60,7 +56,6 @@ class PackageDetailView extends View
     @populate()
     @handleButtonEvents()
     @updateFileButtons()
-    @checkForUpdate()
     @subscribeToPackageManager()
 
   loadPackage: ->
@@ -143,7 +138,6 @@ class PackageDetailView extends View
 
       @loadPackage()
       @updateFileButtons()
-      @updateArea.hide()
       @populate()
 
   handleButtonEvents: ->
@@ -199,32 +193,6 @@ class PackageDetailView extends View
     loadTime = @pack.loadTime ? 0
     activateTime = @pack.activateTime ? 0
     loadTime + activateTime
-
-  installUpdate: ->
-    return if @updateLink.prop('disabled')
-    return unless @availableVersion
-
-    @updateLink.prop('disabled', true)
-    @updateLink.text('Installing\u2026')
-
-    @packageManager.update @pack, @availableVersion, (error) =>
-      if error?
-        @updateLink.prop('disabled', false)
-        @updateLink.text('Install')
-        @errors.append(new ErrorView(@packageManager, error))
-
-  checkForUpdate: ->
-    @updateArea.hide()
-    return if atom.packages.isBundledPackage(@pack.name)
-
-    @updateLink.on 'click', => @installUpdate()
-
-    @packageManager.getOutdated().then (packages) =>
-      for pack in packages when pack.name is @pack.name
-        if @packageManager.canUpgrade(@pack, pack.latestVersion)
-          @availableVersion = pack.latestVersion
-          @updateLabel.text("Version #{@availableVersion} is now available!")
-          @updateArea.show()
 
   # Even though the title of this view is hilariously "PackageDetailView",
   # the package might not be installed.
