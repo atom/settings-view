@@ -132,10 +132,20 @@ describe "SettingsView", ->
         # Return true if the element that has the focus, or its ancestors, is the activePanel
         $(document.activeElement).parents().addBack().toArray().indexOf(activePanel.element) isnt -1
 
+      expectActivePanelToBeKeyboardScrollable = ->
+        activePanel = settingsView.panelsByName[settingsView.activePanelName]
+        spyOn(activePanel, 'pageDown')
+        atom.commands.dispatch(activePanel.element, 'core:page-down')
+        expect(activePanel.pageDown).toHaveBeenCalled()
+        spyOn(activePanel, 'pageUp')
+        atom.commands.dispatch(activePanel.element, 'core:page-up')
+        expect(activePanel.pageUp).toHaveBeenCalled()
+
+
       beforeEach ->
         settingsView = null
 
-      it "opens and focuses the settings to the correct panel with atom://config/<panel-name>", ->
+      it "opens the settings to the correct panel with atom://config/<panel-name> and that panel is keyboard-scrollable", ->
         waitsForPromise ->
           atom.workspace.open('atom://config').then (s) -> settingsView = s
 
@@ -143,6 +153,25 @@ describe "SettingsView", ->
         runs ->
           expect(settingsView.activePanelName).toBe 'Settings'
           expect(focusIsWithinActivePanel()).toBe true
+          expectActivePanelToBeKeyboardScrollable()
+
+        waitsForPromise ->
+          atom.workspace.open('atom://config/keybindings').then (s) -> settingsView = s
+
+        waits 1
+        runs ->
+          expect(settingsView.activePanelName).toBe 'Keybindings'
+          expect(focusIsWithinActivePanel()).toBe true
+          expectActivePanelToBeKeyboardScrollable()
+
+        waitsForPromise ->
+          atom.workspace.open('atom://config/packages').then (s) -> settingsView = s
+
+        waits 1
+        runs ->
+          expect(settingsView.activePanelName).toBe 'Packages'
+          expect(focusIsWithinActivePanel()).toBe true
+          expectActivePanelToBeKeyboardScrollable()
 
         waitsForPromise ->
           atom.workspace.open('atom://config/themes').then (s) -> settingsView = s
@@ -151,6 +180,16 @@ describe "SettingsView", ->
         runs ->
           expect(settingsView.activePanelName).toBe 'Themes'
           expect(focusIsWithinActivePanel()).toBe true
+          expectActivePanelToBeKeyboardScrollable()
+
+        waitsForPromise ->
+          atom.workspace.open('atom://config/updates').then (s) -> settingsView = s
+
+        waits 1
+        runs ->
+          expect(settingsView.activePanelName).toBe 'Updates'
+          expect(focusIsWithinActivePanel()).toBe true
+          expectActivePanelToBeKeyboardScrollable()
 
         waitsForPromise ->
           atom.workspace.open('atom://config/install').then (s) -> settingsView = s
@@ -159,6 +198,7 @@ describe "SettingsView", ->
         runs ->
           expect(settingsView.activePanelName).toBe 'Install'
           expect(focusIsWithinActivePanel()).toBe true
+          expectActivePanelToBeKeyboardScrollable()
 
       it "passes the URI to a pane's beforeShow() method on settings view initialization", ->
         InstallPanel = require '../lib/install-panel'
@@ -190,38 +230,6 @@ describe "SettingsView", ->
         runs ->
           expect(settingsView.activePanelName).toBe 'Install'
           expect(InstallPanel::beforeShow).toHaveBeenCalledWith {uri: 'atom://config/install/package:something'}
-
-
-    describe "when scrolling with core:page-up and core:page-down", ->
-      panels = null
-      activePanel = null
-      settingsView = null
-      beforeEach ->
-        panels = null
-        activePanel = null
-        settingsView = null
-
-      it "handles core:page-down", ->
-        waitsForPromise ->
-          atom.workspace.open('atom://config').then (s) -> settingsView = s
-        waits 1
-        runs ->
-          panels = settingsView.panels
-          activePanel = settingsView.panelsByName[settingsView.activePanelName]
-          spyOn(panels, 'pageDown')
-          atom.commands.dispatch(activePanel.element, 'core:page-down')
-          expect(panels.pageDown).toHaveBeenCalled()
-
-      it "handles core:page-up", ->
-        waitsForPromise ->
-          atom.workspace.open('atom://config').then (s) -> settingsView = s
-        waits 1
-        runs ->
-          panels = settingsView.panels
-          activePanel = settingsView.panelsByName[settingsView.activePanelName]
-          spyOn(panels, 'pageUp')
-          atom.commands.dispatch(activePanel.element, 'core:page-up')
-          expect(panels.pageUp).toHaveBeenCalled()
 
   describe "when an installed package is clicked from the Install panel", ->
     it "displays the package details", ->

@@ -4,7 +4,7 @@ fs = require 'fs-plus'
 fuzzaldrin = require 'fuzzaldrin'
 _ = require 'underscore-plus'
 {CompositeDisposable} = require 'atom'
-{$$, TextEditorView, View} = require 'atom-space-pen-views'
+{$$, TextEditorView, ScrollView} = require 'atom-space-pen-views'
 {Subscriber} = require 'emissary'
 
 PackageCard = require './package-card'
@@ -12,11 +12,11 @@ ErrorView = require './error-view'
 PackageManager = require './package-manager'
 
 module.exports =
-class ThemesPanel extends View
+class ThemesPanel extends ScrollView
   Subscriber.includeInto(this)
 
   @content: ->
-    @div =>
+    @div class: 'panels-item', =>
       @div class: 'section packages themes-panel', =>
         @div class: 'section-container', =>
           @div class: 'section-heading icon icon-device-desktop', 'Choose a Theme'
@@ -77,6 +77,7 @@ class ThemesPanel extends View
 
 
   initialize: (@packageManager) ->
+    super
     @disposables = new CompositeDisposable()
     @packageViews = []
     @loadPackages()

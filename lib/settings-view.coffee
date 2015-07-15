@@ -17,14 +17,6 @@ ThemesPanel = require './themes-panel'
 InstalledPackagesPanel = require './installed-packages-panel'
 UpdatesPanel = require './updates-panel'
 
-class PanelsScrollView extends ScrollView
-  @content: ->
-    # Set tabindex to 0 so it can receive focus to get keyboard events
-    @div class: 'panels', tabindex: '0'
-
-  initialize: ->
-    super
-
 module.exports =
 class SettingsView extends ScrollView
   Subscriber.includeInto(this)
@@ -36,7 +28,7 @@ class SettingsView extends ScrollView
           @div class: 'panel-menu-separator', outlet: 'menuSeparator'
         @div class: 'button-area', =>
           @button class: 'btn btn-default icon icon-link-external', outlet: 'openDotAtom', 'Open Config Folder'
-      @subview 'panels', new PanelsScrollView
+      @div class: 'panels', outlet: 'panels'
 
   initialize: ({@uri, activePanelName}={}) ->
     super
