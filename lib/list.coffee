@@ -11,6 +11,8 @@ class List
   filterItems: (filterFn) ->
     (item for item in @items when filterFn(item))
 
+  keyForItem: (item) -> item[@key]
+
   setItems: (items) ->
     items = items.slice(0)
     setToAdd = difference(items, @items, @key)

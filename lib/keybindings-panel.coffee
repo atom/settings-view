@@ -57,7 +57,7 @@ class KeybindingsPanel extends ScrollView
 
     @loadKeyBindings()
 
-  detached: ->
+  dispose: ->
     @disposables.dispose()
 
   loadKeyBindings: ->

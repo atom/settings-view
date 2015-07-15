@@ -12,5 +12,16 @@ class GeneralPanel extends ScrollView
     super
     @loadingElement.remove()
 
-    @append(new SettingsPanel('core'))
-    @append(new SettingsPanel('editor'))
+    @subPanels = [
+      new SettingsPanel('core')
+      new SettingsPanel('editor')
+    ]
+
+    for subPanel in @subPanels
+      @append(subPanel)
+    return
+
+  dispose: ->
+    for subPanel in @subPanels
+      subPanel.dispose()
+    return

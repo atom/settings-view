@@ -237,7 +237,9 @@
 
     .meta-controls {
       margin-top: @component-padding;
-      .install-button.is-installing {
+
+      .install-button.is-installing,
+      .uninstall-button.is-uninstalling {
         opacity: 1; // override disabled style
         background-image: linear-gradient(to right, transparent 50%, hsla(0,0%,0%,.15) 50%);
         background-size: 10px 100%;

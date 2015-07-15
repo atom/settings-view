@@ -38,6 +38,26 @@ describe "PackageCard", ->
     jasmine.attachToDOM(card[0])
     expect(card.settingsButton).not.toBeVisible()
 
+  it "removes the uninstall button if a package has is a bundled package", ->
+    setPackageStatusSpies {installed: true, disabled: false, hasSettings: true}
+    card = new PackageCard {name: 'find-and-replace'}, packageManager
+    jasmine.attachToDOM(card[0])
+    expect(card.uninstallButton).not.toBeVisible()
+
+  it "displays the new version in the update button", ->
+    setPackageStatusSpies {installed: true, disabled: false, hasSettings: true}
+    card = new PackageCard {name: 'find-and-replace', version: '1.0.0', latestVersion: '1.2.0'}, packageManager
+    jasmine.attachToDOM(card[0])
+    expect(card.updateButton).toBeVisible()
+    expect(card.updateButton.text()).toContain 'Update to 1.2.0'
+
+  it "displays the new version in the update button when the package is disabled", ->
+    setPackageStatusSpies {installed: true, disabled: true, hasSettings: true}
+    card = new PackageCard {name: 'find-and-replace', version: '1.0.0', latestVersion: '1.2.0'}, packageManager
+    jasmine.attachToDOM(card[0])
+    expect(card.updateButton).toBeVisible()
+    expect(card.updateButton.text()).toContain 'Update to 1.2.0'
+
   describe "when the package is not installed", ->
     it "shows the settings, uninstall, and disable buttons", ->
       pack =
@@ -168,14 +188,47 @@ describe "PackageCard", ->
       card.enablementButton.click()
       expect(atom.packages.disablePackage).toHaveBeenCalled()
 
-    it "can be uninstalled if installed", ->
+    it "is uninstalled when the uninstallButton is clicked", ->
       setPackageStatusSpies {installed: true, disabled: false}
-      spyOn(packageManager, 'uninstall')
 
-      card = new PackageCard {name: 'test-package'}, packageManager
-      expect(card.uninstallButton.css('display')).not.toBe('none')
+      [installCallback, uninstallCallback] = []
+      packageManager.runCommand.andCallFake (args, callback) ->
+        if args[0] is 'install'
+          installCallback = callback
+        else if args[0] is 'uninstall'
+          uninstallCallback = callback
+        onWillThrowError: ->
+
+      spyOn(packageManager, 'install').andCallThrough()
+      spyOn(packageManager, 'uninstall').andCallThrough()
+
+      pack = atom.packages.getLoadedPackage('package-with-config')
+      card = new PackageCard(pack, packageManager)
+      jasmine.attachToDOM(card[0])
+
+      expect(card.uninstallButton).toBeVisible()
+      expect(card.enablementButton).toBeVisible()
       card.uninstallButton.click()
+
+      expect(card.uninstallButton[0].disabled).toBe true
+      expect(card.enablementButton[0].disabled).toBe true
+      expect(card.uninstallButton).toHaveClass('is-uninstalling')
+
       expect(packageManager.uninstall).toHaveBeenCalled()
+      expect(packageManager.uninstall.mostRecentCall.args[0].name).toEqual('package-with-config')
+
+      jasmine.unspy(PackageCard::, 'isInstalled')
+      spyOn(PackageCard.prototype, 'isInstalled').andReturn false
+      uninstallCallback(0, '', '')
+
+      waits 1
+      runs ->
+        expect(card.uninstallButton[0].disabled).toBe false
+        expect(card.uninstallButton).not.toHaveClass('is-uninstalling')
+        expect(card.installButtonGroup).toBeVisible()
+        expect(card.updateButtonGroup).not.toBeVisible()
+        expect(card.packageActionButtonGroup).not.toBeVisible()
+        expect(card.installAlternativeButtonGroup).not.toBeVisible()
 
     it "shows the settings, uninstall, and enable buttons when disabled", ->
       atom.config.set('package-with-config.setting', 'something')
@@ -213,6 +266,7 @@ describe "PackageCard", ->
     it "does not show the settings button when there are no settings", ->
       pack = atom.packages.getLoadedPackage('package-with-config')
       spyOn(PackageCard::, 'isDeprecated').andReturn(false)
+      spyOn(PackageCard::, 'hasSettings').andReturn(false)
       card = new PackageCard(pack, packageManager)
 
       jasmine.attachToDOM(card[0])
@@ -403,11 +457,15 @@ describe "PackageCard", ->
         card = new PackageCard(pack, packageManager)
         jasmine.attachToDOM(card[0])
 
-      it "notifies that the package has been replaced, shows uninstallButton", ->
+      it "shows installAlternativeButton and uninstallButton", ->
         expect(card.updateButtonGroup).not.toBeVisible()
         expect(card.installButtonGroup).not.toBeVisible()
-        expect(card.packageActionButtonGroup).not.toBeVisible()
         expect(card.installAlternativeButtonGroup).toBeVisible()
+
+        expect(card.packageActionButtonGroup).toBeVisible()
+        expect(card.settingsButton).not.toBeVisible()
+        expect(card.uninstallButton).toBeVisible()
+        expect(card.enablementButton).not.toBeVisible()
 
         expect(card).toHaveClass 'deprecated'
         expect(card.packageMessage.text()).toContain 'has been replaced by not-installed-package'

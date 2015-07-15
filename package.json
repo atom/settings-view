@@ -1,6 +1,6 @@
 {
   "name": "settings-view",
-  "version": "0.208.0",
+  "version": "0.211.2",
   "main": "./lib/main",
   "description": "Edit config settings, install packages, and change themes",
   "license": "MIT",
@@ -8,7 +8,6 @@
     "async": "~0.2.9",
     "atom-space-pen-views": "^2.0.2",
     "cheerio": "0.15.0",
-    "emissary": "1.x",
     "fs-plus": "^2.4",
     "fuzzaldrin": "^2.1",
     "glob": "4.3.1",

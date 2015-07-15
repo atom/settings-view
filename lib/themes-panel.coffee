@@ -5,15 +5,18 @@ fuzzaldrin = require 'fuzzaldrin'
 _ = require 'underscore-plus'
 {CompositeDisposable} = require 'atom'
 {$$, TextEditorView, ScrollView} = require 'atom-space-pen-views'
-{Subscriber} = require 'emissary'
 
 PackageCard = require './package-card'
 ErrorView = require './error-view'
 PackageManager = require './package-manager'
 
+List = require './list'
+ListView = require './list-view'
+{ownerFromRepository, packageComparatorAscending} = require './utils'
+
 module.exports =
 class ThemesPanel extends ScrollView
-  Subscriber.includeInto(this)
+  @loadPackagesDelay: 300
 
   @content: ->
     @div class: 'panels-item', =>
@@ -75,22 +78,33 @@ class ThemesPanel extends ScrollView
             @div outlet: 'devPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
-
   initialize: (@packageManager) ->
     super
-    @disposables = new CompositeDisposable()
-    @packageViews = []
+    @items =
+      dev: new List('name')
+      core: new List('name')
+      user: new List('name')
+    @itemViews =
+      dev: new ListView(@items.dev, @devPackages, @createPackageCard)
+      core: new ListView(@items.core, @corePackages, @createPackageCard)
+      user: new ListView(@items.user, @communityPackages, @createPackageCard)
+
     @loadPackages()
 
-    @subscribe @packageManager, 'theme-install-failed theme-uninstall-failed', (pack, error) =>
+    @disposables = new CompositeDisposable()
+    @disposables.add @packageManager.on 'theme-install-failed theme-uninstall-failed', ({pack, error}) =>
       @themeErrors.append(new ErrorView(@packageManager, error))
 
     @openUserStysheet.on 'click', ->
       atom.commands.dispatch(atom.views.getView(atom.workspace), 'application:open-your-stylesheet')
       false
 
-    @subscribe @packageManager, 'theme-installed theme-uninstalled', =>
-      @populateThemeMenus()
+    @disposables.add @packageManager.on 'theme-installed theme-uninstalled', =>
+      clearTimeout(loadPackagesTimeout)
+      loadPackagesTimeout = setTimeout =>
+        @populateThemeMenus()
+        @loadPackages()
+      , ThemesPanel.loadPackagesDelay
 
     @disposables.add atom.themes.onDidChangeActiveThemes => @updateActiveThemes()
     @disposables.add atom.tooltips.add(@activeUiThemeSettings, {title: 'Settings'})
@@ -110,8 +124,7 @@ class ThemesPanel extends ScrollView
   focus: ->
     @filterEditor.focus()
 
-  detached: ->
-    @unsubscribe()
+  dispose: ->
     @disposables.dispose()
 
   filterThemes: (packages) ->
@@ -119,31 +132,39 @@ class ThemesPanel extends ScrollView
     packages.user = packages.user.filter ({theme}) -> theme
     packages.core = packages.core.filter ({theme}) -> theme
 
+    for pack in packages.core
+      pack.repository ?= "https://github.com/atom/#{pack.name}"
+
+    for packageType in ['dev', 'core', 'user']
+      for pack in packages[packageType]
+        pack.owner = ownerFromRepository(pack.repository)
+
+    packages
+
+  sortThemes: (packages) ->
+    packages.dev.sort(packageComparatorAscending)
+    packages.core.sort(packageComparatorAscending)
+    packages.user.sort(packageComparatorAscending)
     packages
 
   loadPackages: ->
     @packageViews = []
     @packageManager.getInstalled()
       .then (packages) =>
-        @packages = @filterThemes(packages)
-        # @loadingMessage.hide()
+        @packages = @sortThemes(@filterThemes(packages))
+
+        @devPackages.find('.alert.loading-area').remove()
+        @items.dev.setItems(@packages.dev)
+
+        @corePackages.find('.alert.loading-area').remove()
+        @items.core.setItems(@packages.core)
+
+        @communityPackages.find('.alert.loading-area').remove()
+        @items.user.setItems(@packages.user)
+
         # TODO show empty mesage per section
-        # @emptyMessage.show() if packages.length is 0
-        @totalPackages.text "#{@packages.user.length + @packages.core.length + @packages.dev.length}"
 
-        _.each @addPackageViews(@communityPackages, @packages.user), (v) => @packageViews.push(v)
-        @communityCount.text "#{@packages.user.length}"
-
-        @packages.core = @packages.core.map (p) ->
-          # Assume core packages are in the atom org
-          p.repository = "https://github.com/atom/#{p.name}" unless p.repository
-          p
-
-        _.each @addPackageViews(@corePackages, @packages.core), (v) => @packageViews.push(v)
-        @coreCount.text "#{@packages.core.length}"
-
-        _.each @addPackageViews(@devPackages, @packages.dev), (v) => @packageViews.push(v)
-        @devCount.text "#{@packages.dev.length}"
+        @updateSectionCounts()
 
       .catch (error) =>
         @loadingMessage.hide()
@@ -187,10 +208,7 @@ class ThemesPanel extends ScrollView
     else
       @activeSyntaxThemeSettings.hide()
 
-  hasSettings: (keyPath) ->
-    for key, value of atom.config.get(keyPath)
-      return true
-    false
+  hasSettings: (packageName) -> @packageManager.packageHasSettings(packageName)
 
   # Populate the theme menus from the theme manager's active themes
   populateThemeMenus: ->
@@ -240,41 +258,28 @@ class ThemesPanel extends ScrollView
     title = themeName.replace(/-(ui|syntax)/g, '').replace(/-theme$/g, '')
     _.undasherize(_.uncamelcase(title))
 
-  addPackageViews: (container, packages) ->
-    container.empty()
-    packageViews = []
-
-    packages.sort (left, right) ->
-      leftStatus = atom.packages.isPackageDisabled(left.name)
-      rightStatus = atom.packages.isPackageDisabled(right.name)
-      if leftStatus is rightStatus
-        return 0
-      else if leftStatus > rightStatus
-        return 1
-      else
-        return -1
-
-    for pack, index in packages
-      packageRow = $$ -> @div class: 'row'
-      container.append(packageRow)
-      packView = new PackageCard(pack, @packageManager, {back: 'Themes'})
-      packageViews.push(packView) # used for search filterin'
-      packageRow.append(packView)
-
-    packageViews
+  createPackageCard: (pack) =>
+    packageRow = $$ -> @div class: 'row'
+    packView = new PackageCard(pack, @packageManager, {back: 'Themes'})
+    packageRow.append(packView)
+    packageRow
 
   filterPackageListByText: (text) ->
     return unless @packages
-    active = fuzzaldrin.filter(@packageViews, text, key: 'filterText')
 
-    _.each @packageViews, (view) ->
-      # should set an attribute on the view we can filter by it instead of doing
-      # dumb jquery stuff
-      view.hide().addClass('hidden')
-    _.each active, (view) ->
-      view.show().removeClass('hidden')
+    for packageType in ['dev', 'core', 'user']
+      allViews = @itemViews[packageType].getViews()
+      activeViews = @itemViews[packageType].filterViews (pack) ->
+        return true if text is ''
+        owner = pack.owner ? ownerFromRepository(pack.repository)
+        filterText = "#{pack.name} #{owner}"
+        fuzzaldrin.score(filterText, text) > 0
 
-    @totalPackages.text "#{active.length}/#{@packageViews.length}"
+      for view in allViews when view
+        view.find('.package-card').hide().addClass('hidden')
+      for view in activeViews when view
+        view.find('.package-card').show().removeClass('hidden')
+
     @updateSectionCounts()
 
   updateSectionCounts: ->

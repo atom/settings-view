@@ -6,7 +6,7 @@ class ListView
   #   * `item` the item to create the view for
   constructor: (@list, @container, @createView) ->
     @views = []
-    @viewMap = new WeakMap
+    @viewMap = {}
     @list.onDidAddItem (item) => @addView(item)
     @list.onDidRemoveItem (item) => @removeView(item)
     @addViews()
@@ -14,7 +14,7 @@ class ListView
   getViews: -> @views
 
   filterViews: (filterFn) ->
-    (@viewMap.get(item) for item in @list.filterItems(filterFn))
+    (@viewMap[@list.keyForItem(item)] for item in @list.filterItems(filterFn))
 
   addViews: ->
     for item in @list.getItems()
@@ -24,13 +24,14 @@ class ListView
   addView: (item) ->
     view = @createView(item)
     @views.push(view)
-    @viewMap.set(item, view)
+    @viewMap[@list.keyForItem(item)] = view
     @container.prepend(view)
 
   removeView: (item) ->
-    view = @viewMap.get(item)
+    key = @list.keyForItem(item)
+    view = @viewMap[key]
     if view?
       index = @views.indexOf(view)
       @views.splice(index, 1) if index > -1
-      @viewMap.delete(item)
+      delete @viewMap[key]
       view.remove()

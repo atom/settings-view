@@ -3,7 +3,7 @@ path = require 'path'
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
 {$, $$, TextEditorView, ScrollView} = require 'atom-space-pen-views'
-{Subscriber} = require 'emissary'
+{CompositeDisposable} = require 'atom'
 
 PackageCard = require './package-card'
 Client = require './atom-io-client'
@@ -14,8 +14,6 @@ PackageNameRegex = /config\/install\/(package|theme):([a-z0-9-_]+)/i
 
 module.exports =
 class InstallPanel extends ScrollView
-  Subscriber.includeInto(this)
-
   @content: ->
     @div class: 'panels-item', =>
       @div class: 'section packages', =>
@@ -48,6 +46,7 @@ class InstallPanel extends ScrollView
 
   initialize: (@packageManager) ->
     super
+    @disposables = new CompositeDisposable()
     client = $('.settings-view').view()?.client
     @client = @packageManager.getClient()
     @atomIoURL = 'https://atom.io/packages'
@@ -63,28 +62,26 @@ class InstallPanel extends ScrollView
 
     @loadFeaturedPackages()
 
-  detached: ->
-    @unsubscribe()
+  dispose: ->
+    @disposables.dispose()
 
   focus: ->
     @searchEditorView.focus()
 
   handleSearchEvents: ->
-    @subscribe @packageManager, 'package-install-failed', (pack, error) =>
+    @disposables.add @packageManager.on 'package-install-failed', ({pack, error}) =>
       @searchErrors.append(new ErrorView(@packageManager, error))
 
-    @subscribe atom.commands.add @searchEditorView.element, 'core:confirm', =>
+    @disposables.add atom.commands.add @searchEditorView.element, 'core:confirm', =>
       @performSearch()
 
     @searchPackagesButton.on 'click', =>
-      unless @searchPackagesButton.hasClass('selected')
-        @setSearchType('package')
-        @performSearch()
+      @setSearchType('package') unless @searchPackagesButton.hasClass('selected')
+      @performSearch()
 
     @searchThemesButton.on 'click', =>
-      unless @searchThemesButton.hasClass('selected')
-        @setSearchType('theme')
-        @performSearch()
+      @setSearchType('theme') unless @searchThemesButton.hasClass('selected')
+      @performSearch()
 
   setSearchType: (searchType) ->
     if searchType is 'theme'

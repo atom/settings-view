@@ -5,7 +5,7 @@ _ = require 'underscore-plus'
 fs = require 'fs-plus'
 shell = require 'shell'
 {View} = require 'atom-space-pen-views'
-{Subscriber} = require 'emissary'
+{CompositeDisposable} = require 'atom'
 
 ErrorView = require './error-view'
 PackageCard = require './package-card'
@@ -15,9 +15,10 @@ PackageReadmeView = require './package-readme-view'
 PackageSnippetsView = require './package-snippets-view'
 SettingsPanel = require './settings-panel'
 
+NORMALIZE_PACKAGE_DATA_README_ERROR = 'ERROR: No README data found!'
+
 module.exports =
 class PackageDetailView extends View
-  Subscriber.includeInto(this)
 
   @content: (pack, packageManager) ->
     @div class: 'package-detail', =>
@@ -29,10 +30,6 @@ class PackageDetailView extends View
 
       @section class: 'section', =>
         @form class: 'section-container package-detail-view', =>
-          @div outlet: 'updateArea', class: 'alert alert-success package-update', =>
-            @span outlet: 'updateLabel', class: 'icon icon-squirrel update-message'
-            @span outlet: 'updateLink', class: 'alert-link update-link icon icon-cloud-download', 'Install'
-
           @div class: 'container package-container', =>
             @div class: 'row', =>
               @subview 'packageCard', new PackageCard(pack.metadata, packageManager, onSettingsView: true)
@@ -53,12 +50,12 @@ class PackageDetailView extends View
       @div outlet: 'sections'
 
   initialize: (@pack, @packageManager) ->
+    @disposables = new CompositeDisposable()
     @loadPackage()
     @activate()
     @populate()
     @handleButtonEvents()
     @updateFileButtons()
-    @checkForUpdate()
     @subscribeToPackageManager()
 
   loadPackage: ->
@@ -70,8 +67,8 @@ class PackageDetailView extends View
     if atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageActive(@pack.name)
       @pack.activateConfig()
 
-  detached: ->
-    @unsubscribe()
+  dispose: ->
+    @disposables.dispose()
 
   beforeShow: (opts) ->
     if opts?.back
@@ -113,28 +110,34 @@ class PackageDetailView extends View
 
     @openButton.hide() if atom.packages.isBundledPackage(@pack.name)
 
-    readme = if @pack.metadata.readme then @pack.metadata.readme else null
+    @renderReadme()
+
+  renderReadme: ->
+    if @pack.metadata.readme and @pack.metadata.readme.trim() isnt NORMALIZE_PACKAGE_DATA_README_ERROR
+      readme = @pack.metadata.readme
+    else
+      readme = null
+
     if @readmePath and not readme
       readme = fs.readFileSync(@readmePath, encoding: 'utf8')
 
     @sections.append(new PackageReadmeView(readme))
 
   subscribeToPackageManager: ->
-    @subscribe @packageManager, 'theme-installed package-installed', (pack) =>
+    @disposables.add @packageManager.on 'theme-installed package-installed', ({pack}) =>
       return unless @pack.name is pack.name
 
       @loadPackage()
       @updateInstalledState()
 
-    @subscribe @packageManager, 'theme-uninstalled package-uninstalled', (pack) =>
+    @disposables.add @packageManager.on 'theme-uninstalled package-uninstalled', ({pack}) =>
       @updateInstalledState() if @pack.name is pack.name
 
-    @subscribe @packageManager, 'theme-updated package-updated', (pack) =>
+    @disposables.add @packageManager.on 'theme-updated package-updated', ({pack}) =>
       return unless @pack.name is pack.name
 
       @loadPackage()
       @updateFileButtons()
-      @updateArea.hide()
       @populate()
 
   handleButtonEvents: ->
@@ -190,32 +193,6 @@ class PackageDetailView extends View
     loadTime = @pack.loadTime ? 0
     activateTime = @pack.activateTime ? 0
     loadTime + activateTime
-
-  installUpdate: ->
-    return if @updateLink.prop('disabled')
-    return unless @availableVersion
-
-    @updateLink.prop('disabled', true)
-    @updateLink.text('Installing\u2026')
-
-    @packageManager.update @pack, @availableVersion, (error) =>
-      if error?
-        @updateLink.prop('disabled', false)
-        @updateLink.text('Install')
-        @errors.append(new ErrorView(@packageManager, error))
-
-  checkForUpdate: ->
-    @updateArea.hide()
-    return if atom.packages.isBundledPackage(@pack.name)
-
-    @updateLink.on 'click', => @installUpdate()
-
-    @packageManager.getOutdated().then (packages) =>
-      for pack in packages when pack.name is @pack.name
-        if @packageManager.canUpgrade(@pack, pack.latestVersion)
-          @availableVersion = pack.latestVersion
-          @updateLabel.text("Version #{@availableVersion} is now available!")
-          @updateArea.show()
 
   # Even though the title of this view is hilariously "PackageDetailView",
   # the package might not be installed.
