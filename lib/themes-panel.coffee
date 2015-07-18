@@ -303,5 +303,5 @@ class ThemesPanel extends View
     @filterPackageListByText(filterText)
 
   handleEvents: ->
-    @on 'click', '.sub-section .icon-paintcan', (e) =>
-      _.map(e.currentTarget.nextSibling.children, (child) -> child.hidden = !(child.hidden))
+    @on 'click', '.sub-section .icon-paintcan', (e) ->
+      _.map(e.currentTarget.nextSibling.children, (child) -> child.hidden = not child.hidden)
