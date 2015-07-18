@@ -26,7 +26,14 @@ class SettingsView extends ScrollView
           @div class: 'panel-menu-separator', outlet: 'menuSeparator'
         @div class: 'button-area', =>
           @button class: 'btn btn-default icon icon-link-external', outlet: 'openDotAtom', 'Open Config Folder'
-      @div class: 'panels', outlet: 'panels'
+      # The tabindex attr below ensures that clicks in a panel item won't cause this view to gain focus.
+      # This is important because when this view gains focus (e.g. immediately after atom displays it),
+      # it focuses the currently active panel item. If that focusing causes the active panel to scroll (e.g.
+      # because the active panel itself passes focus on to a search box at the top of a scrolled panel),
+      # then the browser will not fire the click event on the element within the panel on which the user originally
+      # clicked (e.g. a package card). This would prevent us from showing a package detail view when clicking on a
+      # package card. Phew!
+      @div class: 'panels', tabindex: -1, outlet: 'panels'
 
   initialize: ({@uri, activePanelName}={}) ->
     super
