@@ -80,6 +80,8 @@ class InstalledPackagesPanel extends View
         @loadPackages()
       , InstalledPackagesPanel.loadPackagesDelay
 
+    @handleEvents()
+
     @loadPackages()
 
   focus: ->
@@ -203,3 +205,7 @@ class InstalledPackagesPanel extends View
   matchPackages: ->
     filterText = @filterEditor.getModel().getText()
     @filterPackageListByText(filterText)
+
+  handleEvents: ->
+    @on 'click', '.sub-section .icon-package', (e) =>
+      _.map(e.currentTarget.nextSibling.children, (child) -> child.hidden = !(child.hidden))
