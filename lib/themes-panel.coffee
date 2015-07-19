@@ -304,4 +304,4 @@ class ThemesPanel extends View
 
   handleEvents: ->
     @on 'click', '.sub-section .icon-paintcan', (e) ->
-      _.map(e.currentTarget.nextSibling.children, (child) -> child.hidden = not child.hidden)
+      [].map.call(e.currentTarget.nextSibling.children, (child) -> child.hidden = not child.hidden)
