@@ -31,8 +31,9 @@ class PackageDetailView extends View
       @section class: 'section', =>
         @form class: 'section-container package-detail-view', =>
           @div class: 'container package-container', =>
-            @div class: 'row', =>
-              @subview 'packageCard', new PackageCard(pack.metadata, packageManager, onSettingsView: true)
+            @div outlet: 'packageCardParent', class: 'row', =>
+              if pack?.metadata
+                @subview 'packageCard', new PackageCard(pack.metadata, packageManager, onSettingsView: true)
 
           @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
 
@@ -53,6 +54,13 @@ class PackageDetailView extends View
     @disposables = new CompositeDisposable()
     @loadPackage()
     @activate()
+    # If the package metadata in `@pack` isn't complete, hit the network.
+    if not @pack.metadata? or @pack.metadata is {}
+
+    else
+      @completeInitialzation()
+
+  completeInitialzation: ->
     @populate()
     @handleButtonEvents()
     @updateFileButtons()

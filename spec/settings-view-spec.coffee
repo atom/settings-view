@@ -163,7 +163,7 @@ describe "SettingsView", ->
         waits 1
         runs ->
           expect(settingsView.activePanelName).toBe 'Install'
-          expect(InstallPanel::beforeShow).toHaveBeenCalledWith {uri: 'atom://config/install/package:something'}
+          expect(InstallPanel::beforeShow).toHaveBeenCalledWith {uri: 'atom://config/install/package:something', detail: null}
 
       it "passes the URI to a pane's beforeShow() method after initialization", ->
         InstallPanel = require '../lib/install-panel'
@@ -182,7 +182,7 @@ describe "SettingsView", ->
         waits 1
         runs ->
           expect(settingsView.activePanelName).toBe 'Install'
-          expect(InstallPanel::beforeShow).toHaveBeenCalledWith {uri: 'atom://config/install/package:something'}
+          expect(InstallPanel::beforeShow).toHaveBeenCalledWith {uri: 'atom://config/install/package:something', detail: null}
 
     describe "when the package is then deactivated", ->
       beforeEach ->

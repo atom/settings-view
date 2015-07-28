@@ -157,6 +157,14 @@ class SettingsView extends ScrollView
     {name, options} = @deferredPanel
     @showPanel(name, options)
 
+  # Public: show a panel.
+  #
+  # * `name` {String} the name of the panel to show
+  # * `options` {Object} an options hash. Will be passed to `beforeShow()` on
+  #   the panel. Options may include (but are not limited to):
+  #   * `uri` the URI the panel was launched from
+  #   * `detail` the third URI segment: `atom://config/:pane/:detail` - used to
+  #      pass params from URI to pane constructor
   showPanel: (name, options) ->
     if panel = @getOrCreatePanel(name, options)
       @panels.children().hide()
