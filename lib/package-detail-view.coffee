@@ -11,6 +11,7 @@ ErrorView = require './error-view'
 PackageCard = require './package-card'
 PackageGrammarsView = require './package-grammars-view'
 PackageKeymapView = require './package-keymap-view'
+PackageLoadingMessage = require './package-loading-message'
 PackageReadmeView = require './package-readme-view'
 PackageSnippetsView = require './package-snippets-view'
 SettingsPanel = require './settings-panel'
@@ -34,6 +35,8 @@ class PackageDetailView extends View
             @div outlet: 'packageCardParent', class: 'row', =>
               if pack?.metadata
                 @subview 'packageCard', new PackageCard(pack.metadata, packageManager, onSettingsView: true)
+              else
+                @subview 'loadingMessage', new PackageLoadingMessage(pack.name)
 
           @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
 
@@ -53,14 +56,9 @@ class PackageDetailView extends View
   initialize: (@pack, @packageManager) ->
     @disposables = new CompositeDisposable()
     @loadPackage()
-    @activate()
-    # If the package metadata in `@pack` isn't complete, hit the network.
-    if not @pack.metadata? or @pack.metadata is {}
-
-    else
-      @completeInitialzation()
 
   completeInitialzation: ->
+    @activateConfig()
     @populate()
     @handleButtonEvents()
     @updateFileButtons()
@@ -69,8 +67,24 @@ class PackageDetailView extends View
   loadPackage: ->
     if loadedPackage = atom.packages.getLoadedPackage(@pack.name)
       @pack = loadedPackage
+      @completeInitialzation()
+    else
+      # If the package metadata in `@pack` isn't complete, hit the network.
+      if not @pack.metadata? or @pack.metadata is {}
+        @fetchPackage()
+      else
+        @completeInitialzation()
 
-  activate: ->
+  fetchPackage: ->
+    @showLoadingMessage()
+    @packageManager.client.package @pack.name, (err, packageData) ->
+      console.log "packageData", packageData
+
+  showLoadingMessage: ->
+
+  hideLoadingMessage: ->
+
+  activateConfig: ->
     # Package.activateConfig() is part of the Private package API and should not be used outside of core.
     if atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageActive(@pack.name)
       @pack.activateConfig()
@@ -101,7 +115,7 @@ class PackageDetailView extends View
   updateInstalledState: ->
     @sections.empty()
     @updateFileButtons()
-    @activate()
+    @activateConfig()
 
     if @isInstalled()
       @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))

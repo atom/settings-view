@@ -3,7 +3,7 @@ path = require 'path'
 PackageDetailView = require '../lib/package-detail-view'
 PackageManager = require '../lib/package-manager'
 
-describe "PackageDetailView", ->
+fdescribe "PackageDetailView", ->
   packageManager = null
 
   beforeEach ->
@@ -20,7 +20,14 @@ describe "PackageDetailView", ->
 
   it "Does not call the atom.io api when package metadata is present"
 
-  it "Calls the atom.io api when package metadata is missing"
+  it "Shows a loading message and calls out to atom.io when package metadata is missing", ->
+    packageManager.client = jasmine.createSpyObj('client', ['package'])
+    packageManager.client.package.andCallFake ->
+      require(path.join(__dirname, 'fixtures', 'package-with-readme', 'package.json'))
+
+    view = new PackageDetailView({name: 'package-with-readme'}, packageManager)
+    expect(view.loadingMessage).not.toBe(null)
+    expect(packageManager.client.package).toHaveBeenCalled()
 
   it "Shows an error page when package metadata cannot be loaded"
 
