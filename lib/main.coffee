@@ -10,11 +10,23 @@ createSettingsView = (params) ->
 
 openPanel = (panelName, uri) ->
   settingsView ?= createSettingsView({uri: configUri})
-  detail = null
-  if uri
-    match = uriRegex.exec(uri)
-    detail = match[2] if match
-  settingsView.showPanel(panelName, {uri: uri, detail: detail})
+
+  # There appears to be a bug that regex.exec doesn't assign, or lazily assigns,
+  # so even if there is a match, it's null unless I immediately call it a second
+  # time. Probably should dig deeper on this to figure out exactly why it's
+  # happening here and file an issue on either Atom or Electron, as appropriate.
+  # TODO: remove if this strange behavior goes away with an Electron update.
+  match = uriRegex.exec(uri)
+  match = uriRegex.exec(uri)
+
+  panel = match?[1]
+  detail = match?[2]
+  options = uri: uri
+  if panel is "packages" and detail?
+    panelName = detail
+    options.pack = name: detail
+
+  settingsView.showPanel(panelName, options)
 
 deserializer =
   name: 'SettingsView'
