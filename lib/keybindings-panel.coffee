@@ -100,7 +100,7 @@ class KeybindingsPanel extends View
 
   elementForKeyBinding: (keyBinding) ->
     {selector, keystrokes, command, source} = keyBinding
-    source = @determineSource(source)
+    source = KeybindingsPanel.determineSource(source)
     $$$ ->
       rowClasses = if source is 'User' then 'is-user' else ''
       @tr class: rowClasses, =>

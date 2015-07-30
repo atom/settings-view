@@ -41,7 +41,13 @@ class PackageKeymapView extends View
 
     @updateKeyBindingView()
 
-    @hide() unless @keybindingItems.children().length > 0 or @pack.hasKeymaps()
+    hasKeymaps = false
+    for [path, map] in atom.packages.getLoadedPackage(@namespace).keymaps
+      if map.length > 0
+        hasKeymaps = true
+        break
+
+    @hide() unless @keybindingItems.children().length > 0 or hasKeymaps
 
   updateKeyBindingView: ->
     @keybindingItems.empty()
