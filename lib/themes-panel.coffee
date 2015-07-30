@@ -304,4 +304,4 @@ class ThemesPanel extends View
 
   handleEvents: ->
     @on 'click', '.sub-section .icon-paintcan', (e) ->
-      [].map.call(e.currentTarget.nextSibling.children, (child) -> child.hidden = not child.hidden)
+      e.currentTarget.parentNode.classList.toggle('collapsed')
