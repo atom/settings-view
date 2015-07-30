@@ -17,11 +17,13 @@ fdescribe "PackageDetailView", ->
     # Perhaps there are more things to assert here.
     expect(view.title.text()).toBe('Package With Config')
 
-  it "Does not call the atom.io api when package metadata is present", ->
-    packageManager.client = jasmine.createSpyObj('client', ['package'])
+  it "Does not call the atom.io api for package metadata when present", ->
+    packageManager.client = jasmine.createSpyObj('client', ['package', 'avatar'])
     view = new PackageDetailView({name: 'package-with-config'}, packageManager)
 
-    expect(packageManager.client.package).not.toHaveBeenCalled()
+    # PackageCard is a subview, and it calls AtomIoClient::package once to load
+    # metadata from the cache.
+    expect(packageManager.client.package.callCount).toBe(1)
 
   it "Shows a loading message and calls out to atom.io when package metadata is missing", ->
     packageManager.client = jasmine.createSpyObj('client', ['package'])
