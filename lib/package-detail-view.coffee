@@ -33,16 +33,16 @@ class PackageDetailView extends View
         @form class: 'section-container package-detail-view', =>
           @div class: 'container package-container', =>
             @div outlet: 'packageCardParent', class: 'row', =>
-              if pack?.metadata
+              # Packages that need to be fetched will *only* have `name` set
+              if pack?.metadata and pack.metadata.owner
                 @subview 'packageCard', new PackageCard(pack.metadata, packageManager, onSettingsView: true)
               else
                 @subview 'loadingMessage', new PackageLoadingMessage(pack.name)
 
-          @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
+          @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link hidden'
+          @p outlet: 'startupTime', class: 'text icon icon-dashboard native-key-bindings hidden', tabindex: -1
 
-          @p outlet: 'startupTime', class: 'text icon icon-dashboard native-key-bindings', tabindex: -1
-
-          @div outlet: 'buttons', class: 'btn-wrap-group', =>
+          @div outlet: 'buttons', class: 'btn-wrap-group hidden', =>
             @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io'
             @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
             @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'CHANGELOG'
@@ -58,6 +58,14 @@ class PackageDetailView extends View
     @loadPackage()
 
   completeInitialzation: ->
+    console.log "completing init", @pack
+    unless @packageCard # Had to load this from the network
+      @packageCard = new PackageCard(@pack.metadata, @packageManager, onSettingsView: true)
+      @loadingMessage.replaceWith(@packageCard)
+      console.log @loadingMessage, @packageCard
+    @packageRepo.removeClass('hidden')
+    @startupTime.removeClass('hidden')
+    @buttons.removeClass('hidden')
     @activateConfig()
     @populate()
     @handleButtonEvents()
@@ -70,19 +78,29 @@ class PackageDetailView extends View
       @completeInitialzation()
     else
       # If the package metadata in `@pack` isn't complete, hit the network.
-      if not @pack.metadata? or @pack.metadata is {}
+      unless @pack.metadata? and @pack.metadata.owner
         @fetchPackage()
       else
         @completeInitialzation()
 
   fetchPackage: ->
     @showLoadingMessage()
-    @packageManager.client.package @pack.name, (err, packageData) ->
-      console.log "packageData", packageData
+    @packageManager.getClient().package @pack.name, (err, packageData) =>
+      if err
+        #TODO
+      else
+        @pack = packageData
+        # TODO: this should match Package.loadMetadata from core, but this is
+        # an acceptable hacky workaround
+        @pack.metadata = _.clone(@pack)
+        @completeInitialzation()
 
   showLoadingMessage: ->
 
   hideLoadingMessage: ->
+
+  showError: (error) ->
+    @packageCardParent.append(new ErrorView(@packageManager, error))
 
   activateConfig: ->
     # Package.activateConfig() is part of the Private package API and should not be used outside of core.
