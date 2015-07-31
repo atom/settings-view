@@ -111,11 +111,9 @@ class PackageDetailView extends View
     @disposables.dispose()
 
   beforeShow: (opts) ->
-    if opts?.back
-      @breadcrumb.text(opts.back).on 'click', =>
-        @parents('.settings-view').view()?.showPanel(opts.back)
-    else
-      @breadcrumbContainer.hide()
+    opts.back ?= 'Install'
+    @breadcrumb.text(opts.back).on 'click', =>
+      @parents('.settings-view').view()?.showPanel(opts.back)
 
   populate: ->
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")

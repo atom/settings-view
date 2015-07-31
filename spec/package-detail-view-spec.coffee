@@ -5,9 +5,19 @@ PackageManager = require '../lib/package-manager'
 
 fdescribe "PackageDetailView", ->
   packageManager = null
+  view = null
 
   beforeEach ->
     packageManager = new PackageManager
+
+  loadPackageFromRemote = (opts) ->
+    opts ?= {}
+    packageManager.client = jasmine.createSpyObj('client', ['package'])
+    packageManager.client.package.andCallFake ->
+      require(path.join(__dirname, 'fixtures', 'package-with-readme', 'package.json'))
+    view = new PackageDetailView({name: 'package-with-readme'}, packageManager)
+    view.beforeShow(opts)
+
 
   it "Renders a package when provided in `initialize`", ->
     atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-config'))
@@ -26,14 +36,14 @@ fdescribe "PackageDetailView", ->
     expect(packageManager.client.package.callCount).toBe(1)
 
   it "Shows a loading message and calls out to atom.io when package metadata is missing", ->
-    packageManager.client = jasmine.createSpyObj('client', ['package'])
-    packageManager.client.package.andCallFake ->
-      require(path.join(__dirname, 'fixtures', 'package-with-readme', 'package.json'))
-
-    view = new PackageDetailView({name: 'package-with-readme'}, packageManager)
+    loadPackageFromRemote()
     expect(view.loadingMessage).not.toBe(null)
     expect(packageManager.client.package).toHaveBeenCalled()
 
   it "Shows an error page when package metadata cannot be loaded"
 
   it "Renders the package successfully after a call to the atom.io api"
+
+  it "Should show 'Install' as the first breadcrumb by default", ->
+    loadPackageFromRemote()
+    expect(view.breadcrumb.text()).toBe('Install')
