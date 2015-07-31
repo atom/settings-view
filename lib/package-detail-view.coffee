@@ -11,7 +11,6 @@ ErrorView = require './error-view'
 PackageCard = require './package-card'
 PackageGrammarsView = require './package-grammars-view'
 PackageKeymapView = require './package-keymap-view'
-PackageLoadingMessage = require './package-loading-message'
 PackageReadmeView = require './package-readme-view'
 PackageSnippetsView = require './package-snippets-view'
 SettingsPanel = require './settings-panel'
@@ -37,7 +36,8 @@ class PackageDetailView extends View
               if pack?.metadata and pack.metadata.owner
                 @subview 'packageCard', new PackageCard(pack.metadata, packageManager, onSettingsView: true)
               else
-                @subview 'loadingMessage', new PackageLoadingMessage(pack.name)
+                @div outlet: 'loadingMessage', class: 'alert alert-info featured-message icon icon-hourglass', "Loading #{pack.name}\u2026"
+
 
           @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link hidden'
           @p outlet: 'startupTime', class: 'text icon icon-dashboard native-key-bindings hidden', tabindex: -1

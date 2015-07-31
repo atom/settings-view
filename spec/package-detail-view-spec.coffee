@@ -3,7 +3,7 @@ path = require 'path'
 PackageDetailView = require '../lib/package-detail-view'
 PackageManager = require '../lib/package-manager'
 
-fdescribe "PackageDetailView", ->
+describe "PackageDetailView", ->
   packageManager = null
   view = null
 
@@ -40,9 +40,9 @@ fdescribe "PackageDetailView", ->
     expect(view.loadingMessage).not.toBe(null)
     expect(packageManager.client.package).toHaveBeenCalled()
 
-  it "Shows an error page when package metadata cannot be loaded"
+  xit "Shows an error page when package metadata cannot be loaded"
 
-  it "Renders the package successfully after a call to the atom.io api"
+  xit "Renders the package successfully after a call to the atom.io api"
 
   it "Should show 'Install' as the first breadcrumb by default", ->
     loadPackageFromRemote()
