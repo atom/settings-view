@@ -218,11 +218,11 @@ class ThemesPanel extends View
       switch metadata.theme
         when 'ui'
           themeItem = @createThemeMenuItem(name)
-          themeItem.prop('selected', true) if name is @activeUiTheme
+          themeItem.attr('selected', true) if name is @activeUiTheme
           @uiMenu.append(themeItem)
         when 'syntax'
           themeItem = @createThemeMenuItem(name)
-          themeItem.prop('selected', true) if name is @activeSyntaxTheme
+          themeItem.attr('selected', true) if name is @activeSyntaxTheme
           @syntaxMenu.append(themeItem)
 
   # Get the name of the active ui theme.

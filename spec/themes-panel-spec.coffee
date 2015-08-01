@@ -49,12 +49,18 @@ describe "ThemesPanel", ->
 
   describe "when a UI theme is selected", ->
     it "updates the 'core.themes' config key with the selected UI theme", ->
-      panel.uiMenu.val('atom-light-ui').trigger('change')
+      panel.uiMenu.children()
+        .attr('selected', false)
+        .filter("[value=atom-light-ui]").attr('selected', true)
+        .trigger('change')
       expect(atom.config.get('core.themes')).toEqual ['atom-light-ui', 'atom-dark-syntax']
 
   describe "when a syntax theme is selected", ->
     it "updates the 'core.themes' config key with the selected syntax theme", ->
-      panel.syntaxMenu.val('atom-light-syntax').trigger('change')
+      panel.syntaxMenu.children()
+        .attr('selected', false)
+        .filter("[value=atom-light-syntax]").attr('selected', true)
+        .trigger('change')
       expect(atom.config.get('core.themes')).toEqual ['atom-dark-ui', 'atom-light-syntax']
 
   describe "when the 'core.config' key changes", ->
