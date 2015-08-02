@@ -126,3 +126,10 @@ describe "ThemesPanel", ->
       runs ->
         expect(panel.communityCount.text().trim()).toBe '2'
         expect(panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 2
+
+    it 'collapses sub-sections when their headers are clicked', ->
+      panel.find('.sub-section-heading').click()
+
+      expect(panel.find('.sub-section.installed-packages')).toHaveClass 'collapsed'
+      expect(panel.find('.sub-section.core-packages')).toHaveClass 'collapsed'
+      expect(panel.find('.sub-section.dev-packages')).toHaveClass 'collapsed'
