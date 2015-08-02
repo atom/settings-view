@@ -81,7 +81,6 @@ class InstalledPackagesPanel extends View
       , InstalledPackagesPanel.loadPackagesDelay
 
     @handleEvents()
-
     @loadPackages()
 
   focus: ->
