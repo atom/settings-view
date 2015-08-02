@@ -127,9 +127,23 @@ describe "ThemesPanel", ->
         expect(panel.communityCount.text().trim()).toBe '2'
         expect(panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 2
 
-    it 'collapses sub-sections when their headers are clicked', ->
-      panel.find('.sub-section-heading').click()
+    it 'collapses/expands a sub-section if its header is clicked', ->
+      panel.find('.sub-section.installed-packages .sub-section-heading').click()
+      expect(panel.find('.sub-section.installed-packages')).toHaveClass 'collapsed'
 
+      expect(panel.find('.sub-section.core-packages')).not.toHaveClass 'collapsed'
+      expect(panel.find('.sub-section.dev-packages')).not.toHaveClass 'collapsed'
+
+      panel.find('.sub-section.installed-packages .sub-section-heading').click()
+      expect(panel.find('.sub-section.installed-packages')).not.toHaveClass 'collapsed'
+
+    it 'can collapse and expand any of the sub-sections', ->
+      panel.find('.sub-section-heading').click()
       expect(panel.find('.sub-section.installed-packages')).toHaveClass 'collapsed'
       expect(panel.find('.sub-section.core-packages')).toHaveClass 'collapsed'
       expect(panel.find('.sub-section.dev-packages')).toHaveClass 'collapsed'
+
+      panel.find('.sub-section-heading').click()
+      expect(panel.find('.sub-section.installed-packages')).not.toHaveClass 'collapsed'
+      expect(panel.find('.sub-section.core-packages')).not.toHaveClass 'collapsed'
+      expect(panel.find('.sub-section.dev-packages')).not.toHaveClass 'collapsed'
