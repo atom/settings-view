@@ -89,7 +89,6 @@ class ThemesPanel extends View
       user: new ListView(@items.user, @communityPackages, @createPackageCard)
 
     @handleEvents()
-
     @loadPackages()
 
     @disposables = new CompositeDisposable()
