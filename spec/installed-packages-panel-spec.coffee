@@ -130,3 +130,11 @@ describe 'InstalledPackagesPanel', ->
       expect(@panel.deprecatedSection).not.toBeVisible()
       expect(@panel.deprecatedCount.text().trim()).toBe '0'
       expect(@panel.deprecatedPackages.find('.package-card:not(.hidden)').length).toBe 0
+
+  it 'collapses sub-sections when their headers are clicked', ->
+    @panel.find('.sub-section-heading').click()
+
+    expect(@panel.find('.sub-section.deprecated-packages')).toHaveClass 'collapsed'
+    expect(@panel.find('.sub-section.installed-packages')).toHaveClass 'collapsed'
+    expect(@panel.find('.sub-section.core-packages')).toHaveClass 'collapsed'
+    expect(@panel.find('.sub-section.dev-packages')).toHaveClass 'collapsed'
