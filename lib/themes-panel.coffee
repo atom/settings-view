@@ -88,6 +88,7 @@ class ThemesPanel extends View
       core: new ListView(@items.core, @corePackages, @createPackageCard)
       user: new ListView(@items.user, @communityPackages, @createPackageCard)
 
+    @handleEvents()
     @loadPackages()
 
     @disposables = new CompositeDisposable()
@@ -299,3 +300,7 @@ class ThemesPanel extends View
   matchPackages: ->
     filterText = @filterEditor.getModel().getText()
     @filterPackageListByText(filterText)
+
+  handleEvents: ->
+    @on 'click', '.sub-section .icon-paintcan', (e) ->
+      e.currentTarget.parentNode.classList.toggle('collapsed')
