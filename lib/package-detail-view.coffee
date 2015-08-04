@@ -7,7 +7,6 @@ shell = require 'shell'
 {View} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 
-ErrorView = require './error-view'
 PackageCard = require './package-card'
 PackageGrammarsView = require './package-grammars-view'
 PackageKeymapView = require './package-keymap-view'
@@ -38,6 +37,8 @@ class PackageDetailView extends View
               else
                 @div outlet: 'loadingMessage', class: 'alert alert-info featured-message icon icon-hourglass', "Loading #{pack.name}\u2026"
 
+                @div outlet: 'errorMessage', class: 'alert alert-danger featured-message icon icon-hourglass hidden', "Failed to load #{pack.name} - try again later."
+
 
           @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link hidden'
           @p outlet: 'startupTime', class: 'text icon icon-dashboard native-key-bindings hidden', tabindex: -1
@@ -62,7 +63,7 @@ class PackageDetailView extends View
     unless @packageCard # Had to load this from the network
       @packageCard = new PackageCard(@pack.metadata, @packageManager, onSettingsView: true)
       @loadingMessage.replaceWith(@packageCard)
-      console.log @loadingMessage, @packageCard
+
     @packageRepo.removeClass('hidden')
     @startupTime.removeClass('hidden')
     @buttons.removeClass('hidden')
@@ -87,7 +88,8 @@ class PackageDetailView extends View
     @showLoadingMessage()
     @packageManager.getClient().package @pack.name, (err, packageData) =>
       if err
-        #TODO
+        @hideLoadingMessage()
+        @showErrorMessage()
       else
         @pack = packageData
         # TODO: this should match Package.loadMetadata from core, but this is
@@ -96,11 +98,16 @@ class PackageDetailView extends View
         @completeInitialzation()
 
   showLoadingMessage: ->
+    @loadingMessage.removeClass('hidden')
 
   hideLoadingMessage: ->
+    @loadingMessage.addClass('hidden')
 
-  showError: (error) ->
-    @packageCardParent.append(new ErrorView(@packageManager, error))
+  showErrorMessage: ->
+    @errorMessage.removeClass('hidden')
+
+  hideErrorMessage: ->
+    @errorMessage.addClass('hidden')
 
   activateConfig: ->
     # Package.activateConfig() is part of the Private package API and should not be used outside of core.

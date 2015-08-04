@@ -7,14 +7,17 @@ describe "PackageDetailView", ->
   packageManager = null
   view = null
 
+  createClientSpy = ->
+    jasmine.createSpyObj('client', ['package', 'avatar'])
+
   beforeEach ->
     packageManager = new PackageManager
 
   loadPackageFromRemote = (opts) ->
     opts ?= {}
-    packageManager.client = jasmine.createSpyObj('client', ['package'])
-    packageManager.client.package.andCallFake ->
-      require(path.join(__dirname, 'fixtures', 'package-with-readme', 'package.json'))
+    packageManager.client = createClientSpy()
+    packageManager.client.package.andCallFake (err, cb) ->
+      cb(null, require(path.join(__dirname, 'fixtures', 'package-with-readme', 'package.json')))
     view = new PackageDetailView({name: 'package-with-readme'}, packageManager)
     view.beforeShow(opts)
 
@@ -28,7 +31,7 @@ describe "PackageDetailView", ->
     expect(view.title.text()).toBe('Package With Config')
 
   it "Does not call the atom.io api for package metadata when present", ->
-    packageManager.client = jasmine.createSpyObj('client', ['package', 'avatar'])
+    packageManager.client = createClientSpy()
     view = new PackageDetailView({name: 'package-with-config'}, packageManager)
 
     # PackageCard is a subview, and it calls AtomIoClient::package once to load
@@ -38,9 +41,20 @@ describe "PackageDetailView", ->
   it "Shows a loading message and calls out to atom.io when package metadata is missing", ->
     loadPackageFromRemote()
     expect(view.loadingMessage).not.toBe(null)
+    expect(view.loadingMessage[0].classList.contains('hidden')).not.toBe(true)
     expect(packageManager.client.package).toHaveBeenCalled()
 
-  xit "Shows an error page when package metadata cannot be loaded"
+  it "Shows an error when package metadata cannot be loaded", ->
+    packageManager.client = createClientSpy()
+    packageManager.client.package.andCallFake (err, cb)->
+      error = new Error('API or cache error')
+      cb(error, null)
+
+    view = new PackageDetailView({name: 'package-with-readme'}, packageManager)
+
+    expect(view.errorMessage[0].classList.contains('hidden')).not.toBe(true)
+    expect(view.loadingMessage[0].classList.contains('hidden')).toBe(true)
+    expect(view.find('.package-card').length).toBe(0)
 
   xit "Renders the package successfully after a call to the atom.io api"
 
