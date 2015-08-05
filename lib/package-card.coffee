@@ -174,9 +174,11 @@ class PackageCard extends View
       @avatar.attr 'src', "file://#{avatarPath}" if avatarPath
 
     @client.package @pack.name, (err, data) =>
-      data ?= {}
-      @packageData = data
-      @downloadCount.text data.downloads?.toLocaleString()
+      if err
+        # Just don't update the download count
+      else
+        data ?= {}
+        @downloadCount.text data.downloads?.toLocaleString()
 
   updateInterfaceState: ->
     @versionValue.text(@installablePack?.version ? @pack.version)

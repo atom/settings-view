@@ -12,11 +12,12 @@ describe "PackageDetailView", ->
 
   beforeEach ->
     packageManager = new PackageManager
+    view = null
 
   loadPackageFromRemote = (opts) ->
     opts ?= {}
     packageManager.client = createClientSpy()
-    packageManager.client.package.andCallFake (err, cb) ->
+    packageManager.client.package.andCallFake (name, cb) ->
       cb(null, require(path.join(__dirname, 'fixtures', 'package-with-readme', 'package.json')))
     view = new PackageDetailView({name: 'package-with-readme'}, packageManager)
     view.beforeShow(opts)
@@ -46,11 +47,11 @@ describe "PackageDetailView", ->
 
   it "Shows an error when package metadata cannot be loaded", ->
     packageManager.client = createClientSpy()
-    packageManager.client.package.andCallFake (err, cb)->
+    packageManager.client.package.andCallFake (name, cb)->
       error = new Error('API or cache error')
       cb(error, null)
 
-    view = new PackageDetailView({name: 'package-with-readme'}, packageManager)
+    view = new PackageDetailView({name: 'nonexistent-package'}, packageManager)
 
     expect(view.errorMessage[0].classList.contains('hidden')).not.toBe(true)
     expect(view.loadingMessage[0].classList.contains('hidden')).toBe(true)

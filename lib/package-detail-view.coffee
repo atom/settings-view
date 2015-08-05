@@ -59,7 +59,6 @@ class PackageDetailView extends View
     @loadPackage()
 
   completeInitialzation: ->
-    console.log "completing init", @pack
     unless @packageCard # Had to load this from the network
       @packageCard = new PackageCard(@pack.metadata, @packageManager, onSettingsView: true)
       @loadingMessage.replaceWith(@packageCard)
