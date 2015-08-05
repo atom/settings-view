@@ -2,7 +2,7 @@ path = require 'path'
 {$$} = require 'atom-space-pen-views'
 SettingsView = require '../lib/settings-view'
 
-describe "SettingsView", ->
+fdescribe "SettingsView", ->
   settingsView = null
 
   beforeEach ->
@@ -163,7 +163,7 @@ describe "SettingsView", ->
         waits 1
         runs ->
           expect(settingsView.activePanelName).toBe 'Install'
-          expect(InstallPanel::beforeShow).toHaveBeenCalledWith {uri: 'atom://config/install/package:something', detail: null}
+          expect(InstallPanel::beforeShow).toHaveBeenCalledWith {uri: 'atom://config/install/package:something'}
 
       it "passes the URI to a pane's beforeShow() method after initialization", ->
         InstallPanel = require '../lib/install-panel'
@@ -182,7 +182,7 @@ describe "SettingsView", ->
         waits 1
         runs ->
           expect(settingsView.activePanelName).toBe 'Install'
-          expect(InstallPanel::beforeShow).toHaveBeenCalledWith {uri: 'atom://config/install/package:something', detail: null}
+          expect(InstallPanel::beforeShow).toHaveBeenCalledWith {uri: 'atom://config/install/package:something'}
 
       xit "Shows a package page if URI is opened while config is already active"
 
