@@ -2,7 +2,7 @@ SettingsView = null
 settingsView = null
 
 configUri = 'atom://config'
-uriRegex = /config\/([a-z]+)\/?([a-z]+)?/i
+uriRegex = /config\/([a-z]+)\/?([a-zA-Z0-9_-]+)?/i
 
 createSettingsView = (params) ->
   SettingsView ?= require './settings-view'
