@@ -47,7 +47,7 @@ describe "PackageDetailView", ->
 
   it "Shows an error when package metadata cannot be loaded", ->
     packageManager.client = createClientSpy()
-    packageManager.client.package.andCallFake (name, cb)->
+    packageManager.client.package.andCallFake (name, cb) ->
       error = new Error('API or cache error')
       cb(error, null)
 
