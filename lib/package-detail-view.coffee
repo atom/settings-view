@@ -71,6 +71,7 @@ class PackageDetailView extends View
     @handleButtonEvents()
     @updateFileButtons()
     @subscribeToPackageManager()
+    @renderReadme()
 
   loadPackage: ->
     if loadedPackage = atom.packages.getLoadedPackage(@pack.name)

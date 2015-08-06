@@ -1,3 +1,4 @@
+fs = require 'fs'
 path = require 'path'
 
 PackageDetailView = require '../lib/package-detail-view'
@@ -18,7 +19,9 @@ describe "PackageDetailView", ->
     opts ?= {}
     packageManager.client = createClientSpy()
     packageManager.client.package.andCallFake (name, cb) ->
-      cb(null, require(path.join(__dirname, 'fixtures', 'package-with-readme', 'package.json')))
+      packageData = require(path.join(__dirname, 'fixtures', 'package-with-readme', 'package.json'))
+      packageData.readme = fs.readFileSync(path.join(__dirname, 'fixtures', 'package-with-readme', 'README.md'), 'utf8')
+      cb(null, packageData)
     view = new PackageDetailView({name: 'package-with-readme'}, packageManager)
     view.beforeShow(opts)
 
@@ -57,7 +60,11 @@ describe "PackageDetailView", ->
     expect(view.loadingMessage[0].classList.contains('hidden')).toBe(true)
     expect(view.find('.package-card').length).toBe(0)
 
-  xit "Renders the package successfully after a call to the atom.io api"
+  it "Renders the README successfully after a call to the atom.io api", ->
+    loadPackageFromRemote()
+    expect(view.packageCard).toBeDefined()
+    expect(view.packageCard.packageName.text()).toBe('package-with-readme')
+    expect(view.find('.package-readme').length).not.toBe(0)
 
   it "Should show 'Install' as the first breadcrumb by default", ->
     loadPackageFromRemote()
