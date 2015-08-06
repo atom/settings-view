@@ -2,7 +2,7 @@ SettingsView = null
 settingsView = null
 
 configUri = 'atom://config'
-uriRegex = /config\/([a-z]+)\/?([a-z]+)?/gi
+uriRegex = /config\/([a-z]+)\/?([a-z]+)?/i
 
 createSettingsView = (params) ->
   SettingsView ?= require './settings-view'
@@ -10,13 +10,6 @@ createSettingsView = (params) ->
 
 openPanel = (panelName, uri) ->
   settingsView ?= createSettingsView({uri: configUri})
-
-  # There appears to be a bug that regex.exec doesn't assign, or lazily assigns,
-  # so even if there is a match, it's null unless I immediately call it a second
-  # time. Probably should dig deeper on this to figure out exactly why it's
-  # happening here and file an issue on either Atom or Electron, as appropriate.
-  # TODO: remove if this strange behavior goes away with an Electron update.
-  match = uriRegex.exec(uri)
   match = uriRegex.exec(uri)
 
   panel = match?[1]
