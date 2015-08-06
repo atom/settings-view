@@ -64,7 +64,7 @@ describe "PackageDetailView", ->
     loadPackageFromRemote()
     expect(view.packageCard).toBeDefined()
     expect(view.packageCard.packageName.text()).toBe('package-with-readme')
-    expect(view.find('.package-readme').length).not.toBe(0)
+    expect(view.find('.package-readme').length).toBe(1)
 
   it "Should show 'Install' as the first breadcrumb by default", ->
     loadPackageFromRemote()

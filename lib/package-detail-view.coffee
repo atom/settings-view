@@ -166,7 +166,12 @@ class PackageDetailView extends View
     if @readmePath and not readme
       readme = fs.readFileSync(@readmePath, encoding: 'utf8')
 
-    @sections.append(new PackageReadmeView(readme))
+    readmeView = new PackageReadmeView(readme)
+    if @readmeSection
+      @readmeSection.replaceWith(readmeView)
+    else
+      @readmeSection = readmeView
+      @sections.append(readmeView)
 
   subscribeToPackageManager: ->
     @disposables.add @packageManager.on 'theme-installed package-installed', ({pack}) =>
