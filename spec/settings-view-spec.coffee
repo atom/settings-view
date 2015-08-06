@@ -2,7 +2,7 @@ path = require 'path'
 {$$} = require 'atom-space-pen-views'
 SettingsView = require '../lib/settings-view'
 
-fdescribe "SettingsView", ->
+describe "SettingsView", ->
   settingsView = null
 
   beforeEach ->
