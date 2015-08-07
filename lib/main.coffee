@@ -18,6 +18,7 @@ openPanel = (panelName, uri) ->
   if panel is "packages" and detail?
     panelName = detail
     options.pack = name: detail
+    options.back = 'Packages' if atom.packages.getLoadedPackage(detail)
 
   settingsView.showPanel(panelName, options)
 
