@@ -184,8 +184,6 @@ describe "SettingsView", ->
           expect(settingsView.activePanelName).toBe 'Install'
           expect(InstallPanel::beforeShow).toHaveBeenCalledWith {uri: 'atom://config/install/package:something'}
 
-      xit "Shows a package page if URI is opened while config is already active"
-
     describe "when the package is then deactivated", ->
       beforeEach ->
         settingsView = null
