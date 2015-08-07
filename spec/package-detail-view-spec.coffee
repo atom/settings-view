@@ -25,8 +25,7 @@ describe "PackageDetailView", ->
     view = new PackageDetailView({name: 'package-with-readme'}, packageManager)
     view.beforeShow(opts)
 
-
-  it "Renders a package when provided in `initialize`", ->
+  it "renders a package when provided in `initialize`", ->
     atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-config'))
     pack = atom.packages.getLoadedPackage('package-with-config')
     view = new PackageDetailView(pack, packageManager)
@@ -34,7 +33,7 @@ describe "PackageDetailView", ->
     # Perhaps there are more things to assert here.
     expect(view.title.text()).toBe('Package With Config')
 
-  it "Does not call the atom.io api for package metadata when present", ->
+  it "does not call the atom.io api for package metadata when present", ->
     packageManager.client = createClientSpy()
     view = new PackageDetailView({name: 'package-with-config'}, packageManager)
 
@@ -42,13 +41,13 @@ describe "PackageDetailView", ->
     # metadata from the cache.
     expect(packageManager.client.package.callCount).toBe(1)
 
-  it "Shows a loading message and calls out to atom.io when package metadata is missing", ->
+  it "shows a loading message and calls out to atom.io when package metadata is missing", ->
     loadPackageFromRemote()
     expect(view.loadingMessage).not.toBe(null)
     expect(view.loadingMessage[0].classList.contains('hidden')).not.toBe(true)
     expect(packageManager.client.package).toHaveBeenCalled()
 
-  it "Shows an error when package metadata cannot be loaded", ->
+  it "shows an error when package metadata cannot be loaded", ->
     packageManager.client = createClientSpy()
     packageManager.client.package.andCallFake (name, cb) ->
       error = new Error('API or cache error')
@@ -60,12 +59,12 @@ describe "PackageDetailView", ->
     expect(view.loadingMessage[0].classList.contains('hidden')).toBe(true)
     expect(view.find('.package-card').length).toBe(0)
 
-  it "Renders the README successfully after a call to the atom.io api", ->
+  it "renders the README successfully after a call to the atom.io api", ->
     loadPackageFromRemote()
     expect(view.packageCard).toBeDefined()
     expect(view.packageCard.packageName.text()).toBe('package-with-readme')
     expect(view.find('.package-readme').length).toBe(1)
 
-  it "Should show 'Install' as the first breadcrumb by default", ->
+  it "should show 'Install' as the first breadcrumb by default", ->
     loadPackageFromRemote()
     expect(view.breadcrumb.text()).toBe('Install')

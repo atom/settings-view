@@ -174,9 +174,9 @@ class PackageCard extends View
       @avatar.attr 'src', "file://#{avatarPath}" if avatarPath
 
     @client.package @pack.name, (err, data) =>
-      if err
-        # Just don't update the download count
-      else
+      # We don't need to actually handle the error here, we can just skip
+      # showing the download count if there's a problem.
+      unless err
         data ?= {}
         @downloadCount.text data.downloads?.toLocaleString()
 
