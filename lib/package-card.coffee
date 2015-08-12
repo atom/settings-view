@@ -174,9 +174,11 @@ class PackageCard extends View
       @avatar.attr 'src', "file://#{avatarPath}" if avatarPath
 
     @client.package @pack.name, (err, data) =>
-      data ?= {}
-      @packageData = data
-      @downloadCount.text data.downloads?.toLocaleString()
+      # We don't need to actually handle the error here, we can just skip
+      # showing the download count if there's a problem.
+      unless err
+        data ?= {}
+        @downloadCount.text data.downloads?.toLocaleString()
 
   updateInterfaceState: ->
     @versionValue.text(@installablePack?.version ? @pack.version)

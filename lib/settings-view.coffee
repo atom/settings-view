@@ -123,8 +123,9 @@ class SettingsView extends ScrollView
 
       if options?.pack and not callback
         callback = =>
-          # sigh
-          options.pack.metadata = options.pack
+          unless options.pack.metadata
+            metadata = _.clone(options.pack)
+            options.pack.metadata = metadata
           new PackageDetailView(options.pack, @packageManager)
 
       if callback
@@ -157,6 +158,12 @@ class SettingsView extends ScrollView
     {name, options} = @deferredPanel
     @showPanel(name, options)
 
+  # Public: show a panel.
+  #
+  # * `name` {String} the name of the panel to show
+  # * `options` {Object} an options hash. Will be passed to `beforeShow()` on
+  #   the panel. Options may include (but are not limited to):
+  #   * `uri` the URI the panel was launched from
   showPanel: (name, options) ->
     if panel = @getOrCreatePanel(name, options)
       @panels.children().hide()
