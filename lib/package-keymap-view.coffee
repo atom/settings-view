@@ -12,7 +12,7 @@ class PackageKeymapView extends View
       @div class: 'checkbox', =>
         @label for: 'toggleKeybindings', =>
           @input id: 'toggleKeybindings', type: 'checkbox', outlet: 'keybindingToggle'
-          @div class: 'setting-title', 'Use Keybindings'
+          @div class: 'setting-title', 'Enable'
         @div class: 'setting-description', 'Disable this if you want to bind your own keystrokes for this package\'s commands in your keymap.'
       @table class: 'package-keymap-table table native-key-bindings text', tabindex: -1, =>
         @thead =>
@@ -27,15 +27,15 @@ class PackageKeymapView extends View
     @otherPlatformPattern = new RegExp("\\.platform-(?!#{_.escapeRegExp(process.platform)}\\b)")
     @namespace = @pack.name
 
-    @keybindingToggle.prop('checked', not _.include(atom.config.get('core.disabledKeymaps') ? [], @namespace))
+    @keybindingToggle.prop('checked', not _.include(atom.config.get('core.packagesWithKeymapsDisabled') ? [], @namespace))
 
     @keybindingToggle.on 'change', (event) =>
       event.stopPropagation()
       value = !!@keybindingToggle.prop('checked')
       if value
-        atom.config.removeAtKeyPath('core.disabledKeymaps', @namespace)
+        atom.config.removeAtKeyPath('core.packagesWithKeymapsDisabled', @namespace)
       else
-        atom.config.pushAtKeyPath('core.disabledKeymaps', @namespace)
+        atom.config.pushAtKeyPath('core.packagesWithKeymapsDisabled', @namespace)
 
       @updateKeyBindingView()
 

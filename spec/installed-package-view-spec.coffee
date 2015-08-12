@@ -68,7 +68,7 @@ describe "PackageDetailView", ->
       expect(keybindingsTable.children().length).toBe 0
 
   describe "when the keybindings toggle is clicked", ->
-    it "sets the disabledKeymaps config to include the package name", ->
+    it "sets the packagesWithKeymapsDisabled config to include the package name", ->
 
       waitsForPromise ->
         atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
@@ -80,11 +80,11 @@ describe "PackageDetailView", ->
 
         card.keybindingToggle.click()
         expect(card.keybindingToggle.prop('checked')).toBe false
-        expect(_.include(atom.config.get('core.disabledKeymaps') ? [], 'language-test')).toBe true
+        expect(_.include(atom.config.get('core.packagesWithKeymapsDisabled') ? [], 'language-test')).toBe true
 
         card.keybindingToggle.click()
         expect(card.keybindingToggle.prop('checked')).toBe true
-        expect(_.include(atom.config.get('core.disabledKeymaps') ? [], 'language-test')).toBe false
+        expect(_.include(atom.config.get('core.packagesWithKeymapsDisabled') ? [], 'language-test')).toBe false
 
   describe "when the package is active", ->
     it "displays the correct enablement state", ->
