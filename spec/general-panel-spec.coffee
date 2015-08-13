@@ -34,11 +34,12 @@ describe "GeneralPanel", ->
     atom.config.set('editor.simpleArray', ['a', 'b', 'c'])
     atom.config.set('editor.complexArray', ['a', 'b', {c: true}])
 
-    spyOn(atom.config, 'getSchema').andCallFake (keyPath) ->
-      if keyPath is 'core.enum'
-        type: 'integer'
-        default: 2
-        enum: [2, 4, 6, 8]
+    atom.config.setSchema('', type: 'object')
+    atom.config.setSchema('core.enum',
+      type: 'integer'
+      default: 2
+      enum: [2, 4, 6, 8]
+    )
 
     panel = new GeneralPanel()
 
