@@ -210,16 +210,22 @@ getSettingDescription = (keyPath) ->
 appendOptions = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
   title = getSettingTitle(keyPath, name)
-  description = getSettingDescription(keyPath)
+  description = markdown(getSettingDescription(keyPath))
   options = atom.config.getSchema(keyPath)?.enum ? []
 
   @label class: 'control-label', =>
     @div class: 'setting-title', title
-    @div class: 'setting-description', description
+    @div class: 'setting-description', =>
+      @raw(description)
 
   @select id: keyPath, class: 'form-control', =>
     for option in options
       @option value: option, option
+
+marked = null
+markdown = (text) ->
+  marked ?= require 'marked'
+  marked(text).replace(/<p>(.*)<\/p>/, "$1")
 
 appendCheckbox = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
