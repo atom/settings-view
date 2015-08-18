@@ -2,6 +2,8 @@
 {$, $$, TextEditorView, View} = require 'atom-space-pen-views'
 _ = require 'underscore-plus'
 
+{getSettingDescription} = require './rich-description'
+
 module.exports =
 class SettingsPanel extends View
   @content: ->
@@ -204,10 +206,6 @@ getSettingTitle = (keyPath, name='') ->
   title = atom.config.getSchema(keyPath)?.title
   title or _.uncamelcase(name).split('.').map(_.capitalize).join(' ')
 
-getSettingDescription = (keyPath) ->
-  description = atom.config.getSchema(keyPath)?.description or ''
-  markdown(description)
-
 appendOptions = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
   title = getSettingTitle(keyPath, name)
@@ -222,11 +220,6 @@ appendOptions = (namespace, name, value) ->
   @select id: keyPath, class: 'form-control', =>
     for option in options
       @option value: option, option
-
-marked = null
-markdown = (text) ->
-  marked ?= require 'marked'
-  marked(text).replace(/<p>(.*)<\/p>/, "$1")
 
 appendCheckbox = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
