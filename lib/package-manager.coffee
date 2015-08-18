@@ -353,7 +353,7 @@ class PackageManager
     if repoUrl.match 'git@github'
       repoName = repoUrl.split(':')[1]
       repoUrl = "https://github.com/#{repoName}"
-    repoUrl.replace(/\.git$/, '').replace(/\/+$/, '')
+    repoUrl.replace(/\.git$/, '').replace(/\/+$/, '').replace(/^git\+/, '')
 
   checkNativeBuildTools: ->
     deferred = Q.defer()
