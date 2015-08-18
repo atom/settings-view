@@ -1,6 +1,6 @@
 {getSettingDescription} = require '../lib/rich-description'
 
-fdescribe "Rich descriptions", ->
+describe "Rich descriptions", ->
   beforeEach ->
     config =
       type: 'object'
