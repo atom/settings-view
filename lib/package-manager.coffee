@@ -21,6 +21,8 @@ class PackageManager
         expiry: 0
 
     @emitter = new Emitter
+    @emitter.on 'updated', @clearOutdatedCache
+    @emitter.on 'installed', @clearOutdatedCache
 
   getClient: ->
     @client ?= new Client(this)
@@ -100,6 +102,10 @@ class PackageManager
     handleProcessErrors(apmProcess, errorMessage, callback)
 
   loadOutdated: (callback) ->
+    # Short circuit if we have cached data.
+    if @apmCache.loadOutdated.value and @apmCache.loadOutdated.expiry > Date.now()
+      return callback(null, @apmCache.loadOutdated.value)
+
     args = ['outdated', '--json']
     version = atom.getVersion()
     args.push('--compatible', version) if semver.valid(version)
@@ -180,10 +186,7 @@ class PackageManager
     Q.nbind(@loadFeatured, this, !!loadThemes)()
 
   getOutdated: ->
-    if @apmCache.loadOutdated.value and @apmCache.loadOutdated.expiry > Date.now()
-      Q.when @apmCache.loadOutdated.value
-    else
-      Q.nbind(@loadOutdated, this)()
+    Q.nbind(@loadOutdated, this)()
 
   getPackage: (packageName) ->
     @packagePromises[packageName] ?= Q.nbind(@loadPackage, this, packageName)()

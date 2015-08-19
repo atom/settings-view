@@ -183,3 +183,51 @@ describe "package manager", ->
 
       atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'language-test'))
       expect(packageManager.packageHasSettings('language-test')).toBe false
+
+  fdescribe "::loadOutdated", ->
+    it "caches results", ->
+      [runArgs, runCallback] = []
+      spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
+        callback(0, '["boop"]', '')
+        onWillThrowError: ->
+
+      packageManager.loadOutdated ->
+      expect(packageManager.apmCache.loadOutdated.value).toMatch(['boop'])
+
+      packageManager.loadOutdated ->
+      expect(packageManager.runCommand.calls.length).toBe(1)
+
+
+    it "expires results after a timeout", ->
+      spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
+        callback(0, '["boop"]', '')
+        onWillThrowError: ->
+
+      packageManager.loadOutdated ->
+      now = Date.now()
+      spyOn(Date, 'now').andReturn((-> now + packageManager.CACHE_EXPIRY + 1)())
+      packageManager.loadOutdated ->
+
+      expect(packageManager.runCommand.calls.length).toBe(2)
+
+  it "expires results after a package updated/installed", ->
+    packageManager.apmCache.loadOutdated =
+      value: ['hi']
+      expiry: Date.now() + 999999999
+
+    [runArgs, runCallback] = []
+    spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
+      callback(0, '["boop"]', '')
+      onWillThrowError: ->
+
+    packageManager.loadOutdated ->
+    packageManager.loadOutdated ->
+    expect(packageManager.runCommand.calls.length).toBe(1)
+
+    packageManager.emitPackageEvent 'updated'
+    packageManager.loadOutdated ->
+    expect(packageManager.runCommand.calls.length).toBe(2)
+
+    packageManager.emitPackageEvent 'installed'
+    packageManager.loadOutdated ->
+    expect(packageManager.runCommand.calls.length).toBe(3)
