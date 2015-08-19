@@ -9,9 +9,17 @@ Q.stopUnhandledRejectionTracking()
 
 module.exports =
 class PackageManager
+  # Millisecond expiry for cached loadOutdated, etc. values
+  CACHE_EXPIRY: 1000*60*10
+
   constructor: ->
     @packagePromises = []
     @availablePackageCache = null
+    @apmCache =
+      loadOutdated:
+        value: null
+        expiry: 0
+
     @emitter = new Emitter
 
   getClient: ->
@@ -97,13 +105,17 @@ class PackageManager
     args.push('--compatible', version) if semver.valid(version)
     errorMessage = 'Fetching outdated packages and themes failed.'
 
-    apmProcess = @runCommand args, (code, stdout, stderr) ->
+    apmProcess = @runCommand args, (code, stdout, stderr) =>
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
         catch parseError
           error = createJsonParseError(errorMessage, parseError, stdout)
           return callback(error)
+
+        @apmCache.loadOutdated =
+          value: packages
+          expiry: Date.now() + @CACHE_EXPIRY
 
         callback(null, packages)
       else
@@ -113,6 +125,11 @@ class PackageManager
         callback(error)
 
     handleProcessErrors(apmProcess, errorMessage, callback)
+
+  clearOutdatedCache: ->
+    @apmCache.loadOutdated =
+      value: null
+      expiry: 0
 
   loadPackage: (packageName, callback) ->
     args = ['view', packageName, '--json']
@@ -163,7 +180,10 @@ class PackageManager
     Q.nbind(@loadFeatured, this, !!loadThemes)()
 
   getOutdated: ->
-    Q.nbind(@loadOutdated, this)()
+    if @apmCache.loadOutdated.value and @apmCache.loadOutdated.expiry > Date.now()
+      Q.when @apmCache.loadOutdated.value
+    else
+      Q.nbind(@loadOutdated, this)()
 
   getPackage: (packageName) ->
     @packagePromises[packageName] ?= Q.nbind(@loadPackage, this, packageName)()
