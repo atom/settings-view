@@ -184,7 +184,7 @@ describe "package manager", ->
       atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'language-test'))
       expect(packageManager.packageHasSettings('language-test')).toBe false
 
-  fdescribe "::loadOutdated", ->
+  describe "::loadOutdated", ->
     it "caches results", ->
       [runArgs, runCallback] = []
       spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
