@@ -224,10 +224,10 @@ describe "package manager", ->
     packageManager.loadOutdated ->
     expect(packageManager.runCommand.calls.length).toBe(1)
 
-    packageManager.emitPackageEvent 'updated'
+    packageManager.emitPackageEvent 'updated', {}
     packageManager.loadOutdated ->
     expect(packageManager.runCommand.calls.length).toBe(2)
 
-    packageManager.emitPackageEvent 'installed'
+    packageManager.emitPackageEvent 'installed', {}
     packageManager.loadOutdated ->
     expect(packageManager.runCommand.calls.length).toBe(3)
