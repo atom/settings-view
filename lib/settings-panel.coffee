@@ -2,6 +2,8 @@
 {$, $$, TextEditorView, View} = require 'atom-space-pen-views'
 _ = require 'underscore-plus'
 
+{getSettingDescription} = require './rich-description'
+
 module.exports =
 class SettingsPanel extends View
   @content: ->
@@ -204,9 +206,6 @@ getSettingTitle = (keyPath, name='') ->
   title = atom.config.getSchema(keyPath)?.title
   title or _.uncamelcase(name).split('.').map(_.capitalize).join(' ')
 
-getSettingDescription = (keyPath) ->
-  atom.config.getSchema(keyPath)?.description or ''
-
 appendOptions = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
   title = getSettingTitle(keyPath, name)
@@ -215,7 +214,8 @@ appendOptions = (namespace, name, value) ->
 
   @label class: 'control-label', =>
     @div class: 'setting-title', title
-    @div class: 'setting-description', description
+    @div class: 'setting-description', =>
+      @raw(description)
 
   @select id: keyPath, class: 'form-control', =>
     for option in options
@@ -230,7 +230,8 @@ appendCheckbox = (namespace, name, value) ->
     @label for: keyPath, =>
       @input id: keyPath, type: 'checkbox'
       @div class: 'setting-title', title
-    @div class: 'setting-description', description
+    @div class: 'setting-description', =>
+      @raw(description)
 
 appendColor = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
@@ -241,7 +242,8 @@ appendColor = (namespace, name, value) ->
     @label for: keyPath, =>
       @input id: keyPath, type: 'color'
       @div class: 'setting-title', title
-    @div class: 'setting-description', description
+    @div class: 'setting-description', =>
+      @raw(description)
 
 appendEditor = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
@@ -255,7 +257,8 @@ appendEditor = (namespace, name, value) ->
 
   @label class: 'control-label', =>
     @div class: 'setting-title', title
-    @div class: 'setting-description', description
+    @div class: 'setting-description', =>
+      @raw(description)
 
   @div class: 'controls', =>
     @div class: 'editor-container', =>
@@ -268,7 +271,8 @@ appendArray = (namespace, name, value) ->
 
   @label class: 'control-label', =>
     @div class: 'setting-title', title
-    @div class: 'setting-description', description
+    @div class: 'setting-description', =>
+      @raw(description)
 
   @div class: 'controls', =>
     @div class: 'editor-container', =>
