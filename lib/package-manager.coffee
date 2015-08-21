@@ -21,8 +21,6 @@ class PackageManager
         expiry: 0
 
     @emitter = new Emitter
-    @emitter.on 'updated', @clearOutdatedCache
-    @emitter.on 'installed', @clearOutdatedCache
 
   getClient: ->
     @client ?= new Client(this)
@@ -249,6 +247,7 @@ class PackageManager
     args = ['install', "#{name}@#{newVersion}"]
     exit = (code, stdout, stderr) =>
       if code is 0
+        @clearOutdatedCache()
         activation = if activateOnSuccess
           atom.packages.activatePackage(name)
         else
@@ -292,6 +291,7 @@ class PackageManager
 
     exit = (code, stdout, stderr) =>
       if code is 0
+        @clearOutdatedCache()
         if activateOnSuccess
           atom.packages.activatePackage(name)
         else
@@ -324,6 +324,7 @@ class PackageManager
     @emitPackageEvent('uninstalling', pack)
     apmProcess = @runCommand ['uninstall', '--hard', name], (code, stdout, stderr) =>
       if code is 0
+        @clearOutdatedCache()
         @unload(name)
         @removePackageFromAvailablePackageNames(name)
         @removePackageNameFromDisabledPackages(name)

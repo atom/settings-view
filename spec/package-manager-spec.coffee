@@ -220,14 +220,22 @@ describe "package manager", ->
       callback(0, '["boop"]', '')
       onWillThrowError: ->
 
-    packageManager.loadOutdated ->
-    packageManager.loadOutdated ->
-    expect(packageManager.runCommand.calls.length).toBe(1)
+    # Just prevent this stuff from calling through, it doesn't matter for this test
+    spyOn(atom.packages, 'deactivatePackage').andReturn(true)
+    spyOn(atom.packages, 'activatePackage').andReturn(true)
+    spyOn(atom.packages, 'unloadPackage').andReturn(true)
+    spyOn(atom.packages, 'loadPackage').andReturn(true)
 
-    packageManager.emitPackageEvent 'updated', {}
     packageManager.loadOutdated ->
+    expect(packageManager.runCommand.calls.length).toBe(0)
+
+    packageManager.update {}, {}, -> # +1 runCommand call to update the package
+    packageManager.loadOutdated -> # +1 runCommand call to load outdated because the cache should be wiped
     expect(packageManager.runCommand.calls.length).toBe(2)
 
-    packageManager.emitPackageEvent 'installed', {}
-    packageManager.loadOutdated ->
-    expect(packageManager.runCommand.calls.length).toBe(3)
+    packageManager.install {}, -> # +1 runCommand call to install the package
+    packageManager.loadOutdated -> # +1 runCommand call to load outdated because the cache should be wiped
+    expect(packageManager.runCommand.calls.length).toBe(4)
+
+    packageManager.loadOutdated -> # +0 runCommand call, should be cached
+    expect(packageManager.runCommand.calls.length).toBe(4)
