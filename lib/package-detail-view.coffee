@@ -35,9 +35,9 @@ class PackageDetailView extends View
               if pack?.metadata and pack.metadata.owner
                 @subview 'packageCard', new PackageCard(pack.metadata, packageManager, onSettingsView: true)
               else
-                @div outlet: 'loadingMessage', class: 'alert alert-info featured-message icon icon-hourglass', "Loading #{pack.name}\u2026"
+                @div outlet: 'loadingMessage', class: 'alert alert-info icon icon-hourglass', "Loading #{pack.name}\u2026"
 
-                @div outlet: 'errorMessage', class: 'alert alert-danger featured-message icon icon-hourglass hidden', "Failed to load #{pack.name} - try again later."
+                @div outlet: 'errorMessage', class: 'alert alert-danger icon icon-hourglass hidden', "Failed to load #{pack.name} - try again later."
 
 
           @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link hidden'
