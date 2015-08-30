@@ -142,7 +142,7 @@ class PackageDetailView extends View
 
     if @isInstalled()
       @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
-      @sections.append(new PackageKeymapView(@pack.name))
+      @sections.append(new PackageKeymapView(@pack))
 
       if @pack.path
         @sections.append(new PackageGrammarsView(@pack.path))

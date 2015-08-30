@@ -100,7 +100,7 @@ class KeybindingsPanel extends View
 
   elementForKeyBinding: (keyBinding) ->
     {selector, keystrokes, command, source} = keyBinding
-    source = @determineSource(source)
+    source = KeybindingsPanel.determineSource(source)
     $$$ ->
       rowClasses = if source is 'User' then 'is-user' else ''
       @tr class: rowClasses, =>
@@ -137,7 +137,7 @@ class KeybindingsPanel extends View
   # * `User` indicates that it was defined by a user.
   # * `<package-name>` the package which defined it.
   # * `Unknown` if an invalid path was passed in.
-  determineSource: (filePath) ->
+  @determineSource: (filePath) ->
     return 'Unknown' unless filePath
 
     if filePath.indexOf(path.join(atom.getLoadSettings().resourcePath, 'keymaps')) is 0
