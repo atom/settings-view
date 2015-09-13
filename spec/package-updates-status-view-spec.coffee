@@ -1,13 +1,12 @@
 {$} = require 'atom-space-pen-views'
 PackageManager = require '../lib/package-manager'
-Q = require 'q'
 
 describe "package updates status view", ->
   beforeEach ->
     outdatedPackage =
       name: 'out-dated'
     spyOn(PackageManager.prototype, 'loadCompatiblePackageVersion').andCallFake ->
-    spyOn(PackageManager.prototype, 'getOutdated').andCallFake -> Q([outdatedPackage])
+    spyOn(PackageManager.prototype, 'getOutdated').andCallFake -> Promise.resolve([outdatedPackage])
     jasmine.attachToDOM(atom.views.getView(atom.workspace))
 
     waitsForPromise ->

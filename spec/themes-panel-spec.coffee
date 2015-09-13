@@ -3,7 +3,6 @@ fs = require 'fs'
 
 _ = require 'underscore-plus'
 CSON = require 'season'
-Q = require 'q'
 
 PackageManager = require '../lib/package-manager'
 ThemesPanel = require '../lib/themes-panel'
@@ -32,7 +31,7 @@ describe "ThemesPanel", ->
       packageManager = new PackageManager
       themeMetadata = CSON.readFileSync(path.join(__dirname, 'fixtures', 'a-theme', 'package.json'))
       spyOn(packageManager, 'getFeatured').andCallFake (callback) ->
-        Q([themeMetadata])
+        Promise.resolve([themeMetadata])
       panel = new ThemesPanel(packageManager)
       settingsView.addPanel('Themes', null, -> panel)
 
