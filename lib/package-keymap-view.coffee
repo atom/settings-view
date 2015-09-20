@@ -42,7 +42,7 @@ class PackageKeymapView extends View
     @updateKeyBindingView()
 
     hasKeymaps = false
-    for [path, map] in atom.packages.getLoadedPackage(@namespace).keymaps
+    for [packageKeymapsPath, map] in atom.packages.getLoadedPackage(@namespace).keymaps
       if map.length > 0
         hasKeymaps = true
         break
