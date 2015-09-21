@@ -145,7 +145,7 @@ class AtomIoClient
 
       request ?= require 'request'
       readStream = request({
-        url: "https://github.com/#{login}.png"
+        url: "https://avatars.githubusercontent.com/#{login}"
         headers: DefaultRequestHeaders
       })
       readStream.on 'error', (error) -> callback(error)
