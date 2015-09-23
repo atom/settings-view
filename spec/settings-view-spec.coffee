@@ -155,6 +155,17 @@ describe "SettingsView", ->
         runs ->
           expect(settingsView.activePanelName).toBe 'Install'
 
+      it "opens the package settings view with atom://config/packages/<package-name>", ->
+        waitsForPromise ->
+          atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'package-with-readme'))
+
+        waitsForPromise ->
+          atom.workspace.open('atom://config/packages/package-with-readme').then (s) -> settingsView = s
+
+        waitsFor (done) -> process.nextTick(done)
+        runs ->
+          expect(settingsView.activePanelName).toBe 'package-with-readme'
+
       it "passes the URI to a pane's beforeShow() method on settings view initialization", ->
         InstallPanel = require '../lib/install-panel'
         spyOn(InstallPanel::, 'beforeShow')
