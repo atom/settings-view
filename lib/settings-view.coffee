@@ -132,7 +132,7 @@ class SettingsView extends ScrollView
         panel = callback()
         @panelsByName ?= {}
         @panelsByName[name] = panel
-        delete @panelCreateCallbacks[name]
+        delete @panelCreateCallbacks?[name]
 
     panel
 
