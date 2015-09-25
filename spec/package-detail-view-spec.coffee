@@ -3,6 +3,7 @@ path = require 'path'
 
 PackageDetailView = require '../lib/package-detail-view'
 PackageManager = require '../lib/package-manager'
+AtomIoClient = require '../lib/atom-io-client'
 
 describe "PackageDetailView", ->
   packageManager = null
@@ -47,13 +48,30 @@ describe "PackageDetailView", ->
     expect(view.loadingMessage[0].classList.contains('hidden')).not.toBe(true)
     expect(packageManager.client.package).toHaveBeenCalled()
 
-  it "shows an error when package metadata cannot be loaded", ->
+  it "shows an error when package metadata cannot be loaded via the API", ->
     packageManager.client = createClientSpy()
     packageManager.client.package.andCallFake (name, cb) ->
-      error = new Error('API or cache error')
+      error = new Error('API error')
       cb(error, null)
 
     view = new PackageDetailView({name: 'nonexistent-package'}, packageManager)
+
+    expect(view.errorMessage[0].classList.contains('hidden')).not.toBe(true)
+    expect(view.loadingMessage[0].classList.contains('hidden')).toBe(true)
+    expect(view.find('.package-card').length).toBe(0)
+
+  it "shows an error when package metadata cannot be loaded from the cache and the network is unavailable", ->
+    spyOn(AtomIoClient.prototype, 'online').andReturn(false)
+    spyOn(AtomIoClient.prototype, 'request').andCallThrough()
+    spyOn(AtomIoClient.prototype, 'fetchFromCache').andCallFake (path, opts, cb) ->
+      # this is the special case which happens when the data is not in the cache
+      # and there's no connectivity
+      cb(null, {})
+
+    view = new PackageDetailView({name: 'some-package'}, packageManager)
+
+    expect(AtomIoClient.prototype.fetchFromCache).toHaveBeenCalled()
+    expect(AtomIoClient.prototype.request).not.toHaveBeenCalled()
 
     expect(view.errorMessage[0].classList.contains('hidden')).not.toBe(true)
     expect(view.loadingMessage[0].classList.contains('hidden')).toBe(true)
