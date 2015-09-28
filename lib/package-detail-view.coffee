@@ -87,7 +87,7 @@ class PackageDetailView extends View
   fetchPackage: ->
     @showLoadingMessage()
     @packageManager.getClient().package @pack.name, (err, packageData) =>
-      if err
+      if err or not(packageData?.name?)
         @hideLoadingMessage()
         @showErrorMessage()
       else
