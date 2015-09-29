@@ -143,6 +143,8 @@ class InstalledPackagesPanel extends View
         @updateSectionCounts()
         @displayPackageUpdates(packagesWithUpdates)
 
+        @matchPackages()
+
       .catch (error) =>
         console.error error.message, error.stack
         @loadingMessage.hide()
