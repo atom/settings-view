@@ -171,7 +171,7 @@ class PackageManager
 
   getOutdated: ->
     new Promise (resolve, reject) =>
-      @loadInstalled (error, result) ->
+      @loadOutdated (error, result) ->
         if error
           reject(error)
         else
