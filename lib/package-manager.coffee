@@ -46,7 +46,7 @@ class PackageManager
     apmProcess = @runCommand args, (code, stdout, stderr) =>
       if code is 0
         try
-          packages = JSON.parse(stdout)
+          packages = JSON.parse(stdout) ? []
         catch parseError
           error = createJsonParseError(errorMessage, parseError, stdout)
           return callback(error)
