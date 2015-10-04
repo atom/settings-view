@@ -133,3 +133,10 @@ describe "GeneralPanel", ->
 
     expect(atom.config.get('editor.simpleArray')).toEqual ['a', 'd']
     expect(atom.config.get('editor.complexArray')).toEqual ['a', 'b', {c: true}]
+
+  it "shows the package settings notes for core and editor settings", ->
+    expect(panel.find('#core-settings-note')).toExist()
+    expect(panel.find('#core-settings-note').text()).toContain('Check individual package settings')
+
+    expect(panel.find('#editor-settings-note')).toExist()
+    expect(panel.find('#editor-settings-note').text()).toContain('Check language package settings')
