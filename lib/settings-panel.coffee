@@ -185,6 +185,7 @@ appendSetting = (namespace, name, value) ->
   if namespace is 'core'
     return if name is 'themes' # Handled in the Themes panel
     return if name is 'disabledPackages' # Handled in the Packages panel
+    return if name is 'customFileTypes'
 
   @div class: 'control-group', =>
     @div class: 'controls', =>
