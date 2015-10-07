@@ -13,11 +13,11 @@ class GeneralPanel extends View
 
     @subPanels = [
       new SettingsPanel('core', note: '''
-        <div class="alert alert-info" id="core-settings-note">These are Atom's core settings which affect behavior unrelated to text editing. Individual packages might have additional config settings of their own. Check individual package settings by clicking its package card in the <a class="packages-open">Packages list</a>.</div>
+        <div class="text icon icon-question" id="core-settings-note" tabindex="-1">These are Atom's core settings which affect behavior unrelated to text editing. Individual packages might have additional config settings of their own. Check individual package settings by clicking its package card in the <a class="link packages-open">Packages list</a>.</div>
       ''')
 
       new SettingsPanel('editor', note: '''
-        <div class="alert alert-info" id="editor-settings-note">These config settings are related to text editing. Some of these settings can be overriden on a per-language basis. Check language settings by clicking the language's package card in the <a class="packages-open">Packages list</a>.</div>
+        <div class="text icon icon-question" id="editor-settings-note" tabindex="-1">These config settings are related to text editing. Some of these settings can be overriden on a per-language basis. Check language settings by clicking the language's package card in the <a class="link packages-open">Packages list</a>.</div>
       ''')
     ]
 
