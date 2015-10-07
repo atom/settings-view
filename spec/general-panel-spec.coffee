@@ -139,4 +139,4 @@ describe "GeneralPanel", ->
     expect(panel.find('#core-settings-note').text()).toContain('Check individual package settings')
 
     expect(panel.find('#editor-settings-note')).toExist()
-    expect(panel.find('#editor-settings-note').text()).toContain('Check language package settings')
+    expect(panel.find('#editor-settings-note').text()).toContain('Check language settings')
