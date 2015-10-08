@@ -54,12 +54,14 @@ class SettingsPanel extends View
       title ?= "Settings"
 
     icon = @options.icon ? 'gear'
+    note = @options.note
 
     sortedSettings = @sortSettings(namespace, settings)
 
     @append $$ ->
       @div class: 'section-container', =>
         @div class: "block section-heading icon icon-#{icon}", title
+        @raw note if note
         @div class: 'section-body', =>
           for name in sortedSettings
             appendSetting.call(this, namespace, name, settings[name])
