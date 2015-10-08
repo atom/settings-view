@@ -1,12 +1,12 @@
 {CompositeDisposable} = require 'atom'
-{$, $$$, TextEditorView, View} = require 'atom-space-pen-views'
+{$, $$$, TextEditorView, ScrollView} = require 'atom-space-pen-views'
 _ = require 'underscore-plus'
 path = require 'path'
 
 module.exports =
-class KeybindingsPanel extends View
+class KeybindingsPanel extends ScrollView
   @content: ->
-    @div =>
+    @div class: 'panels-item', =>
       @section class: 'keybinding-panel section', =>
         @div class: 'section-heading icon icon-keyboard', 'Keybindings'
 
@@ -34,6 +34,7 @@ class KeybindingsPanel extends View
           @tbody outlet: 'keybindingRows'
 
   initialize: ->
+    super
     @disposables = new CompositeDisposable()
     @otherPlatformPattern = new RegExp("\\.platform-(?!#{_.escapeRegExp(process.platform)}\\b)")
     @platformPattern = new RegExp("\\.platform-#{_.escapeRegExp(process.platform)}\\b")

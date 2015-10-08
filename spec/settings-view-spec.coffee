@@ -1,5 +1,5 @@
 path = require 'path'
-{$$} = require 'atom-space-pen-views'
+{$, $$} = require 'atom-space-pen-views'
 SettingsView = require '../lib/settings-view'
 
 describe "SettingsView", ->
@@ -130,16 +130,51 @@ describe "SettingsView", ->
             expect(atom.workspace.getActivePaneItem().activePanelName).toBe 'Updates'
 
     describe "when atom.workspace.open() is used with a config URI", ->
+      focusIsWithinActivePanel = ->
+        activePanel = settingsView.panelsByName[settingsView.activePanelName]
+        # Return true if the element that has the focus, or its ancestors, is the activePanel
+        $(document.activeElement).parents().addBack().toArray().indexOf(activePanel.element) isnt -1
+
+      expectActivePanelToBeKeyboardScrollable = ->
+        activePanel = settingsView.panelsByName[settingsView.activePanelName]
+        spyOn(activePanel, 'pageDown')
+        atom.commands.dispatch(activePanel.element, 'core:page-down')
+        expect(activePanel.pageDown).toHaveBeenCalled()
+        spyOn(activePanel, 'pageUp')
+        atom.commands.dispatch(activePanel.element, 'core:page-up')
+        expect(activePanel.pageUp).toHaveBeenCalled()
+
+
       beforeEach ->
         settingsView = null
 
-      it "opens the settings to the correct panel with atom://config/<panel-name>", ->
+      it "opens the settings to the correct panel with atom://config/<panel-name> and that panel is keyboard-scrollable", ->
         waitsForPromise ->
           atom.workspace.open('atom://config').then (s) -> settingsView = s
 
         waitsFor (done) -> process.nextTick(done)
         runs ->
           expect(settingsView.activePanelName).toBe 'Settings'
+          expect(focusIsWithinActivePanel()).toBe true
+          expectActivePanelToBeKeyboardScrollable()
+
+        waitsForPromise ->
+          atom.workspace.open('atom://config/keybindings').then (s) -> settingsView = s
+
+        waits 1
+        runs ->
+          expect(settingsView.activePanelName).toBe 'Keybindings'
+          expect(focusIsWithinActivePanel()).toBe true
+          expectActivePanelToBeKeyboardScrollable()
+
+        waitsForPromise ->
+          atom.workspace.open('atom://config/packages').then (s) -> settingsView = s
+
+        waits 1
+        runs ->
+          expect(settingsView.activePanelName).toBe 'Packages'
+          expect(focusIsWithinActivePanel()).toBe true
+          expectActivePanelToBeKeyboardScrollable()
 
         waitsForPromise ->
           atom.workspace.open('atom://config/themes').then (s) -> settingsView = s
@@ -147,6 +182,17 @@ describe "SettingsView", ->
         waits 1
         runs ->
           expect(settingsView.activePanelName).toBe 'Themes'
+          expect(focusIsWithinActivePanel()).toBe true
+          expectActivePanelToBeKeyboardScrollable()
+
+        waitsForPromise ->
+          atom.workspace.open('atom://config/updates').then (s) -> settingsView = s
+
+        waits 1
+        runs ->
+          expect(settingsView.activePanelName).toBe 'Updates'
+          expect(focusIsWithinActivePanel()).toBe true
+          expectActivePanelToBeKeyboardScrollable()
 
         waitsForPromise ->
           atom.workspace.open('atom://config/install').then (s) -> settingsView = s
@@ -154,6 +200,8 @@ describe "SettingsView", ->
         waits 1
         runs ->
           expect(settingsView.activePanelName).toBe 'Install'
+          expect(focusIsWithinActivePanel()).toBe true
+          expectActivePanelToBeKeyboardScrollable()
 
       it "opens the package settings view with atom://config/packages/<package-name>", ->
         waitsForPromise ->
