@@ -4,7 +4,7 @@ url = require 'url'
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
 shell = require 'shell'
-{View} = require 'atom-space-pen-views'
+{ScrollView} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 
 PackageCard = require './package-card'
@@ -17,10 +17,10 @@ SettingsPanel = require './settings-panel'
 NORMALIZE_PACKAGE_DATA_README_ERROR = 'ERROR: No README data found!'
 
 module.exports =
-class PackageDetailView extends View
+class PackageDetailView extends ScrollView
 
   @content: (pack, packageManager) ->
-    @div class: 'package-detail', =>
+    @div tabindex: 0, class: 'package-detail panels-item', =>
       @ol outlet: 'breadcrumbContainer', class: 'native-key-bindings breadcrumb', tabindex: -1, =>
         @li =>
           @a outlet: 'breadcrumb'
@@ -55,6 +55,7 @@ class PackageDetailView extends View
       @div outlet: 'sections'
 
   initialize: (@pack, @packageManager) ->
+    super
     @disposables = new CompositeDisposable()
     @loadPackage()
 

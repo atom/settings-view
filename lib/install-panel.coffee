@@ -2,7 +2,7 @@ path = require 'path'
 
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
-{$, $$, TextEditorView, View} = require 'atom-space-pen-views'
+{$, $$, TextEditorView, ScrollView} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 
 PackageCard = require './package-card'
@@ -13,9 +13,9 @@ PackageManager = require './package-manager'
 PackageNameRegex = /config\/install\/(package|theme):([a-z0-9-_]+)/i
 
 module.exports =
-class InstallPanel extends View
+class InstallPanel extends ScrollView
   @content: ->
-    @div =>
+    @div class: 'panels-item', =>
       @div class: 'section packages', =>
         @div class: 'section-container', =>
           @h1 outlet: 'installHeading', class: 'section-heading icon icon-cloud-download', 'Install Packages'
@@ -45,6 +45,7 @@ class InstallPanel extends View
           @div outlet: 'featuredContainer', class: 'container package-container'
 
   initialize: (@packageManager) ->
+    super
     @disposables = new CompositeDisposable()
     client = $('.settings-view').view()?.client
     @client = @packageManager.getClient()

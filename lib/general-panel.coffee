@@ -1,14 +1,15 @@
-{View} = require 'atom-space-pen-views'
+{ScrollView} = require 'atom-space-pen-views'
 SettingsPanel = require './settings-panel'
 
 module.exports =
-class GeneralPanel extends View
+class GeneralPanel extends ScrollView
   @content: ->
-    @div =>
+    @div tabindex: 0, class: 'panels-item', =>
       @form class: 'general-panel section', =>
         @div outlet: "loadingElement", class: 'alert alert-info loading-area icon icon-hourglass', "Loading settings"
 
   initialize: ->
+    super
     @loadingElement.remove()
 
     @subPanels = [
