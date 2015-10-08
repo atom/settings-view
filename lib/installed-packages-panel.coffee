@@ -92,7 +92,7 @@ class InstalledPackagesPanel extends ScrollView
 
   filterPackages: (packages) ->
     packages.dev = packages.dev.filter ({theme}) -> not theme
-    packages.user = packages.user.filter ({theme}) -> not theme
+    packages.user = packages.user.filter ({theme, name}) -> not (theme or name.match(/^\./))
     packages.deprecated = packages.user.filter ({name, version}) -> atom.packages.isDeprecatedPackage(name, version)
     packages.core = packages.core.filter ({theme}) -> not theme
 
