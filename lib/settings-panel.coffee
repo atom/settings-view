@@ -2,6 +2,8 @@
 {$, $$, TextEditorView, View} = require 'atom-space-pen-views'
 _ = require 'underscore-plus'
 
+{getSettingDescription} = require './rich-description'
+
 module.exports =
 class SettingsPanel extends View
   @content: ->
@@ -52,12 +54,14 @@ class SettingsPanel extends View
       title ?= "Settings"
 
     icon = @options.icon ? 'gear'
+    note = @options.note
 
     sortedSettings = @sortSettings(namespace, settings)
 
     @append $$ ->
       @div class: 'section-container', =>
         @div class: "block section-heading icon icon-#{icon}", title
+        @raw note if note
         @div class: 'section-body', =>
           for name in sortedSettings
             appendSetting.call(this, namespace, name, settings[name])
@@ -183,6 +187,7 @@ appendSetting = (namespace, name, value) ->
   if namespace is 'core'
     return if name is 'themes' # Handled in the Themes panel
     return if name is 'disabledPackages' # Handled in the Packages panel
+    return if name is 'customFileTypes'
 
   @div class: 'control-group', =>
     @div class: 'controls', =>
@@ -204,9 +209,6 @@ getSettingTitle = (keyPath, name='') ->
   title = atom.config.getSchema(keyPath)?.title
   title or _.uncamelcase(name).split('.').map(_.capitalize).join(' ')
 
-getSettingDescription = (keyPath) ->
-  atom.config.getSchema(keyPath)?.description or ''
-
 appendOptions = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
   title = getSettingTitle(keyPath, name)
@@ -215,7 +217,8 @@ appendOptions = (namespace, name, value) ->
 
   @label class: 'control-label', =>
     @div class: 'setting-title', title
-    @div class: 'setting-description', description
+    @div class: 'setting-description', =>
+      @raw(description)
 
   @select id: keyPath, class: 'form-control', =>
     for option in options
@@ -230,7 +233,8 @@ appendCheckbox = (namespace, name, value) ->
     @label for: keyPath, =>
       @input id: keyPath, type: 'checkbox'
       @div class: 'setting-title', title
-    @div class: 'setting-description', description
+    @div class: 'setting-description', =>
+      @raw(description)
 
 appendColor = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
@@ -241,7 +245,8 @@ appendColor = (namespace, name, value) ->
     @label for: keyPath, =>
       @input id: keyPath, type: 'color'
       @div class: 'setting-title', title
-    @div class: 'setting-description', description
+    @div class: 'setting-description', =>
+      @raw(description)
 
 appendEditor = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
@@ -255,7 +260,8 @@ appendEditor = (namespace, name, value) ->
 
   @label class: 'control-label', =>
     @div class: 'setting-title', title
-    @div class: 'setting-description', description
+    @div class: 'setting-description', =>
+      @raw(description)
 
   @div class: 'controls', =>
     @div class: 'editor-container', =>
@@ -268,7 +274,8 @@ appendArray = (namespace, name, value) ->
 
   @label class: 'control-label', =>
     @div class: 'setting-title', title
-    @div class: 'setting-description', description
+    @div class: 'setting-description', =>
+      @raw(description)
 
   @div class: 'controls', =>
     @div class: 'editor-container', =>

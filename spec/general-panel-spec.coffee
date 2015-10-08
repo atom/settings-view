@@ -34,11 +34,12 @@ describe "GeneralPanel", ->
     atom.config.set('editor.simpleArray', ['a', 'b', 'c'])
     atom.config.set('editor.complexArray', ['a', 'b', {c: true}])
 
-    spyOn(atom.config, 'getSchema').andCallFake (keyPath) ->
-      if keyPath is 'core.enum'
-        type: 'integer'
-        default: 2
-        enum: [2, 4, 6, 8]
+    atom.config.setSchema('', type: 'object')
+    atom.config.setSchema('core.enum',
+      type: 'integer'
+      default: 2
+      enum: [2, 4, 6, 8]
+    )
 
     panel = new GeneralPanel()
 
@@ -132,3 +133,10 @@ describe "GeneralPanel", ->
 
     expect(atom.config.get('editor.simpleArray')).toEqual ['a', 'd']
     expect(atom.config.get('editor.complexArray')).toEqual ['a', 'b', {c: true}]
+
+  it "shows the package settings notes for core and editor settings", ->
+    expect(panel.find('#core-settings-note')).toExist()
+    expect(panel.find('#core-settings-note').text()).toContain('Check individual package settings')
+
+    expect(panel.find('#editor-settings-note')).toExist()
+    expect(panel.find('#editor-settings-note').text()).toContain('Check language settings')

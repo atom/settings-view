@@ -1,6 +1,6 @@
 # Settings View 
 [![Build Status](https://travis-ci.org/atom/settings-view.svg?branch=master)](https://travis-ci.org/atom/settings-view) 
-[![Dependency Status](https://david-dm.org/atom/settings-view.svg)](https://david-dm.org/atom/atom)
+[![Dependency Status](https://david-dm.org/atom/settings-view.svg)](https://david-dm.org/atom/settings-view)
 
 Edit core config settings, install and configure packages, and change themes all from within Atom.
 
@@ -20,7 +20,7 @@ All of the following commands are under the `atom-workspace` selector.
 
 |Command|Description|Keybinding (Linux)|Keybinding (OS X)|Keybinding (Windows)|
 |-------|-----------|------------------|-----------------|--------------------|
-|`settings-view:open`|Opens the Settings View|<kbd>Ctrl-,</kbd>|<kbd>Cmd-,</kbd>|<kbd>Ctrl-,</kbd>|
+|`settings-view:open`|Opens the Settings View|<kbd>ctrl-,</kbd>|<kbd>cmd-,</kbd>|<kbd>ctrl-,</kbd>|
 |`settings-view:show-keybindings`|Opens the _Keybindings_ section of the Settings View|
 |`settings-view:uninstall-packages`|Opens the _Packages_ section of the Settings View|
 |`settings-view:change-themes`|Opens the _Themes_ section of the Settings View|

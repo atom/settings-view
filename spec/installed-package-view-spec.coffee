@@ -1,6 +1,8 @@
 path = require 'path'
 PackageDetailView = require '../lib/package-detail-view'
 PackageManager = require '../lib/package-manager'
+PackageKeymapView = require '../lib/package-keymap-view'
+_ = require 'underscore-plus'
 
 describe "PackageDetailView", ->
   beforeEach ->
@@ -63,7 +65,56 @@ describe "PackageDetailView", ->
       pack = atom.packages.getActivePackage('language-test')
       view = new PackageDetailView(pack, new PackageManager())
       keybindingsTable = view.find('.package-keymap-table tbody')
-      expect(keybindingsTable.children().length).toBe 0
+      expect(keybindingsTable.children().length).toBe 1
+
+  describe "when the keybindings toggle is clicked", ->
+    it "sets the packagesWithKeymapsDisabled config to include the package name", ->
+
+      waitsForPromise ->
+        atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+
+      runs ->
+        pack = atom.packages.getActivePackage('language-test')
+        card = new PackageKeymapView(pack)
+        jasmine.attachToDOM(card[0])
+
+        card.keybindingToggle.click()
+        expect(card.keybindingToggle.prop('checked')).toBe false
+        expect(_.include(atom.config.get('core.packagesWithKeymapsDisabled') ? [], 'language-test')).toBe true
+
+        card.keybindingToggle.click()
+        expect(card.keybindingToggle.prop('checked')).toBe true
+        expect(_.include(atom.config.get('core.packagesWithKeymapsDisabled') ? [], 'language-test')).toBe false
+
+  describe "when a keybinding is copied", ->
+    [pack, card] = []
+
+    beforeEach ->
+      waitsForPromise ->
+        atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+
+      runs ->
+        pack = atom.packages.getActivePackage('language-test')
+        card = new PackageKeymapView(pack)
+
+    describe "when the keybinding file ends in .cson", ->
+      it "writes a CSON snippet to the clipboard", ->
+        spyOn(atom.keymaps, 'getUserKeymapPath').andReturn 'keymap.cson'
+        card.find('.copy-icon').click()
+        expect(atom.clipboard.read()).toBe """
+          'test':
+            'cmd-g': 'language-test:run'
+        """
+
+    describe "when the keybinding file ends in .json", ->
+      it "writes a JSON snippet to the clipboard", ->
+        spyOn(atom.keymaps, 'getUserKeymapPath').andReturn 'keymap.json'
+        card.find('.copy-icon').click()
+        expect(atom.clipboard.read()).toBe """
+          "test": {
+            "cmd-g": "language-test:run"
+          }
+        """
 
   describe "when the package is active", ->
     it "displays the correct enablement state", ->

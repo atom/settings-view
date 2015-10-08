@@ -1,4 +1,5 @@
 @import "octicon-mixins";
+@import "octicon-utf-codes";
 @import "ui-variables";
 
 @section-padding: 4 * @component-padding;
@@ -228,14 +229,14 @@
     atom-text-editor[mini], atom-text-editor[mini]::shadow {
       opacity: .75;
       .selection .region {
-        background-color: rgba(0, 0, 0, .2);
+        background-color: contrast(@input-background-color, lighten(@input-background-color, 8%), darken(@input-background-color, 8%) );
       }
     }
 
     atom-text-editor[mini].is-focused, atom-text-editor[mini].is-focused::shadow {
       opacity: 1;
       .selection .region {
-        background-color: lighten(@background-color-info, 30%);
+      background-color: contrast(@input-background-color, lighten(@input-background-color, 12%), darken(@input-background-color, 12%) );
       }
     }
   }
@@ -286,17 +287,43 @@
     margin-left: .5em;
   }
 
-  .sub-section {
-    margin: @section-padding 0;
+  .section-body {
+    margin-top: 20px;
   }
 
-  .sub-section-heading {
-    color: @text-color-highlight;
-    font-size: 1.4em;
-    font-weight: bold;
-    line-height: 1;
-    -webkit-user-select: none;
-    cursor: default;
+  .sub-section {
+    margin: @section-padding 0;
+
+    .sub-section-heading {
+      color: @text-color-highlight;
+      font-size: 1.4em;
+      font-weight: bold;
+      line-height: 1;
+      -webkit-user-select: none;
+      cursor: pointer;
+
+      &:after {
+        .icon(16px);
+        content: @fold;
+        position: absolute;
+        right: 0;
+        color: @text-color-subtle;
+      }
+
+      &:hover:after {
+        color: @text-color-highlight;
+      }
+    }
+
+    &.collapsed {
+      .sub-section-heading:after {
+        content: @unfold;
+      }
+
+      .package-container .package-card {
+        display: none;
+      }
+    }
   }
 
   .control-label {
@@ -697,20 +724,6 @@
 
   .btn-wrap-group .btn {
     margin: 0 @component-padding/2 @component-padding/2 0;
-  }
-
-  .package-readme {
-    font-size: 1.25em;
-    h1 { font-size: 2em;    margin-top: 1.5em; }
-    h2 { font-size: 1.75em; margin-top: 1.5em; }
-    h3 { font-size: 1.5em;  margin-top: 1.75em; }
-    h4 { font-size: 1.25em; margin-top: 1.25em; }
-    h1, h2, h3, h4 {
-      color: @text-color-highlight;
-    }
-    img {
-      max-width: 100%;
-    }
   }
 }
 

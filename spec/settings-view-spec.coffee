@@ -75,6 +75,8 @@ describe "SettingsView", ->
       atom.commands.dispatch(atom.views.getView(atom.workspace), command)
       waitsFor ->
         atom.workspace.getActivePaneItem()?
+      waitsFor (done) ->
+        process.nextTick(done)
 
     beforeEach ->
       jasmine.attachToDOM(atom.views.getView(atom.workspace))
@@ -150,7 +152,7 @@ describe "SettingsView", ->
         waitsForPromise ->
           atom.workspace.open('atom://config').then (s) -> settingsView = s
 
-        waits 1
+        waitsFor (done) -> process.nextTick(done)
         runs ->
           expect(settingsView.activePanelName).toBe 'Settings'
           expect(focusIsWithinActivePanel()).toBe true
@@ -201,6 +203,17 @@ describe "SettingsView", ->
           expect(focusIsWithinActivePanel()).toBe true
           expectActivePanelToBeKeyboardScrollable()
 
+      it "opens the package settings view with atom://config/packages/<package-name>", ->
+        waitsForPromise ->
+          atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'package-with-readme'))
+
+        waitsForPromise ->
+          atom.workspace.open('atom://config/packages/package-with-readme').then (s) -> settingsView = s
+
+        waitsFor (done) -> process.nextTick(done)
+        runs ->
+          expect(settingsView.activePanelName).toBe 'package-with-readme'
+
       it "passes the URI to a pane's beforeShow() method on settings view initialization", ->
         InstallPanel = require '../lib/install-panel'
         spyOn(InstallPanel::, 'beforeShow')
@@ -220,7 +233,8 @@ describe "SettingsView", ->
         waitsForPromise ->
           atom.workspace.open('atom://config').then (s) -> settingsView = s
 
-        waits 1
+        waitsFor (done) -> process.nextTick(done)
+
         runs ->
           expect(settingsView.activePanelName).toBe 'Settings'
 
@@ -238,6 +252,9 @@ describe "SettingsView", ->
 
       it "calls the dispose method on all panels", ->
         openWithCommand('settings-view:open')
+
+        waitsFor (done) -> process.nextTick(done)
+
         runs ->
           settingsView = atom.workspace.getActivePaneItem()
           panels = [

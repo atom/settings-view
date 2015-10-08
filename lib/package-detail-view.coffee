@@ -7,7 +7,6 @@ shell = require 'shell'
 {ScrollView} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 
-ErrorView = require './error-view'
 PackageCard = require './package-card'
 PackageGrammarsView = require './package-grammars-view'
 PackageKeymapView = require './package-keymap-view'
@@ -31,14 +30,20 @@ class PackageDetailView extends ScrollView
       @section class: 'section', =>
         @form class: 'section-container package-detail-view', =>
           @div class: 'container package-container', =>
-            @div class: 'row', =>
-              @subview 'packageCard', new PackageCard(pack.metadata, packageManager, onSettingsView: true)
+            @div outlet: 'packageCardParent', class: 'row', =>
+              # Packages that need to be fetched will *only* have `name` set
+              if pack?.metadata and pack.metadata.owner
+                @subview 'packageCard', new PackageCard(pack.metadata, packageManager, onSettingsView: true)
+              else
+                @div outlet: 'loadingMessage', class: 'alert alert-info icon icon-hourglass', "Loading #{pack.name}\u2026"
 
-          @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link'
+                @div outlet: 'errorMessage', class: 'alert alert-danger icon icon-hourglass hidden', "Failed to load #{pack.name} - try again later."
 
-          @p outlet: 'startupTime', class: 'text icon icon-dashboard native-key-bindings', tabindex: -1
 
-          @div outlet: 'buttons', class: 'btn-wrap-group', =>
+          @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link hidden'
+          @p outlet: 'startupTime', class: 'text icon icon-dashboard native-key-bindings hidden', tabindex: -1
+
+          @div outlet: 'buttons', class: 'btn-wrap-group hidden', =>
             @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io'
             @button outlet: 'issueButton', class: 'btn btn-default icon icon-bug', 'Report Issue'
             @button outlet: 'changelogButton', class: 'btn btn-default icon icon-squirrel', 'CHANGELOG'
@@ -53,17 +58,59 @@ class PackageDetailView extends ScrollView
     super
     @disposables = new CompositeDisposable()
     @loadPackage()
-    @activate()
+
+  completeInitialzation: ->
+    unless @packageCard # Had to load this from the network
+      @packageCard = new PackageCard(@pack.metadata, @packageManager, onSettingsView: true)
+      @loadingMessage.replaceWith(@packageCard)
+
+    @packageRepo.removeClass('hidden')
+    @startupTime.removeClass('hidden')
+    @buttons.removeClass('hidden')
+    @activateConfig()
     @populate()
     @handleButtonEvents()
     @updateFileButtons()
     @subscribeToPackageManager()
+    @renderReadme()
 
   loadPackage: ->
     if loadedPackage = atom.packages.getLoadedPackage(@pack.name)
       @pack = loadedPackage
+      @completeInitialzation()
+    else
+      # If the package metadata in `@pack` isn't complete, hit the network.
+      unless @pack.metadata? and @pack.metadata.owner
+        @fetchPackage()
+      else
+        @completeInitialzation()
 
-  activate: ->
+  fetchPackage: ->
+    @showLoadingMessage()
+    @packageManager.getClient().package @pack.name, (err, packageData) =>
+      if err or not(packageData?.name?)
+        @hideLoadingMessage()
+        @showErrorMessage()
+      else
+        @pack = packageData
+        # TODO: this should match Package.loadMetadata from core, but this is
+        # an acceptable hacky workaround
+        @pack.metadata = _.clone(@pack)
+        @completeInitialzation()
+
+  showLoadingMessage: ->
+    @loadingMessage.removeClass('hidden')
+
+  hideLoadingMessage: ->
+    @loadingMessage.addClass('hidden')
+
+  showErrorMessage: ->
+    @errorMessage.removeClass('hidden')
+
+  hideErrorMessage: ->
+    @errorMessage.addClass('hidden')
+
+  activateConfig: ->
     # Package.activateConfig() is part of the Private package API and should not be used outside of core.
     if atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageActive(@pack.name)
       @pack.activateConfig()
@@ -72,11 +119,9 @@ class PackageDetailView extends ScrollView
     @disposables.dispose()
 
   beforeShow: (opts) ->
-    if opts?.back
-      @breadcrumb.text(opts.back).on 'click', =>
-        @parents('.settings-view').view()?.showPanel(opts.back)
-    else
-      @breadcrumbContainer.hide()
+    opts.back ?= 'Install'
+    @breadcrumb.text(opts.back).on 'click', =>
+      @parents('.settings-view').view()?.showPanel(opts.back)
 
   populate: ->
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")
@@ -94,11 +139,11 @@ class PackageDetailView extends ScrollView
   updateInstalledState: ->
     @sections.empty()
     @updateFileButtons()
-    @activate()
+    @activateConfig()
 
     if @isInstalled()
       @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
-      @sections.append(new PackageKeymapView(@pack.name))
+      @sections.append(new PackageKeymapView(@pack))
 
       if @pack.path
         @sections.append(new PackageGrammarsView(@pack.path))
@@ -122,7 +167,12 @@ class PackageDetailView extends ScrollView
     if @readmePath and not readme
       readme = fs.readFileSync(@readmePath, encoding: 'utf8')
 
-    @sections.append(new PackageReadmeView(readme))
+    readmeView = new PackageReadmeView(readme)
+    if @readmeSection
+      @readmeSection.replaceWith(readmeView)
+    else
+      @readmeSection = readmeView
+      @sections.append(readmeView)
 
   subscribeToPackageManager: ->
     @disposables.add @packageManager.on 'theme-installed package-installed', ({pack}) =>

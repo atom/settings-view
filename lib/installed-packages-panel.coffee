@@ -81,6 +81,7 @@ class InstalledPackagesPanel extends ScrollView
         @loadPackages()
       , InstalledPackagesPanel.loadPackagesDelay
 
+    @handleEvents()
     @loadPackages()
 
   focus: ->
@@ -204,3 +205,7 @@ class InstalledPackagesPanel extends ScrollView
   matchPackages: ->
     filterText = @filterEditor.getModel().getText()
     @filterPackageListByText(filterText)
+
+  handleEvents: ->
+    @on 'click', '.sub-section .icon-package', (e) ->
+      e.currentTarget.parentNode.classList.toggle('collapsed')

@@ -2,6 +2,7 @@ SettingsView = null
 settingsView = null
 
 configUri = 'atom://config'
+uriRegex = /config\/([a-z]+)\/?([a-zA-Z0-9_-]+)?/i
 
 createSettingsView = (params) ->
   SettingsView ?= require './settings-view'
@@ -9,7 +10,17 @@ createSettingsView = (params) ->
 
 openPanel = (panelName, uri) ->
   settingsView ?= createSettingsView({uri: configUri})
-  settingsView.showPanel(panelName, {uri})
+  match = uriRegex.exec(uri)
+
+  panel = match?[1]
+  detail = match?[2]
+  options = uri: uri
+  if panel is "packages" and detail?
+    panelName = detail
+    options.pack = name: detail
+    options.back = 'Packages' if atom.packages.getLoadedPackage(detail)
+
+  settingsView.showPanel(panelName, options)
 
 deserializer =
   name: 'SettingsView'
@@ -23,7 +34,7 @@ module.exports =
     atom.workspace.addOpener (uri) ->
       if uri.startsWith(configUri)
         settingsView ?= createSettingsView({uri})
-        if match = /config\/([a-z]+)/gi.exec(uri)
+        if match = uriRegex.exec(uri)
           panelName = match[1]
           panelName = panelName[0].toUpperCase() + panelName.slice(1)
           openPanel(panelName, uri)
