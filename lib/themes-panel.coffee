@@ -4,7 +4,7 @@ fs = require 'fs-plus'
 fuzzaldrin = require 'fuzzaldrin'
 _ = require 'underscore-plus'
 {CompositeDisposable} = require 'atom'
-{$$, TextEditorView, View} = require 'atom-space-pen-views'
+{$$, TextEditorView, ScrollView} = require 'atom-space-pen-views'
 
 PackageCard = require './package-card'
 ErrorView = require './error-view'
@@ -15,11 +15,11 @@ ListView = require './list-view'
 {ownerFromRepository, packageComparatorAscending} = require './utils'
 
 module.exports =
-class ThemesPanel extends View
+class ThemesPanel extends ScrollView
   @loadPackagesDelay: 300
 
   @content: ->
-    @div =>
+    @div class: 'panels-item', =>
       @div class: 'section packages themes-panel', =>
         @div class: 'section-container', =>
           @div class: 'section-heading icon icon-device-desktop', 'Choose a Theme'
@@ -79,6 +79,7 @@ class ThemesPanel extends View
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
   initialize: (@packageManager) ->
+    super
     @items =
       dev: new List('name')
       core: new List('name')

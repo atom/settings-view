@@ -188,6 +188,31 @@ describe "PackageCard", ->
       card.enablementButton.click()
       expect(atom.packages.disablePackage).toHaveBeenCalled()
 
+    it "will stay disabled after an update", ->
+      pack = atom.packages.getLoadedPackage('package-with-config')
+      pack.latestVersion = '1.1.0'
+      packageUpdated = false
+
+      packageManager.on 'package-updated', -> packageUpdated = true
+      packageManager.runCommand.andCallFake (args, callback) ->
+        callback(0, '', '')
+        onWillThrowError: ->
+
+      originalLoadPackage = atom.packages.loadPackage
+      spyOn(atom.packages, 'loadPackage').andCallFake ->
+        originalLoadPackage.call(atom.packages, path.join(__dirname, 'fixtures', 'package-with-config'))
+
+      pack.disable()
+      card = new PackageCard(pack, packageManager)
+      expect(atom.packages.isPackageDisabled('package-with-config')).toBe true
+      card.update()
+
+      waitsFor ->
+        packageUpdated
+
+      runs ->
+        expect(atom.packages.isPackageDisabled('package-with-config')).toBe true
+
     it "is uninstalled when the uninstallButton is clicked", ->
       setPackageStatusSpies {installed: true, disabled: false}
 

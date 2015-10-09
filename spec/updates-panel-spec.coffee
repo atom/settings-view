@@ -1,6 +1,5 @@
 UpdatesPanel = require '../lib/updates-panel'
 PackageManager = require '../lib/package-manager'
-Q = require 'q'
 
 describe 'UpdatesPanel', ->
   beforeEach ->

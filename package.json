@@ -1,6 +1,6 @@
 {
   "name": "settings-view",
-  "version": "0.214.0",
+  "version": "0.227.0",
   "main": "./lib/main",
   "description": "Edit config settings, install packages, and change themes",
   "license": "MIT",
@@ -12,7 +12,6 @@
     "fuzzaldrin": "^2.1",
     "glob": "4.3.1",
     "marked": "^0.3.3",
-    "q": "^1.1.2",
     "request": "^2.40",
     "roaster": "^1.1.2",
     "season": "^5.0.2",

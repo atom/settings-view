@@ -1,11 +1,8 @@
 _ = require 'underscore-plus'
 {BufferedProcess, CompositeDisposable, Emitter} = require 'atom'
-Q = require 'q'
 semver = require 'semver'
 
 Client = require './atom-io-client'
-
-Q.stopUnhandledRejectionTracking()
 
 module.exports =
 class PackageManager
@@ -33,11 +30,16 @@ class PackageManager
     else
       false
 
-  packageHasSettings: (packageName) ->
+  packageHasSettings: _.memoize((packageName) ->
+    grammars = atom.grammars.getGrammars() ? []
+    for grammar in grammars when grammar.path
+      return true if grammar.packageName is packageName
+
     pack = atom.packages.getLoadedPackage(packageName)
     pack.activateConfig() if pack? and not atom.packages.isPackageActive(packageName)
     schema = atom.config.getSchema(packageName)
     schema? and (schema.type isnt 'any')
+  )
 
   runCommand: (args, callback) ->
     command = atom.packages.getApmPath()
@@ -57,7 +59,7 @@ class PackageManager
     apmProcess = @runCommand args, (code, stdout, stderr) =>
       if code is 0
         try
-          packages = JSON.parse(stdout)
+          packages = JSON.parse(stdout) ? []
         catch parseError
           error = createJsonParseError(errorMessage, parseError, stdout)
           return callback(error)
@@ -178,16 +180,36 @@ class PackageManager
     handleProcessErrors(apmProcess, errorMessage, callback)
 
   getInstalled: ->
-    Q.nbind(@loadInstalled, this)()
+    new Promise (resolve, reject) =>
+      @loadInstalled (error, result) ->
+        if error
+          reject(error)
+        else
+          resolve(result)
 
   getFeatured: (loadThemes) ->
-    Q.nbind(@loadFeatured, this, !!loadThemes)()
+    new Promise (resolve, reject) =>
+      @loadFeatured !!loadThemes, (error, result) ->
+        if error
+          reject(error)
+        else
+          resolve(result)
 
   getOutdated: ->
-    Q.nbind(@loadOutdated, this)()
+    new Promise (resolve, reject) =>
+      @loadOutdated (error, result) ->
+        if error
+          reject(error)
+        else
+          resolve(result)
 
   getPackage: (packageName) ->
-    @packagePromises[packageName] ?= Q.nbind(@loadPackage, this, packageName)()
+    @packagePromises[packageName] ?= new Promise (resolve, reject) =>
+      @loadPackage packageName, (error, result) ->
+        if error
+          reject(error)
+        else
+          resolve(result)
 
   satisfiesVersion: (version, metadata) ->
     engine = metadata.engines?.atom ? '*'
@@ -199,33 +221,30 @@ class PackageManager
     version
 
   search: (query, options = {}) ->
-    deferred = Q.defer()
+    new Promise (resolve, reject) =>
+      args = ['search', query, '--json']
+      if options.themes
+        args.push '--themes'
+      else if options.packages
+        args.push '--packages'
+      errorMessage = "Searching for \u201C#{query}\u201D failed."
 
-    args = ['search', query, '--json']
-    if options.themes
-      args.push '--themes'
-    else if options.packages
-      args.push '--packages'
-    errorMessage = "Searching for \u201C#{query}\u201D failed."
+      apmProcess = @runCommand args, (code, stdout, stderr) ->
+        if code is 0
+          try
+            packages = JSON.parse(stdout) ? []
+            resolve(packages)
+          catch parseError
+            error = createJsonParseError(errorMessage, parseError, stdout)
+            reject(error)
+        else
+          error = new Error(errorMessage)
+          error.stdout = stdout
+          error.stderr = stderr
+          reject(error)
 
-    apmProcess = @runCommand args, (code, stdout, stderr) ->
-      if code is 0
-        try
-          packages = JSON.parse(stdout) ? []
-          deferred.resolve(packages)
-        catch parseError
-          error = createJsonParseError(errorMessage, parseError, stdout)
-          deferred.reject(error)
-      else
-        error = new Error(errorMessage)
-        error.stdout = stdout
-        error.stderr = stderr
-        deferred.reject(error)
-
-    handleProcessErrors apmProcess, errorMessage, (error) ->
-      deferred.reject(error)
-
-    deferred.promise
+      handleProcessErrors apmProcess, errorMessage, (error) ->
+        reject(error)
 
   update: (pack, newVersion, callback) ->
     {name, theme} = pack
@@ -380,19 +399,16 @@ class PackageManager
     repoUrl.replace(/\.git$/, '').replace(/\/+$/, '').replace(/^git\+/, '')
 
   checkNativeBuildTools: ->
-    deferred = Q.defer()
+    new Promise (resolve, reject) =>
+      apmProcess = @runCommand ['install', '--check'], (code, stdout, stderr) ->
+        if code is 0
+          resolve()
+        else
+          reject(new Error())
 
-    apmProcess = @runCommand ['install', '--check'], (code, stdout, stderr) ->
-      if code is 0
-        deferred.resolve()
-      else
-        deferred.reject(new Error())
-
-    apmProcess.onWillThrowError ({error, handle}) ->
-      handle()
-      deferred.reject(error)
-
-    deferred.promise
+      apmProcess.onWillThrowError ({error, handle}) ->
+        handle()
+        reject(error)
 
   removePackageNameFromDisabledPackages: (packageName) ->
     atom.config.removeAtKeyPath('core.disabledPackages', packageName)

@@ -1,12 +1,12 @@
-{$, $$, View} = require 'atom-space-pen-views'
+{$, $$, ScrollView} = require 'atom-space-pen-views'
 ErrorView = require './error-view'
 PackageCard = require './package-card'
 
 module.exports =
-class UpdatesPanel extends View
+class UpdatesPanel extends ScrollView
 
   @content: ->
-    @div =>
+    @div tabindex: 0, class: 'panels-item', =>
       @section class: 'section packages', =>
         @div class: 'section-container updates-container', =>
           @h1 class: 'section-heading icon icon-cloud-download', 'Available Updates', =>
@@ -14,11 +14,12 @@ class UpdatesPanel extends View
             @button outlet: 'checkButton', class: 'pull-right update-all-button btn btn', 'Check for Updates'
 
           @div outlet: 'updateErrors'
-          @div outlet: 'checkingMessage', class: 'alert alert-info featured-message icon icon-hourglass', 'Checking for updates\u2026'
-          @div outlet: 'noUpdatesMessage', class: 'alert alert-info featured-message icon icon-heart', 'All of your installed packages are up to date!'
+          @div outlet: 'checkingMessage', class: 'alert alert-info icon icon-hourglass', 'Checking for updates\u2026'
+          @div outlet: 'noUpdatesMessage', class: 'alert alert-info icon icon-heart', 'All of your installed packages are up to date!'
           @div outlet: 'updatesContainer', class: 'container package-container'
 
   initialize: (@packageManager) ->
+    super
     @updateAllButton.on 'click', =>
       @updateAllButton.prop('disabled', true)
       for packageCard in @updatesContainer.find('.package-card')

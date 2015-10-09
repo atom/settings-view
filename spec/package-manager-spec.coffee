@@ -178,11 +178,17 @@ describe "package manager", ->
       atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-config'))
       expect(packageManager.packageHasSettings('package-with-config')).toBe true
 
-    it "returns false when the pacakge does not have config", ->
+    it "returns false when the pacakge does not have config and doesn't define language grammars", ->
       expect(packageManager.packageHasSettings('random-package')).toBe false
 
-      atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'language-test'))
-      expect(packageManager.packageHasSettings('language-test')).toBe false
+    it "returns true when the pacakge does not have config, but does define language grammars", ->
+      packageName = 'language-test'
+
+      waitsForPromise ->
+        atom.packages.activatePackage(path.join(__dirname, 'fixtures', packageName))
+
+      runs ->
+        expect(packageManager.packageHasSettings(packageName)).toBe true
 
   describe "::loadOutdated", ->
     it "caches results", ->

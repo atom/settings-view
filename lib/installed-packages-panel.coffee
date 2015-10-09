@@ -1,5 +1,5 @@
 _ = require 'underscore-plus'
-{$$, TextEditorView, View} = require 'atom-space-pen-views'
+{$$, TextEditorView, ScrollView} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 fuzzaldrin = require 'fuzzaldrin'
 
@@ -11,11 +11,11 @@ ListView = require './list-view'
 {ownerFromRepository, packageComparatorAscending} = require './utils'
 
 module.exports =
-class InstalledPackagesPanel extends View
+class InstalledPackagesPanel extends ScrollView
   @loadPackagesDelay: 300
 
   @content: ->
-    @div =>
+    @div class: 'panels-item', =>
       @section class: 'section', =>
         @div class: 'section-container', =>
           @div class: 'section-heading icon icon-package', =>
@@ -56,6 +56,7 @@ class InstalledPackagesPanel extends View
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
   initialize: (@packageManager) ->
+    super
     @items =
       dev: new List('name')
       core: new List('name')

@@ -3,6 +3,7 @@ path = require 'path'
 
 glob = null    # defer until used
 request = null # defer until used
+DefaultRequestHeaders = {'User-Agent': navigator.userAgent}
 
 module.exports =
 class AtomIoClient
@@ -66,7 +67,12 @@ class AtomIoClient
 
   request: (path, callback) ->
     request ?= require 'request'
-    request "#{@baseURL}#{path}", (err, res, body) =>
+    options = {
+      url: "#{@baseURL}#{path}"
+      headers: DefaultRequestHeaders
+    }
+
+    request options, (err, res, body) =>
       try
         data = JSON.parse(body)
       catch error
@@ -138,7 +144,10 @@ class AtomIoClient
       writeStream.on 'error', (error) -> callback(error)
 
       request ?= require 'request'
-      readStream = request("https://github.com/#{login}.png")
+      readStream = request({
+        url: "https://avatars.githubusercontent.com/#{login}"
+        headers: DefaultRequestHeaders
+      })
       readStream.on 'error', (error) -> callback(error)
       readStream.pipe(writeStream)
     else

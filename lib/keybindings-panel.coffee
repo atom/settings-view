@@ -1,12 +1,12 @@
 {CompositeDisposable} = require 'atom'
-{$, $$$, TextEditorView, View} = require 'atom-space-pen-views'
+{$, $$$, TextEditorView, ScrollView} = require 'atom-space-pen-views'
 _ = require 'underscore-plus'
 path = require 'path'
 
 module.exports =
-class KeybindingsPanel extends View
+class KeybindingsPanel extends ScrollView
   @content: ->
-    @div =>
+    @div class: 'panels-item', =>
       @section class: 'keybinding-panel section', =>
         @div class: 'section-heading icon icon-keyboard', 'Keybindings'
 
@@ -34,6 +34,7 @@ class KeybindingsPanel extends View
           @tbody outlet: 'keybindingRows'
 
   initialize: ->
+    super
     @disposables = new CompositeDisposable()
     @otherPlatformPattern = new RegExp("\\.platform-(?!#{_.escapeRegExp(process.platform)}\\b)")
     @platformPattern = new RegExp("\\.platform-#{_.escapeRegExp(process.platform)}\\b")
@@ -100,7 +101,7 @@ class KeybindingsPanel extends View
 
   elementForKeyBinding: (keyBinding) ->
     {selector, keystrokes, command, source} = keyBinding
-    source = @determineSource(source)
+    source = KeybindingsPanel.determineSource(source)
     $$$ ->
       rowClasses = if source is 'User' then 'is-user' else ''
       @tr class: rowClasses, =>
@@ -137,7 +138,7 @@ class KeybindingsPanel extends View
   # * `User` indicates that it was defined by a user.
   # * `<package-name>` the package which defined it.
   # * `Unknown` if an invalid path was passed in.
-  determineSource: (filePath) ->
+  @determineSource: (filePath) ->
     return 'Unknown' unless filePath
 
     if filePath.indexOf(path.join(atom.getLoadSettings().resourcePath, 'keymaps')) is 0

@@ -409,9 +409,6 @@ class PackageCard extends View
     @packageManager.update @installablePack ? @pack, @newVersion, (error) =>
       if error?
         console.error("Updating #{@type} #{@pack.name} to v#{@newVersion} failed", error.stack ? error, error.stderr)
-      else
-        # if a package was disabled before installing it, re-enable it
-        atom.packages.enablePackage(@pack.name) if @isDisabled()
 
   uninstall: ->
     @packageManager.uninstall @pack, (error) =>

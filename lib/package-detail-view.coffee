@@ -4,7 +4,7 @@ url = require 'url'
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
 shell = require 'shell'
-{View} = require 'atom-space-pen-views'
+{ScrollView} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 
 PackageCard = require './package-card'
@@ -17,10 +17,10 @@ SettingsPanel = require './settings-panel'
 NORMALIZE_PACKAGE_DATA_README_ERROR = 'ERROR: No README data found!'
 
 module.exports =
-class PackageDetailView extends View
+class PackageDetailView extends ScrollView
 
   @content: (pack, packageManager) ->
-    @div class: 'package-detail', =>
+    @div tabindex: 0, class: 'package-detail panels-item', =>
       @ol outlet: 'breadcrumbContainer', class: 'native-key-bindings breadcrumb', tabindex: -1, =>
         @li =>
           @a outlet: 'breadcrumb'
@@ -35,9 +35,9 @@ class PackageDetailView extends View
               if pack?.metadata and pack.metadata.owner
                 @subview 'packageCard', new PackageCard(pack.metadata, packageManager, onSettingsView: true)
               else
-                @div outlet: 'loadingMessage', class: 'alert alert-info featured-message icon icon-hourglass', "Loading #{pack.name}\u2026"
+                @div outlet: 'loadingMessage', class: 'alert alert-info icon icon-hourglass', "Loading #{pack.name}\u2026"
 
-                @div outlet: 'errorMessage', class: 'alert alert-danger featured-message icon icon-hourglass hidden', "Failed to load #{pack.name} - try again later."
+                @div outlet: 'errorMessage', class: 'alert alert-danger icon icon-hourglass hidden', "Failed to load #{pack.name} - try again later."
 
 
           @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link hidden'
@@ -55,6 +55,7 @@ class PackageDetailView extends View
       @div outlet: 'sections'
 
   initialize: (@pack, @packageManager) ->
+    super
     @disposables = new CompositeDisposable()
     @loadPackage()
 
@@ -87,7 +88,7 @@ class PackageDetailView extends View
   fetchPackage: ->
     @showLoadingMessage()
     @packageManager.getClient().package @pack.name, (err, packageData) =>
-      if err
+      if err or not(packageData?.name?)
         @hideLoadingMessage()
         @showErrorMessage()
       else
@@ -142,7 +143,7 @@ class PackageDetailView extends View
 
     if @isInstalled()
       @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
-      @sections.append(new PackageKeymapView(@pack.name))
+      @sections.append(new PackageKeymapView(@pack))
 
       if @pack.path
         @sections.append(new PackageGrammarsView(@pack.path))
