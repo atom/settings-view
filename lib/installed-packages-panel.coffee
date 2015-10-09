@@ -144,6 +144,8 @@ class InstalledPackagesPanel extends ScrollView
         @updateSectionCounts()
         @displayPackageUpdates(packagesWithUpdates)
 
+        @matchPackages()
+
       .catch (error) =>
         console.error error.message, error.stack
         @loadingMessage.hide()
