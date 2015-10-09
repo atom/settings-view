@@ -6,9 +6,17 @@ Client = require './atom-io-client'
 
 module.exports =
 class PackageManager
+  # Millisecond expiry for cached loadOutdated, etc. values
+  CACHE_EXPIRY: 1000*60*10
+
   constructor: ->
     @packagePromises = []
     @availablePackageCache = null
+    @apmCache =
+      loadOutdated:
+        value: null
+        expiry: 0
+
     @emitter = new Emitter
 
   getClient: ->
@@ -94,18 +102,26 @@ class PackageManager
     handleProcessErrors(apmProcess, errorMessage, callback)
 
   loadOutdated: (callback) ->
+    # Short circuit if we have cached data.
+    if @apmCache.loadOutdated.value and @apmCache.loadOutdated.expiry > Date.now()
+      return callback(null, @apmCache.loadOutdated.value)
+
     args = ['outdated', '--json']
     version = atom.getVersion()
     args.push('--compatible', version) if semver.valid(version)
     errorMessage = 'Fetching outdated packages and themes failed.'
 
-    apmProcess = @runCommand args, (code, stdout, stderr) ->
+    apmProcess = @runCommand args, (code, stdout, stderr) =>
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
         catch parseError
           error = createJsonParseError(errorMessage, parseError, stdout)
           return callback(error)
+
+        @apmCache.loadOutdated =
+          value: packages
+          expiry: Date.now() + @CACHE_EXPIRY
 
         callback(null, packages)
       else
@@ -115,6 +131,11 @@ class PackageManager
         callback(error)
 
     handleProcessErrors(apmProcess, errorMessage, callback)
+
+  clearOutdatedCache: ->
+    @apmCache.loadOutdated =
+      value: null
+      expiry: 0
 
   loadPackage: (packageName, callback) ->
     args = ['view', packageName, '--json']
@@ -245,6 +266,7 @@ class PackageManager
     args = ['install', "#{name}@#{newVersion}"]
     exit = (code, stdout, stderr) =>
       if code is 0
+        @clearOutdatedCache()
         activation = if activateOnSuccess
           atom.packages.activatePackage(name)
         else
@@ -288,6 +310,7 @@ class PackageManager
 
     exit = (code, stdout, stderr) =>
       if code is 0
+        @clearOutdatedCache()
         if activateOnSuccess
           atom.packages.activatePackage(name)
         else
@@ -320,6 +343,7 @@ class PackageManager
     @emitPackageEvent('uninstalling', pack)
     apmProcess = @runCommand ['uninstall', '--hard', name], (code, stdout, stderr) =>
       if code is 0
+        @clearOutdatedCache()
         @unload(name)
         @removePackageFromAvailablePackageNames(name)
         @removePackageNameFromDisabledPackages(name)

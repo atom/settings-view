@@ -183,9 +183,65 @@ describe "package manager", ->
 
     it "returns true when the pacakge does not have config, but does define language grammars", ->
       packageName = 'language-test'
-      
+
       waitsForPromise ->
         atom.packages.activatePackage(path.join(__dirname, 'fixtures', packageName))
 
       runs ->
         expect(packageManager.packageHasSettings(packageName)).toBe true
+
+  describe "::loadOutdated", ->
+    it "caches results", ->
+      [runArgs, runCallback] = []
+      spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
+        callback(0, '["boop"]', '')
+        onWillThrowError: ->
+
+      packageManager.loadOutdated ->
+      expect(packageManager.apmCache.loadOutdated.value).toMatch(['boop'])
+
+      packageManager.loadOutdated ->
+      expect(packageManager.runCommand.calls.length).toBe(1)
+
+
+    it "expires results after a timeout", ->
+      spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
+        callback(0, '["boop"]', '')
+        onWillThrowError: ->
+
+      packageManager.loadOutdated ->
+      now = Date.now()
+      spyOn(Date, 'now').andReturn((-> now + packageManager.CACHE_EXPIRY + 1)())
+      packageManager.loadOutdated ->
+
+      expect(packageManager.runCommand.calls.length).toBe(2)
+
+  it "expires results after a package updated/installed", ->
+    packageManager.apmCache.loadOutdated =
+      value: ['hi']
+      expiry: Date.now() + 999999999
+
+    [runArgs, runCallback] = []
+    spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
+      callback(0, '["boop"]', '')
+      onWillThrowError: ->
+
+    # Just prevent this stuff from calling through, it doesn't matter for this test
+    spyOn(atom.packages, 'deactivatePackage').andReturn(true)
+    spyOn(atom.packages, 'activatePackage').andReturn(true)
+    spyOn(atom.packages, 'unloadPackage').andReturn(true)
+    spyOn(atom.packages, 'loadPackage').andReturn(true)
+
+    packageManager.loadOutdated ->
+    expect(packageManager.runCommand.calls.length).toBe(0)
+
+    packageManager.update {}, {}, -> # +1 runCommand call to update the package
+    packageManager.loadOutdated -> # +1 runCommand call to load outdated because the cache should be wiped
+    expect(packageManager.runCommand.calls.length).toBe(2)
+
+    packageManager.install {}, -> # +1 runCommand call to install the package
+    packageManager.loadOutdated -> # +1 runCommand call to load outdated because the cache should be wiped
+    expect(packageManager.runCommand.calls.length).toBe(4)
+
+    packageManager.loadOutdated -> # +0 runCommand call, should be cached
+    expect(packageManager.runCommand.calls.length).toBe(4)
