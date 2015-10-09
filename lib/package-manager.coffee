@@ -22,11 +22,16 @@ class PackageManager
     else
       false
 
-  packageHasSettings: (packageName) ->
+  packageHasSettings: _.memoize((packageName) ->
+    grammars = atom.grammars.getGrammars() ? []
+    for grammar in grammars when grammar.path
+      return true if grammar.packageName is packageName
+
     pack = atom.packages.getLoadedPackage(packageName)
     pack.activateConfig() if pack? and not atom.packages.isPackageActive(packageName)
     schema = atom.config.getSchema(packageName)
     schema? and (schema.type isnt 'any')
+  )
 
   runCommand: (args, callback) ->
     command = atom.packages.getApmPath()
