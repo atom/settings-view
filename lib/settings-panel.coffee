@@ -189,6 +189,10 @@ appendSetting = (namespace, name, value) ->
     return if name is 'disabledPackages' # Handled in the Packages panel
     return if name is 'customFileTypes'
 
+  if namespace is 'editor'
+    # There's no global default for these, they are defined by language packages
+    return if name in ['commentStart', 'commentEnd', 'increaseIndentPattern', 'decreaseIndentPattern', 'foldEndPattern']
+
   @div class: 'control-group', =>
     @div class: 'controls', =>
       schema = atom.config.getSchema("#{namespace}.#{name}")
