@@ -95,7 +95,7 @@ class PackageDetailView extends ScrollView
         @pack = packageData
         # TODO: this should match Package.loadMetadata from core, but this is
         # an acceptable hacky workaround
-        @pack.metadata = _.clone(@pack)
+        @pack.metadata = _.extend(@pack.metadata ? {}, @pack)
         @completeInitialzation()
 
   showLoadingMessage: ->
