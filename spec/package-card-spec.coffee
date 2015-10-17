@@ -58,6 +58,19 @@ describe "PackageCard", ->
     expect(card.updateButton).toBeVisible()
     expect(card.updateButton.text()).toContain 'Update to 1.2.0'
 
+  it "shows the author details", ->
+    authorName = "authorName"
+    pack =
+      name: 'some-package'
+      version: '0.1.0'
+      repository: "https://github.com/#{authorName}/some-package"
+    card = new PackageCard(pack, packageManager)
+
+    jasmine.attachToDOM(card[0])
+
+    expect(card.loginLink.text()).toBe(authorName)
+    expect(card.loginLink.attr("href")).toBe("https://atom.io/users/#{authorName}")
+
   describe "when the package is not installed", ->
     it "shows the settings, uninstall, and disable buttons", ->
       pack =

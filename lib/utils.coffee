@@ -8,6 +8,10 @@ ownerFromRepository = (repository) ->
     if repo.match 'git@github'
       repoName = repo.split(':')[1]
       repo = "https://github.com/#{repoName}"
+
+  unless repo.match("github.com/")
+    repo = "https://github.com/#{repo}"
+
   repo.match(loginRegex)?[1] ? ''
 
 packageComparatorAscending = (left, right) ->
