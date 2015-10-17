@@ -39,6 +39,7 @@ class SettingsPanel extends CollapsibleSectionPanel
     @bindInputFields()
     @bindSelectFields()
     @bindEditors()
+    @bindTooltips()
     @handleEvents()
 
   dispose: ->
@@ -173,6 +174,15 @@ class SettingsPanel extends CollapsibleSectionPanel
 
       editor.onDidStopChanging =>
         @set(name, @parseValue(type, editor.getText()))
+
+  bindTooltips: ->
+    @find('input[id], select[id], atom-text-editor[id]').views().forEach (view) =>
+      if defaultValue = @valueToString(@getDefault(view.attr('id')))
+        @disposables.add atom.tooltips.add view,
+          title: 'Default: ' + defaultValue
+          delay:
+            show: 100
+          placement: 'auto left'
 
   valueToString: (value) ->
     if _.isArray(value)
