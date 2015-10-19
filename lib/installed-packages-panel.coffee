@@ -27,7 +27,7 @@ class InstalledPackagesPanel extends ScrollView
           @div outlet: 'updateErrors'
 
           @section outlet: 'deprecatedSection', class: 'sub-section deprecated-packages', =>
-            @h3 class: 'sub-section-heading icon icon-package', =>
+            @h3 outlet: 'deprecatedPackagesHeader', class: 'sub-section-heading icon icon-package', =>
               @text 'Deprecated Packages'
               @span outlet: 'deprecatedCount', class: 'section-heading-count badge badge-flexible', '…'
             @p 'Atom does not load deprecated packages. These packages may have updates available.'
@@ -35,21 +35,21 @@ class InstalledPackagesPanel extends ScrollView
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
           @section class: 'sub-section installed-packages', =>
-            @h3 class: 'sub-section-heading icon icon-package', =>
+            @h3 outlet: 'communityPackagesHeader', class: 'sub-section-heading icon icon-package', =>
               @text 'Community Packages'
               @span outlet: 'communityCount', class: 'section-heading-count badge badge-flexible', '…'
             @div outlet: 'communityPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
           @section class: 'sub-section core-packages', =>
-            @h3 class: 'sub-section-heading icon icon-package', =>
+            @h3 outlet: 'corePackagesHeader', class: 'sub-section-heading icon icon-package', =>
               @text 'Core Packages'
               @span outlet: 'coreCount', class: 'section-heading-count badge badge-flexible', '…'
             @div outlet: 'corePackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
           @section class: 'sub-section dev-packages', =>
-            @h3 class: 'sub-section-heading icon icon-package', =>
+            @h3 outlet: 'devPackagesHeader', class: 'sub-section-heading icon icon-package', =>
               @text 'Development Packages'
               @span outlet: 'devCount', class: 'section-heading-count badge badge-flexible', '…'
             @div outlet: 'devPackages', class: 'container package-container', =>
@@ -122,7 +122,6 @@ class InstalledPackagesPanel extends ScrollView
     @packageManager.getInstalled()
       .then (packages) =>
         @packages = @sortPackages(@filterPackages(packages))
-
         @devPackages.find('.alert.loading-area').remove()
         @items.dev.setItems(@packages.dev)
 
@@ -186,10 +185,22 @@ class InstalledPackagesPanel extends ScrollView
     filterText = @filterEditor.getModel().getText()
     if filterText is ''
       @totalPackages.text(@packages.user.length + @packages.core.length + @packages.dev.length)
+
       @communityCount.text @packages.user.length
+      if @packages.user.length > 0
+        @communityPackagesHeader.addClass("has-items")
+
       @coreCount.text @packages.core.length
+      if @packages.core.length > 0
+        @corePackagesHeader.addClass("has-items")
+
       @devCount.text @packages.dev.length
+      if @packages.dev.length > 0
+        @devPackagesHeader.addClass("has-items")
+
       @deprecatedCount.text @packages.deprecated.length
+      if @packages.deprecated.length > 0
+        @deprecatedPackagesHeader.addClass("has-items")
     else
       community = @communityPackages.find('.package-card:not(.hidden)').length
       @communityCount.text "#{community}/#{@packages.user.length}"
@@ -209,5 +220,5 @@ class InstalledPackagesPanel extends ScrollView
     @filterPackageListByText(filterText)
 
   handleEvents: ->
-    @on 'click', '.sub-section .icon-package', (e) ->
+    @on 'click', '.sub-section .icon-package.has-items', (e) ->
       e.currentTarget.parentNode.classList.toggle('collapsed')

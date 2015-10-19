@@ -159,6 +159,22 @@ describe 'InstalledPackagesPanel', ->
         expect(@panel.deprecatedCount.text().trim()).toBe '0'
         expect(@panel.deprecatedPackages.find('.package-card:not(.hidden)').length).toBe 0
 
+  describe 'expanding and collapsing sub-sections', ->
+    beforeEach ->
+      @packageManager = new PackageManager
+      @installed = JSON.parse fs.readFileSync(path.join(__dirname, 'fixtures', 'installed.json'))
+      spyOn(@packageManager, 'getOutdated').andReturn new Promise ->
+      spyOn(@packageManager, 'loadCompatiblePackageVersion').andCallFake ->
+      spyOn(@packageManager, 'getInstalled').andReturn Promise.resolve(@installed)
+      spyOn(atom.packages, 'isDeprecatedPackage').andCallFake =>
+        return true if @installed.user[0].version is '1.0.0'
+        false
+
+      @panel = new InstalledPackagesPanel(@packageManager)
+
+      waitsFor ->
+        @packageManager.getInstalled.callCount is 1 and @panel.communityCount.text().indexOf('…') < 0
+
     it 'collapses and expands a sub-section if its header is clicked', ->
       @panel.find('.sub-section.installed-packages .sub-section-heading').click()
       expect(@panel.find('.sub-section.installed-packages')).toHaveClass 'collapsed'
@@ -171,11 +187,35 @@ describe 'InstalledPackagesPanel', ->
       expect(@panel.find('.sub-section.installed-packages')).not.toHaveClass 'collapsed'
 
     it 'can collapse and expand any of the sub-sections', ->
-      @panel.find('.sub-section-heading').click()
+      @panel.find('.sub-section-heading.has-items').click()
       expect(@panel.find('.sub-section.deprecated-packages')).toHaveClass 'collapsed'
       expect(@panel.find('.sub-section.installed-packages')).toHaveClass 'collapsed'
       expect(@panel.find('.sub-section.core-packages')).toHaveClass 'collapsed'
       expect(@panel.find('.sub-section.dev-packages')).toHaveClass 'collapsed'
+
+      @panel.find('.sub-section-heading.has-items').click()
+      expect(@panel.find('.sub-section.deprecated-packages')).not.toHaveClass 'collapsed'
+      expect(@panel.find('.sub-section.installed-packages')).not.toHaveClass 'collapsed'
+      expect(@panel.find('.sub-section.core-packages')).not.toHaveClass 'collapsed'
+      expect(@panel.find('.sub-section.dev-packages')).not.toHaveClass 'collapsed'
+
+  describe 'when there are no packages', ->
+    beforeEach ->
+      @packageManager = new PackageManager
+      @installed =
+        dev: []
+        user: []
+        core: []
+      spyOn(@packageManager, 'getOutdated').andReturn new Promise ->
+      spyOn(@packageManager, 'loadCompatiblePackageVersion').andCallFake ->
+      spyOn(@packageManager, 'getInstalled').andReturn Promise.resolve(@installed)
+      @panel = new InstalledPackagesPanel(@packageManager)
+
+      waitsFor ->
+        @packageManager.getInstalled.callCount is 1 and @panel.communityCount.text().indexOf('…') < 0
+
+    it 'can not collapse and expand any of the sub-sections', ->
+      expect(@panel.find('.sub-section-heading.has-items').length).toBe 0
 
       @panel.find('.sub-section-heading').click()
       expect(@panel.find('.sub-section.deprecated-packages')).not.toHaveClass 'collapsed'
