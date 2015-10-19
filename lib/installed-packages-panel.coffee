@@ -184,36 +184,45 @@ class InstalledPackagesPanel extends ScrollView
   updateSectionCounts: ->
     filterText = @filterEditor.getModel().getText()
     if filterText is ''
-      @totalPackages.text(@packages.user.length + @packages.core.length + @packages.dev.length)
-
-      @communityCount.text @packages.user.length
-      if @packages.user.length > 0
-        @communityPackagesHeader.addClass("has-items")
-
-      @coreCount.text @packages.core.length
-      if @packages.core.length > 0
-        @corePackagesHeader.addClass("has-items")
-
-      @devCount.text @packages.dev.length
-      if @packages.dev.length > 0
-        @devPackagesHeader.addClass("has-items")
-
-      @deprecatedCount.text @packages.deprecated.length
-      if @packages.deprecated.length > 0
-        @deprecatedPackagesHeader.addClass("has-items")
+      @updateUnfilteredSectionCounts()
     else
-      community = @communityPackages.find('.package-card:not(.hidden)').length
-      @communityCount.text "#{community}/#{@packages.user.length}"
-      dev = @devPackages.find('.package-card:not(.hidden)').length
-      @devCount.text "#{dev}/#{@packages.dev.length}"
-      core = @corePackages.find('.package-card:not(.hidden)').length
-      @coreCount.text "#{core}/#{@packages.core.length}"
-      deprecated = @deprecatedPackages.find('.package-card:not(.hidden)').length
-      @deprecatedCount.text "#{deprecated}/#{@packages.deprecated.length}"
+      @updateFilteredSectionCounts()
 
-      shownPackages = dev + core + community
-      totalPackages = @packages.user.length + @packages.core.length + @packages.dev.length
-      @totalPackages.text "#{shownPackages}/#{totalPackages}"
+  updateUnfilteredSectionCounts: ->
+    @updateSectionCount @deprecatedPackagesHeader, @deprecatedCount, @packages.deprecated.length
+    @updateSectionCount @communityPackagesHeader, @communityCount, @packages.user.length
+    @updateSectionCount @corePackagesHeader, @coreCount, @packages.core.length
+    @updateSectionCount @devPackagesHeader, @devCount, @packages.dev.length
+
+    @totalPackages.text(@packages.user.length + @packages.core.length + @packages.dev.length)
+
+  updateFilteredSectionCounts: ->
+    deprecated = @notHiddenCardsLength @deprecatedPackages
+    @updateSectionCount @deprecatedPackagesHeader, @deprecatedCount, deprecated, @packages.deprecated.length
+
+    community = @notHiddenCardsLength @communityPackages
+    @updateSectionCount @communityPackagesHeader, @communityCount, community, @packages.user.length
+
+    core = @notHiddenCardsLength @corePackages
+    @updateSectionCount @corePackagesHeader, @coreCount, core, @packages.core.length
+
+    dev = @notHiddenCardsLength @devPackages
+    @updateSectionCount @devPackagesHeader, @devCount, dev, @packages.dev.length
+
+    shownPackages = dev + core + community
+    totalPackages = @packages.user.length + @packages.core.length + @packages.dev.length
+    @totalPackages.text "#{shownPackages}/#{totalPackages}"
+
+  updateSectionCount: (headerElement, countElement, packageCount, totalCount) ->
+    if totalCount is undefined
+      countElement.text packageCount
+    else
+      countElement.text "#{packageCount}/#{totalCount}"
+
+    headerElement.addClass("has-items") if packageCount > 0
+
+  notHiddenCardsLength: (sectionElement) ->
+    sectionElement.find('.package-card:not(.hidden)').length
 
   matchPackages: ->
     filterText = @filterEditor.getModel().getText()
