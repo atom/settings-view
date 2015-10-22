@@ -283,6 +283,8 @@ class ThemesPanel extends ScrollView
     @updateSectionCounts()
 
   updateSectionCounts: ->
+    @resetSectionHasItems()
+
     filterText = @filterEditor.getModel().getText()
     if filterText is ''
       @updateUnfilteredSectionCounts()
@@ -290,19 +292,26 @@ class ThemesPanel extends ScrollView
       @updateFilteredSectionCounts()
 
   updateUnfilteredSectionCounts: ->
-    @updateSectionCount @communityThemesHeader, @communityCount, @packages.user.length
-    @updateSectionCount @coreThemesHeader, @coreCount, @packages.core.length
-    @updateSectionCount @developmentThemesHeader, @devCount, @packages.dev.length
+    @updateSectionCount(@communityThemesHeader, @communityCount, @packages.user.length)
+    @updateSectionCount(@coreThemesHeader, @coreCount, @packages.core.length)
+    @updateSectionCount(@developmentThemesHeader, @devCount, @packages.dev.length)
 
     @totalPackages.text "#{@packages.user.length + @packages.core.length + @packages.dev.length}"
 
   updateFilteredSectionCounts: ->
     community = @communityPackages.find('.package-card:not(.hidden)').length
-    @communityCount.text "#{community}/#{@packages.user.length}"
+    @updateSectionCount(@communityThemesHeader, @communityCount, community, @packages.user.length)
+
     dev = @devPackages.find('.package-card:not(.hidden)').length
-    @devCount.text "#{dev}/#{@packages.dev.length}"
+    @updateSectionCount(@developmentThemesHeader, @devCount, dev, @packages.dev.length)
+
     core = @corePackages.find('.package-card:not(.hidden)').length
-    @coreCount.text "#{core}/#{@packages.core.length}"
+    @updateSectionCount(@coreThemesHeader, @coreCount, core, @packages.core.length)
+
+  resetSectionHasItems: ->
+    @communityThemesHeader.removeClass('has-items')
+    @coreThemesHeader.removeClass('has-items')
+    @developmentThemesHeader.removeClass('has-items')
 
   updateSectionCount: (headerElement, countElement, packageCount, totalCount) ->
     if totalCount is undefined
