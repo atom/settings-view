@@ -1,8 +1,9 @@
 _ = require 'underscore-plus'
-{$$, TextEditorView, ScrollView} = require 'atom-space-pen-views'
+{$$, TextEditorView} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 fuzzaldrin = require 'fuzzaldrin'
 
+CollapsibleSectionPanel = require './collapsible-section-panel'
 PackageCard = require './package-card'
 ErrorView = require './error-view'
 
@@ -11,7 +12,7 @@ ListView = require './list-view'
 {ownerFromRepository, packageComparatorAscending} = require './utils'
 
 module.exports =
-class InstalledPackagesPanel extends ScrollView
+class InstalledPackagesPanel extends CollapsibleSectionPanel
   @loadPackagesDelay: 300
 
   @content: ->
@@ -181,14 +182,6 @@ class InstalledPackagesPanel extends ScrollView
 
     @updateSectionCounts()
 
-  updateSectionCounts: ->
-    @resetSectionHasItems()
-    filterText = @filterEditor.getModel().getText()
-    if filterText is ''
-      @updateUnfilteredSectionCounts()
-    else
-      @updateFilteredSectionCounts()
-
   updateUnfilteredSectionCounts: ->
     @updateSectionCount(@deprecatedPackagesHeader, @deprecatedCount, @packages.deprecated.length)
     @updateSectionCount(@communityPackagesHeader, @communityCount, @packages.user.length)
@@ -215,26 +208,8 @@ class InstalledPackagesPanel extends ScrollView
     @totalPackages.text "#{shownPackages}/#{totalPackages}"
 
   resetSectionHasItems: ->
-    @deprecatedPackagesHeader.removeClass('has-items')
-    @communityPackagesHeader.removeClass('has-items')
-    @corePackagesHeader.removeClass('has-items')
-    @devPackagesHeader.removeClass('has-items')
-
-  updateSectionCount: (headerElement, countElement, packageCount, totalCount) ->
-    if totalCount is undefined
-      countElement.text packageCount
-    else
-      countElement.text "#{packageCount}/#{totalCount}"
-
-    headerElement.addClass("has-items") if packageCount > 0
-
-  notHiddenCardsLength: (sectionElement) ->
-    sectionElement.find('.package-card:not(.hidden)').length
+    @resetCollapsibleSections([@deprecatedPackagesHeader, @communityPackagesHeader, @corePackagesHeader, @devPackagesHeader])
 
   matchPackages: ->
     filterText = @filterEditor.getModel().getText()
     @filterPackageListByText(filterText)
-
-  handleEvents: ->
-    @on 'click', '.sub-section .icon-package.has-items', (e) ->
-      e.currentTarget.parentNode.classList.toggle('collapsed')
