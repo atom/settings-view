@@ -299,13 +299,13 @@ class ThemesPanel extends ScrollView
     @totalPackages.text "#{@packages.user.length + @packages.core.length + @packages.dev.length}"
 
   updateFilteredSectionCounts: ->
-    community = @communityPackages.find('.package-card:not(.hidden)').length
+    community = @notHiddenCardsLength(@communityPackages)
     @updateSectionCount(@communityThemesHeader, @communityCount, community, @packages.user.length)
 
-    dev = @devPackages.find('.package-card:not(.hidden)').length
+    dev = @notHiddenCardsLength(@devPackages)
     @updateSectionCount(@developmentThemesHeader, @devCount, dev, @packages.dev.length)
 
-    core = @corePackages.find('.package-card:not(.hidden)').length
+    core = @notHiddenCardsLength(@corePackages)
     @updateSectionCount(@coreThemesHeader, @coreCount, core, @packages.core.length)
 
   resetSectionHasItems: ->
@@ -321,6 +321,8 @@ class ThemesPanel extends ScrollView
 
     headerElement.addClass("has-items") if packageCount > 0
 
+  notHiddenCardsLength: (sectionElement) ->
+    sectionElement.find('.package-card:not(.hidden)').length
 
   matchPackages: ->
     filterText = @filterEditor.getModel().getText()
