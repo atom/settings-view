@@ -198,13 +198,13 @@ class InstalledPackagesPanel extends ScrollView
     @totalPackages.text(@packages.user.length + @packages.core.length + @packages.dev.length)
 
   updateFilteredSectionCounts: ->
-    deprecated = @notHiddenCardsLength @deprecatedPackages
+    deprecated = @notHiddenCardsLength(@deprecatedPackages)
     @updateSectionCount(@deprecatedPackagesHeader, @deprecatedCount, deprecated, @packages.deprecated.length)
 
-    community = @notHiddenCardsLength @communityPackages
+    community = @notHiddenCardsLength(@communityPackages)
     @updateSectionCount(@communityPackagesHeader, @communityCount, community, @packages.user.length)
 
-    core = @notHiddenCardsLength @corePackages
+    core = @notHiddenCardsLength(@corePackages)
     @updateSectionCount(@corePackagesHeader, @coreCount, core, @packages.core.length)
 
     dev = @notHiddenCardsLength @devPackages
