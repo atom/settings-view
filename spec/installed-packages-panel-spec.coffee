@@ -187,6 +187,8 @@ describe 'InstalledPackagesPanel', ->
       expect(@panel.find('.sub-section.installed-packages')).not.toHaveClass 'collapsed'
 
     it 'can collapse and expand any of the sub-sections', ->
+      expect(@panel.find('.sub-section-heading.has-items').length).toBe 4
+
       @panel.find('.sub-section-heading.has-items').click()
       expect(@panel.find('.sub-section.deprecated-packages')).toHaveClass 'collapsed'
       expect(@panel.find('.sub-section.installed-packages')).toHaveClass 'collapsed'
@@ -198,6 +200,15 @@ describe 'InstalledPackagesPanel', ->
       expect(@panel.find('.sub-section.installed-packages')).not.toHaveClass 'collapsed'
       expect(@panel.find('.sub-section.core-packages')).not.toHaveClass 'collapsed'
       expect(@panel.find('.sub-section.dev-packages')).not.toHaveClass 'collapsed'
+
+    it 'can collapse sub-sections when filtering', ->
+      @panel.filterEditor.getModel().setText('user-')
+      window.advanceClock(@panel.filterEditor.getModel().getBuffer().stoppedChangingDelay)
+
+      hasItems = @panel.find('.sub-section-heading.has-items')
+      expect(hasItems.length).toBe 2
+      expect(hasItems.text()).toMatch /Deprecated Packages/
+      expect(hasItems.text()).toMatch /Community Packages/
 
   describe 'when there are no packages', ->
     beforeEach ->
@@ -225,3 +236,11 @@ describe 'InstalledPackagesPanel', ->
       expect(@panel.find('.sub-section.installed-packages')).not.toHaveClass 'collapsed'
       expect(@panel.find('.sub-section.core-packages')).not.toHaveClass 'collapsed'
       expect(@panel.find('.sub-section.dev-packages')).not.toHaveClass 'collapsed'
+
+    it 'does not allow collapsing on any section when filtering', ->
+      @panel.filterEditor.getModel().setText('user-')
+      window.advanceClock(@panel.filterEditor.getModel().getBuffer().stoppedChangingDelay)
+
+      expect(@panel.find('.section-heading-count').text()).toMatch /^(0\/0)+$/
+      expect(@panel.find('.sub-section .icon-package').length).toBe 4
+      expect(@panel.find('.sub-section .icon-paintcan.has-items').length).toBe 0

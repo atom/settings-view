@@ -182,6 +182,7 @@ class InstalledPackagesPanel extends ScrollView
     @updateSectionCounts()
 
   updateSectionCounts: ->
+    @resetSectionHasItems()
     filterText = @filterEditor.getModel().getText()
     if filterText is ''
       @updateUnfilteredSectionCounts()
@@ -189,29 +190,35 @@ class InstalledPackagesPanel extends ScrollView
       @updateFilteredSectionCounts()
 
   updateUnfilteredSectionCounts: ->
-    @updateSectionCount @deprecatedPackagesHeader, @deprecatedCount, @packages.deprecated.length
-    @updateSectionCount @communityPackagesHeader, @communityCount, @packages.user.length
-    @updateSectionCount @corePackagesHeader, @coreCount, @packages.core.length
-    @updateSectionCount @devPackagesHeader, @devCount, @packages.dev.length
+    @updateSectionCount(@deprecatedPackagesHeader, @deprecatedCount, @packages.deprecated.length)
+    @updateSectionCount(@communityPackagesHeader, @communityCount, @packages.user.length)
+    @updateSectionCount(@corePackagesHeader, @coreCount, @packages.core.length)
+    @updateSectionCount(@devPackagesHeader, @devCount, @packages.dev.length)
 
     @totalPackages.text(@packages.user.length + @packages.core.length + @packages.dev.length)
 
   updateFilteredSectionCounts: ->
     deprecated = @notHiddenCardsLength @deprecatedPackages
-    @updateSectionCount @deprecatedPackagesHeader, @deprecatedCount, deprecated, @packages.deprecated.length
+    @updateSectionCount(@deprecatedPackagesHeader, @deprecatedCount, deprecated, @packages.deprecated.length)
 
     community = @notHiddenCardsLength @communityPackages
-    @updateSectionCount @communityPackagesHeader, @communityCount, community, @packages.user.length
+    @updateSectionCount(@communityPackagesHeader, @communityCount, community, @packages.user.length)
 
     core = @notHiddenCardsLength @corePackages
-    @updateSectionCount @corePackagesHeader, @coreCount, core, @packages.core.length
+    @updateSectionCount(@corePackagesHeader, @coreCount, core, @packages.core.length)
 
     dev = @notHiddenCardsLength @devPackages
-    @updateSectionCount @devPackagesHeader, @devCount, dev, @packages.dev.length
+    @updateSectionCount(@devPackagesHeader, @devCount, dev, @packages.dev.length)
 
     shownPackages = dev + core + community
     totalPackages = @packages.user.length + @packages.core.length + @packages.dev.length
     @totalPackages.text "#{shownPackages}/#{totalPackages}"
+
+  resetSectionHasItems: ->
+    @deprecatedPackagesHeader.removeClass('has-items')
+    @communityPackagesHeader.removeClass('has-items')
+    @corePackagesHeader.removeClass('has-items')
+    @devPackagesHeader.removeClass('has-items')
 
   updateSectionCount: (headerElement, countElement, packageCount, totalCount) ->
     if totalCount is undefined
