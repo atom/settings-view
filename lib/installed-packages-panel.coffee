@@ -1,8 +1,9 @@
 _ = require 'underscore-plus'
-{$$, TextEditorView, ScrollView} = require 'atom-space-pen-views'
+{$$, TextEditorView} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 fuzzaldrin = require 'fuzzaldrin'
 
+CollapsibleSectionPanel = require './collapsible-section-panel'
 PackageCard = require './package-card'
 ErrorView = require './error-view'
 
@@ -11,7 +12,7 @@ ListView = require './list-view'
 {ownerFromRepository, packageComparatorAscending} = require './utils'
 
 module.exports =
-class InstalledPackagesPanel extends ScrollView
+class InstalledPackagesPanel extends CollapsibleSectionPanel
   @loadPackagesDelay: 300
 
   @content: ->
@@ -27,7 +28,7 @@ class InstalledPackagesPanel extends ScrollView
           @div outlet: 'updateErrors'
 
           @section outlet: 'deprecatedSection', class: 'sub-section deprecated-packages', =>
-            @h3 class: 'sub-section-heading icon icon-package', =>
+            @h3 outlet: 'deprecatedPackagesHeader', class: 'sub-section-heading icon icon-package', =>
               @text 'Deprecated Packages'
               @span outlet: 'deprecatedCount', class: 'section-heading-count badge badge-flexible', '…'
             @p 'Atom does not load deprecated packages. These packages may have updates available.'
@@ -35,21 +36,21 @@ class InstalledPackagesPanel extends ScrollView
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
           @section class: 'sub-section installed-packages', =>
-            @h3 class: 'sub-section-heading icon icon-package', =>
+            @h3 outlet: 'communityPackagesHeader', class: 'sub-section-heading icon icon-package', =>
               @text 'Community Packages'
               @span outlet: 'communityCount', class: 'section-heading-count badge badge-flexible', '…'
             @div outlet: 'communityPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
           @section class: 'sub-section core-packages', =>
-            @h3 class: 'sub-section-heading icon icon-package', =>
+            @h3 outlet: 'corePackagesHeader', class: 'sub-section-heading icon icon-package', =>
               @text 'Core Packages'
               @span outlet: 'coreCount', class: 'section-heading-count badge badge-flexible', '…'
             @div outlet: 'corePackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
           @section class: 'sub-section dev-packages', =>
-            @h3 class: 'sub-section-heading icon icon-package', =>
+            @h3 outlet: 'devPackagesHeader', class: 'sub-section-heading icon icon-package', =>
               @text 'Development Packages'
               @span outlet: 'devCount', class: 'section-heading-count badge badge-flexible', '…'
             @div outlet: 'devPackages', class: 'container package-container', =>
@@ -122,7 +123,6 @@ class InstalledPackagesPanel extends ScrollView
     @packageManager.getInstalled()
       .then (packages) =>
         @packages = @sortPackages(@filterPackages(packages))
-
         @devPackages.find('.alert.loading-area').remove()
         @items.dev.setItems(@packages.dev)
 
@@ -182,32 +182,34 @@ class InstalledPackagesPanel extends ScrollView
 
     @updateSectionCounts()
 
-  updateSectionCounts: ->
-    filterText = @filterEditor.getModel().getText()
-    if filterText is ''
-      @totalPackages.text(@packages.user.length + @packages.core.length + @packages.dev.length)
-      @communityCount.text @packages.user.length
-      @coreCount.text @packages.core.length
-      @devCount.text @packages.dev.length
-      @deprecatedCount.text @packages.deprecated.length
-    else
-      community = @communityPackages.find('.package-card:not(.hidden)').length
-      @communityCount.text "#{community}/#{@packages.user.length}"
-      dev = @devPackages.find('.package-card:not(.hidden)').length
-      @devCount.text "#{dev}/#{@packages.dev.length}"
-      core = @corePackages.find('.package-card:not(.hidden)').length
-      @coreCount.text "#{core}/#{@packages.core.length}"
-      deprecated = @deprecatedPackages.find('.package-card:not(.hidden)').length
-      @deprecatedCount.text "#{deprecated}/#{@packages.deprecated.length}"
+  updateUnfilteredSectionCounts: ->
+    @updateSectionCount(@deprecatedPackagesHeader, @deprecatedCount, @packages.deprecated.length)
+    @updateSectionCount(@communityPackagesHeader, @communityCount, @packages.user.length)
+    @updateSectionCount(@corePackagesHeader, @coreCount, @packages.core.length)
+    @updateSectionCount(@devPackagesHeader, @devCount, @packages.dev.length)
 
-      shownPackages = dev + core + community
-      totalPackages = @packages.user.length + @packages.core.length + @packages.dev.length
-      @totalPackages.text "#{shownPackages}/#{totalPackages}"
+    @totalPackages.text(@packages.user.length + @packages.core.length + @packages.dev.length)
+
+  updateFilteredSectionCounts: ->
+    deprecated = @notHiddenCardsLength(@deprecatedPackages)
+    @updateSectionCount(@deprecatedPackagesHeader, @deprecatedCount, deprecated, @packages.deprecated.length)
+
+    community = @notHiddenCardsLength(@communityPackages)
+    @updateSectionCount(@communityPackagesHeader, @communityCount, community, @packages.user.length)
+
+    core = @notHiddenCardsLength(@corePackages)
+    @updateSectionCount(@corePackagesHeader, @coreCount, core, @packages.core.length)
+
+    dev = @notHiddenCardsLength @devPackages
+    @updateSectionCount(@devPackagesHeader, @devCount, dev, @packages.dev.length)
+
+    shownPackages = dev + core + community
+    totalPackages = @packages.user.length + @packages.core.length + @packages.dev.length
+    @totalPackages.text "#{shownPackages}/#{totalPackages}"
+
+  resetSectionHasItems: ->
+    @resetCollapsibleSections([@deprecatedPackagesHeader, @communityPackagesHeader, @corePackagesHeader, @devPackagesHeader])
 
   matchPackages: ->
     filterText = @filterEditor.getModel().getText()
     @filterPackageListByText(filterText)
-
-  handleEvents: ->
-    @on 'click', '.sub-section .icon-package', (e) ->
-      e.currentTarget.parentNode.classList.toggle('collapsed')

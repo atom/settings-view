@@ -300,18 +300,21 @@
       font-weight: bold;
       line-height: 1;
       -webkit-user-select: none;
-      cursor: pointer;
 
-      &:after {
-        .icon(16px);
-        content: @fold;
-        position: absolute;
-        right: 0;
-        color: @text-color-subtle;
-      }
+      &.has-items {
+        cursor: pointer;
 
-      &:hover:after {
-        color: @text-color-highlight;
+        &:after {
+          .icon(16px);
+          content: @fold;
+          position: absolute;
+          right: 0;
+          color: @text-color-subtle;
+        }
+
+        &:hover:after {
+          color: @text-color-highlight;
+        }
       }
     }
 

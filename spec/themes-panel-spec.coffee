@@ -133,22 +133,69 @@ describe "ThemesPanel", ->
         expect(panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 2
 
     it 'collapses/expands a sub-section if its header is clicked', ->
-      panel.find('.sub-section.installed-packages .sub-section-heading').click()
+      expect(panel.find('.sub-section-heading.has-items').length).toBe 3
+      panel.find('.sub-section.installed-packages .sub-section-heading.has-items').click()
       expect(panel.find('.sub-section.installed-packages')).toHaveClass 'collapsed'
 
       expect(panel.find('.sub-section.core-packages')).not.toHaveClass 'collapsed'
       expect(panel.find('.sub-section.dev-packages')).not.toHaveClass 'collapsed'
 
-      panel.find('.sub-section.installed-packages .sub-section-heading').click()
+      panel.find('.sub-section.installed-packages .sub-section-heading.has-items').click()
       expect(panel.find('.sub-section.installed-packages')).not.toHaveClass 'collapsed'
 
     it 'can collapse and expand any of the sub-sections', ->
-      panel.find('.sub-section-heading').click()
+      expect(panel.find('.sub-section-heading.has-items').length).toBe 3
+
+      panel.find('.sub-section-heading.has-items').click()
       expect(panel.find('.sub-section.installed-packages')).toHaveClass 'collapsed'
       expect(panel.find('.sub-section.core-packages')).toHaveClass 'collapsed'
       expect(panel.find('.sub-section.dev-packages')).toHaveClass 'collapsed'
 
+      panel.find('.sub-section-heading.has-items').click()
+      expect(panel.find('.sub-section.installed-packages')).not.toHaveClass 'collapsed'
+      expect(panel.find('.sub-section.core-packages')).not.toHaveClass 'collapsed'
+      expect(panel.find('.sub-section.dev-packages')).not.toHaveClass 'collapsed'
+
+    it 'can collapse sub-sections when filtering', ->
+      panel.filterEditor.getModel().setText('user-')
+      window.advanceClock(panel.filterEditor.getModel().getBuffer().stoppedChangingDelay)
+
+      hasItems = panel.find('.sub-section-heading.has-items')
+      expect(hasItems.length).toBe 1
+      expect(hasItems.text()).toMatch /^Community Themes/
+
+  describe 'when there are no themes', ->
+    beforeEach ->
+      installed =
+        dev: []
+        user: []
+        core: []
+
+      spyOn(packageManager, 'loadCompatiblePackageVersion').andCallFake ->
+      spyOn(packageManager, 'getInstalled').andReturn Promise.resolve(installed)
+      panel = new ThemesPanel(packageManager)
+
+      waitsFor ->
+        packageManager.getInstalled.callCount is 1 and panel.communityCount.text().indexOf('…') < 0
+
+    afterEach ->
+      atom.themes.deactivateThemes()
+
+    it 'has a count of zero in all headings', ->
+      expect(panel.find('.section-heading-count').text()).toMatch /^0+$/
+      expect(panel.find('.sub-section .icon-paintcan').length).toBe 3
+      expect(panel.find('.sub-section .icon-paintcan.has-items').length).toBe 0
+
+    it 'can collapse and expand any of the sub-sections', ->
       panel.find('.sub-section-heading').click()
       expect(panel.find('.sub-section.installed-packages')).not.toHaveClass 'collapsed'
       expect(panel.find('.sub-section.core-packages')).not.toHaveClass 'collapsed'
       expect(panel.find('.sub-section.dev-packages')).not.toHaveClass 'collapsed'
+
+    it 'does not allow collapsing on any section when filtering', ->
+      panel.filterEditor.getModel().setText('user-')
+      window.advanceClock(panel.filterEditor.getModel().getBuffer().stoppedChangingDelay)
+
+      expect(panel.find('.section-heading-count').text()).toMatch /^0(0\/0)+$/
+      expect(panel.find('.sub-section .icon-paintcan').length).toBe 3
+      expect(panel.find('.sub-section .icon-paintcan.has-items').length).toBe 0
