@@ -1,19 +1,17 @@
 path = require 'path'
 
 fs = require 'fs-plus'
-fuzzaldrin = require 'fuzzaldrin'
 _ = require 'underscore-plus'
 {CompositeDisposable} = require 'atom'
 {$$, TextEditorView} = require 'atom-space-pen-views'
 
 CollapsibleSectionPanel = require './collapsible-section-panel'
-PackageCard = require './package-card'
 ErrorView = require './error-view'
 PackageManager = require './package-manager'
 
 List = require './list'
 ListView = require './list-view'
-{ownerFromRepository, packageComparatorAscending} = require './utils'
+{ownerFromRepository} = require './utils'
 
 module.exports =
 class ThemesPanel extends CollapsibleSectionPanel
@@ -123,12 +121,6 @@ class ThemesPanel extends CollapsibleSectionPanel
       @activeUiTheme = @uiMenu.val()
       @scheduleUpdateThemeConfig()
 
-  focus: ->
-    @filterEditor.focus()
-
-  dispose: ->
-    @disposables.dispose()
-
   filterThemes: (packages) ->
     packages.dev = packages.dev.filter ({theme}) -> theme
     packages.user = packages.user.filter ({theme}) -> theme
@@ -142,17 +134,11 @@ class ThemesPanel extends CollapsibleSectionPanel
         pack.owner = ownerFromRepository(pack.repository)
     packages
 
-  sortThemes: (packages) ->
-    packages.dev.sort(packageComparatorAscending)
-    packages.core.sort(packageComparatorAscending)
-    packages.user.sort(packageComparatorAscending)
-    packages
-
   loadPackages: ->
     @packageViews = []
     @packageManager.getInstalled()
       .then (packages) =>
-        @packages = @sortThemes(@filterThemes(packages))
+        @packages = @sortPackages(@filterThemes(packages))
 
         @devPackages.find('.alert.loading-area').remove()
         @items.dev.setItems(@packages.dev)
@@ -260,28 +246,10 @@ class ThemesPanel extends CollapsibleSectionPanel
     _.undasherize(_.uncamelcase(title))
 
   createPackageCard: (pack) =>
-    packageRow = $$ -> @div class: 'row'
-    packView = new PackageCard(pack, @packageManager, {back: 'Themes'})
-    packageRow.append(packView)
-    packageRow
+    super(pack, 'Themes')
 
   filterPackageListByText: (text) ->
-    return unless @packages
-
-    for packageType in ['dev', 'core', 'user']
-      allViews = @itemViews[packageType].getViews()
-      activeViews = @itemViews[packageType].filterViews (pack) ->
-        return true if text is ''
-        owner = pack.owner ? ownerFromRepository(pack.repository)
-        filterText = "#{pack.name} #{owner}"
-        fuzzaldrin.score(filterText, text) > 0
-
-      for view in allViews when view
-        view.find('.package-card').hide().addClass('hidden')
-      for view in activeViews when view
-        view.find('.package-card').show().removeClass('hidden')
-
-    @updateSectionCounts()
+    @filterPackageListByTextAndType(text, ['dev', 'core', 'user'])
 
   updateUnfilteredSectionCounts: ->
     @updateSectionCount(@communityThemesHeader, @communityCount, @packages.user.length)
@@ -302,7 +270,3 @@ class ThemesPanel extends CollapsibleSectionPanel
 
   resetSectionHasItems: ->
     @resetCollapsibleSections([@communityThemesHeader, @coreThemesHeader, @developmentThemesHeader])
-
-  matchPackages: ->
-    filterText = @filterEditor.getModel().getText()
-    @filterPackageListByText(filterText)
