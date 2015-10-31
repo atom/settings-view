@@ -1,7 +1,7 @@
 fuzzaldrin = require 'fuzzaldrin'
 {$$, ScrollView} = require 'atom-space-pen-views'
 PackageCard = require './package-card'
-{packageComparatorAscending} = require './utils'
+{ownerFromRepository, packageComparatorAscending} = require './utils'
 
 module.exports =
 class CollapsibleSectionPanel extends ScrollView
@@ -14,6 +14,16 @@ class CollapsibleSectionPanel extends ScrollView
   sortPackages: (packages) ->
     for pkg of packages
       packages[pkg].sort(packageComparatorAscending)
+    packages
+
+  setRepositoryAndOwner: (packages) ->
+    for pack in packages.core
+      pack.repository ?= "https://github.com/atom/#{pack.name}"
+
+    for packageType of packages
+      for pack in packages[packageType]
+        pack.owner = ownerFromRepository(pack.repository)
+
     packages
 
   filterPackageListByTextAndType: (text, packageTypes) ->

@@ -11,7 +11,6 @@ PackageManager = require './package-manager'
 
 List = require './list'
 ListView = require './list-view'
-{ownerFromRepository} = require './utils'
 
 module.exports =
 class ThemesPanel extends CollapsibleSectionPanel
@@ -126,13 +125,7 @@ class ThemesPanel extends CollapsibleSectionPanel
     packages.user = packages.user.filter ({theme}) -> theme
     packages.core = packages.core.filter ({theme}) -> theme
 
-    for pack in packages.core
-      pack.repository ?= "https://github.com/atom/#{pack.name}"
-
-    for packageType in ['dev', 'core', 'user']
-      for pack in packages[packageType]
-        pack.owner = ownerFromRepository(pack.repository)
-    packages
+    @setRepositoryAndOwner(packages)
 
   loadPackages: ->
     @packageViews = []

@@ -7,7 +7,6 @@ ErrorView = require './error-view'
 
 List = require './list'
 ListView = require './list-view'
-{ownerFromRepository} = require './utils'
 
 module.exports =
 class InstalledPackagesPanel extends CollapsibleSectionPanel
@@ -89,14 +88,7 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
     packages.deprecated = packages.user.filter ({name, version}) -> atom.packages.isDeprecatedPackage(name, version)
     packages.core = packages.core.filter ({theme}) -> not theme
 
-    for pack in packages.core
-      pack.repository ?= "https://github.com/atom/#{pack.name}"
-
-    for packageType in ['dev', 'core', 'user', 'deprecated']
-      for pack in packages[packageType]
-        pack.owner = ownerFromRepository(pack.repository)
-
-    packages
+    @setRepositoryAndOwner(packages)
 
   loadPackages: ->
     packagesWithUpdates = {}
