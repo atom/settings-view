@@ -76,7 +76,8 @@ module.exports =
       console.log error.message, error.stack
 
   consumeSnippets: (snippets) ->
-    SnippetsProvider.getSnippets = snippets.getUnparsedSnippets.bind(snippets)
+    if typeof snippets.getUnparsedSnippets is "function"
+      SnippetsProvider.getSnippets = snippets.getUnparsedSnippets.bind(snippets)
 
   showDeprecatedNotification: (packages) ->
     deprecatedPackages = packages.user.filter ({name, version}) ->

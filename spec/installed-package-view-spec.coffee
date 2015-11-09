@@ -36,6 +36,8 @@ describe "PackageDetailView", ->
 
     waitsForPromise ->
       atom.packages.activatePackage('snippets').then (p) ->
+        return unless p.mainModule.provideSnippets().getUnparsedSnippets?
+
         SnippetsProvider =
           getSnippets: -> p.mainModule.provideSnippets().getUnparsedSnippets()
 
