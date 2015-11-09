@@ -5,7 +5,6 @@ _ = require 'underscore-plus'
 # View to display the snippets that a package has registered.
 module.exports =
 class PackageSnippetsView extends View
-
   @content: ->
     @section class: 'section', =>
       @div class: 'section-heading icon icon-code', 'Snippets'
@@ -17,18 +16,17 @@ class PackageSnippetsView extends View
             @th 'Body'
         @tbody outlet: 'snippets'
 
-  initialize: (packagePath) ->
+  initialize: (packagePath, @snippetsProvider) ->
     @packagePath = path.join(packagePath, path.sep)
     @hide()
     @addSnippets()
 
   getSnippetProperties: ->
     packageProperties = {}
-    for {name, properties} in atom.config.scopedSettingsStore.propertySets
+    for {name, properties} in @snippetsProvider.getSnippets()
       continue unless name?.indexOf?(@packagePath) is 0
       for name, snippet of properties.snippets ? {} when snippet?
         packageProperties[name] ?= snippet
-
 
     _.values(packageProperties).sort (snippet1, snippet2) ->
       prefix1 = snippet1.prefix ? ''
@@ -49,16 +47,17 @@ class PackageSnippetsView extends View
     @getSnippets (snippets) =>
       @snippets.empty()
 
-      for {bodyText, name, prefix} in snippets
+      for {body, bodyText, name, prefix} in snippets
         name ?= ''
         prefix ?= ''
-        bodyText = bodyText?.replace(/\t/g, '\\t').replace(/\n/g, '\\n') ? ''
+        body ?= bodyText
+        body = body?.replace(/\t/g, '\\t').replace(/\n/g, '\\n') ? ''
 
         @snippets.append $$$ ->
           @tr =>
             @td class: 'snippet-prefix', prefix
             @td name
-            @td class: 'snippet-body', bodyText
+            @td class: 'snippet-body', body
 
       if @snippets.children().length > 0
         @show()

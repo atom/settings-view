@@ -1,11 +1,15 @@
 SettingsView = null
 settingsView = null
 
+SnippetsProvider =
+  getSnippets: -> atom.config.scopedSettingsStore.propertySets
+
 configUri = 'atom://config'
 uriRegex = /config\/([a-z]+)\/?([a-zA-Z0-9_-]+)?/i
 
 createSettingsView = (params) ->
   SettingsView ?= require './settings-view'
+  params.snippetsProvider ?= SnippetsProvider
   settingsView = new SettingsView(params)
 
 openPanel = (panelName, uri) ->
@@ -70,6 +74,9 @@ module.exports =
         @showDeprecatedNotification(allPackages)
     .catch (error) ->
       console.log error.message, error.stack
+
+  consumeSnippets: (snippets) ->
+    SnippetsProvider.getSnippets = snippets.getUnparsedSnippets.bind(snippets)
 
   showDeprecatedNotification: (packages) ->
     deprecatedPackages = packages.user.filter ({name, version}) ->

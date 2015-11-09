@@ -31,16 +31,20 @@ describe "PackageDetailView", ->
 
   it "displays the snippets registered by the package", ->
     snippetsTable = null
+    snippetsProvider =
+      getSnippets: -> atom.config.scopedSettingsStore.propertySets
 
     waitsForPromise ->
-      atom.packages.activatePackage('snippets')
+      atom.packages.activatePackage('snippets').then (p) ->
+        snippetsProvider =
+          getSnippets: -> p.mainModule.provideSnippets().getUnparsedSnippets()
 
     waitsForPromise ->
       atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
 
     runs ->
       pack = atom.packages.getActivePackage('language-test')
-      view = new PackageDetailView(pack, new PackageManager())
+      view = new PackageDetailView(pack, new PackageManager(), snippetsProvider)
       snippetsTable = view.find('.package-snippets-table tbody')
 
     waitsFor ->

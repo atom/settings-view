@@ -35,7 +35,7 @@ class SettingsView extends ScrollView
       # package card. Phew!
       @div class: 'panels', tabindex: -1, outlet: 'panels'
 
-  initialize: ({@uri, activePanelName}={}) ->
+  initialize: ({@uri, @snippetsProvider, activePanelName}={}) ->
     super
     @packageManager = new PackageManager()
 
@@ -136,7 +136,7 @@ class SettingsView extends ScrollView
           unless options.pack.metadata
             metadata = _.clone(options.pack)
             options.pack.metadata = metadata
-          new PackageDetailView(options.pack, @packageManager)
+          new PackageDetailView(options.pack, @packageManager, @snippetsProvider)
 
       if callback
         panel = callback()
