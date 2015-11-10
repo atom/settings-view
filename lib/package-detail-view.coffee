@@ -54,7 +54,7 @@ class PackageDetailView extends ScrollView
 
       @div outlet: 'sections'
 
-  initialize: (@pack, @packageManager) ->
+  initialize: (@pack, @packageManager, @snippetsProvider) ->
     super
     @disposables = new CompositeDisposable()
     @loadPackage()
@@ -147,7 +147,7 @@ class PackageDetailView extends ScrollView
 
       if @pack.path
         @sections.append(new PackageGrammarsView(@pack.path))
-        @sections.append(new PackageSnippetsView(@pack.path))
+        @sections.append(new PackageSnippetsView(@pack.path, @snippetsProvider))
 
       @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
     else
