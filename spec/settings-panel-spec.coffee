@@ -50,3 +50,48 @@ describe "SettingsPanel", ->
       sortedSettings = settingsPanel.sortSettings("foo", null)
       expect(sortedSettings).not.toBeNull
       expect(_.size(sortedSettings)).toBe 0
+
+  describe 'grouped settings', ->
+    beforeEach ->
+      config =
+        type: 'object'
+        properties:
+          barGroup:
+            type: 'object'
+            title: 'Bar group'
+            properties:
+              bar:
+                title: 'Bar'
+                description: 'The bar setting'
+                type: 'boolean'
+                default: false
+          bazGroup:
+            type: 'object'
+            properties:
+              baz:
+                title: 'Baz'
+                description: 'The baz setting'
+                type: 'boolean'
+                default: false
+          zing:
+            type: 'string'
+            default: ''
+      atom.config.setSchema('foo', config)
+      expect(_.size(atom.config.get('foo'))).toBe 3
+      settingsPanel = new SettingsPanel('foo', {includeTitle: false})
+
+    it 'ensures that only grouped settings have a group title', ->
+      expect(settingsPanel.find('.section-body')).toHaveLength 1
+      sectionBody = settingsPanel.find('.section-body:first')
+      expect(sectionBody.find('>.control-group')).toHaveLength 3
+      firstControlGroup = sectionBody.find('>.control-group:nth(0)')
+      expect(firstControlGroup.find('.sub-section .sub-section-heading')).toHaveLength 1
+      expect(firstControlGroup.find('.sub-section .sub-section-heading:first').text()).toBe 'Bar group'
+      expect(firstControlGroup.find('.sub-section .control-group')).toHaveLength 1
+      secondControlGroup = sectionBody.find('>.control-group:nth(1)')
+      expect(secondControlGroup.find('.sub-section .sub-section-heading')).toHaveLength 1
+      expect(secondControlGroup.find('.sub-section .sub-section-heading:first').text()).toBe 'Baz Group'
+      expect(secondControlGroup.find('.sub-section .control-group')).toHaveLength 1
+      thirdControlGroup = sectionBody.find('>.control-group:nth(2)')
+      expect(thirdControlGroup.find('.sub-section')).toHaveLength 0
+      expect(thirdControlGroup.find('.sub-section-heading')).toHaveLength 0
