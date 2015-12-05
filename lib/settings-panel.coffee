@@ -290,5 +290,6 @@ appendObject = (namespace, name, value) ->
   title = getSettingTitle(keyPath, name)
   @div class: 'sub-section', =>
     @div class: 'sub-section-heading', title
-    for key in _.keys(value).sort()
-      appendSetting.call(this, namespace, "#{name}.#{key}", value[key])
+    @div class: 'section-body', =>
+      for key in _.keys(value).sort()
+        appendSetting.call(this, namespace, "#{name}.#{key}", value[key])
