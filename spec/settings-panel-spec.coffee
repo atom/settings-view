@@ -87,14 +87,14 @@ describe "SettingsPanel", ->
       firstControlGroup = sectionBody.find('>.control-group:nth(0)')
       expect(firstControlGroup.find('.sub-section .sub-section-heading')).toHaveLength 1
       expect(firstControlGroup.find('.sub-section .sub-section-heading:first').text()).toBe 'Bar group'
-      expect(firstControlGroup.find('.sub-section .section-body')).toHaveLength 1
-      subsectionBody = firstControlGroup.find('.sub-section .section-body:first')
+      expect(firstControlGroup.find('.sub-section .sub-section-body')).toHaveLength 1
+      subsectionBody = firstControlGroup.find('.sub-section .sub-section-body:first')
       expect(subsectionBody.find('.control-group')).toHaveLength 1
       secondControlGroup = sectionBody.find('>.control-group:nth(1)')
       expect(secondControlGroup.find('.sub-section .sub-section-heading')).toHaveLength 1
       expect(secondControlGroup.find('.sub-section .sub-section-heading:first').text()).toBe 'Baz Group'
-      expect(secondControlGroup.find('.sub-section .section-body')).toHaveLength 1
-      subsectionBody = secondControlGroup.find('.sub-section .section-body:first')
+      expect(secondControlGroup.find('.sub-section .sub-section-body')).toHaveLength 1
+      subsectionBody = secondControlGroup.find('.sub-section .sub-section-body:first')
       expect(subsectionBody.find('.control-group')).toHaveLength 1
       thirdControlGroup = sectionBody.find('>.control-group:nth(2)')
       expect(thirdControlGroup.find('.sub-section')).toHaveLength 0
