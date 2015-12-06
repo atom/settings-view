@@ -226,7 +226,10 @@ appendOptions = (namespace, name, value) ->
 
   @select id: keyPath, class: 'form-control', =>
     for option in options
-      @option value: option, option
+      if option.hasOwnProperty('value')
+        @option value: option.value, option.description
+      else
+        @option value: option, option
 
 appendCheckbox = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"
