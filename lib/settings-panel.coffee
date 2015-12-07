@@ -286,5 +286,12 @@ appendArray = (namespace, name, value) ->
       @subview keyPath.replace(/\./g, ''), new TextEditorView(mini: true, attributes: {id: keyPath, type: 'array'})
 
 appendObject = (namespace, name, value) ->
-  for key in _.keys(value).sort()
-    appendSetting.call(this, namespace, "#{name}.#{key}", value[key])
+  return unless _.keys(value).length
+
+  keyPath = "#{namespace}.#{name}"
+  title = getSettingTitle(keyPath, name)
+  @div class: 'sub-section', =>
+    @div class: 'sub-section-heading', title
+    @div class: 'sub-section-body', =>
+      for key in _.keys(value).sort()
+        appendSetting.call(this, namespace, "#{name}.#{key}", value[key])
