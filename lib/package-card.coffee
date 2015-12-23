@@ -144,7 +144,15 @@ class PackageCard extends View
 
     @uninstallButton.on 'click', (event) =>
       event.stopPropagation()
-      @uninstall()
+      if @uninstallButton.hasClass('confirm-uninstall')
+        @uninstallButton.removeClass('confirm-uninstall')
+        @uninstallButton.removeClass('btn-error')
+        @uninstallButton.text('Uninstall')
+        @uninstall()
+      else
+        @uninstallButton.addClass('confirm-uninstall')
+        @uninstallButton.addClass('btn-error')
+        @uninstallButton.text('Yes, uninstall')
 
     @installAlternativeButton.on 'click', (event) =>
       event.stopPropagation()
