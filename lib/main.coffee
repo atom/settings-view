@@ -7,13 +7,7 @@ SnippetsProvider =
 configUri = 'atom://config'
 uriRegex = /config\/([a-z]+)\/?([a-zA-Z0-9_-]+)?/i
 
-createSettingsView = (params) ->
-  SettingsView ?= require './settings-view'
-  params.snippetsProvider ?= SnippetsProvider
-  settingsView = new SettingsView(params)
-
-openPanel = (panelName, uri) ->
-  settingsView ?= createSettingsView({uri: configUri})
+openPanel = (settingsView, panelName, uri) ->
   match = uriRegex.exec(uri)
 
   panel = match?[1]
@@ -26,22 +20,15 @@ openPanel = (panelName, uri) ->
 
   settingsView.showPanel(panelName, options)
 
-deserializer =
-  name: 'SettingsView'
-  version: 2
-  deserialize: (state) ->
-    createSettingsView(state) if state.constructor is Object
-atom.deserializers.add(deserializer)
-
 module.exports =
   activate: ->
-    atom.workspace.addOpener (uri) ->
+    atom.workspace.addOpener (uri) =>
       if uri.startsWith(configUri)
-        settingsView ?= createSettingsView({uri})
+        settingsView ?= @createSettingsView({uri})
         if match = uriRegex.exec(uri)
           panelName = match[1]
           panelName = panelName[0].toUpperCase() + panelName.slice(1)
-          openPanel(panelName, uri)
+          openPanel(settingsView, panelName, uri)
         settingsView
 
     atom.commands.add 'atom-workspace',
@@ -79,6 +66,11 @@ module.exports =
     if typeof snippets.getUnparsedSnippets is "function"
       SnippetsProvider.getSnippets = snippets.getUnparsedSnippets.bind(snippets)
 
+  createSettingsView: (params) ->
+    SettingsView ?= require './settings-view'
+    params.snippetsProvider = SnippetsProvider
+    settingsView = new SettingsView(params)
+
   showDeprecatedNotification: (packages) ->
     deprecatedPackages = packages.user.filter ({name, version}) ->
       atom.packages.isDeprecatedPackage(name, version)
@@ -102,3 +94,8 @@ module.exports =
           notification.dismiss()
       }]
     localStorage.setItem('hasSeenDeprecatedNotification', true)
+
+if parseFloat(atom.getVersion()) < 1.7
+  atom.deserializers.add
+    name: 'SettingsView'
+    deserialize: module.exports.createSettingsView.bind(module.exports)
