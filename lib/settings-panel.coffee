@@ -1,11 +1,12 @@
 {CompositeDisposable} = require 'atom'
 {$, $$, TextEditorView, View} = require 'atom-space-pen-views'
 _ = require 'underscore-plus'
+CollapsibleSectionPanel = require './collapsible-section-panel'
 
 {getSettingDescription} = require './rich-description'
 
 module.exports =
-class SettingsPanel extends View
+class SettingsPanel extends CollapsibleSectionPanel
   @content: ->
     @section class: 'section settings-panel'
 
@@ -39,6 +40,8 @@ class SettingsPanel extends View
     @bindInputFields()
     @bindSelectFields()
     @bindEditors()
+    @handleEvents()
+
 
   dispose: ->
     @disposables.dispose()
@@ -290,8 +293,10 @@ appendObject = (namespace, name, value) ->
 
   keyPath = "#{namespace}.#{name}"
   title = getSettingTitle(keyPath, name)
-  @div class: 'sub-section', =>
-    @div class: 'sub-section-heading', title
+
+  @section class: 'sub-section', =>
+    @h3 class: 'sub-section-heading has-items', =>
+      @text title
     @div class: 'sub-section-body', =>
       for key in _.keys(value).sort()
         appendSetting.call(this, namespace, "#{name}.#{key}", value[key])
