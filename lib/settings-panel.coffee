@@ -293,8 +293,9 @@ appendObject = (namespace, name, value) ->
 
   keyPath = "#{namespace}.#{name}"
   title = getSettingTitle(keyPath, name)
-
-  @section class: 'sub-section', =>
+  schema = atom.config.getSchema(keyPath)
+  isCollapsed = schema.collapsed is true
+  @section class: "sub-section#{if isCollapsed then ' collapsed' else ''}", =>
     @h3 class: 'sub-section-heading has-items', =>
       @text title
     @div class: 'sub-section-body', =>
