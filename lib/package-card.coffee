@@ -19,7 +19,7 @@ class PackageCard extends View
           @span outlet: 'versionValue', class: 'value', String(version)
 
         @span class: 'stats-item', =>
-          @span outlet: 'downloadIcon', class: 'icon icon-cloud-download'
+          @span class: 'icon icon-cloud-download'
           @span outlet: 'downloadCount', class: 'value'
 
       @div class: 'body', =>
@@ -178,12 +178,7 @@ class PackageCard extends View
       # showing the download count if there's a problem.
       unless err
         data ?= {}
-        if @pack.sha?
-          @downloadIcon.removeClass('icon-cloud-download')
-          @downloadIcon.addClass('icon-git-branch')
-          @downloadCount.text @pack.sha
-        else
-          @downloadCount.text data.downloads?.toLocaleString()
+        @downloadCount.text data.downloads?.toLocaleString()
 
   updateInterfaceState: ->
     @versionValue.text(@installablePack?.version ? @pack.version)
