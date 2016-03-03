@@ -56,17 +56,26 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
             @div outlet: 'devPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
+          @section class: 'sub-section git-packages', =>
+            @h3 outlet: 'gitPackagesHeader', class: 'sub-section-heading icon icon-package', =>
+              @text 'Git Packages'
+              @span outlet: 'gitCount', class: 'section-heading-count badge badge-flexible', '…'
+            @div outlet: 'gitPackages', class: 'container package-container', =>
+              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
+
   initialize: (@packageManager) ->
     super
     @items =
       dev: new List('name')
       core: new List('name')
       user: new List('name')
+      git: new List('name')
       deprecated: new List('name')
     @itemViews =
       dev: new ListView(@items.dev, @devPackages, @createPackageCard)
       core: new ListView(@items.core, @corePackages, @createPackageCard)
       user: new ListView(@items.user, @communityPackages, @createPackageCard)
+      git: new ListView(@items.git, @gitPackages, @createPackageCard)
       deprecated: new ListView(@items.deprecated, @deprecatedPackages, @createPackageCard)
 
     @filterEditor.getModel().onDidStopChanging => @matchPackages()
@@ -96,11 +105,12 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
     packages.user = packages.user.filter ({theme}) -> not theme
     packages.deprecated = packages.user.filter ({name, version}) -> atom.packages.isDeprecatedPackage(name, version)
     packages.core = packages.core.filter ({theme}) -> not theme
+    packages.git = packages.git.filter ({theme}) -> not theme
 
     for pack in packages.core
       pack.repository ?= "https://github.com/atom/#{pack.name}"
 
-    for packageType in ['dev', 'core', 'user', 'deprecated']
+    for packageType in ['dev', 'core', 'user', 'git', 'deprecated']
       for pack in packages[packageType]
         pack.owner = ownerFromRepository(pack.repository)
 
@@ -110,6 +120,7 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
     packages.dev.sort(packageComparatorAscending)
     packages.core.sort(packageComparatorAscending)
     packages.user.sort(packageComparatorAscending)
+    packages.git.sort(packageComparatorAscending)
     packages.deprecated.sort(packageComparatorAscending)
     packages
 
@@ -132,6 +143,9 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
         @communityPackages.find('.alert.loading-area').remove()
         @items.user.setItems(@packages.user)
 
+        @gitPackages.find('.alert.loading-area').remove()
+        @items.git.setItems(@packages.git)
+
         if @packages.deprecated.length
           @deprecatedSection.show()
         else
@@ -152,7 +166,7 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
         @featuredErrors.append(new ErrorView(@packageManager, error))
 
   displayPackageUpdates: (packagesWithUpdates) ->
-    for packageType in ['dev', 'core', 'user', 'deprecated']
+    for packageType in ['dev', 'core', 'user', 'git', 'deprecated']
       for packageView in @itemViews[packageType].getViews()
         packageCard = packageView.find('.package-card').view()
         if newVersion = packagesWithUpdates[packageCard.pack.name]
@@ -167,7 +181,7 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
   filterPackageListByText: (text) ->
     return unless @packages
 
-    for packageType in ['dev', 'core', 'user', 'deprecated']
+    for packageType in ['dev', 'core', 'user', 'git', 'deprecated']
       allViews = @itemViews[packageType].getViews()
       activeViews = @itemViews[packageType].filterViews (pack) ->
         return true if text is ''
@@ -187,8 +201,9 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
     @updateSectionCount(@communityPackagesHeader, @communityCount, @packages.user.length)
     @updateSectionCount(@corePackagesHeader, @coreCount, @packages.core.length)
     @updateSectionCount(@devPackagesHeader, @devCount, @packages.dev.length)
+    @updateSectionCount(@gitPackagesHeader, @gitCount, @packages.git.length)
 
-    @totalPackages.text(@packages.user.length + @packages.core.length + @packages.dev.length)
+    @totalPackages.text(@packages.user.length + @packages.core.length + @packages.dev.length + @packages.git.length)
 
   updateFilteredSectionCounts: ->
     deprecated = @notHiddenCardsLength(@deprecatedPackages)
@@ -203,12 +218,15 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
     dev = @notHiddenCardsLength @devPackages
     @updateSectionCount(@devPackagesHeader, @devCount, dev, @packages.dev.length)
 
-    shownPackages = dev + core + community
-    totalPackages = @packages.user.length + @packages.core.length + @packages.dev.length
+    git = @notHiddenCardsLength @gitPackages
+    @updateSectionCount(@gitPackagesHeader, @gitCount, git, @packages.git.length)
+
+    shownPackages = dev + core + community + git
+    totalPackages = @packages.user.length + @packages.core.length + @packages.dev.length + @packages.git.length
     @totalPackages.text "#{shownPackages}/#{totalPackages}"
 
   resetSectionHasItems: ->
-    @resetCollapsibleSections([@deprecatedPackagesHeader, @communityPackagesHeader, @corePackagesHeader, @devPackagesHeader])
+    @resetCollapsibleSections([@deprecatedPackagesHeader, @communityPackagesHeader, @corePackagesHeader, @devPackagesHeader, @gitPackagesHeader])
 
   matchPackages: ->
     filterText = @filterEditor.getModel().getText()
