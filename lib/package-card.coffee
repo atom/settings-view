@@ -64,6 +64,8 @@ class PackageCard extends View
     {@name} = @pack
 
     @newVersion = @pack.latestVersion unless @pack.latestVersion is @pack.version
+    if @pack.apmInstallSource?.type is 'git'
+      @newSha = @pack.latestSha unless @pack.apmInstallSource.sha is @pack.latestSha
 
     @handlePackageEvents()
     @handleButtonEvents(options)
@@ -85,7 +87,7 @@ class PackageCard extends View
       @installButtonGroup.remove()
       @uninstallButton.remove()
 
-    @updateButtonGroup.hide() unless @newVersion
+    @updateButtonGroup.hide() unless @newVersion or @newSha
 
     @hasCompatibleVersion = true
     @updateForUninstalledCommunityPackage() unless @isInstalled()
@@ -178,15 +180,17 @@ class PackageCard extends View
       # showing the download count if there's a problem.
       unless err
         data ?= {}
-        if @pack.sha?
+        if @pack.apmInstallSource?.type is 'git'
           @downloadIcon.removeClass('icon-cloud-download')
           @downloadIcon.addClass('icon-git-branch')
-          @downloadCount.text @pack.sha
+          @downloadCount.text @pack.apmInstallSource.sha.substr(0,8)
         else
           @downloadCount.text data.downloads?.toLocaleString()
 
   updateInterfaceState: ->
     @versionValue.text(@installablePack?.version ? @pack.version)
+    if @pack.apmInstallSource?.type is 'git'
+      @downloadCount.text @pack.apmInstallSource.sha.substr(0,8)
     @updateInstalledState()
     @updateDisabledState()
     @updateDeprecatedState()
@@ -232,9 +236,12 @@ class PackageCard extends View
       @displayNotInstalledState()
 
   displayInstalledState: ->
-    if @newVersion
+    if @newVersion or @newSha
       @updateButtonGroup.show()
-      @updateButton.text("Update to #{@newVersion}")
+      if @newVersion
+        @updateButton.text("Update to #{@newVersion}")
+      else if @newSha
+        @updateButton.text("Update to ##{@newSha.substr(0,8)}")
     else
       @updateButtonGroup.hide()
 
@@ -247,7 +254,7 @@ class PackageCard extends View
     if not @hasCompatibleVersion
       @installButtonGroup.hide()
       @updateButtonGroup.hide()
-    else if @newVersion
+    else if @newVersion or @newSha
       @updateButtonGroup.show()
       @installButtonGroup.hide()
     else
@@ -363,14 +370,18 @@ class PackageCard extends View
       @updateInterfaceState()
 
     @subscribeToPackageEvent 'package-updated theme-updated package-update-failed theme-update-failed', =>
-      @pack.version = version if version = atom.packages.getLoadedPackage(@pack.name)?.metadata?.version
+      metadata = atom.packages.getLoadedPackage(@pack.name)?.metadata
+      @pack.version = version if version = metadata?.version
+      @pack.apmInstallSource = apmInstallSource if apmInstallSource = metadata?.apmInstallSource
       @newVersion = null
+      @newSha = null
       @updateButton.prop('disabled', false)
       @updateButton.removeClass('is-installing')
       @updateInterfaceState()
 
     @subscribeToPackageEvent 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', =>
       @newVersion = null
+      @newSha = null
       @enablementButton.prop('disabled', false)
       @uninstallButton.prop('disabled', false)
       @uninstallButton.removeClass('is-uninstalling')
@@ -410,10 +421,11 @@ class PackageCard extends View
         atom.packages.enablePackage(@pack.name) if @isDisabled()
 
   update: ->
-    return unless @newVersion
+    return unless @newVersion or @newSha
     @packageManager.update @installablePack ? @pack, @newVersion, (error) =>
       if error?
-        console.error("Updating #{@type} #{@pack.name} to v#{@newVersion} failed", error.stack ? error, error.stderr)
+        version = if @newVersion then "v#{newVersion}" else "##{@newSha.substr(0,8)}"
+        console.error("Updating #{@type} #{@pack.name} to #{version} failed", error.stack ? error, error.stderr)
 
   uninstall: ->
     @packageManager.uninstall @pack, (error) =>
