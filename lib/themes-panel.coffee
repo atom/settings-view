@@ -79,16 +79,25 @@ class ThemesPanel extends CollapsibleSectionPanel
             @div outlet: 'devPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
+          @section class: 'sub-section git-packages', =>
+            @h3 outlet: 'gitThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
+              @text 'Git Themes'
+              @span outlet: 'gitCount', class: 'section-heading-count badge badge-flexible', '…'
+            @div outlet: 'gitPackages', class: 'container package-container', =>
+              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
+
   initialize: (@packageManager) ->
     super
     @items =
       dev: new List('name')
       core: new List('name')
       user: new List('name')
+      git: new List('name')
     @itemViews =
       dev: new ListView(@items.dev, @devPackages, @createPackageCard)
       core: new ListView(@items.core, @corePackages, @createPackageCard)
       user: new ListView(@items.user, @communityPackages, @createPackageCard)
+      git: new ListView(@items.git, @gitPackages, @createPackageCard)
 
     @handleEvents()
     @loadPackages()
@@ -133,11 +142,12 @@ class ThemesPanel extends CollapsibleSectionPanel
     packages.dev = packages.dev.filter ({theme}) -> theme
     packages.user = packages.user.filter ({theme}) -> theme
     packages.core = packages.core.filter ({theme}) -> theme
+    packages.git = (packages.git or []).filter ({theme}) -> theme
 
     for pack in packages.core
       pack.repository ?= "https://github.com/atom/#{pack.name}"
 
-    for packageType in ['dev', 'core', 'user']
+    for packageType in ['dev', 'core', 'user', 'git']
       for pack in packages[packageType]
         pack.owner = ownerFromRepository(pack.repository)
     packages
@@ -146,6 +156,7 @@ class ThemesPanel extends CollapsibleSectionPanel
     packages.dev.sort(packageComparatorAscending)
     packages.core.sort(packageComparatorAscending)
     packages.user.sort(packageComparatorAscending)
+    packages.git.sort(packageComparatorAscending)
     packages
 
   loadPackages: ->
@@ -162,6 +173,9 @@ class ThemesPanel extends CollapsibleSectionPanel
 
         @communityPackages.find('.alert.loading-area').remove()
         @items.user.setItems(@packages.user)
+
+        @gitPackages.find('.alert.loading-area').remove()
+        @items.git.setItems(@packages.git)
 
         # TODO show empty mesage per section
 
@@ -268,7 +282,7 @@ class ThemesPanel extends CollapsibleSectionPanel
   filterPackageListByText: (text) ->
     return unless @packages
 
-    for packageType in ['dev', 'core', 'user']
+    for packageType in ['dev', 'core', 'user', 'git']
       allViews = @itemViews[packageType].getViews()
       activeViews = @itemViews[packageType].filterViews (pack) ->
         return true if text is ''
@@ -287,8 +301,9 @@ class ThemesPanel extends CollapsibleSectionPanel
     @updateSectionCount(@communityThemesHeader, @communityCount, @packages.user.length)
     @updateSectionCount(@coreThemesHeader, @coreCount, @packages.core.length)
     @updateSectionCount(@developmentThemesHeader, @devCount, @packages.dev.length)
+    @updateSectionCount(@gitThemesHeader, @gitCount, @packages.git.length)
 
-    @totalPackages.text "#{@packages.user.length + @packages.core.length + @packages.dev.length}"
+    @totalPackages.text "#{@packages.user.length + @packages.core.length + @packages.dev.length + @packages.git.length}"
 
   updateFilteredSectionCounts: ->
     community = @notHiddenCardsLength(@communityPackages)
@@ -300,8 +315,11 @@ class ThemesPanel extends CollapsibleSectionPanel
     core = @notHiddenCardsLength(@corePackages)
     @updateSectionCount(@coreThemesHeader, @coreCount, core, @packages.core.length)
 
+    git = @notHiddenCardsLength(@gitPackages)
+    @updateSectionCount(@gitThemesHeader, @gitCount, git, @packages.git.length)
+
   resetSectionHasItems: ->
-    @resetCollapsibleSections([@communityThemesHeader, @coreThemesHeader, @developmentThemesHeader])
+    @resetCollapsibleSections([@communityThemesHeader, @coreThemesHeader, @developmentThemesHeader, @gitThemesHeader])
 
   matchPackages: ->
     filterText = @filterEditor.getModel().getText()
