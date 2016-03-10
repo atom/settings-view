@@ -105,7 +105,7 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
     packages.user = packages.user.filter ({theme}) -> not theme
     packages.deprecated = packages.user.filter ({name, version}) -> atom.packages.isDeprecatedPackage(name, version)
     packages.core = packages.core.filter ({theme}) -> not theme
-    packages.git = packages.git.filter ({theme}) -> not theme
+    packages.git = (packages.git or []).filter ({theme}) -> not theme
 
     for pack in packages.core
       pack.repository ?= "https://github.com/atom/#{pack.name}"
