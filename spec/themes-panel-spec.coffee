@@ -183,7 +183,7 @@ describe "ThemesPanel", ->
 
     it 'has a count of zero in all headings', ->
       expect(panel.find('.section-heading-count').text()).toMatch /^0+$/
-      expect(panel.find('.sub-section .icon-paintcan').length).toBe 3
+      expect(panel.find('.sub-section .icon-paintcan').length).toBe 4
       expect(panel.find('.sub-section .icon-paintcan.has-items').length).toBe 0
 
     it 'can collapse and expand any of the sub-sections', ->
@@ -197,5 +197,5 @@ describe "ThemesPanel", ->
       window.advanceClock(panel.filterEditor.getModel().getBuffer().stoppedChangingDelay)
 
       expect(panel.find('.section-heading-count').text()).toMatch /^0(0\/0)+$/
-      expect(panel.find('.sub-section .icon-paintcan').length).toBe 3
+      expect(panel.find('.sub-section .icon-paintcan').length).toBe 4
       expect(panel.find('.sub-section .icon-paintcan.has-items').length).toBe 0
