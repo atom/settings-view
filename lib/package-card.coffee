@@ -1,7 +1,8 @@
 _ = require 'underscore-plus'
 {View} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
-shell = require 'shell'
+# TODO: Remove the catch once Atom 1.7.0 is released
+try {shell} = require 'electron' catch then shell = require 'shell'
 marked = null
 {ownerFromRepository} = require './utils'
 

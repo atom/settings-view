@@ -51,7 +51,9 @@ class InstallPanel extends ScrollView
     @client = @packageManager.getClient()
     @atomIoURL = 'https://atom.io/packages'
     @openAtomIo.on 'click', =>
-      require('shell').openExternal(@atomIoURL)
+      # TODO: Remove the catch once Atom 1.7.0 is released
+      try {shell} = require 'electron' catch then shell = require 'shell'
+      shell.openExternal(@atomIoURL)
       false
 
     @searchMessage.hide()
