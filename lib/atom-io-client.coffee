@@ -182,4 +182,6 @@ class AtomIoClient
         children.forEach(deleteAvatar)
 
   getCachePath: ->
-    @cachePath ?= path.join(require('remote').require('app').getDataPath(), 'Cache', 'settings-view')
+    # TODO: Remove the catch once Atom 1.7.0 is released
+    try {remote} = require 'electron' catch then remote = require 'remote'
+    @cachePath ?= path.join(remote.require('app').getDataPath(), 'Cache', 'settings-view')
