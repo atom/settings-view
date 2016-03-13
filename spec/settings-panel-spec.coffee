@@ -51,6 +51,35 @@ describe "SettingsPanel", ->
       expect(sortedSettings).not.toBeNull
       expect(_.size(sortedSettings)).toBe 0
 
+  describe 'default settings', ->
+    beforeEach ->
+      config =
+        type: 'object'
+        properties:
+          haz:
+            name: 'haz'
+            title: 'Haz'
+            description: 'The haz setting'
+            type: 'string'
+            default: 'haz'
+      atom.config.setSchema("foo", config)
+      atom.config.setDefaults("foo", gong: 'gong')
+      expect(_.size(atom.config.get('foo'))).toBe 2
+      settingsPanel = new SettingsPanel("foo", {includeTitle: false})
+
+    it 'ensures default stays default', ->
+      expect(settingsPanel.getDefault('foo.haz')).toBe 'haz'
+      expect(settingsPanel.isDefault('foo.haz')).toBe true
+      settingsPanel.set('foo.haz', 'haz')
+      expect(settingsPanel.isDefault('foo.haz')).toBe true
+
+    it 'can be overwritten', ->
+      expect(settingsPanel.getDefault('foo.haz')).toBe 'haz'
+      expect(settingsPanel.isDefault('foo.haz')).toBe true
+      settingsPanel.set('foo.haz', 'newhaz')
+      expect(settingsPanel.isDefault('foo.haz')).toBe false
+      expect(atom.config.get('foo.haz')).toBe 'newhaz'
+
   describe 'grouped settings', ->
     beforeEach ->
       config =
