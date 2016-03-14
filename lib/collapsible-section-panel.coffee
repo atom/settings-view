@@ -1,7 +1,55 @@
-{$$, TextEditorView, ScrollView} = require 'atom-space-pen-views'
+fuzzaldrin = require 'fuzzaldrin'
+{$$, ScrollView} = require 'atom-space-pen-views'
+PackageCard = require './package-card'
+{ownerFromRepository, packageComparatorAscending} = require './utils'
 
 module.exports =
 class CollapsibleSectionPanel extends ScrollView
+  focus: ->
+    @filterEditor.focus()
+
+  dispose: ->
+    @disposables.dispose()
+
+  sortPackages: (packages) ->
+    for pkg of packages
+      packages[pkg].sort(packageComparatorAscending)
+    packages
+
+  setRepositoryAndOwner: (packages) ->
+    for pack in packages.core
+      pack.repository ?= "https://github.com/atom/#{pack.name}"
+
+    for packageType of packages
+      for pack in packages[packageType]
+        pack.owner = ownerFromRepository(pack.repository)
+
+    packages
+
+  filterPackageListByTextAndType: (text, packageTypes) ->
+    return unless @packages
+
+    for packageType in packageTypes
+      allViews = @itemViews[packageType].getViews()
+      activeViews = @itemViews[packageType].filterViews (pack) ->
+        return true if text is ''
+        owner = pack.owner ? ownerFromRepository(pack.repository)
+        filterText = "#{pack.name} #{owner}"
+        fuzzaldrin.score(filterText, text) > 0
+
+      for view in allViews when view
+        view.find('.package-card').hide().addClass('hidden')
+      for view in activeViews when view
+        view.find('.package-card').show().removeClass('hidden')
+
+    @updateSectionCounts()
+
+  createPackageCard: (pack, back) ->
+    packageRow = $$ -> @div class: 'row'
+    packView = new PackageCard(pack, @packageManager, {back: back})
+    packageRow.append(packView)
+    packageRow
+
   notHiddenCardsLength: (sectionElement) ->
     sectionElement.find('.package-card:not(.hidden)').length
 
@@ -31,3 +79,7 @@ class CollapsibleSectionPanel extends ScrollView
 
   resetCollapsibleSection: (headerSection) ->
     headerSection.removeClass('has-items')
+
+  matchPackages: ->
+    filterText = @filterEditor.getModel().getText()
+    @filterPackageListByText(filterText)

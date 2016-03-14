@@ -1,15 +1,12 @@
 _ = require 'underscore-plus'
-{$$, TextEditorView} = require 'atom-space-pen-views'
+{TextEditorView} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
-fuzzaldrin = require 'fuzzaldrin'
 
 CollapsibleSectionPanel = require './collapsible-section-panel'
-PackageCard = require './package-card'
 ErrorView = require './error-view'
 
 List = require './list'
 ListView = require './list-view'
-{ownerFromRepository, packageComparatorAscending} = require './utils'
 
 module.exports =
 class InstalledPackagesPanel extends CollapsibleSectionPanel
@@ -71,12 +68,12 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
 
     @filterEditor.getModel().onDidStopChanging => @matchPackages()
 
-    @packageManagerSubscriptions = new CompositeDisposable
-    @packageManagerSubscriptions.add @packageManager.on 'package-install-failed theme-install-failed package-uninstall-failed theme-uninstall-failed package-update-failed theme-update-failed', ({pack, error}) =>
+    @disposables = new CompositeDisposable
+    @disposables.add @packageManager.on 'package-install-failed theme-install-failed package-uninstall-failed theme-uninstall-failed package-update-failed theme-update-failed', ({pack, error}) =>
       @updateErrors.append(new ErrorView(@packageManager, error))
 
     loadPackagesTimeout = null
-    @packageManagerSubscriptions.add @packageManager.on 'package-updated package-installed package-uninstalled package-installed-alternative', =>
+    @disposables.add @packageManager.on 'package-updated package-installed package-uninstalled package-installed-alternative', =>
       clearTimeout(loadPackagesTimeout)
       loadPackagesTimeout = setTimeout =>
         @loadPackages()
@@ -85,33 +82,13 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
     @handleEvents()
     @loadPackages()
 
-  focus: ->
-    @filterEditor.focus()
-
-  dispose: ->
-    @packageManagerSubscriptions.dispose()
-
   filterPackages: (packages) ->
     packages.dev = packages.dev.filter ({theme}) -> not theme
     packages.user = packages.user.filter ({theme}) -> not theme
     packages.deprecated = packages.user.filter ({name, version}) -> atom.packages.isDeprecatedPackage(name, version)
     packages.core = packages.core.filter ({theme}) -> not theme
 
-    for pack in packages.core
-      pack.repository ?= "https://github.com/atom/#{pack.name}"
-
-    for packageType in ['dev', 'core', 'user', 'deprecated']
-      for pack in packages[packageType]
-        pack.owner = ownerFromRepository(pack.repository)
-
-    packages
-
-  sortPackages: (packages) ->
-    packages.dev.sort(packageComparatorAscending)
-    packages.core.sort(packageComparatorAscending)
-    packages.user.sort(packageComparatorAscending)
-    packages.deprecated.sort(packageComparatorAscending)
-    packages
+    @setRepositoryAndOwner(packages)
 
   loadPackages: ->
     packagesWithUpdates = {}
@@ -159,28 +136,10 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
           packageCard.displayAvailableUpdate(newVersion)
 
   createPackageCard: (pack) =>
-    packageRow = $$ -> @div class: 'row'
-    packView = new PackageCard(pack, @packageManager, {back: 'Packages'})
-    packageRow.append(packView)
-    packageRow
+    super(pack, 'Packages')
 
   filterPackageListByText: (text) ->
-    return unless @packages
-
-    for packageType in ['dev', 'core', 'user', 'deprecated']
-      allViews = @itemViews[packageType].getViews()
-      activeViews = @itemViews[packageType].filterViews (pack) ->
-        return true if text is ''
-        owner = pack.owner ? ownerFromRepository(pack.repository)
-        filterText = "#{pack.name} #{owner}"
-        fuzzaldrin.score(filterText, text) > 0
-
-      for view in allViews when view
-        view.find('.package-card').hide().addClass('hidden')
-      for view in activeViews when view
-        view.find('.package-card').show().removeClass('hidden')
-
-    @updateSectionCounts()
+    @filterPackageListByTextAndType(text, ['dev', 'core', 'user', 'deprecated'])
 
   updateUnfilteredSectionCounts: ->
     @updateSectionCount(@deprecatedPackagesHeader, @deprecatedCount, @packages.deprecated.length)
@@ -209,7 +168,3 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
 
   resetSectionHasItems: ->
     @resetCollapsibleSections([@deprecatedPackagesHeader, @communityPackagesHeader, @corePackagesHeader, @devPackagesHeader])
-
-  matchPackages: ->
-    filterText = @filterEditor.getModel().getText()
-    @filterPackageListByText(filterText)
