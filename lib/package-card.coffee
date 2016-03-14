@@ -13,7 +13,7 @@ class PackageCard extends View
     description ?= ''
 
     @div class: 'package-card col-lg-8', =>
-      @div class: 'stats pull-right', =>
+      @div outlet: 'statsContainer', class: 'stats pull-right', =>
         @span class: "stats-item", =>
           @span class: 'icon icon-versions'
           @span outlet: 'versionValue', class: 'value', String(version)
@@ -31,7 +31,7 @@ class PackageCard extends View
         @div outlet: 'packageMessage', class: 'package-message'
 
       @div class: 'meta', =>
-        @div class: 'meta-user', =>
+        @div outlet: 'metaUserContainer', class: 'meta-user', =>
           @a outlet: 'avatarLink', href: "https://atom.io/users/#{owner}", =>
             @img outlet: 'avatar', class: 'avatar', src: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' # A transparent gif so there is no "broken border"
           @a outlet: 'loginLink', class: 'author', href: "https://atom.io/users/#{owner}", owner
@@ -183,14 +183,14 @@ class PackageCard extends View
         if @pack.apmInstallSource?.type is 'git'
           @downloadIcon.removeClass('icon-cloud-download')
           @downloadIcon.addClass('icon-git-branch')
-          @downloadCount.text @pack.apmInstallSource.sha.substr(0,8)
+          @downloadCount.text @pack.apmInstallSource.sha.substr(0, 8)
         else
           @downloadCount.text data.downloads?.toLocaleString()
 
   updateInterfaceState: ->
     @versionValue.text(@installablePack?.version ? @pack.version)
     if @pack.apmInstallSource?.type is 'git'
-      @downloadCount.text @pack.apmInstallSource.sha.substr(0,8)
+      @downloadCount.text @pack.apmInstallSource.sha.substr(0, 8)
     @updateInstalledState()
     @updateDisabledState()
     @updateDeprecatedState()
@@ -241,7 +241,7 @@ class PackageCard extends View
       if @newVersion
         @updateButton.text("Update to #{@newVersion}")
       else if @newSha
-        @updateButton.text("Update to ##{@newSha.substr(0,8)}")
+        @updateButton.text("Update to ##{@newSha.substr(0, 8)}")
     else
       @updateButtonGroup.hide()
 
@@ -424,7 +424,7 @@ class PackageCard extends View
     return unless @newVersion or @newSha
     @packageManager.update @installablePack ? @pack, @newVersion, (error) =>
       if error?
-        version = if @newVersion then "v#{newVersion}" else "##{@newSha.substr(0,8)}"
+        version = if @newVersion then "v#{newVersion}" else "##{@newSha.substr(0, 8)}"
         console.error("Updating #{@type} #{@pack.name} to #{version} failed", error.stack ? error, error.stderr)
 
   uninstall: ->
