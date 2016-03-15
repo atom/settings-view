@@ -221,7 +221,7 @@ class PackageDetailView extends ScrollView
 
   openMarkdownFile: (path) ->
     if atom.packages.isPackageActive('markdown-preview')
-      atom.workspace.open("#{encodeURI("markdown-preview://#{path}")}")
+      atom.workspace.open(encodeURI("markdown-preview://#{path}"))
     else
       atom.workspace.open(path)
 

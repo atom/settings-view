@@ -11,6 +11,7 @@ ErrorView = require './error-view'
 PackageManager = require './package-manager'
 
 PackageNameRegex = /config\/install\/(package|theme):([a-z0-9-_]+)/i
+hostedGitInfo = require 'hosted-git-info'
 
 module.exports =
 class InstallPanel extends ScrollView
@@ -122,7 +123,17 @@ class InstallPanel extends ScrollView
 
   performSearch: ->
     if query = @searchEditorView.getText().trim()
-      @search(query)
+      if gitUrlInfo = hostedGitInfo.fromUrl(query)
+        type = gitUrlInfo.default
+        if type is 'sshurl' or type is 'https' or type is 'shortcut'
+          card = @getPackageCardView(name: query)
+          card.metaUserContainer.remove()
+          card.statsContainer.remove()
+          card.packageDescription.text "Installing from source: #{gitUrlInfo.toString()}"
+          @resultsContainer.empty()
+          @addPackageCardView(@resultsContainer, card)
+      else
+        @search(query)
 
   search: (query) ->
     @resultsContainer.empty()
@@ -145,9 +156,16 @@ class InstallPanel extends ScrollView
     container.empty()
 
     for pack, index in packages
-      packageRow = $$ -> @div class: 'row'
-      container.append(packageRow)
-      packageRow.append(new PackageCard(pack, @packageManager, back: 'Install'))
+      packageCard = @getPackageCardView(pack)
+      @addPackageCardView(container, packageCard)
+
+  addPackageCardView: (container, packageCard) ->
+    packageRow = $$ -> @div class: 'row'
+    container.append(packageRow)
+    packageRow.append(packageCard)
+
+  getPackageCardView: (pack) ->
+    new PackageCard(pack, @packageManager, back: 'Install')
 
   filterPackages: (packages, themes) ->
     packages.filter ({theme}) ->

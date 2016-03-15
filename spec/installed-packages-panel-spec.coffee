@@ -227,7 +227,7 @@ describe 'InstalledPackagesPanel', ->
 
     it 'has a count of zero in all headings', ->
       expect(@panel.find('.section-heading-count').text()).toMatch /^0+$/
-      expect(@panel.find('.sub-section .icon-package').length).toBe 4
+      expect(@panel.find('.sub-section .icon-package').length).toBe 5
       expect(@panel.find('.sub-section .icon-package.has-items').length).toBe 0
 
     it 'can not collapse and expand any of the sub-sections', ->
@@ -242,5 +242,5 @@ describe 'InstalledPackagesPanel', ->
       window.advanceClock(@panel.filterEditor.getModel().getBuffer().stoppedChangingDelay)
 
       expect(@panel.find('.section-heading-count').text()).toMatch /^(0\/0)+$/
-      expect(@panel.find('.sub-section .icon-package').length).toBe 4
+      expect(@panel.find('.sub-section .icon-package').length).toBe 5
       expect(@panel.find('.sub-section .icon-paintcan.has-items').length).toBe 0
