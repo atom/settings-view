@@ -241,7 +241,7 @@ class PackageCard extends View
       if @newVersion
         @updateButton.text("Update to #{@newVersion}")
       else if @newSha
-        @updateButton.text("Update to ##{@newSha.substr(0, 8)}")
+        @updateButton.text("Update to #{@newSha.substr(0, 8)}")
     else
       @updateButtonGroup.hide()
 
