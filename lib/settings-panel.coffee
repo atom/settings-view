@@ -106,7 +106,9 @@ class SettingsPanel extends View
   isDefault: (name) ->
     params = {sources: [atom.config.getUserConfigPath()]}
     params.scope = [@options.scopeName] if @options.scopeName?
-    not atom.config.get(name, params)?
+    defaultValue = @getDefault(name)
+    value = atom.config.get(name, params)
+    not value or defaultValue is value
 
   getDefault: (name) ->
     params = {excludeSources: [atom.config.getUserConfigPath()]}
@@ -136,11 +138,20 @@ class SettingsPanel extends View
   bindEditors: ->
     @find('atom-text-editor[id]').views().forEach (editorView) =>
       editor = editorView.getModel()
+      editorElement = $(editorView.element)
       name = editorView.attr('id')
       type = editorView.attr('type')
 
       if defaultValue = @valueToString(@getDefault(name))
         editor.setPlaceholderText("Default: #{defaultValue}")
+
+      editorElement.on 'focus', =>
+        if @isDefault(name)
+          editorView.setText(@valueToString(@getDefault(name)) ? '')
+
+      editorElement.on 'blur', =>
+        if @isDefault(name)
+          editorView.setText('')
 
       @observe name, (value) =>
         if @isDefault(name)
