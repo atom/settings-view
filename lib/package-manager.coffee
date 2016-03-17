@@ -305,9 +305,9 @@ class PackageManager
 
     @unload(name)
     if version?
-      args = ['install', "#{name}@#{version}"]
+      args = ['install', "#{name}@#{version}", "--json"]
     else
-      args = ['install', "#{name}"]
+      args = ['install', "#{name}", "--json"]
 
     errorMessage = "Installing \u201C#{name}@#{version}\u201D failed."
     onError = (error) =>
@@ -317,17 +317,25 @@ class PackageManager
 
     exit = (code, stdout, stderr) =>
       if code is 0
+        # get real package name from package.json
+        packageName = name
+        try
+          packageInfo = JSON.parse(stdout)[0]
+          packageName = packageInfo.metadata.name
+          pack = _.extend({}, pack, name: packageName)
+        catch err
+          # using old apm without --json support
         @clearOutdatedCache()
         if activateOnSuccess
-          atom.packages.activatePackage(name)
+          atom.packages.activatePackage(packageName)
         else
-          atom.packages.loadPackage(name)
+          atom.packages.loadPackage(packageName)
 
-        @addPackageToAvailablePackageNames(name)
+        @addPackageToAvailablePackageNames(packageName)
         callback?()
         @emitPackageEvent 'installed', pack
       else
-        atom.packages.activatePackage(name) if activateOnFailure
+        atom.packages.activatePackage(packageName) if activateOnFailure
         error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr

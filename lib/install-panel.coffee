@@ -126,10 +126,13 @@ class InstallPanel extends ScrollView
       if gitUrlInfo = hostedGitInfo.fromUrl(query)
         type = gitUrlInfo.default
         if type is 'sshurl' or type is 'https' or type is 'shortcut'
-          card = @getPackageCardView(name: query)
+          card = @getPackageCardView(name: query, gitUrlInfo: gitUrlInfo)
           card.metaUserContainer.remove()
           card.statsContainer.remove()
-          card.packageDescription.text "Installing from source: #{gitUrlInfo.toString()}"
+          if type is 'shortcut'
+            card.packageDescription.text "#{gitUrlInfo.https()}"
+          else
+            card.packageDescription.text "#{gitUrlInfo.toString()}"
           @resultsContainer.empty()
           @addPackageCardView(@resultsContainer, card)
       else

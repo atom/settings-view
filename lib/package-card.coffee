@@ -9,7 +9,8 @@ marked = null
 module.exports =
 class PackageCard extends View
 
-  @content: ({name, description, version, repository}) ->
+  @content: ({name, description, version, repository, gitUrlInfo}) ->
+    displayName = if gitUrlInfo then gitUrlInfo.project else name
     owner = ownerFromRepository(repository)
     description ?= ''
 
@@ -25,7 +26,7 @@ class PackageCard extends View
 
       @div class: 'body', =>
         @h4 class: 'card-name', =>
-          @a outlet: 'packageName', name
+          @a outlet: 'packageName', displayName
           @span ' '
           @span class: 'deprecation-badge highlight-warning inline-block', 'Deprecated'
         @span outlet: 'packageDescription', class: 'package-description', description
@@ -405,8 +406,10 @@ class PackageCard extends View
 
   subscribeToPackageEvent: (event, callback) ->
     @disposables.add @packageManager.on event, ({pack, error}) =>
+      pack = pack.pack if pack.pack?
       packageName = pack.name
-      packageName = pack.pack.name if pack.pack?
+      if @pack.gitUrlInfo is pack.gitUrlInfo
+        @pack.name = packageName # now we have the real name of the Git-backed package
       callback(pack, error) if packageName is @pack.name
 
   ###
