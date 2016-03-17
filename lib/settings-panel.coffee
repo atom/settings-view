@@ -39,6 +39,7 @@ class SettingsPanel extends View
     @bindInputFields()
     @bindSelectFields()
     @bindEditors()
+    @bindDependencies()
 
   dispose: ->
     @disposables.dispose()
@@ -185,6 +186,18 @@ class SettingsPanel extends View
 
     value
 
+  bindDependencies: (namespace, settings) ->
+    @find('.control-group').toArray().forEach (group) =>
+      group = $(group)
+      keynames = group.attr('class').replace(/\s*control-group\s*/ig, '')
+      if keynames.length > 0
+        keynames = keynames.split(" ")
+        keynames.forEach (keyname) ->
+          atom.config.observe keyname, (value) ->
+            show = if keynames.length is 1 then !!value else checkAllDependencies(keynames)
+            if show then group.show() else group.hide()
+
+
 ###
 # Space Pen Helpers
 ###
@@ -204,9 +217,14 @@ appendSetting = (namespace, name, value) ->
     # There's no global default for these, they are defined by language packages
     return if name in ['commentStart', 'commentEnd', 'increaseIndentPattern', 'decreaseIndentPattern', 'foldEndPattern']
 
-  @div class: 'control-group', =>
+  schema = atom.config.getSchema("#{namespace}.#{name}")
+
+  dependencies = if schema?.dependencies? then schema?.dependencies else []
+  dependencies = _.map dependencies, (dependency) ->
+    "#{namespace}.#{name}".replace /\.[^.\s]+$/, ".#{dependency}"
+
+  @div class: "control-group #{ dependencies.join(" ") }", =>
     @div class: 'controls', =>
-      schema = atom.config.getSchema("#{namespace}.#{name}")
       if schema?.enum
         appendOptions.call(this, namespace, name, value)
       else if schema?.type is 'color'
@@ -219,6 +237,11 @@ appendSetting = (namespace, name, value) ->
         appendObject.call(this, namespace, name, value)
       else
         appendEditor.call(this, namespace, name, value)
+
+
+checkAllDependencies = (keynames) ->
+  _.every keynames, (keyname) ->
+    !! atom.config.get keyname
 
 getSettingTitle = (keyPath, name='') ->
   title = atom.config.getSchema(keyPath)?.title
