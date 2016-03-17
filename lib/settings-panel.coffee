@@ -1,11 +1,12 @@
 {CompositeDisposable} = require 'atom'
 {$, $$, TextEditorView, View} = require 'atom-space-pen-views'
 _ = require 'underscore-plus'
+CollapsibleSectionPanel = require './collapsible-section-panel'
 
 {getSettingDescription} = require './rich-description'
 
 module.exports =
-class SettingsPanel extends View
+class SettingsPanel extends CollapsibleSectionPanel
   @content: ->
     @section class: 'section settings-panel'
 
@@ -39,6 +40,8 @@ class SettingsPanel extends View
     @bindInputFields()
     @bindSelectFields()
     @bindEditors()
+    @handleEvents()
+
 
   dispose: ->
     @disposables.dispose()
@@ -67,7 +70,7 @@ class SettingsPanel extends View
             appendSetting.call(this, namespace, name, settings[name])
 
   sortSettings: (namespace, settings) ->
-    _.chain(settings).keys().sortBy((name) -> name).sortBy((name) -> atom.config.getSchema("#{namespace}.#{name}")?.order).value()
+    sortSettings(namespace, settings)
 
   bindInputFields: ->
     @find('input[id]').toArray().forEach (input) =>
@@ -194,6 +197,9 @@ isEditableArray = (array) ->
     return false unless _.isString(item)
   true
 
+sortSettings = (namespace, settings) ->
+  _.chain(settings).keys().sortBy((name) -> name).sortBy((name) -> atom.config.getSchema("#{namespace}.#{name}")?.order).value()
+
 appendSetting = (namespace, name, value) ->
   if namespace is 'core'
     return if name is 'themes' # Handled in the Themes panel
@@ -301,8 +307,12 @@ appendObject = (namespace, name, value) ->
 
   keyPath = "#{namespace}.#{name}"
   title = getSettingTitle(keyPath, name)
-  @div class: 'sub-section', =>
-    @div class: 'sub-section-heading', title
+  schema = atom.config.getSchema(keyPath)
+  isCollapsed = schema.collapsed is true
+  @section class: "sub-section#{if isCollapsed then ' collapsed' else ''}", =>
+    @h3 class: 'sub-section-heading has-items', =>
+      @text title
     @div class: 'sub-section-body', =>
-      for key in _.keys(value).sort()
+      sortedSettings = sortSettings(keyPath, value)
+      for key in sortedSettings
         appendSetting.call(this, namespace, "#{name}.#{key}", value[key])

@@ -96,6 +96,7 @@ describe "SettingsPanel", ->
                 default: false
           bazGroup:
             type: 'object'
+            collapsed: true
             properties:
               baz:
                 title: 'Baz'
@@ -128,3 +129,18 @@ describe "SettingsPanel", ->
       thirdControlGroup = sectionBody.find('>.control-group:nth(2)')
       expect(thirdControlGroup.find('.sub-section')).toHaveLength 0
       expect(thirdControlGroup.find('.sub-section-heading')).toHaveLength 0
+
+    it 'ensures grouped settings are collapsable', ->
+      expect(settingsPanel.find('.section-container > .section-body')).toHaveLength 1
+      sectionBody = settingsPanel.find('.section-body:first')
+      expect(sectionBody.find('>.control-group')).toHaveLength 3
+      firstControlGroup = sectionBody.find('>.control-group:nth(0)')
+      # Bar group
+      expect(firstControlGroup.find('.sub-section .sub-section-heading')).toHaveLength 1
+      expect(firstControlGroup.find('.sub-section .sub-section-heading:first').hasClass('has-items')).toBe true
+      # Baz Group
+      secondControlGroup = sectionBody.find('>.control-group:nth(1)')
+      expect(secondControlGroup.find('.sub-section .sub-section-heading')).toHaveLength 1
+      expect(secondControlGroup.find('.sub-section .sub-section-heading:first').hasClass('has-items')).toBe true
+      # Should be already collapsed
+      expect(secondControlGroup.find('.sub-section .sub-section-heading:first').parent().hasClass('collapsed')).toBe true
