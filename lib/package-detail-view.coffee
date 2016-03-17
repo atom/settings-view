@@ -3,7 +3,8 @@ url = require 'url'
 
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
-shell = require 'shell'
+# TODO: Remove the catch once Atom 1.7.0 is released
+try {shell} = require 'electron' catch then shell = require 'shell'
 {ScrollView} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 
@@ -220,7 +221,7 @@ class PackageDetailView extends ScrollView
 
   openMarkdownFile: (path) ->
     if atom.packages.isPackageActive('markdown-preview')
-      atom.workspace.open("#{encodeURI("markdown-preview://#{path}")}")
+      atom.workspace.open(encodeURI("markdown-preview://#{path}"))
     else
       atom.workspace.open(path)
 
