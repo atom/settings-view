@@ -417,8 +417,6 @@ class PackageCard extends View
     @disposables.add @packageManager.on event, ({pack, error}) =>
       pack = pack.pack if pack.pack?
       packageName = pack.name
-      if @pack.gitUrlInfo is pack.gitUrlInfo
-        @pack.name = packageName # now we have the real name of the Git-backed package
       callback(pack, error) if packageName is @pack.name
 
   ###

@@ -77,12 +77,12 @@ describe "package manager", ->
     it "installs the latest version when a package version is not specified", ->
       packageManager.install {name: 'something'}, ->
       expect(packageManager.runCommand).toHaveBeenCalled()
-      expect(runArgs).toEqual ['install', 'something']
+      expect(runArgs).toEqual ['install', 'something', '--json']
 
     it "installs the package@version when a version is specified", ->
       packageManager.install {name: 'something', version: '0.2.3'}, ->
       expect(packageManager.runCommand).toHaveBeenCalled()
-      expect(runArgs).toEqual ['install', 'something@0.2.3']
+      expect(runArgs).toEqual ['install', 'something@0.2.3', '--json']
 
     it "installs the package and adds the package to the available package names", ->
       packageManager.cacheAvailablePackageNames(user: [{name: 'a-package'}])
@@ -145,7 +145,7 @@ describe "package manager", ->
       packageManager.installAlternative({name: 'language-test'}, 'a-new-package', installedCallback)
       expect(packageManager.runCommand).toHaveBeenCalled()
       expect(packageManager.runCommand.calls[0].args[0]).toEqual(['uninstall', '--hard', 'language-test'])
-      expect(packageManager.runCommand.calls[1].args[0]).toEqual(['install', 'a-new-package'])
+      expect(packageManager.runCommand.calls[1].args[0]).toEqual(['install', 'a-new-package', '--json'])
       expect(atom.packages.isPackageLoaded('language-test')).toBe true
 
       expect(installedEvent).not.toHaveBeenCalled()
