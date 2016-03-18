@@ -324,6 +324,8 @@ class PackageCard extends View
       @packageDescription.text gitUrlInfo.https()
     else
       @packageDescription.text gitUrlInfo.toString()
+    @installButton.removeClass('icon-cloud-download')
+    @installButton.addClass('icon-git-branch')
 
   displayAvailableUpdate: (@newVersion) ->
     @updateInterfaceState()
