@@ -302,14 +302,12 @@ class PackageManager
     {name, version, theme} = pack
     activateOnSuccess = not theme and not atom.packages.isPackageDisabled(name)
     activateOnFailure = atom.packages.isPackageActive(name)
+    nameWithVersion = if version? then "#{name}@#{version}" else name
 
     @unload(name)
-    if version?
-      args = ['install', "#{name}@#{version}", "--json"]
-    else
-      args = ['install', "#{name}", "--json"]
+    args = ['install', nameWithVersion, '--json']
 
-    errorMessage = "Installing \u201C#{name}@#{version}\u201D failed."
+    errorMessage = "Installing \u201C#{nameWithVersion}\u201D failed."
     onError = (error) =>
       error.packageInstallError = not theme
       @emitPackageEvent 'install-failed', pack, error
