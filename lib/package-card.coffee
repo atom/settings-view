@@ -316,6 +316,15 @@ class PackageCard extends View
       marked ?= require 'marked'
       @packageMessage.html marked(message)
 
+  displayGitPackageInstallInformation: ->
+    @metaUserContainer.remove()
+    @statsContainer.remove()
+    {gitUrlInfo} = @pack
+    if gitUrlInfo.default is 'shortcut'
+      @packageDescription.text gitUrlInfo.https()
+    else
+      @packageDescription.text gitUrlInfo.toString()
+
   displayAvailableUpdate: (@newVersion) ->
     @updateInterfaceState()
 

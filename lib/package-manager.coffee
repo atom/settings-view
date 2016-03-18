@@ -318,24 +318,23 @@ class PackageManager
     exit = (code, stdout, stderr) =>
       if code is 0
         # get real package name from package.json
-        packageName = name
         try
           packageInfo = JSON.parse(stdout)[0]
-          packageName = packageInfo.metadata.name
-          pack = _.extend({}, pack, name: packageName)
+          pack = _.extend({}, pack, packageInfo.metadata)
+          name = pack.name
         catch err
           # using old apm without --json support
         @clearOutdatedCache()
         if activateOnSuccess
-          atom.packages.activatePackage(packageName)
+          atom.packages.activatePackage(name)
         else
-          atom.packages.loadPackage(packageName)
+          atom.packages.loadPackage(name)
 
-        @addPackageToAvailablePackageNames(packageName)
+        @addPackageToAvailablePackageNames(name)
         callback?()
         @emitPackageEvent 'installed', pack
       else
-        atom.packages.activatePackage(packageName) if activateOnFailure
+        atom.packages.activatePackage(name) if activateOnFailure
         error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr
