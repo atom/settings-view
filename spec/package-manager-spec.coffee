@@ -122,7 +122,7 @@ describe "package manager", ->
 
       it 'emits an installed event with a copy of the pack including the full package metadata', ->
         spyOn(packageManager, 'emitPackageEvent')
-        originalPackObject = name: 'git-repo-name', otherData: { will: 'beCopied' }
+        originalPackObject = name: 'git-repo-name', otherData: {will: 'beCopied'}
         packageManager.install(originalPackObject)
         json =
           metadata:
