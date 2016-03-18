@@ -76,7 +76,8 @@ class InstallPanel extends ScrollView
       @searchErrors.append(new ErrorView(@packageManager, error))
 
     @disposables.add @packageManager.on 'package-installed theme-installed', ({pack}) =>
-      if @currentGitPackageCard?.pack.gitUrlInfo is pack.gitUrlInfo
+      gitUrlInfo = @currentGitPackageCard?.pack?.gitUrlInfo
+      if gitUrlInfo? and gitUrlInfo is pack.gitUrlInfo
         @updateGitPackageCard(pack)
 
     @disposables.add atom.commands.add @searchEditorView.element, 'core:confirm', =>
@@ -127,20 +128,28 @@ class InstallPanel extends ScrollView
 
   performSearch: ->
     if query = @searchEditorView.getText().trim()
-      if gitUrlInfo = hostedGitInfo.fromUrl(query)
-        type = gitUrlInfo.default
-        if type is 'sshurl' or type is 'https' or type is 'shortcut'
-          @currentGitPackageCard?.dispose()
-          @currentGitPackageCard = @getPackageCardView(name: query, gitUrlInfo: gitUrlInfo)
-          @currentGitPackageCard.displayGitPackageInstallInformation()
-          @resultsContainer.empty()
-          @addPackageCardView(@resultsContainer, @currentGitPackageCard)
-      else
-        @search(query)
+      @performSearchForQuery(query)
+
+  performSearchForQuery: (query) ->
+    if gitUrlInfo = hostedGitInfo.fromUrl(query)
+      type = gitUrlInfo.default
+      if type is 'sshurl' or type is 'https' or type is 'shortcut'
+        @showGitInstallPackageCard(name: query, gitUrlInfo: gitUrlInfo)
+    else
+      @search(query)
+
+  showGitInstallPackageCard: (pack) ->
+    @currentGitPackageCard?.dispose()
+    @currentGitPackageCard = @getPackageCardView(pack)
+    @currentGitPackageCard.displayGitPackageInstallInformation()
+    @replaceCurrentGitPackageCardView()
 
   updateGitPackageCard: (pack) ->
     @currentGitPackageCard.dispose()
     @currentGitPackageCard = @getPackageCardView(pack)
+    @replaceCurrentGitPackageCardView()
+
+  replaceCurrentGitPackageCardView: ->
     @resultsContainer.empty()
     @addPackageCardView(@resultsContainer, @currentGitPackageCard)
 

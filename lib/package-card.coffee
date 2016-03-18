@@ -10,7 +10,7 @@ module.exports =
 class PackageCard extends View
 
   @content: ({name, description, version, repository, gitUrlInfo}) ->
-    displayName = if gitUrlInfo then gitUrlInfo.project else name
+    displayName = (if gitUrlInfo then gitUrlInfo.project else name) ? ''
     owner = ownerFromRepository(repository)
     description ?= ''
 

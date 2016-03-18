@@ -264,7 +264,7 @@ class PackageManager
     onError = (error) =>
       error.packageInstallError = not theme
       @emitPackageEvent 'update-failed', pack, error
-      callback(error)
+      callback?(error)
 
     if apmInstallSource?.type is 'git'
       args = ['install', apmInstallSource.source]
@@ -311,7 +311,7 @@ class PackageManager
     onError = (error) =>
       error.packageInstallError = not theme
       @emitPackageEvent 'install-failed', pack, error
-      callback(error)
+      callback?(error)
 
     exit = (code, stdout, stderr) =>
       if code is 0
@@ -350,7 +350,7 @@ class PackageManager
     errorMessage = "Uninstalling \u201C#{name}\u201D failed."
     onError = (error) =>
       @emitPackageEvent 'uninstall-failed', pack, error
-      callback(error)
+      callback?(error)
 
     @emitPackageEvent('uninstalling', pack)
     apmProcess = @runCommand ['uninstall', '--hard', name], (code, stdout, stderr) =>

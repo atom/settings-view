@@ -92,6 +92,53 @@ describe "package manager", ->
       runCallback(0, '', '')
       expect(packageManager.getAvailablePackageNames()).toContain('something')
 
+    describe "git url installation", ->
+      it 'installs https:// urls', ->
+        url = "https://github.com/user/repo.git"
+        packageManager.install {name: url}
+        expect(packageManager.runCommand).toHaveBeenCalled()
+        expect(runArgs).toEqual ['install', 'https://github.com/user/repo.git', '--json']
+
+      it 'installs git@ urls', ->
+        url = "git@github.com:user/repo.git"
+        packageManager.install {name: url}
+        expect(packageManager.runCommand).toHaveBeenCalled()
+        expect(runArgs).toEqual ['install', 'git@github.com:user/repo.git', '--json']
+
+      it 'installs user/repo url shortcuts', ->
+        url = "user/repo"
+        packageManager.install {name: url}
+        expect(packageManager.runCommand).toHaveBeenCalled()
+        expect(runArgs).toEqual ['install', 'user/repo', '--json']
+
+      it 'installs and activates git pacakges with names different from the repo name', ->
+        spyOn(atom.packages, 'activatePackage')
+        packageManager.install(name: 'git-repo-name')
+        json =
+          metadata:
+            name: 'real-package-name'
+        runCallback(0, JSON.stringify([json]), '')
+        expect(atom.packages.activatePackage).toHaveBeenCalledWith json.metadata.name
+
+      it 'emits an installed event with a copy of the pack including the full package metadata', ->
+        spyOn(packageManager, 'emitPackageEvent')
+        originalPackObject = name: 'git-repo-name', otherData: { will: 'beCopied' }
+        packageManager.install(originalPackObject)
+        json =
+          metadata:
+            name: 'real-package-name'
+            moreInfo: 'yep'
+        runCallback(0, JSON.stringify([json]), '')
+
+        installEmittedCount = 0
+        for call in packageManager.emitPackageEvent.calls
+          if call.args[0] is "installed"
+            expect(call.args[1]).not.toEqual originalPackObject
+            expect(call.args[1].moreInfo).toEqual "yep"
+            expect(call.args[1].otherData).toBe originalPackObject.otherData
+            installEmittedCount++
+        expect(installEmittedCount).toBe 1
+
   describe "::uninstall()", ->
     [runArgs, runCallback] = []
 
