@@ -325,7 +325,9 @@ class PackageCard extends View
     else
       @packageDescription.text gitUrlInfo.toString()
     @installButton.removeClass('icon-cloud-download')
-    @installButton.addClass('icon-git-branch')
+    @installButton.addClass('icon-git-commit')
+    @updateButton.removeClass('icon-cloud-download')
+    @updateButton.addClass('icon-git-commit')
 
   displayAvailableUpdate: (@newVersion) ->
     @updateInterfaceState()
