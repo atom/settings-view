@@ -75,6 +75,11 @@ class InstallPanel extends ScrollView
     @disposables.add @packageManager.on 'package-install-failed', ({pack, error}) =>
       @searchErrors.append(new ErrorView(@packageManager, error))
 
+    @disposables.add @packageManager.on 'package-installed theme-installed', ({pack}) =>
+      gitUrlInfo = @currentGitPackageCard?.pack?.gitUrlInfo
+      if gitUrlInfo? and gitUrlInfo is pack.gitUrlInfo
+        @updateGitPackageCard(pack)
+
     @disposables.add atom.commands.add @searchEditorView.element, 'core:confirm', =>
       @performSearch()
 
@@ -123,17 +128,30 @@ class InstallPanel extends ScrollView
 
   performSearch: ->
     if query = @searchEditorView.getText().trim()
-      if gitUrlInfo = hostedGitInfo.fromUrl(query)
-        type = gitUrlInfo.default
-        if type is 'sshurl' or type is 'https' or type is 'shortcut'
-          card = @getPackageCardView(name: query)
-          card.metaUserContainer.remove()
-          card.statsContainer.remove()
-          card.packageDescription.text "Installing from source: #{gitUrlInfo.toString()}"
-          @resultsContainer.empty()
-          @addPackageCardView(@resultsContainer, card)
-      else
-        @search(query)
+      @performSearchForQuery(query)
+
+  performSearchForQuery: (query) ->
+    if gitUrlInfo = hostedGitInfo.fromUrl(query)
+      type = gitUrlInfo.default
+      if type is 'sshurl' or type is 'https' or type is 'shortcut'
+        @showGitInstallPackageCard(name: query, gitUrlInfo: gitUrlInfo)
+    else
+      @search(query)
+
+  showGitInstallPackageCard: (pack) ->
+    @currentGitPackageCard?.dispose()
+    @currentGitPackageCard = @getPackageCardView(pack)
+    @currentGitPackageCard.displayGitPackageInstallInformation()
+    @replaceCurrentGitPackageCardView()
+
+  updateGitPackageCard: (pack) ->
+    @currentGitPackageCard.dispose()
+    @currentGitPackageCard = @getPackageCardView(pack)
+    @replaceCurrentGitPackageCardView()
+
+  replaceCurrentGitPackageCardView: ->
+    @resultsContainer.empty()
+    @addPackageCardView(@resultsContainer, @currentGitPackageCard)
 
   search: (query) ->
     @resultsContainer.empty()
