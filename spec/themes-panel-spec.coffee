@@ -117,7 +117,7 @@ describe "ThemesPanel", ->
       spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
         installCallback = callback
         onWillThrowError: ->
-      spyOn(atom.packages, 'loadPackage').andCallFake (name)
+      spyOn(atom.packages, 'loadPackage').andCallFake (name) =>
         installed.user.push {name, theme: 'ui'}
 
       expect(panel.communityCount.text().trim()).toBe '1'
@@ -137,7 +137,7 @@ describe "ThemesPanel", ->
       spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
         installCallback = callback
         onWillThrowError: ->
-      spyOn(atom.packages, 'loadPackage').andCallFake (name)
+      spyOn(atom.packages, 'loadPackage').andCallFake (name) =>
         installed.user.push {name, theme: 'syntax'}
 
       packageManager.install({name: 'syntax-theme-with-config', theme: 'syntax'})
