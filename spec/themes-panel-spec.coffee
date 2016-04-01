@@ -117,7 +117,7 @@ describe "ThemesPanel", ->
       spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
         installCallback = callback
         onWillThrowError: ->
-      spyOn(atom.packages, 'loadPackage').andCallFake (name) =>
+      spyOn(atom.packages, 'loadPackage').andCallFake (name)
         installed.user.push {name, theme: 'ui'}
 
       expect(panel.communityCount.text().trim()).toBe '1'
@@ -137,7 +137,7 @@ describe "ThemesPanel", ->
       spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
         installCallback = callback
         onWillThrowError: ->
-      spyOn(atom.packages, 'loadPackage').andCallFake (name) =>
+      spyOn(atom.packages, 'loadPackage').andCallFake (name)
         installed.user.push {name, theme: 'syntax'}
 
       packageManager.install({name: 'syntax-theme-with-config', theme: 'syntax'})
@@ -145,7 +145,7 @@ describe "ThemesPanel", ->
 
       advanceClock ThemesPanel.loadPackagesDelay
       waits 1
-      runs ->      
+      runs ->
         expect(panel.find('option[value="atom-dark-syntax"]').text()).toBe 'Atom Dark'
         expect(panel.find('option[value="syntax-theme-with-config"]').text()).toBe 'Syntax Theme With Config'
 
