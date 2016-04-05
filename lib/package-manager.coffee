@@ -233,6 +233,10 @@ class PackageManager
         if code is 0
           try
             packages = JSON.parse(stdout) ? []
+            if options.sortBy
+              packages = _.sortBy packages, (pkg) ->
+                return pkg[options.sortBy]*-1
+
             resolve(packages)
           catch parseError
             error = createJsonParseError(errorMessage, parseError, stdout)
