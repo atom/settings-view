@@ -16,9 +16,9 @@ class PackageCard extends View
 
     @div class: 'package-card col-lg-8', =>
       @div outlet: 'statsContainer', class: 'stats pull-right', =>
-        @span class: "stats-item", =>
-          @span class: 'icon icon-versions'
-          @span outlet: 'versionValue', class: 'value', String(version)
+        @span class: 'stats-item', =>
+          @span outlet: 'stargazerIcon', class: 'icon icon-star'
+          @span outlet: 'stargazerCount', class: 'value'
 
         @span class: 'stats-item', =>
           @span outlet: 'downloadIcon', class: 'icon icon-cloud-download'
@@ -28,6 +28,9 @@ class PackageCard extends View
         @h4 class: 'card-name', =>
           @a outlet: 'packageName', displayName
           @span ' '
+          @span =>
+            @span outlet: 'versionValue', class: 'value', String(version)
+
           @span class: 'deprecation-badge highlight-warning inline-block', 'Deprecated'
         @span outlet: 'packageDescription', class: 'package-description', description
         @div outlet: 'packageMessage', class: 'package-message'
@@ -187,6 +190,7 @@ class PackageCard extends View
           @downloadIcon.addClass('icon-git-branch')
           @downloadCount.text @pack.apmInstallSource.sha.substr(0, 8)
         else
+          @stargazerCount.text data.stargazers_count?.toLocaleString()
           @downloadCount.text data.downloads?.toLocaleString()
 
   updateInterfaceState: ->
