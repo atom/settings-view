@@ -84,7 +84,7 @@ class PackageCard extends View
       @statusIndicator.remove()
       @enablementButton.remove()
 
-    @settingsButton.remove() unless @hasSettings()
+    @settingsButton.hide() unless @hasSettings()
     if atom.packages.isBundledPackage(@pack.name)
       @installButtonGroup.remove()
       @uninstallButton.remove()
@@ -134,7 +134,7 @@ class PackageCard extends View
 
   handleButtonEvents: (options) ->
     if options?.onSettingsView
-      @settingsButton.remove()
+      @settingsButton.hide()
     else
       @on 'click', =>
         @parents('.settings-view').view()?.showPanel(@pack.name, {back: options?.back, pack: @pack})
