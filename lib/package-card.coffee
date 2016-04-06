@@ -193,6 +193,8 @@ class PackageCard extends View
     @versionValue.text(@installablePack?.version ? @pack.version)
     if @pack.apmInstallSource?.type is 'git'
       @downloadCount.text @pack.apmInstallSource.sha.substr(0, 8)
+    if @hasSettings()
+      @settingsButton.show()
     @updateInstalledState()
     @updateDisabledState()
     @updateDeprecatedState()
