@@ -35,11 +35,10 @@ class SettingsView extends ScrollView
       # package card. Phew!
       @div class: 'panels', tabindex: -1, outlet: 'panels'
 
-  initialize: ({@uri, @snippetsProvider, activePanelName}={}) ->
+  initialize: ({@uri, @snippetsProvider, activePanel}={}) ->
     super
     @packageManager = new PackageManager()
-
-    @deferredPanel = {name: activePanelName}
+    @deferredPanel = activePanel
     process.nextTick => @initializePanels()
 
   dispose: ->
@@ -72,13 +71,13 @@ class SettingsView extends ScrollView
     @addCorePanel 'Install', 'plus', => new InstallPanel(@packageManager)
 
     @showDeferredPanel()
-    @showPanel('Settings') unless @activePanelName
+    @showPanel('Settings') unless @activePanel
     @sidebar.width(@sidebar.width()) if @isOnDom()
 
   serialize: ->
     deserializer: 'SettingsView'
     version: 2
-    activePanelName: @activePanelName ? @deferredPanel?.name
+    activePanel: @activePanel ? @deferredPanel
     uri: @uri
 
   getPackages: ->
@@ -174,16 +173,22 @@ class SettingsView extends ScrollView
   #   * `uri` the URI the panel was launched from
   showPanel: (name, options) ->
     if panel = @getOrCreatePanel(name, options)
-      @panels.children().hide()
-      @panels.append(panel) unless $.contains(@panels[0], panel[0])
-      panel.beforeShow?(options)
-      panel.show()
-      panel.focus()
+      @appendPanel(panel, options)
       @makePanelMenuActive(name)
-      @activePanelName = name
+      @setActivePanel(name, options)
       @deferredPanel = null
     else
       @deferredPanel = {name, options}
+
+  appendPanel: (panel, options) ->
+    @panels.children().hide()
+    @panels.append(panel) unless $.contains(@panels[0], panel[0])
+    panel.beforeShow?(options)
+    panel.show()
+    panel.focus()
+
+  setActivePanel: (name, options = {}) ->
+    @activePanel = {name, options}
 
   removePanel: (name) ->
     if panel = @panelsByName?[name]
