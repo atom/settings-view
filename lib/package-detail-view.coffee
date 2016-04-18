@@ -3,8 +3,7 @@ url = require 'url'
 
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
-# TODO: Remove the catch once Atom 1.7.0 is released
-try {shell} = require 'electron' catch then shell = require 'shell'
+{shell} = require 'electron'
 {ScrollView} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 
