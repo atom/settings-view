@@ -274,12 +274,13 @@ class PackageManager
     exit = (code, stdout, stderr) =>
       if code is 0
         @clearOutdatedCache()
-        activation = if activateOnSuccess
-          atom.packages.activatePackage(name)
-        else
-          atom.packages.loadPackage(name)
 
-        Promise.resolve(activation).then =>
+        loadedPackage = atom.packages.loadPackage(name)
+
+        Promise.resolve(loadedPackage).then =>
+          if activateOnSuccess
+            atom.packages.activatePackage(name)
+
           callback?()
           @emitPackageEvent 'updated', pack
       else
