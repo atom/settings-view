@@ -73,10 +73,13 @@ class KeybindingsPanel extends ScrollView
     @keybindingRows.empty()
     for keyBinding in keyBindings
       {selector, keystrokes, command, source} = keyBinding
+      source = KeybindingsPanel.determineSource(source)
       searchString = "#{selector}#{keystrokes}#{command}#{source}".toLowerCase()
       continue unless searchString
 
-      if /^\s*$/.test(filterString) or searchString.indexOf(filterString?.toLowerCase()) isnt -1
+      keywords = filterString.trim().toLowerCase().split(' ')
+      containKeyword = (keyword) -> return /^\s*$/.test(keyword) or searchString.indexOf(keyword) isnt -1
+      if keywords.every containKeyword
         @appendKeyBinding(keyBinding)
 
   appendKeyBindings: (keyBindings) ->
