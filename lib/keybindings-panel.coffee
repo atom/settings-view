@@ -78,8 +78,7 @@ class KeybindingsPanel extends ScrollView
       continue unless searchString
 
       keywords = filterString.trim().toLowerCase().split(' ')
-      containKeyword = (keyword) -> return /^\s*$/.test(keyword) or searchString.indexOf(keyword) isnt -1
-      if keywords.every containKeyword
+      if keywords.every((keyword) -> searchString.indexOf(keyword) isnt -1)
         @appendKeyBinding(keyBinding)
 
   appendKeyBindings: (keyBindings) ->
