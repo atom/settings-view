@@ -14,6 +14,7 @@ InstallPanel = require './install-panel'
 ThemesPanel = require './themes-panel'
 InstalledPackagesPanel = require './installed-packages-panel'
 UpdatesPanel = require './updates-panel'
+PackageManager = require './package-manager'
 
 module.exports =
 class SettingsView extends ScrollView
@@ -37,6 +38,7 @@ class SettingsView extends ScrollView
   initialize: ({@uri, @packageManager, @snippetsProvider, activePanelName}={}) ->
     super
 
+    @packageManager ?= new PackageManager()
     @deferredPanel = {name: activePanelName}
     process.nextTick => @initializePanels()
 
