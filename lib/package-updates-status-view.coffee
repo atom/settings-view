@@ -8,12 +8,23 @@ class PackageUpdatesStatusView extends View
       @span class: 'icon icon-package'
       @span outlet: 'countLabel', class: 'available-updates-status'
 
-  initialize: (statusBar, packages) ->
-    @countLabel.text("#{_.pluralize(packages.length, 'update')}")
-    @tooltip = atom.tooltips.add(@element, title: "#{_.pluralize(packages.length, 'package update')} available")
+  initialize: (statusBar, packageManager, @updates) ->
+    @subscriptions = packageManager.on 'package-updated theme-updated', => @onDidUpdatePackage
+
+    @countLabel.text("#{_.pluralize(@updates, 'update')}")
+    @tooltip = atom.tooltips.add(@element, title: "#{_.pluralize(@updates, 'package update')} available")
     @tile = statusBar.addRightTile(item: this, priority: 0)
 
-    @on 'click', =>
+    @on 'click', ->
       atom.commands.dispatch(atom.views.getView(atom.workspace), 'settings-view:check-for-package-updates')
+
+  @onDidUpdatePackage: =>
+    @updates--
+    if @updates is 0
       @tooltip.dispose()
       @tile.destroy()
+      return
+
+    @countLabel.text("#{_.pluralize(@updates, 'update')}")
+    @tooltip.dispose()
+    @tooltip = atom.tooltips.add(@element, title: "#{_.pluralize(@updates, 'package update')} available")

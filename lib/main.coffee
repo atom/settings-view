@@ -1,6 +1,9 @@
 SettingsView = null
 settingsView = null
 
+PackageManager = require './package-manager'
+packageManager = new PackageManager()
+
 SnippetsProvider =
   getSnippets: -> atom.config.scopedSettingsStore.propertySets
 
@@ -46,16 +49,15 @@ module.exports =
     settingsView?.dispose()
     settingsView?.remove()
     settingsView = null
+    packageManager = null
 
   consumeStatusBar: (statusBar) ->
-    PackageManager = require './package-manager'
-    packageManager = new PackageManager()
     Promise.all([packageManager.getOutdated(), packageManager.getInstalled()]).then (values) ->
-      outdatedPackages = values[0]
+      updates = values[0].length
       allPackages = values[1]
-      if outdatedPackages.length > 0
+      if updates > 0
         PackageUpdatesStatusView = require './package-updates-status-view'
-        packageUpdatesStatusView = new PackageUpdatesStatusView(statusBar, outdatedPackages)
+        packageUpdatesStatusView = new PackageUpdatesStatusView(statusBar, packageManager, updates)
 
       if allPackages.length > 0 and not localStorage.getItem('hasSeenDeprecatedNotification')
         @showDeprecatedNotification(allPackages)
@@ -68,6 +70,7 @@ module.exports =
 
   createSettingsView: (params) ->
     SettingsView ?= require './settings-view'
+    params.packageManager = packageManager
     params.snippetsProvider = SnippetsProvider
     settingsView = new SettingsView(params)
 

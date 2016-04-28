@@ -8,7 +8,6 @@ fs = require 'fs-plus'
 PackageCard = require './package-card'
 Client = require './atom-io-client'
 ErrorView = require './error-view'
-PackageManager = require './package-manager'
 
 PackageNameRegex = /config\/install\/(package|theme):([a-z0-9-_]+)/i
 hostedGitInfo = require 'hosted-git-info'

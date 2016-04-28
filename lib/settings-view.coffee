@@ -10,7 +10,6 @@ Client = require './atom-io-client'
 GeneralPanel = require './general-panel'
 PackageDetailView = require './package-detail-view'
 KeybindingsPanel = require './keybindings-panel'
-PackageManager = require './package-manager'
 InstallPanel = require './install-panel'
 ThemesPanel = require './themes-panel'
 InstalledPackagesPanel = require './installed-packages-panel'
@@ -35,9 +34,8 @@ class SettingsView extends ScrollView
       # package card. Phew!
       @div class: 'panels', tabindex: -1, outlet: 'panels'
 
-  initialize: ({@uri, @snippetsProvider, activePanelName}={}) ->
+  initialize: ({@uri, @packageManager, @snippetsProvider, activePanelName}={}) ->
     super
-    @packageManager = new PackageManager()
 
     @deferredPanel = {name: activePanelName}
     process.nextTick => @initializePanels()

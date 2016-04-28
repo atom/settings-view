@@ -9,7 +9,6 @@ _ = require 'underscore-plus'
 CollapsibleSectionPanel = require './collapsible-section-panel'
 PackageCard = require './package-card'
 ErrorView = require './error-view'
-PackageManager = require './package-manager'
 
 List = require './list'
 ListView = require './list-view'
