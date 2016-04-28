@@ -61,8 +61,6 @@ module.exports =
 
       if allPackages.length > 0 and not localStorage.getItem('hasSeenDeprecatedNotification')
         @showDeprecatedNotification(allPackages)
-    .catch (error) ->
-      console.log error.message, error.stack
 
   consumeSnippets: (snippets) ->
     if typeof snippets.getUnparsedSnippets is "function"

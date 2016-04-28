@@ -20,7 +20,7 @@ class PackageUpdatesStatusView extends View
 
   @onDidUpdatePackage: =>
     @updates--
-    if @updates is 0
+    unless @updates
       @tooltip.dispose()
       @tile.destroy()
       return
