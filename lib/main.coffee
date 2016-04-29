@@ -53,11 +53,11 @@ module.exports =
 
   consumeStatusBar: (statusBar) ->
     Promise.all([packageManager.getOutdated(), packageManager.getInstalled()]).then (values) ->
-      updates = values[0].length
+      updates = values[0]
       allPackages = values[1]
-      if updates > 0
-        PackageUpdatesStatusView = require './package-updates-status-view'
-        packageUpdatesStatusView = new PackageUpdatesStatusView(statusBar, packageManager, updates)
+
+      PackageUpdatesStatusView = require './package-updates-status-view'
+      packageUpdatesStatusView = new PackageUpdatesStatusView(statusBar, packageManager, updates)
 
       if allPackages.length > 0 and not localStorage.getItem('hasSeenDeprecatedNotification')
         @showDeprecatedNotification(allPackages)
