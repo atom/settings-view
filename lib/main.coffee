@@ -52,7 +52,7 @@ module.exports =
     packageManager = null
 
   consumeStatusBar: (statusBar) ->
-    Promise.all([packageManager.getOutdated(), packageManager.getInstalled()]).then (values) ->
+    Promise.all([packageManager.getOutdated(), packageManager.getInstalled()]).then (values) =>
       updates = values[0]
       allPackages = values[1]
 
