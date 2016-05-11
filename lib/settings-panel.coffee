@@ -111,7 +111,7 @@ class SettingsPanel extends CollapsibleSectionPanel
     params.scope = [@options.scopeName] if @options.scopeName?
     defaultValue = @getDefault(name)
     value = atom.config.get(name, params)
-    not value or defaultValue is value
+    not value? or defaultValue is value
 
   getDefault: (name) ->
     params = {excludeSources: [atom.config.getUserConfigPath()]}

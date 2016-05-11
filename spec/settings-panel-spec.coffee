@@ -62,9 +62,15 @@ describe "SettingsPanel", ->
             description: 'The haz setting'
             type: 'string'
             default: 'haz'
+          testZero:
+            name: 'testZero'
+            title: 'Test Zero'
+            description: 'Setting for testing zero as a default'
+            type: 'integer'
+            default: 0
       atom.config.setSchema("foo", config)
       atom.config.setDefaults("foo", gong: 'gong')
-      expect(_.size(atom.config.get('foo'))).toBe 2
+      expect(_.size(atom.config.get('foo'))).toBe 3
       settingsPanel = new SettingsPanel("foo", {includeTitle: false})
 
     it 'ensures default stays default', ->
@@ -79,6 +85,15 @@ describe "SettingsPanel", ->
       settingsPanel.set('foo.haz', 'newhaz')
       expect(settingsPanel.isDefault('foo.haz')).toBe false
       expect(atom.config.get('foo.haz')).toBe 'newhaz'
+
+    # Regression test for #783
+    it 'allows 0 to be a default', ->
+      expect(settingsPanel.getDefault('foo.testZero')).toBe 0
+      expect(settingsPanel.isDefault('foo.testZero')).toBe true
+      settingsPanel.set('foo.testZero', 15)
+      expect(settingsPanel.isDefault('foo.testZero')).toBe false
+      settingsPanel.set('foo.testZero', 0)
+      expect(settingsPanel.isDefault('foo.testZero')).toBe true
 
   describe 'grouped settings', ->
     beforeEach ->
