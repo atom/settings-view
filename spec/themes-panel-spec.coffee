@@ -117,7 +117,7 @@ describe "ThemesPanel", ->
       spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
         installCallback = callback
         onWillThrowError: ->
-      spyOn(atom.packages, 'loadPackage').andCallFake (name) =>
+      spyOn(atom.packages, 'loadPackage').andCallFake (name) ->
         installed.user.push {name, theme: 'ui'}
 
       expect(panel.communityCount.text().trim()).toBe '1'
