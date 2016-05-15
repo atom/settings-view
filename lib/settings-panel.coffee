@@ -120,7 +120,7 @@ class SettingsPanel extends CollapsibleSectionPanel
 
   set: (name, value) ->
     if @options.scopeName
-      if value is undefined
+      if value is undefined or `value == atom.config.get(name)`
         atom.config.unset(name, scopeSelector: @options.scopeName)
       else
         atom.config.set(name, value, scopeSelector: @options.scopeName)
