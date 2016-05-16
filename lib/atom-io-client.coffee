@@ -182,4 +182,5 @@ class AtomIoClient
         children.forEach(deleteAvatar)
 
   getCachePath: ->
-    @cachePath ?= path.join(require('remote').require('app').getDataPath(), 'Cache', 'settings-view')
+    {remote} = require 'electron'
+    @cachePath ?= path.join(remote.app.getPath('userData'), 'Cache', 'settings-view')

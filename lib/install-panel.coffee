@@ -11,6 +11,7 @@ ErrorView = require './error-view'
 PackageManager = require './package-manager'
 
 PackageNameRegex = /config\/install\/(package|theme):([a-z0-9-_]+)/i
+hostedGitInfo = require 'hosted-git-info'
 
 module.exports =
 class InstallPanel extends ScrollView
@@ -51,7 +52,7 @@ class InstallPanel extends ScrollView
     @client = @packageManager.getClient()
     @atomIoURL = 'https://atom.io/packages'
     @openAtomIo.on 'click', =>
-      require('shell').openExternal(@atomIoURL)
+      require('electron').shell.openExternal(@atomIoURL)
       false
 
     @searchMessage.hide()
@@ -71,6 +72,11 @@ class InstallPanel extends ScrollView
   handleSearchEvents: ->
     @disposables.add @packageManager.on 'package-install-failed', ({pack, error}) =>
       @searchErrors.append(new ErrorView(@packageManager, error))
+
+    @disposables.add @packageManager.on 'package-installed theme-installed', ({pack}) =>
+      gitUrlInfo = @currentGitPackageCard?.pack?.gitUrlInfo
+      if gitUrlInfo? and gitUrlInfo is pack.gitUrlInfo
+        @updateGitPackageCard(pack)
 
     @disposables.add atom.commands.add @searchEditorView.element, 'core:confirm', =>
       @performSearch()
@@ -120,7 +126,30 @@ class InstallPanel extends ScrollView
 
   performSearch: ->
     if query = @searchEditorView.getText().trim()
+      @performSearchForQuery(query)
+
+  performSearchForQuery: (query) ->
+    if gitUrlInfo = hostedGitInfo.fromUrl(query)
+      type = gitUrlInfo.default
+      if type is 'sshurl' or type is 'https' or type is 'shortcut'
+        @showGitInstallPackageCard(name: query, gitUrlInfo: gitUrlInfo)
+    else
       @search(query)
+
+  showGitInstallPackageCard: (pack) ->
+    @currentGitPackageCard?.dispose()
+    @currentGitPackageCard = @getPackageCardView(pack)
+    @currentGitPackageCard.displayGitPackageInstallInformation()
+    @replaceCurrentGitPackageCardView()
+
+  updateGitPackageCard: (pack) ->
+    @currentGitPackageCard.dispose()
+    @currentGitPackageCard = @getPackageCardView(pack)
+    @replaceCurrentGitPackageCardView()
+
+  replaceCurrentGitPackageCardView: ->
+    @resultsContainer.empty()
+    @addPackageCardView(@resultsContainer, @currentGitPackageCard)
 
   search: (query) ->
     @resultsContainer.empty()
@@ -143,9 +172,16 @@ class InstallPanel extends ScrollView
     container.empty()
 
     for pack, index in packages
-      packageRow = $$ -> @div class: 'row'
-      container.append(packageRow)
-      packageRow.append(new PackageCard(pack, @packageManager, back: 'Install'))
+      packageCard = @getPackageCardView(pack)
+      @addPackageCardView(container, packageCard)
+
+  addPackageCardView: (container, packageCard) ->
+    packageRow = $$ -> @div class: 'row'
+    container.append(packageRow)
+    packageRow.append(packageCard)
+
+  getPackageCardView: (pack) ->
+    new PackageCard(pack, @packageManager, back: 'Install')
 
   filterPackages: (packages, themes) ->
     packages.filter ({theme}) ->

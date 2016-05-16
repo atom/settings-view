@@ -1,37 +1,38 @@
 _ = require 'underscore-plus'
 {View} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
-shell = require 'shell'
+{shell} = require 'electron'
 marked = null
 {ownerFromRepository} = require './utils'
 
 module.exports =
 class PackageCard extends View
 
-  @content: ({name, description, version, repository}) ->
+  @content: ({name, description, version, repository, gitUrlInfo}) ->
+    displayName = (if gitUrlInfo then gitUrlInfo.project else name) ? ''
     owner = ownerFromRepository(repository)
     description ?= ''
 
     @div class: 'package-card col-lg-8', =>
-      @div class: 'stats pull-right', =>
+      @div outlet: 'statsContainer', class: 'stats pull-right', =>
         @span class: "stats-item", =>
           @span class: 'icon icon-versions'
           @span outlet: 'versionValue', class: 'value', String(version)
 
         @span class: 'stats-item', =>
-          @span class: 'icon icon-cloud-download'
+          @span outlet: 'downloadIcon', class: 'icon icon-cloud-download'
           @span outlet: 'downloadCount', class: 'value'
 
       @div class: 'body', =>
         @h4 class: 'card-name', =>
-          @a outlet: 'packageName', name
+          @a outlet: 'packageName', displayName
           @span ' '
           @span class: 'deprecation-badge highlight-warning inline-block', 'Deprecated'
         @span outlet: 'packageDescription', class: 'package-description', description
         @div outlet: 'packageMessage', class: 'package-message'
 
       @div class: 'meta', =>
-        @div class: 'meta-user', =>
+        @div outlet: 'metaUserContainer', class: 'meta-user', =>
           @a outlet: 'avatarLink', href: "https://atom.io/users/#{owner}", =>
             @img outlet: 'avatar', class: 'avatar', src: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' # A transparent gif so there is no "broken border"
           @a outlet: 'loginLink', class: 'author', href: "https://atom.io/users/#{owner}", owner
@@ -64,6 +65,8 @@ class PackageCard extends View
     {@name} = @pack
 
     @newVersion = @pack.latestVersion unless @pack.latestVersion is @pack.version
+    if @pack.apmInstallSource?.type is 'git'
+      @newSha = @pack.latestSha unless @pack.apmInstallSource.sha is @pack.latestSha
 
     @handlePackageEvents()
     @handleButtonEvents(options)
@@ -85,7 +88,7 @@ class PackageCard extends View
       @installButtonGroup.remove()
       @uninstallButton.remove()
 
-    @updateButtonGroup.hide() unless @newVersion
+    @updateButtonGroup.hide() unless @newVersion or @newSha
 
     @hasCompatibleVersion = true
     @updateForUninstalledCommunityPackage() unless @isInstalled()
@@ -178,10 +181,17 @@ class PackageCard extends View
       # showing the download count if there's a problem.
       unless err
         data ?= {}
-        @downloadCount.text data.downloads?.toLocaleString()
+        if @pack.apmInstallSource?.type is 'git'
+          @downloadIcon.removeClass('icon-cloud-download')
+          @downloadIcon.addClass('icon-git-branch')
+          @downloadCount.text @pack.apmInstallSource.sha.substr(0, 8)
+        else
+          @downloadCount.text data.downloads?.toLocaleString()
 
   updateInterfaceState: ->
     @versionValue.text(@installablePack?.version ? @pack.version)
+    if @pack.apmInstallSource?.type is 'git'
+      @downloadCount.text @pack.apmInstallSource.sha.substr(0, 8)
     @updateInstalledState()
     @updateDisabledState()
     @updateDeprecatedState()
@@ -227,9 +237,12 @@ class PackageCard extends View
       @displayNotInstalledState()
 
   displayInstalledState: ->
-    if @newVersion
+    if @newVersion or @newSha
       @updateButtonGroup.show()
-      @updateButton.text("Update to #{@newVersion}")
+      if @newVersion
+        @updateButton.text("Update to #{@newVersion}")
+      else if @newSha
+        @updateButton.text("Update to #{@newSha.substr(0, 8)}")
     else
       @updateButtonGroup.hide()
 
@@ -242,7 +255,7 @@ class PackageCard extends View
     if not @hasCompatibleVersion
       @installButtonGroup.hide()
       @updateButtonGroup.hide()
-    else if @newVersion
+    else if @newVersion or @newSha
       @updateButtonGroup.show()
       @installButtonGroup.hide()
     else
@@ -302,6 +315,19 @@ class PackageCard extends View
       marked ?= require 'marked'
       @packageMessage.html marked(message)
 
+  displayGitPackageInstallInformation: ->
+    @metaUserContainer.remove()
+    @statsContainer.remove()
+    {gitUrlInfo} = @pack
+    if gitUrlInfo.default is 'shortcut'
+      @packageDescription.text gitUrlInfo.https()
+    else
+      @packageDescription.text gitUrlInfo.toString()
+    @installButton.removeClass('icon-cloud-download')
+    @installButton.addClass('icon-git-commit')
+    @updateButton.removeClass('icon-cloud-download')
+    @updateButton.addClass('icon-git-commit')
+
   displayAvailableUpdate: (@newVersion) ->
     @updateInterfaceState()
 
@@ -358,14 +384,18 @@ class PackageCard extends View
       @updateInterfaceState()
 
     @subscribeToPackageEvent 'package-updated theme-updated package-update-failed theme-update-failed', =>
-      @pack.version = version if version = atom.packages.getLoadedPackage(@pack.name)?.metadata?.version
+      metadata = atom.packages.getLoadedPackage(@pack.name)?.metadata
+      @pack.version = version if version = metadata?.version
+      @pack.apmInstallSource = apmInstallSource if apmInstallSource = metadata?.apmInstallSource
       @newVersion = null
+      @newSha = null
       @updateButton.prop('disabled', false)
       @updateButton.removeClass('is-installing')
       @updateInterfaceState()
 
     @subscribeToPackageEvent 'package-uninstalled package-uninstall-failed theme-uninstalled theme-uninstall-failed', =>
       @newVersion = null
+      @newSha = null
       @enablementButton.prop('disabled', false)
       @uninstallButton.prop('disabled', false)
       @uninstallButton.removeClass('is-uninstalling')
@@ -388,8 +418,8 @@ class PackageCard extends View
 
   subscribeToPackageEvent: (event, callback) ->
     @disposables.add @packageManager.on event, ({pack, error}) =>
+      pack = pack.pack if pack.pack?
       packageName = pack.name
-      packageName = pack.pack.name if pack.pack?
       callback(pack, error) if packageName is @pack.name
 
   ###
@@ -405,10 +435,11 @@ class PackageCard extends View
         atom.packages.enablePackage(@pack.name) if @isDisabled()
 
   update: ->
-    return unless @newVersion
+    return unless @newVersion or @newSha
     @packageManager.update @installablePack ? @pack, @newVersion, (error) =>
       if error?
-        console.error("Updating #{@type} #{@pack.name} to v#{@newVersion} failed", error.stack ? error, error.stderr)
+        version = if @newVersion then "v#{newVersion}" else "##{@newSha.substr(0, 8)}"
+        console.error("Updating #{@type} #{@pack.name} to #{version} failed", error.stack ? error, error.stderr)
 
   uninstall: ->
     @packageManager.uninstall @pack, (error) =>

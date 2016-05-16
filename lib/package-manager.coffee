@@ -247,7 +247,7 @@ class PackageManager
         reject(error)
 
   update: (pack, newVersion, callback) ->
-    {name, theme} = pack
+    {name, theme, apmInstallSource} = pack
 
     if theme
       activateOnSuccess = atom.packages.isPackageActive(name)
@@ -257,13 +257,20 @@ class PackageManager
     atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
     atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
 
-    errorMessage = "Updating to \u201C#{name}@#{newVersion}\u201D failed."
+    errorMessage = if newVersion
+      "Updating to \u201C#{name}@#{newVersion}\u201D failed."
+    else
+      "Updating to latest sha failed."
     onError = (error) =>
       error.packageInstallError = not theme
       @emitPackageEvent 'update-failed', pack, error
-      callback(error)
+      callback?(error)
 
-    args = ['install', "#{name}@#{newVersion}"]
+    if apmInstallSource?.type is 'git'
+      args = ['install', apmInstallSource.source]
+    else
+      args = ['install', "#{name}@#{newVersion}"]
+
     exit = (code, stdout, stderr) =>
       if code is 0
         @clearOutdatedCache()
@@ -295,21 +302,26 @@ class PackageManager
     {name, version, theme} = pack
     activateOnSuccess = not theme and not atom.packages.isPackageDisabled(name)
     activateOnFailure = atom.packages.isPackageActive(name)
+    nameWithVersion = if version? then "#{name}@#{version}" else name
 
     @unload(name)
-    if version?
-      args = ['install', "#{name}@#{version}"]
-    else
-      args = ['install', "#{name}"]
+    args = ['install', nameWithVersion, '--json']
 
-    errorMessage = "Installing \u201C#{name}@#{version}\u201D failed."
+    errorMessage = "Installing \u201C#{nameWithVersion}\u201D failed."
     onError = (error) =>
       error.packageInstallError = not theme
       @emitPackageEvent 'install-failed', pack, error
-      callback(error)
+      callback?(error)
 
     exit = (code, stdout, stderr) =>
       if code is 0
+        # get real package name from package.json
+        try
+          packageInfo = JSON.parse(stdout)[0]
+          pack = _.extend({}, pack, packageInfo.metadata)
+          name = pack.name
+        catch err
+          # using old apm without --json support
         @clearOutdatedCache()
         if activateOnSuccess
           atom.packages.activatePackage(name)
@@ -338,7 +350,7 @@ class PackageManager
     errorMessage = "Uninstalling \u201C#{name}\u201D failed."
     onError = (error) =>
       @emitPackageEvent 'uninstall-failed', pack, error
-      callback(error)
+      callback?(error)
 
     @emitPackageEvent('uninstalling', pack)
     apmProcess = @runCommand ['uninstall', '--hard', name], (code, stdout, stderr) =>
@@ -415,7 +427,7 @@ class PackageManager
 
   cacheAvailablePackageNames: (packages) ->
     @availablePackageCache = []
-    for packageType in ['core', 'user', 'dev']
+    for packageType in ['core', 'user', 'dev', 'git']
       continue unless packages[packageType]?
       packageNames = (pack.name for pack in packages[packageType])
       @availablePackageCache.push(packageNames...)

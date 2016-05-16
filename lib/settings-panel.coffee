@@ -1,11 +1,12 @@
 {CompositeDisposable} = require 'atom'
 {$, $$, TextEditorView, View} = require 'atom-space-pen-views'
 _ = require 'underscore-plus'
+CollapsibleSectionPanel = require './collapsible-section-panel'
 
 {getSettingDescription} = require './rich-description'
 
 module.exports =
-class SettingsPanel extends View
+class SettingsPanel extends CollapsibleSectionPanel
   @content: ->
     @section class: 'section settings-panel'
 
@@ -39,6 +40,8 @@ class SettingsPanel extends View
     @bindInputFields()
     @bindSelectFields()
     @bindEditors()
+    @handleEvents()
+
 
   dispose: ->
     @disposables.dispose()
@@ -67,7 +70,7 @@ class SettingsPanel extends View
             appendSetting.call(this, namespace, name, settings[name])
 
   sortSettings: (namespace, settings) ->
-    _.chain(settings).keys().sortBy((name) -> name).sortBy((name) -> atom.config.getSchema("#{namespace}.#{name}")?.order).value()
+    sortSettings(namespace, settings)
 
   bindInputFields: ->
     @find('input[id]').toArray().forEach (input) =>
@@ -106,7 +109,9 @@ class SettingsPanel extends View
   isDefault: (name) ->
     params = {sources: [atom.config.getUserConfigPath()]}
     params.scope = [@options.scopeName] if @options.scopeName?
-    not atom.config.get(name, params)?
+    defaultValue = @getDefault(name)
+    value = atom.config.get(name, params)
+    not value? or defaultValue is value
 
   getDefault: (name) ->
     params = {excludeSources: [atom.config.getUserConfigPath()]}
@@ -136,11 +141,20 @@ class SettingsPanel extends View
   bindEditors: ->
     @find('atom-text-editor[id]').views().forEach (editorView) =>
       editor = editorView.getModel()
+      editorElement = $(editorView.element)
       name = editorView.attr('id')
       type = editorView.attr('type')
 
       if defaultValue = @valueToString(@getDefault(name))
         editor.setPlaceholderText("Default: #{defaultValue}")
+
+      editorElement.on 'focus', =>
+        if @isDefault(name)
+          editorView.setText(@valueToString(@getDefault(name)) ? '')
+
+      editorElement.on 'blur', =>
+        if @isDefault(name)
+          editorView.setText('')
 
       @observe name, (value) =>
         if @isDefault(name)
@@ -182,6 +196,9 @@ isEditableArray = (array) ->
   for item in array
     return false unless _.isString(item)
   true
+
+sortSettings = (namespace, settings) ->
+  _.chain(settings).keys().sortBy((name) -> name).sortBy((name) -> atom.config.getSchema("#{namespace}.#{name}")?.order).value()
 
 appendSetting = (namespace, name, value) ->
   if namespace is 'core'
@@ -289,5 +306,16 @@ appendArray = (namespace, name, value) ->
       @subview keyPath.replace(/\./g, ''), new TextEditorView(mini: true, attributes: {id: keyPath, type: 'array'})
 
 appendObject = (namespace, name, value) ->
-  for key in _.keys(value).sort()
-    appendSetting.call(this, namespace, "#{name}.#{key}", value[key])
+  return unless _.keys(value).length
+
+  keyPath = "#{namespace}.#{name}"
+  title = getSettingTitle(keyPath, name)
+  schema = atom.config.getSchema(keyPath)
+  isCollapsed = schema.collapsed is true
+  @section class: "sub-section#{if isCollapsed then ' collapsed' else ''}", =>
+    @h3 class: 'sub-section-heading has-items', =>
+      @text title
+    @div class: 'sub-section-body', =>
+      sortedSettings = sortSettings(keyPath, value)
+      for key in sortedSettings
+        appendSetting.call(this, namespace, "#{name}.#{key}", value[key])

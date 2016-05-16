@@ -1,16 +1,17 @@
 {
   "name": "settings-view",
-  "version": "0.229.0",
+  "version": "0.236.1",
   "main": "./lib/main",
   "description": "Edit config settings, install packages, and change themes",
   "license": "MIT",
   "dependencies": {
     "async": "~0.2.9",
-    "atom-space-pen-views": "^2.0.2",
+    "atom-space-pen-views": "^2.1.1",
     "cheerio": "0.15.0",
     "fs-plus": "^2.4",
     "fuzzaldrin": "^2.1",
     "glob": "4.3.1",
+    "hosted-git-info": "^2.1.4",
     "marked": "^0.3.3",
     "request": "^2.40",
     "roaster": "^1.1.2",
@@ -27,7 +28,15 @@
       "versions": {
         "^1.0.0": "consumeStatusBar"
       }
+    },
+    "snippets": {
+      "versions": {
+        "0.1.0": "consumeSnippets"
+      }
     }
+  },
+  "deserializers": {
+    "SettingsView": "createSettingsView"
   },
   "devDependencies": {
     "coffeelint": "^1.9.7"

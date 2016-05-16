@@ -3,7 +3,7 @@ url = require 'url'
 
 _ = require 'underscore-plus'
 fs = require 'fs-plus'
-shell = require 'shell'
+{shell} = require 'electron'
 {ScrollView} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 
@@ -54,7 +54,7 @@ class PackageDetailView extends ScrollView
 
       @div outlet: 'sections'
 
-  initialize: (@pack, @packageManager) ->
+  initialize: (@pack, @packageManager, @snippetsProvider) ->
     super
     @disposables = new CompositeDisposable()
     @loadPackage()
@@ -95,7 +95,7 @@ class PackageDetailView extends ScrollView
         @pack = packageData
         # TODO: this should match Package.loadMetadata from core, but this is
         # an acceptable hacky workaround
-        @pack.metadata = _.clone(@pack)
+        @pack.metadata = _.extend(@pack.metadata ? {}, @pack)
         @completeInitialzation()
 
   showLoadingMessage: ->
@@ -147,7 +147,7 @@ class PackageDetailView extends ScrollView
 
       if @pack.path
         @sections.append(new PackageGrammarsView(@pack.path))
-        @sections.append(new PackageSnippetsView(@pack.path))
+        @sections.append(new PackageSnippetsView(@pack.path, @snippetsProvider))
 
       @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
     else
@@ -220,7 +220,7 @@ class PackageDetailView extends ScrollView
 
   openMarkdownFile: (path) ->
     if atom.packages.isPackageActive('markdown-preview')
-      atom.workspace.open("#{encodeURI("markdown-preview://#{path}")}")
+      atom.workspace.open(encodeURI("markdown-preview://#{path}"))
     else
       atom.workspace.open(path)
 

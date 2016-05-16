@@ -4,8 +4,9 @@ fs = require 'fs-plus'
 fuzzaldrin = require 'fuzzaldrin'
 _ = require 'underscore-plus'
 {CompositeDisposable} = require 'atom'
-{$$, TextEditorView, ScrollView} = require 'atom-space-pen-views'
+{$$, TextEditorView} = require 'atom-space-pen-views'
 
+CollapsibleSectionPanel = require './collapsible-section-panel'
 PackageCard = require './package-card'
 ErrorView = require './error-view'
 PackageManager = require './package-manager'
@@ -15,7 +16,7 @@ ListView = require './list-view'
 {ownerFromRepository, packageComparatorAscending} = require './utils'
 
 module.exports =
-class ThemesPanel extends ScrollView
+class ThemesPanel extends CollapsibleSectionPanel
   @loadPackagesDelay: 300
 
   @content: ->
@@ -58,24 +59,31 @@ class ThemesPanel extends ScrollView
           @div outlet: 'themeErrors'
 
           @section class: 'sub-section installed-packages', =>
-            @h3 class: 'sub-section-heading icon icon-paintcan', =>
+            @h3 outlet: 'communityThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
               @text 'Community Themes'
               @span outlet: 'communityCount', class: 'section-heading-count badge badge-flexible', '…'
             @div outlet: 'communityPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
           @section class: 'sub-section core-packages', =>
-            @h3 class: 'sub-section-heading icon icon-paintcan', =>
+            @h3 outlet: 'coreThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
               @text 'Core Themes'
               @span outlet: 'coreCount', class: 'section-heading-count badge badge-flexible', '…'
             @div outlet: 'corePackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
           @section class: 'sub-section dev-packages', =>
-            @h3 class: 'sub-section-heading icon icon-paintcan', =>
+            @h3 outlet: 'developmentThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
               @text 'Development Themes'
               @span outlet: 'devCount', class: 'section-heading-count badge badge-flexible', '…'
             @div outlet: 'devPackages', class: 'container package-container', =>
+              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
+
+          @section class: 'sub-section git-packages', =>
+            @h3 outlet: 'gitThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
+              @text 'Git Themes'
+              @span outlet: 'gitCount', class: 'section-heading-count badge badge-flexible', '…'
+            @div outlet: 'gitPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
   initialize: (@packageManager) ->
@@ -84,10 +92,12 @@ class ThemesPanel extends ScrollView
       dev: new List('name')
       core: new List('name')
       user: new List('name')
+      git: new List('name')
     @itemViews =
       dev: new ListView(@items.dev, @devPackages, @createPackageCard)
       core: new ListView(@items.core, @corePackages, @createPackageCard)
       user: new ListView(@items.user, @communityPackages, @createPackageCard)
+      git: new ListView(@items.git, @gitPackages, @createPackageCard)
 
     @handleEvents()
     @loadPackages()
@@ -132,20 +142,21 @@ class ThemesPanel extends ScrollView
     packages.dev = packages.dev.filter ({theme}) -> theme
     packages.user = packages.user.filter ({theme}) -> theme
     packages.core = packages.core.filter ({theme}) -> theme
+    packages.git = (packages.git or []).filter ({theme}) -> theme
 
     for pack in packages.core
       pack.repository ?= "https://github.com/atom/#{pack.name}"
 
-    for packageType in ['dev', 'core', 'user']
+    for packageType in ['dev', 'core', 'user', 'git']
       for pack in packages[packageType]
         pack.owner = ownerFromRepository(pack.repository)
-
     packages
 
   sortThemes: (packages) ->
     packages.dev.sort(packageComparatorAscending)
     packages.core.sort(packageComparatorAscending)
     packages.user.sort(packageComparatorAscending)
+    packages.git.sort(packageComparatorAscending)
     packages
 
   loadPackages: ->
@@ -162,6 +173,9 @@ class ThemesPanel extends ScrollView
 
         @communityPackages.find('.alert.loading-area').remove()
         @items.user.setItems(@packages.user)
+
+        @gitPackages.find('.alert.loading-area').remove()
+        @items.git.setItems(@packages.git)
 
         # TODO show empty mesage per section
 
@@ -268,7 +282,7 @@ class ThemesPanel extends ScrollView
   filterPackageListByText: (text) ->
     return unless @packages
 
-    for packageType in ['dev', 'core', 'user']
+    for packageType in ['dev', 'core', 'user', 'git']
       allViews = @itemViews[packageType].getViews()
       activeViews = @itemViews[packageType].filterViews (pack) ->
         return true if text is ''
@@ -283,25 +297,30 @@ class ThemesPanel extends ScrollView
 
     @updateSectionCounts()
 
-  updateSectionCounts: ->
-    filterText = @filterEditor.getModel().getText()
-    if filterText is ''
-      @totalPackages.text "#{@packages.user.length + @packages.core.length + @packages.dev.length}"
-      @communityCount.text "#{@packages.user.length}"
-      @coreCount.text "#{@packages.core.length}"
-      @devCount.text "#{@packages.dev.length}"
-    else
-      community = @communityPackages.find('.package-card:not(.hidden)').length
-      @communityCount.text "#{community}/#{@packages.user.length}"
-      dev = @devPackages.find('.package-card:not(.hidden)').length
-      @devCount.text "#{dev}/#{@packages.dev.length}"
-      core = @corePackages.find('.package-card:not(.hidden)').length
-      @coreCount.text "#{core}/#{@packages.core.length}"
+  updateUnfilteredSectionCounts: ->
+    @updateSectionCount(@communityThemesHeader, @communityCount, @packages.user.length)
+    @updateSectionCount(@coreThemesHeader, @coreCount, @packages.core.length)
+    @updateSectionCount(@developmentThemesHeader, @devCount, @packages.dev.length)
+    @updateSectionCount(@gitThemesHeader, @gitCount, @packages.git.length)
+
+    @totalPackages.text "#{@packages.user.length + @packages.core.length + @packages.dev.length + @packages.git.length}"
+
+  updateFilteredSectionCounts: ->
+    community = @notHiddenCardsLength(@communityPackages)
+    @updateSectionCount(@communityThemesHeader, @communityCount, community, @packages.user.length)
+
+    dev = @notHiddenCardsLength(@devPackages)
+    @updateSectionCount(@developmentThemesHeader, @devCount, dev, @packages.dev.length)
+
+    core = @notHiddenCardsLength(@corePackages)
+    @updateSectionCount(@coreThemesHeader, @coreCount, core, @packages.core.length)
+
+    git = @notHiddenCardsLength(@gitPackages)
+    @updateSectionCount(@gitThemesHeader, @gitCount, git, @packages.git.length)
+
+  resetSectionHasItems: ->
+    @resetCollapsibleSections([@communityThemesHeader, @coreThemesHeader, @developmentThemesHeader, @gitThemesHeader])
 
   matchPackages: ->
     filterText = @filterEditor.getModel().getText()
     @filterPackageListByText(filterText)
-
-  handleEvents: ->
-    @on 'click', '.sub-section .icon-paintcan', (e) ->
-      e.currentTarget.parentNode.classList.toggle('collapsed')
