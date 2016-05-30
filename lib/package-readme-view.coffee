@@ -48,4 +48,5 @@ class PackageReadmeView extends View
       'onunload'
     ]
     o('*').removeAttr(attribute) for attribute in attributesToRemove
+    o('input[type="checkbox"]').attr('disabled', true)
     o.html()

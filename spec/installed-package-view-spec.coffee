@@ -187,4 +187,4 @@ describe "PackageDetailView", ->
 
         view = new PackageDetailView(pack, new PackageManager(), SnippetsProvider)
         expect(view.sections.find('.package-readme').text()).not.toBe normalizePackageDataReadmeError
-        expect(view.sections.find('.package-readme').text().trim()).toBe 'I am a Readme!'
+        expect(view.sections.find('.package-readme').text().trim()).toContain 'I am a Readme!'
