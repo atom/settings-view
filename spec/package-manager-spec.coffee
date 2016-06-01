@@ -1,4 +1,5 @@
 path = require 'path'
+process = require 'process'
 PackageManager = require '../lib/package-manager'
 
 describe "package manager", ->
@@ -9,6 +10,7 @@ describe "package manager", ->
     packageManager = new PackageManager()
 
   it "handle errors spawning apm", ->
+    noSuchCommandError = if process.platform is 'win32' then ' cannot find the path ' else 'ENOENT'
     waitsForPromise shouldReject: true, -> packageManager.search('test')
     waitsForPromise shouldReject: true, -> packageManager.getInstalled()
     waitsForPromise shouldReject: true, -> packageManager.getOutdated()
@@ -26,9 +28,10 @@ describe "package manager", ->
       installCallback.callCount is 1
 
     runs ->
-      expect(installCallback.argsForCall[0][0].message).toBe "Installing \u201Cfoo@1.0.0\u201D failed."
-      expect(installCallback.argsForCall[0][0].packageInstallError).toBe true
-      expect(installCallback.argsForCall[0][0].stderr).toContain 'ENOENT'
+      installArg = installCallback.argsForCall[0][0]
+      expect(installArg.message).toBe "Installing \u201Cfoo@1.0.0\u201D failed."
+      expect(installArg.packageInstallError).toBe true
+      expect(installArg.stderr).toContain noSuchCommandError
 
       packageManager.uninstall {name: 'foo'}, uninstallCallback
 
@@ -36,8 +39,9 @@ describe "package manager", ->
       uninstallCallback.callCount is 1
 
     runs ->
-      expect(uninstallCallback.argsForCall[0][0].message).toBe "Uninstalling \u201Cfoo\u201D failed."
-      expect(uninstallCallback.argsForCall[0][0].stderr).toContain 'ENOENT'
+      uninstallArg = uninstallCallback.argsForCall[0][0]
+      expect(uninstallArg.message).toBe "Uninstalling \u201Cfoo\u201D failed."
+      expect(uninstallArg.stderr).toContain noSuchCommandError
 
       packageManager.update {name: 'foo'}, '1.0.0', updateCallback
 
@@ -45,9 +49,10 @@ describe "package manager", ->
       updateCallback.callCount is 1
 
     runs ->
-      expect(updateCallback.argsForCall[0][0].message).toBe "Updating to \u201Cfoo@1.0.0\u201D failed."
-      expect(updateCallback.argsForCall[0][0].packageInstallError).toBe true
-      expect(updateCallback.argsForCall[0][0].stderr).toContain 'ENOENT'
+      updateArg = updateCallback.argsForCall[0][0]
+      expect(updateArg.message).toBe "Updating to \u201Cfoo@1.0.0\u201D failed."
+      expect(updateArg.packageInstallError).toBe true
+      expect(updateArg.stderr).toContain noSuchCommandError
 
   describe "::isPackageInstalled()", ->
     it "returns false a package is not installed", ->
