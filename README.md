@@ -1,8 +1,7 @@
-# Settings View 
-[![Build Status](https://travis-ci.org/atom/settings-view.svg?branch=master)](https://travis-ci.org/atom/settings-view) 
-[![Dependency Status](https://david-dm.org/atom/settings-view.svg)](https://david-dm.org/atom/settings-view)
+# Settings View package
+[![OS X Build Status](https://travis-ci.org/atom/settings-view.svg?branch=master)](https://travis-ci.org/atom/settings-view) [![Windows Build Status](https://ci.appveyor.com/api/projects/status/hatgxg6k2g3grafq/branch/master?svg=true)](https://ci.appveyor.com/project/Atom/settings-view/branch/master) [![Dependency Status](https://david-dm.org/atom/settings-view.svg)](https://david-dm.org/atom/settings-view)
 
-Edit core config settings, install and configure packages, and change themes all from within Atom.
+Edit core configuration settings, install and configure packages, and change themes from within Atom.
 
 ![Settings View](https://cloud.githubusercontent.com/assets/378023/7413735/2473cc46-ef89-11e4-9786-63797d04a916.png)
 
@@ -11,9 +10,9 @@ You can open the Settings View by navigating to _Edit > Preferences_ (Linux), _A
 
 In order to install new packages and themes, click on the _Install_ section on the left-hand side.
 Once installed, community packages/themes and their settings are housed within their respective section.
-All packages/themes that have updates will be listed under the _Updates_ section.  Finally, all keybindings (including ones that community packages have added) are available in the _Keybindings_ section.
+All packages/themes that have updates will be listed under the _Updates_ section. Finally, all keybindings (including ones that community packages have added) are available in the _Keybindings_ section.
 
-Want to learn more?  Check out the [Getting Started: Atom Basics](https://atom.io/docs/latest/getting-started-atom-basics#settings-and-preferences) and [Using Atom: Atom Packages](https://atom.io/docs/latest/using-atom-atom-packages) sections in the flight manual.
+Want to learn more? Check out the [Getting Started: Atom Basics](https://atom.io/docs/latest/getting-started-atom-basics#settings-and-preferences) and [Using Atom: Atom Packages](https://atom.io/docs/latest/using-atom-atom-packages) sections in the Atom Flight Manual.
 
 ### Commands and Keybindings
 All of the following commands are under the `atom-workspace` selector.
@@ -32,7 +31,7 @@ Custom keybindings can be added by referencing the above commands.  To learn mor
 ## Customize
 The Settings View package uses the `ui-variables` to match a theme's color scheme. You can still customize the UI in your `styles.less` file. For example:
 
-```less
+```css
 // Change the color of the titles
 .settings-view .section .section-heading {
   color: white;
