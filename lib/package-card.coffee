@@ -65,6 +65,8 @@ class PackageCard extends View
 
     {@name} = @pack
 
+    @onSettingsView = options?.onSettingsView
+
     @newVersion = @pack.latestVersion unless @pack.latestVersion is @pack.version
     if @pack.apmInstallSource?.type is 'git'
       @newSha = @pack.latestSha unless @pack.apmInstallSource.sha is @pack.latestSha
@@ -84,7 +86,6 @@ class PackageCard extends View
       @statusIndicator.remove()
       @enablementButton.remove()
 
-    @settingsButton.hide() unless @hasSettings()
     if atom.packages.isBundledPackage(@pack.name)
       @installButtonGroup.remove()
       @uninstallButton.remove()
@@ -193,11 +194,17 @@ class PackageCard extends View
     @versionValue.text(@installablePack?.version ? @pack.version)
     if @pack.apmInstallSource?.type is 'git'
       @downloadCount.text @pack.apmInstallSource.sha.substr(0, 8)
-    if @hasSettings()
-      @settingsButton.show()
+
+    @updateSettingsState()
     @updateInstalledState()
     @updateDisabledState()
     @updateDeprecatedState()
+
+  updateSettingsState: ->
+    if @hasSettings() and not @onSettingsView
+      @settingsButton.show()
+    else
+      @settingsButton.hide()
 
   # Section: disabled state updates
 
