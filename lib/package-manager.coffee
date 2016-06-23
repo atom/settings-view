@@ -53,6 +53,24 @@ class PackageManager
     args.push('--no-color')
     new BufferedProcess({command, args, stdout, stderr, exit})
 
+  loadPackagesJson: (args, callback) ->
+    args.push('--json')
+
+    @runCommand args, (code, stdout, stderr) ->
+      if code is 0
+        try
+          packages = JSON.parse(stdout) ? []
+        catch parseError
+          error = createJsonParseError(errorMessage, parseError, stdout)
+          return callback(error)
+
+        callback(null, packages)
+      else
+        error = new Error(errorMessage)
+        error.stdout = stdout
+        error.stderr = stderr
+        callback(error)
+
   loadInstalled: (callback) ->
     args = ['ls', '--json']
     errorMessage = 'Fetching local packages failed.'
@@ -100,6 +118,11 @@ class PackageManager
         callback(error)
 
     handleProcessErrors(apmProcess, errorMessage, callback)
+
+  loadStarred: (callback) ->
+    args = ['starred']
+    errorMessage = 'Fetching local packages failed.'
+    handleProcessErrors(@loadPackagesJson(args, callback))
 
   loadOutdated: (callback) ->
     # Short circuit if we have cached data.
@@ -190,6 +213,14 @@ class PackageManager
   getFeatured: (loadThemes) ->
     new Promise (resolve, reject) =>
       @loadFeatured !!loadThemes, (error, result) ->
+        if error
+          reject(error)
+        else
+          resolve(result)
+
+  getStarred: ->
+    new Promise (resolve, reject) =>
+      @loadStarred (error, result) ->
         if error
           reject(error)
         else
