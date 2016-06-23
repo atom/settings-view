@@ -26,9 +26,9 @@ class PackageCard extends View
 
       @div class: 'body', =>
         @h4 class: 'card-name', =>
-          @a outlet: 'packageName', displayName
+          @a class: 'package-name', outlet: 'packageName', displayName
           @span ' '
-          @span =>
+          @span class: 'package-version', =>
             @span outlet: 'versionValue', class: 'value', String(version)
 
           @span class: 'deprecation-badge highlight-warning inline-block', 'Deprecated'
