@@ -55,7 +55,7 @@ class PackageCard extends View
                 @span class: 'disable-text', 'Disable'
               @button type: 'button', class: 'btn status-indicator', tabindex: -1, outlet: 'statusIndicator'
 
-  initialize: (@pack, @packageManager, options) ->
+  initialize: (@pack, @packageManager, options={}) ->
     @disposables = new CompositeDisposable()
 
     # It might be useful to either wrap @pack in a class that has a ::validate
