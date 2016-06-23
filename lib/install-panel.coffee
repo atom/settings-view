@@ -163,18 +163,35 @@ class InstallPanel extends ScrollView
 
     @packageManager.search(query, opts)
       .then (packages=[]) =>
-        if packages.length is 0
-          @searchMessage.text("No #{@searchType.replace(/s$/, '')} results for \u201C#{query}\u201D").show()
-        else
-          @searchMessage.hide()
+        @resultsContainer.empty()
+        packages
+      .then (packages=[]) =>
+        @searchMessage.hide()
+        @showNoResultMessage if packages.length is 0
+        packages
+      .then (packages=[]) =>
+        @highlightExactMatch(@resultsContainer, query, packages)
+      .then (packages=[]) =>
         @addPackageViews(@resultsContainer, packages)
       .catch (error) =>
         @searchMessage.hide()
         @searchErrors.append(new ErrorView(@packageManager, error))
 
-  addPackageViews: (container, packages) ->
-    container.empty()
+  showNoResultMessage: ->
+    @searchMessage.text("No #{@searchType.replace(/s$/, '')} results for \u201C#{query}\u201D").show()
 
+  highlightExactMatch: (container, query, packages) ->
+    exactMatch = _.filter packages, (pkg) ->
+      pkg.name is query
+
+    if exactMatch.length > 0
+      packageCard = @getPackageCardView(exactMatch[0])
+      @addPackageCardView(container, packageCard)
+      packages.splice(packages.indexOf(exactMatch), 1)
+
+    packages
+
+  addPackageViews: (container, packages) ->
     for pack, index in packages
       packageCard = @getPackageCardView(pack)
       @addPackageCardView(container, packageCard)
