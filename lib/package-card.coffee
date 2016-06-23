@@ -16,11 +16,11 @@ class PackageCard extends View
 
     @div class: 'package-card col-lg-8', =>
       @div outlet: 'statsContainer', class: 'stats pull-right', =>
-        @span class: 'stats-item', =>
+        @span outlet: 'packageStars', class: 'stats-item', =>
           @span outlet: 'stargazerIcon', class: 'icon icon-star'
           @span outlet: 'stargazerCount', class: 'value'
 
-        @span class: 'stats-item', =>
+        @span outlet: 'packageDownloads', class: 'stats-item', =>
           @span outlet: 'downloadIcon', class: 'icon icon-cloud-download'
           @span outlet: 'downloadCount', class: 'value'
 
@@ -72,6 +72,13 @@ class PackageCard extends View
     if @pack.apmInstallSource?.type is 'git'
       @newSha = @pack.latestSha unless @pack.apmInstallSource.sha is @pack.latestSha
 
+    # Default to displaying the download count
+    unless options?.stats
+      options.stats = {
+        downloads: true
+      }
+
+    @displayStats(options)
     @handlePackageEvents()
     @handleButtonEvents(options)
     @loadCachedMetadata()
@@ -276,6 +283,17 @@ class PackageCard extends View
       @displayDeprecatedState()
     else if @hasClass('deprecated')
       @displayUndeprecatedState()
+
+  displayStats: (options) ->
+    if options?.stats?.downloads
+      @packageDownloads.show()
+    else
+      @packageDownloads.hide()
+
+    if options?.stats?.stars
+      @packageStars.show()
+    else
+      @packageStars.hide()
 
   displayUndeprecatedState: ->
     @removeClass('deprecated')
