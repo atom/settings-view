@@ -181,11 +181,11 @@ class InstallPanel extends ScrollView
     @searchMessage.text("No #{@searchType.replace(/s$/, '')} results for \u201C#{query}\u201D").show()
 
   highlightExactMatch: (container, query, packages) ->
-    exactMatch = _.filter packages, (pkg) ->
-      pkg.name is query
+    exactMatch = _.filter(packages, (pkg) ->
+      pkg.name is query)[0]
 
-    if exactMatch.length > 0
-      packageCard = @getPackageCardView(exactMatch[0])
+    if exactMatch
+      packageCard = @getPackageCardView(exactMatch)
       @addPackageCardView(container, packageCard)
       packages.splice(packages.indexOf(exactMatch), 1)
 
