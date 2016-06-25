@@ -32,6 +32,12 @@ describe "PackageCard", ->
     jasmine.attachToDOM(card[0])
     expect(card.settingsButton).not.toBeVisible()
 
+  it "doesn't show the settings button on the settings view", ->
+    setPackageStatusSpies {installed: true, disabled: false, hasSettings: true}
+    card = new PackageCard {name: 'test-package'}, packageManager, {onSettingsView: true}
+    jasmine.attachToDOM(card[0])
+    expect(card.settingsButton).not.toBeVisible()
+
   it "removes the settings button if a package has no settings", ->
     setPackageStatusSpies {installed: true, disabled: false, hasSettings: false}
     card = new PackageCard {name: 'test-package'}, packageManager
