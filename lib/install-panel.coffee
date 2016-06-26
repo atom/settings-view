@@ -212,7 +212,7 @@ class InstallPanel extends ScrollView
     packageRow.append(packageCard)
 
   getPackageCardView: (pack) ->
-    new PackageCard(pack, @packageManager, back: 'Install')
+    new PackageCard(pack, @packageManager, {back: 'Install', stats: {downloads: true, stars: true}})
 
   filterPackages: (packages, themes) ->
     packages.filter ({theme}) ->
