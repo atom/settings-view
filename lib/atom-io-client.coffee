@@ -5,6 +5,19 @@ glob = null    # defer until used
 request = null # defer until used
 DefaultRequestHeaders = {'User-Agent': navigator.userAgent}
 
+try
+  keytar = require 'keytar'
+catch error
+  # Gracefully handle keytar failing to load due to missing library on Linux
+  if process.platform is 'linux'
+    keytar =
+      findPassword: ->
+      replacePassword: ->
+  else
+    throw error
+
+tokenName = 'Atom.io API Token'
+
 module.exports =
 class AtomIoClient
   constructor: (@packageManager, @baseURL) ->
@@ -22,6 +35,29 @@ class AtomIoClient
         callback null, cached
       else
         @fetchAndCacheAvatar(login, callback)
+
+  # Get the Atom.io API token from the keychain.
+  #
+  # callback - A function to call with string token as an argument.
+  getToken: (callback) ->
+    if token = keytar.findPassword(tokenName, 'atom.io')
+      callback(token) if callback
+      return
+
+    if token = process.env.ATOM_ACCESS_TOKEN
+      callback(token) if callback
+      return
+
+    if callback
+      callback """
+        No Atom.io API token found.
+      """
+
+  # Save the given token to the keychain.
+  #
+  # token - A string token to save.
+  saveToken: (token) ->
+    keytar.replacePassword(tokenName, 'atom.io', token)
 
   # Public: get a package from the atom.io API, with the appropriate level of
   # caching.
