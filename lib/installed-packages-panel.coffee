@@ -42,13 +42,6 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
             @div outlet: 'communityPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
-          @section class: 'sub-section starred-packages', =>
-            @h3 outlet: 'starredPackagesHeader', class: 'sub-section-heading icon icon-package', =>
-              @text 'Starred Packages'
-              @span outlet: 'starredCount', class: 'section-heading-count badge badge-flexible', '…'
-            @div outlet: 'starredPackages', class: 'container package-container', =>
-              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
-
           @section class: 'sub-section core-packages', =>
             @h3 outlet: 'corePackagesHeader', class: 'sub-section-heading icon icon-package', =>
               @text 'Core Packages'
@@ -77,14 +70,12 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
       core: new List('name')
       user: new List('name')
       git: new List('name')
-      starred: new List('name')
       deprecated: new List('name')
     @itemViews =
       dev: new ListView(@items.dev, @devPackages, @createPackageCard)
       core: new ListView(@items.core, @corePackages, @createPackageCard)
       user: new ListView(@items.user, @communityPackages, @createPackageCard)
       git: new ListView(@items.git, @gitPackages, @createPackageCard)
-      starred: new ListView(@items.starred, @starredPackages, @createPackageCard)
       deprecated: new ListView(@items.deprecated, @deprecatedPackages, @createPackageCard)
 
     @filterEditor.getModel().onDidStopChanging => @matchPackages()
@@ -139,11 +130,6 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
       for {name, latestVersion} in packages
         packagesWithUpdates[name] = latestVersion
       @displayPackageUpdates(packagesWithUpdates)
-
-    @packageManager.getStarred().then (packages) =>
-      @items.starred.setItems(packages)
-      @starredPackages.find('.alert.loading-area').remove()
-      @updateSectionCount(@starredPackagesHeader, @starredCount, packages.length)
 
     @packageManager.getInstalled()
       .then (packages) =>
