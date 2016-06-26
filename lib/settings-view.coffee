@@ -39,6 +39,11 @@ class SettingsView extends ScrollView
     super
     @packageManager = new PackageManager()
     @deferredPanel = activePanel
+
+    atom.config.observe 'settings-view.enableStarredPackages', (value) =>
+      if value
+        @packageManager.getClient().getToken()
+
     process.nextTick => @initializePanels()
 
   dispose: ->
