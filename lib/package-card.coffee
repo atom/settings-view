@@ -15,18 +15,21 @@ class PackageCard extends View
 
     @div class: 'package-card col-lg-8', =>
       @div outlet: 'statsContainer', class: 'stats pull-right', =>
-        @span class: "stats-item", =>
-          @span class: 'icon icon-versions'
-          @span outlet: 'versionValue', class: 'value', String(version)
+        @span outlet: 'packageStars', class: 'stats-item', =>
+          @span outlet: 'stargazerIcon', class: 'icon icon-star'
+          @span outlet: 'stargazerCount', class: 'value'
 
-        @span class: 'stats-item', =>
+        @span outlet: 'packageDownloads', class: 'stats-item', =>
           @span outlet: 'downloadIcon', class: 'icon icon-cloud-download'
           @span outlet: 'downloadCount', class: 'value'
 
       @div class: 'body', =>
         @h4 class: 'card-name', =>
-          @a outlet: 'packageName', displayName
+          @a class: 'package-name', outlet: 'packageName', displayName
           @span ' '
+          @span class: 'package-version', =>
+            @span outlet: 'versionValue', class: 'value', String(version)
+
           @span class: 'deprecation-badge highlight-warning inline-block', 'Deprecated'
         @span outlet: 'packageDescription', class: 'package-description', description
         @div outlet: 'packageMessage', class: 'package-message'
@@ -51,7 +54,7 @@ class PackageCard extends View
                 @span class: 'disable-text', 'Disable'
               @button type: 'button', class: 'btn status-indicator', tabindex: -1, outlet: 'statusIndicator'
 
-  initialize: (@pack, @packageManager, options) ->
+  initialize: (@pack, @packageManager, options={}) ->
     @disposables = new CompositeDisposable()
 
     # It might be useful to either wrap @pack in a class that has a ::validate
@@ -68,6 +71,13 @@ class PackageCard extends View
     if @pack.apmInstallSource?.type is 'git'
       @newSha = @pack.latestSha unless @pack.apmInstallSource.sha is @pack.latestSha
 
+    # Default to displaying the download count
+    unless options?.stats
+      options.stats = {
+        downloads: true
+      }
+
+    @displayStats(options)
     @handlePackageEvents()
     @handleButtonEvents(options)
     @loadCachedMetadata()
@@ -186,6 +196,7 @@ class PackageCard extends View
           @downloadIcon.addClass('icon-git-branch')
           @downloadCount.text @pack.apmInstallSource.sha.substr(0, 8)
         else
+          @stargazerCount.text data.stargazers_count?.toLocaleString()
           @downloadCount.text data.downloads?.toLocaleString()
 
   updateInterfaceState: ->
@@ -271,6 +282,17 @@ class PackageCard extends View
       @displayDeprecatedState()
     else if @hasClass('deprecated')
       @displayUndeprecatedState()
+
+  displayStats: (options) ->
+    if options?.stats?.downloads
+      @packageDownloads.show()
+    else
+      @packageDownloads.hide()
+
+    if options?.stats?.stars
+      @packageStars.show()
+    else
+      @packageStars.hide()
 
   displayUndeprecatedState: ->
     @removeClass('deprecated')
