@@ -56,6 +56,17 @@ describe 'InstallPanel', ->
       expect(@panel.searchType).toBe 'themes'
       expect(@panel.search.callCount).toBe 3
 
+  describe "when the search is empty it clears the results", ->
+    beforeEach ->
+      spyOn(@panel, 'search')
+      @panel.searchEditorView.setText('')
+      @panel.resultsContainer.append('<div/>')
+
+    it "performs a search for the contents of the input", ->
+      @panel.searchPackagesButton.click()
+      expect(@panel.search.callCount).toBe 0
+      expect(@panel.resultsContainer.children().length).toBe 0
+
   describe "searching git packages", ->
     beforeEach ->
       spyOn(@panel, 'showGitInstallPackageCard').andCallThrough()

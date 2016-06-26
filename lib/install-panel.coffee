@@ -125,8 +125,12 @@ class InstallPanel extends ScrollView
       null
 
   performSearch: ->
-    if query = @searchEditorView.getText().trim()
+    query = @searchEditorView.getText().trim()
+
+    if query and query isnt ''
       @performSearchForQuery(query)
+    else
+      @resultsContainer.empty()
 
   performSearchForQuery: (query) ->
     if gitUrlInfo = hostedGitInfo.fromUrl(query)
