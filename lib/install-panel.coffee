@@ -45,6 +45,13 @@ class InstallPanel extends ScrollView
           @div outlet: 'loadingMessage', class: 'alert alert-info icon icon-hourglass'
           @div outlet: 'featuredContainer', class: 'container package-container'
 
+      @div class: 'section packages', =>
+        @div class: 'section-container', =>
+          @div outlet: 'starreedHeading', class: 'section-heading icon icon-star', 'Starred Packages'
+          @div outlet: 'starreedErrors'
+          @div outlet: 'loadingStarredMessage', class: 'alert alert-info icon icon-hourglass'
+          @div outlet: 'starreedContainer', class: 'container package-container'
+
   initialize: (@packageManager) ->
     super
     @disposables = new CompositeDisposable()
@@ -61,6 +68,7 @@ class InstallPanel extends ScrollView
     @searchType = 'packages'
     @handleSearchEvents()
 
+    @loadStarredPackages()
     @loadFeaturedPackages()
 
   dispose: ->
@@ -193,6 +201,17 @@ class InstallPanel extends ScrollView
         theme
       else
         not theme
+
+  # Load starred packages
+  loadStarredPackages: ->
+    @packageManager.getStarred()
+      .then (packages) =>
+        @loadingStarredMessage.hide()
+        packages
+      .then (packages) =>
+        @addPackageViews(@starreedContainer, packages)
+      .catch (error) =>
+        @starreedErrors.append(new ErrorView(@packageManager, error))
 
   # Load and display the featured packages that are available to install.
   loadFeaturedPackages: (loadThemes) ->
