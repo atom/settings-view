@@ -45,7 +45,7 @@ class InstallPanel extends ScrollView
           @div outlet: 'loadingMessage', class: 'alert alert-info icon icon-hourglass'
           @div outlet: 'featuredContainer', class: 'container package-container'
 
-      @div class: 'section packages', =>
+      @div outlet: 'starredPackagesSection', class: 'section packages', =>
         @div class: 'section-container', =>
           @div outlet: 'starreedHeading', class: 'section-heading icon icon-star', 'Starred Packages'
           @div outlet: 'starreedErrors'
@@ -68,7 +68,15 @@ class InstallPanel extends ScrollView
     @searchType = 'packages'
     @handleSearchEvents()
 
-    @loadStarredPackages()
+    if @showStarredPackages()
+      @loadStarredPackages()
+    else
+      atom.config.observe 'settings-view.enableStarredPackages', (enabled) =>
+        if enabled
+          @loadStarredPackages()
+
+      @starredPackagesSection.hide()
+
     @loadFeaturedPackages()
 
   dispose: ->
@@ -76,6 +84,9 @@ class InstallPanel extends ScrollView
 
   focus: ->
     @searchEditorView.focus()
+
+  showStarredPackages: ->
+    @starredPackages ?= atom.config.get('settings-view.enableStarredPackages')
 
   handleSearchEvents: ->
     @disposables.add @packageManager.on 'package-install-failed', ({pack, error}) =>
@@ -212,7 +223,7 @@ class InstallPanel extends ScrollView
     packageRow.append(packageCard)
 
   getPackageCardView: (pack) ->
-    new PackageCard(pack, @packageManager, {back: 'Install', stats: {downloads: true, stars: true}})
+    new PackageCard(pack, @packageManager, {back: 'Install', stats: {downloads: true, stars: @showStarredPackages()}})
 
   filterPackages: (packages, themes) ->
     packages.filter ({theme}) ->
@@ -223,6 +234,7 @@ class InstallPanel extends ScrollView
 
   # Load starred packages
   loadStarredPackages: ->
+    @starredPackagesSection.show()
     @packageManager.getStarred()
       .then (packages) =>
         @loadingStarredMessage.hide()
