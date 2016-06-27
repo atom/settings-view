@@ -49,9 +49,7 @@ class AtomIoClient
       return
 
     if callback
-      callback """
-        No Atom.io API token found.
-      """
+      callback()
 
   # Save the given token to the keychain.
   #

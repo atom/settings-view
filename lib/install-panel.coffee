@@ -50,7 +50,15 @@ class InstallPanel extends ScrollView
           @div outlet: 'starreedHeading', class: 'section-heading icon icon-star', 'Starred Packages'
           @div outlet: 'starreedErrors'
           @div outlet: 'loadingStarredMessage', class: 'alert alert-info icon icon-hourglass'
-          @div outlet: 'starreedContainer', class: 'container package-container'
+          @div outlet: 'starredContainer', class: 'container package-container'
+          @div outlet: 'tokenForm', =>
+            @div class: 'text native-key-bindings', tabindex: -1, =>
+              @span class: 'icon icon-question'
+              @span outlet: 'publishedToText', 'To star packages you need an account on '
+              @a class: 'link', outlet: 'openAtomIoAccount', 'atom.io/account'
+              @div class: 'editor-container', =>
+                @subview 'tokenView', new TextEditorView(mini: true)
+
 
   initialize: (@packageManager) ->
     super
@@ -58,26 +66,15 @@ class InstallPanel extends ScrollView
     client = $('.settings-view').view()?.client
     @client = @packageManager.getClient()
     @atomIoURL = 'https://atom.io/packages'
-    @openAtomIo.on 'click', =>
-      require('electron').shell.openExternal(@atomIoURL)
-      false
+    @starredPackages = atom.config.get('settings-view.enableStarredPackages')
 
     @searchMessage.hide()
-
     @searchEditorView.getModel().setPlaceholderText('Search packages')
-    @searchType = 'packages'
+    @setSearchType('packages')
     @handleSearchEvents()
 
-    if @showStarredPackages()
-      @loadStarredPackages()
-    else
-      atom.config.observe 'settings-view.enableStarredPackages', (enabled) =>
-        if enabled
-          @loadStarredPackages()
-
-      @starredPackagesSection.hide()
-
-    @loadFeaturedPackages()
+    @showStarredPackages()
+    @handleExternalLinksEvents()
 
   dispose: ->
     @disposables.dispose()
@@ -85,8 +82,14 @@ class InstallPanel extends ScrollView
   focus: ->
     @searchEditorView.focus()
 
-  showStarredPackages: ->
-    @starredPackages ?= atom.config.get('settings-view.enableStarredPackages')
+  handleExternalLinksEvents: ->
+    @openAtomIo.on 'click', =>
+      require('electron').shell.openExternal(@atomIoURL)
+      false
+
+    @openAtomIoAccount.on 'click', ->
+      require('electron').shell.openExternal('https://atom.io/account')
+      false
 
   handleSearchEvents: ->
     @disposables.add @packageManager.on 'package-install-failed', ({pack, error}) =>
@@ -101,7 +104,7 @@ class InstallPanel extends ScrollView
       @performSearch()
 
     @searchPackagesButton.on 'click', =>
-      @setSearchType('package') unless @searchPackagesButton.hasClass('selected')
+      @setSearchType('packages') unless @searchPackagesButton.hasClass('selected')
       @performSearch()
 
     @searchThemesButton.on 'click', =>
@@ -117,7 +120,7 @@ class InstallPanel extends ScrollView
       @publishedToText.text('Themes are published to ')
       @atomIoURL = 'https://atom.io/themes'
       @loadFeaturedPackages(true)
-    else if searchType is 'package'
+    else if searchType is 'packages'
       @searchType = 'packages'
       @searchPackagesButton.addClass('selected')
       @searchThemesButton.removeClass('selected')
@@ -223,7 +226,7 @@ class InstallPanel extends ScrollView
     packageRow.append(packageCard)
 
   getPackageCardView: (pack) ->
-    new PackageCard(pack, @packageManager, {back: 'Install', stats: {downloads: true, stars: @showStarredPackages()}})
+    new PackageCard(pack, @packageManager, {back: 'Install', stats: {downloads: true, stars: @showStarredPackages}})
 
   filterPackages: (packages, themes) ->
     packages.filter ({theme}) ->
@@ -231,6 +234,32 @@ class InstallPanel extends ScrollView
         theme
       else
         not theme
+
+  # Shows starred packages if enabled and a token is set
+  # If enabled but no token is found it shows a form to set it
+  showStarredPackages: ->
+    if @showStarredPackages
+      @tokenForm.hide()
+      @client.getToken (token) =>
+        if token
+          @loadStarredPackages()
+        else
+          @showTokenForm()
+    else
+      @disposables.add atom.config.observe 'settings-view.enableStarredPackages', (enabled) =>
+        if enabled
+          @loadStarredPackages()
+
+      @starredPackagesSection.hide()
+
+  showTokenForm: ->
+    @tokenView.getModel().setPlaceholderText('Atom.io account token')
+    @loadingStarredMessage.hide()
+    @tokenView.getModel().onDidStopChanging =>
+      @packageManager.getClient().saveToken(@tokenView.getText().trim())
+      @showStarredPackages()
+
+    @tokenForm.show()
 
   # Load starred packages
   loadStarredPackages: ->
@@ -240,7 +269,7 @@ class InstallPanel extends ScrollView
         @loadingStarredMessage.hide()
         packages
       .then (packages) =>
-        @addPackageViews(@starreedContainer, packages)
+        @addPackageViews(@starredContainer, packages)
       .catch (error) =>
         @starreedErrors.append(new ErrorView(@packageManager, error))
 
