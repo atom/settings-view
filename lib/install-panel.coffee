@@ -54,7 +54,7 @@ class InstallPanel extends ScrollView
           @div outlet: 'tokenForm', =>
             @div class: 'text native-key-bindings', tabindex: -1, =>
               @span class: 'icon icon-question'
-              @span outlet: 'publishedToText', 'To star packages you need an account on '
+              @span 'To star packages you need an account on '
               @a class: 'link', outlet: 'openAtomIoAccount', 'atom.io/account'
               @div class: 'editor-container', =>
                 @subview 'tokenView', new TextEditorView(mini: true)
