@@ -11,6 +11,7 @@ class PackageManager
 
   constructor: ->
     @packagePromises = []
+    @starredPackages = []
     @availablePackageCache = null
     @apmCache =
       loadOutdated:
@@ -96,7 +97,7 @@ class PackageManager
   loadStarred: (callback) ->
     args = ['stars']
     errorMessage = 'Fetching starred packages failed.'
-    @loadPackagesJson(args, errorMessage, callback)
+    @starredPackages = @loadPackagesJson(args, errorMessage, callback)
 
   loadFeatured: (loadThemes, callback) ->
     unless callback
@@ -422,10 +423,38 @@ class PackageManager
       callback(null, eventArg)
       @emitter.emit('package-installed-alternative', eventArg)
     .catch (error) =>
-      console.error error.message, error.stack
       callback(error, eventArg)
       eventArg.error = error
       @emitter.emit('package-install-alternative-failed', eventArg)
+
+  toggleStar: (pack) ->
+    pkg = pack
+
+    @getStarred()
+      .then (packages) ->
+        packages.indexOf(pkg) is not -1
+      .then (starred) =>
+        @starOrUnstar(not starred, pkg.name)
+      .then (action) =>
+
+        @starred = []
+
+  starOrUnstar: (star, pack) ->
+    args = [pack]
+    if star
+      args.unshift('star')
+    else
+      args.unshift('unstar')
+
+    errorMessage = "Unable to #{args.join(' ')}"
+    @runCommand args, (code, stdout, stderr) ->
+      if code is 0
+        args[0]
+      else
+        error = new Error(errorMessage)
+        error.stdout = stdout
+        error.stderr = stderr
+        error
 
   canUpgrade: (installedPackage, availableVersion) ->
     return false unless installedPackage?
