@@ -150,6 +150,12 @@
         .icon {
           color: @text-color-subtle;
         }
+
+        &.active,
+        &.active .icon:before {
+          font-weight: bold;
+          color: @text-color-highlight;
+        }
       }
 
       .star-box {
