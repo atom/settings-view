@@ -26,7 +26,7 @@ module.exports =
       type: 'boolean'
       default: false
       description: """
-        Enables listing your starred packages from http://atom.io. It requires access to your systems keychachain
+        Enables listing your starred packages from http://atom.io. It requires access to your systems keychain
         to save your access token or an `ATOM_ACCESS_TOKEN` environment variable set to retrieve them.
       """
 
