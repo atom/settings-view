@@ -291,8 +291,24 @@ class PackageCard extends View
 
     if options?.stats?.stars
       @packageStars.show()
+      @enableStarPackage()
     else
       @packageStars.hide()
+
+  enableStarPackage: ->
+    @packageManager.getStarred()
+      .then (packages) =>
+        @starred = _.filter(packages, (pkg) =>
+          pkg.name is @pack.name).length > 0
+      .then =>
+        @packageStars.addClass('active') if @starred
+      .then =>
+        @packageStars.on 'click', (e) =>
+          @packageManager.toggleStar(@pack)
+          @packageStars.toggleClass('active')
+          e.stopPropagation()
+      .catch (error) ->
+        console.log error
 
   displayUndeprecatedState: ->
     @removeClass('deprecated')
