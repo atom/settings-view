@@ -66,7 +66,7 @@ class InstallPanel extends ScrollView
     client = $('.settings-view').view()?.client
     @client = @packageManager.getClient()
     @atomIoURL = 'https://atom.io/packages'
-    @starredPackages = atom.config.get('settings-view.enableStarredPackages')
+    @enableStarredPackages = atom.config.get('settings-view.enableStarredPackages')
 
     @searchMessage.hide()
     @searchEditorView.getModel().setPlaceholderText('Search packages')
@@ -226,7 +226,13 @@ class InstallPanel extends ScrollView
     packageRow.append(packageCard)
 
   getPackageCardView: (pack) ->
-    new PackageCard(pack, @packageManager, {back: 'Install', stats: {downloads: true, stars: @showStarredPackages}})
+    packageCardOptions =
+      back: 'Install',
+      stats:
+        downloads: true,
+        stars: @enableStarredPackages
+
+    new PackageCard(pack, @packageManager, packageCardOptions)
 
   filterPackages: (packages, themes) ->
     packages.filter ({theme}) ->
@@ -238,7 +244,7 @@ class InstallPanel extends ScrollView
   # Shows starred packages if enabled and a token is set
   # If enabled but no token is found it shows a form to set it
   showStarredPackages: ->
-    if @showStarredPackages
+    if @enableStarredPackages
       @tokenForm.hide()
       @client.getToken (token) =>
         if token
