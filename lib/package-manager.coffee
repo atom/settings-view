@@ -31,7 +31,7 @@ class PackageManager
     else
       false
 
-  packageHasSettings: _.memoize((packageName) ->
+  packageHasSettings: (packageName) ->
     grammars = atom.grammars.getGrammars() ? []
     for grammar in grammars when grammar.path
       return true if grammar.packageName is packageName
@@ -40,7 +40,6 @@ class PackageManager
     pack.activateConfig() if pack? and not atom.packages.isPackageActive(packageName)
     schema = atom.config.getSchema(packageName)
     schema? and (schema.type isnt 'any')
-  )
 
   runCommand: (args, callback) ->
     command = atom.packages.getApmPath()
