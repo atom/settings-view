@@ -8,6 +8,7 @@ fuzzaldrin = require 'fuzzaldrin'
 
 Client = require './atom-io-client'
 GeneralPanel = require './general-panel'
+EditorPanel = require './editor-panel'
 PackageDetailView = require './package-detail-view'
 KeybindingsPanel = require './keybindings-panel'
 PackageManager = require './package-manager'
@@ -63,7 +64,8 @@ class SettingsView extends ScrollView
     @openDotAtom.on 'click', ->
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
 
-    @addCorePanel 'Settings', 'settings', -> new GeneralPanel
+    @addCorePanel 'Core', 'settings', -> new GeneralPanel
+    @addCorePanel 'Editor', 'file-text', -> new EditorPanel
     @addCorePanel 'Keybindings', 'keyboard', -> new KeybindingsPanel
     @addCorePanel 'Packages', 'package', => new InstalledPackagesPanel(@packageManager)
     @addCorePanel 'Themes', 'paintcan', => new ThemesPanel(@packageManager)
@@ -71,7 +73,7 @@ class SettingsView extends ScrollView
     @addCorePanel 'Install', 'plus', => new InstallPanel(@packageManager)
 
     @showDeferredPanel()
-    @showPanel('Settings') unless @activePanel
+    @showPanel('Core') unless @activePanel
     @sidebar.width(@sidebar.width()) if @isOnDom()
 
   serialize: ->

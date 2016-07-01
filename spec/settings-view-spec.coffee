@@ -39,7 +39,7 @@ describe "SettingsView", ->
       settingsView.remove()
       jasmine.attachToDOM(newSettingsView.element)
       newSettingsView.initializePanels()
-      expect(newSettingsView.activePanel).toEqual {name: 'Settings', options: {}}
+      expect(newSettingsView.activePanel).toEqual {name: 'Core', options: {}}
 
     it "serializes the active panel name even when the panels were never initialized", ->
       settingsView.showPanel('Themes')
@@ -90,11 +90,18 @@ describe "SettingsView", ->
         settingsView = null
 
       describe "settings-view:open", ->
-        it "opens the settings view", ->
+        it "opens the core settings view", ->
           openWithCommand('settings-view:open')
           runs ->
             expect(atom.workspace.getActivePaneItem().activePanel)
-              .toEqual name: 'Settings', options: {}
+              .toEqual name: 'Core', options: {}
+
+      describe "settings-view:editor", ->
+        it "opens the editor settings view", ->
+          openWithCommand('settings-view:editor')
+          runs ->
+            expect(atom.workspace.getActivePaneItem().activePanel)
+              .toEqual name: 'Editor', options: uri: 'atom://config/editor'
 
       describe "settings-view:show-keybindings", ->
         it "opens the settings view to the keybindings page", ->
@@ -164,7 +171,17 @@ describe "SettingsView", ->
         waitsFor (done) -> process.nextTick(done)
         runs ->
           expect(settingsView.activePanel)
-            .toEqual name: 'Settings', options: {}
+            .toEqual name: 'Core', options: {}
+          expect(focusIsWithinActivePanel()).toBe true
+          expectActivePanelToBeKeyboardScrollable()
+
+        waitsForPromise ->
+          atom.workspace.open('atom://config/editor').then (s) -> settingsView = s
+
+        waits 1
+        runs ->
+          expect(settingsView.activePanel)
+            .toEqual name: 'Editor', options: uri: 'atom://config/editor'
           expect(focusIsWithinActivePanel()).toBe true
           expectActivePanelToBeKeyboardScrollable()
 
@@ -260,7 +277,7 @@ describe "SettingsView", ->
         waitsFor (done) -> process.nextTick(done)
 
         runs ->
-          expect(settingsView.activePanel).toEqual {name: 'Settings', options: {}}
+          expect(settingsView.activePanel).toEqual {name: 'Core', options: {}}
 
         waitsForPromise ->
           atom.workspace.open('atom://config/install/package:something').then (s) -> settingsView = s
@@ -283,7 +300,8 @@ describe "SettingsView", ->
         runs ->
           settingsView = atom.workspace.getActivePaneItem()
           panels = [
-            settingsView.getOrCreatePanel('Settings')
+            settingsView.getOrCreatePanel('Core')
+            settingsView.getOrCreatePanel('Editor')
             settingsView.getOrCreatePanel('Keybindings')
             settingsView.getOrCreatePanel('Packages')
             settingsView.getOrCreatePanel('Themes')
