@@ -93,11 +93,6 @@ class PackageManager
 
     handleProcessErrors(apmProcess, errorMessage, callback)
 
-  loadStarred: (callback) ->
-    args = ['stars']
-    errorMessage = 'Fetching starred packages failed.'
-    @starredPackages = @loadPackagesJson(args, errorMessage, callback)
-
   loadFeatured: (loadThemes, callback) ->
     unless callback
       callback = loadThemes
@@ -213,12 +208,17 @@ class PackageManager
           resolve(result)
 
   getStarred: ->
+    args = ['stars']
+    errorMessage = 'Fetching starred packages failed.'
+
     new Promise (resolve, reject) =>
-      @loadStarred (error, result) ->
+      @loadPackagesJson args, errorMessage, (error, result) ->
         if error
           reject(error)
         else
           resolve(result)
+    .then (packages) =>
+      @starredPackages = packages
 
   getFeatured: (loadThemes) ->
     new Promise (resolve, reject) =>
