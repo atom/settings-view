@@ -269,13 +269,11 @@ class InstallPanel extends ScrollView
 
   # Load starred packages
   loadStarredPackages: ->
-    @starredPackagesSection.show()
-    @packageManager.getStarred()
+    @packageManager.getStarred()\
       .then (packages) =>
         @loadingStarredMessage.hide()
-        packages
-      .then (packages) =>
         @addPackageViews(@starredContainer, packages)
+        @starredPackagesSection.show()
       .catch (error) =>
         @starreedErrors.append(new ErrorView(@packageManager, error))
 
