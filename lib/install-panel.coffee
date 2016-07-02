@@ -51,6 +51,10 @@ class InstallPanel extends ScrollView
           @div outlet: 'starreedErrors'
           @div outlet: 'loadingStarredMessage', class: 'alert alert-info icon icon-hourglass'
           @div outlet: 'starredContainer', class: 'container package-container'
+          @div outlet: 'showMoreStarred', =>
+            @span 'Show '
+            @span outlet: 'additionalStarCount'
+            @span ' more'
           @div outlet: 'tokenForm', =>
             @div class: 'text native-key-bindings', tabindex: -1, =>
               @span class: 'icon icon-question'
@@ -67,7 +71,7 @@ class InstallPanel extends ScrollView
     @client = @packageManager.getClient()
     @atomIoURL = 'https://atom.io/packages'
     @enableStarredPackages = atom.config.get('settings-view.enableStarredPackages')
-
+    @maxStarredPackages = 10
     @searchMessage.hide()
     @searchEditorView.getModel().setPlaceholderText('Search packages')
     @setSearchType('packages')
@@ -267,13 +271,30 @@ class InstallPanel extends ScrollView
 
     @tokenForm.show()
 
+  showStarredPackagesList: (packages) ->
+    @loadingStarredMessage.hide()
+    @showMoreStarred.hide()
+
+    if packages.length > @maxStarredPackages
+      @additionalStarCount.text packages.length - @maxStarredPackages
+      @additionalStarrredPackages = packages.slice(@maxStarredPackages)
+
+      @showMoreStarred.on 'click', (e) =>
+        @addPackageViews(@starredContainer, @additionalStarrredPackages)
+        @showMoreStarred.hide()
+        false
+
+      packages = packages.slice(0, @maxStarredPackages)
+      @showMoreStarred.show()
+
+    @addPackageViews(@starredContainer, packages)
+    @starredPackagesSection.show()
+
   # Load starred packages
   loadStarredPackages: ->
-    @packageManager.getStarred()\
+    @packageManager.getStarred()
       .then (packages) =>
-        @loadingStarredMessage.hide()
-        @addPackageViews(@starredContainer, packages)
-        @starredPackagesSection.show()
+        @showStarredPackagesList(packages)
       .catch (error) =>
         @starreedErrors.append(new ErrorView(@packageManager, error))
 
