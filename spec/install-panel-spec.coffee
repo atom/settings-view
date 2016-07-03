@@ -108,3 +108,11 @@ describe 'InstallPanel', ->
         spyOn(@panel, 'updateGitPackageCard')
         @packageManager.emitter.emit('package-installed', {pack: newPack})
         expect(@panel.updateGitPackageCard).toHaveBeenCalledWith newPack
+
+  describe "when starred packages are enabled", ->
+    beforeEach ->
+      atom.config.set('settings-view.enableStarredPackages', true)
+      @panel = new InstallPanel(@packageManager)
+
+    it 'shows the starred packages section', ->
+      expect(@panel.starredPackagesSection).toBeVisible()
