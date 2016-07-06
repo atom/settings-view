@@ -66,6 +66,9 @@ class SettingsView extends ScrollView
 
     @addCorePanel 'Core', 'settings', -> new GeneralPanel
     @addCorePanel 'Editor', 'file-text', -> new EditorPanel
+    if process.platform is 'win32' # TODO: Min-version for Atom install/upgrade scripts?
+      SystemPanel = require './system-windows-panel'
+      @addCorePanel 'System', 'device-desktop', -> new SystemPanel
     @addCorePanel 'Keybindings', 'keyboard', -> new KeybindingsPanel
     @addCorePanel 'Packages', 'package', => new InstalledPackagesPanel(@packageManager)
     @addCorePanel 'Themes', 'paintcan', => new ThemesPanel(@packageManager)
