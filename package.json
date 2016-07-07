@@ -12,12 +12,13 @@
     "fuzzaldrin": "^2.1",
     "glob": "4.3.1",
     "hosted-git-info": "^2.1.4",
-    "marked": "^0.3.3",
+    "marked": "^0.3.5",
     "request": "^2.40",
     "roaster": "^1.1.2",
     "season": "^5.0.2",
     "semver": "^4.3.2",
-    "underscore-plus": "^1.0.6"
+    "underscore-plus": "^1.0.6",
+    "winreg": "^1.2.1"
   },
   "repository": "https://github.com/atom/settings-view",
   "engines": {
