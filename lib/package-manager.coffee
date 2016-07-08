@@ -435,6 +435,8 @@ class PackageManager
           starredPkg.name is pkg.name).length > 0
       .then (starred) =>
         @starOrUnstar(starred, pkg.name)
+      .then (apmProcess) =>
+        @emitPackageEvent(apmProcess.process.spawnargs[1], pkg)
 
   starOrUnstar: (star, pack) ->
     args = [pack]
