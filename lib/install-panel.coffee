@@ -277,7 +277,6 @@ class InstallPanel extends ScrollView
   showStarredPackagesList: (packages) ->
     @loadingStarredMessage.hide()
     @showMoreStarred.hide()
-    @starredContainer.empty()
 
     if packages.length > @maxStarredPackages
       @additionalStarCount.text packages.length - @maxStarredPackages
@@ -296,9 +295,19 @@ class InstallPanel extends ScrollView
 
   # Load starred packages
   loadStarredPackages: ->
+    @starredContainer.empty()
+
+    @loadingStarredMessage.show()
+    @loadingStarredMessage.text('Loading starred packages')
+
     @packageManager.getStarred()
       .then (packages) =>
-        @showStarredPackagesList(packages)
+        if packages.length > 0
+          @showStarredPackagesList(packages)
+        else
+          @starredContainer.text('No packages starred yet')
+          @showMoreStarred.hide()
+          @loadingStarredMessage.hide()
       .catch (error) =>
         @starreedErrors.append(new ErrorView(@packageManager, error))
 
