@@ -277,6 +277,7 @@ class InstallPanel extends ScrollView
   showStarredPackagesList: (packages) ->
     @loadingStarredMessage.hide()
     @showMoreStarred.hide()
+    @starredContainer.empty()
 
     if packages.length > @maxStarredPackages
       @additionalStarCount.text packages.length - @maxStarredPackages
