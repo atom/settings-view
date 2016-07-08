@@ -34,6 +34,7 @@ module.exports =
     atom.commands.add 'atom-workspace',
       'settings-view:open': -> atom.workspace.open(configUri)
       'settings-view:editor': -> atom.workspace.open("#{configUri}/editor")
+      'settings-view:system': -> atom.workspace.open("#{configUri}/system") if process.platform is 'win32'
       'settings-view:show-keybindings': -> atom.workspace.open("#{configUri}/keybindings")
       'settings-view:change-themes': -> atom.workspace.open("#{configUri}/themes")
       'settings-view:install-packages-and-themes': -> atom.workspace.open("#{configUri}/install")

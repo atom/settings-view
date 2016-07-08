@@ -235,6 +235,17 @@ describe "SettingsView", ->
           expect(focusIsWithinActivePanel()).toBe true
           expectActivePanelToBeKeyboardScrollable()
 
+        if process.platform is 'win32'
+          waitsForPromise ->
+            atom.workspace.open('atom://config/system').then (s) -> settingsView = s
+
+          waits 1
+          runs ->
+            expect(settingsView.activePanel)
+              .toEqual name: 'System', options: uri: 'atom://config/system'
+            expect(focusIsWithinActivePanel()).toBe true
+            expectActivePanelToBeKeyboardScrollable()
+
       it "opens the package settings view with atom://config/packages/<package-name>", ->
         waitsForPromise ->
           atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'package-with-readme'))
@@ -302,6 +313,7 @@ describe "SettingsView", ->
           panels = [
             settingsView.getOrCreatePanel('Core')
             settingsView.getOrCreatePanel('Editor')
+            settingsView.getOrCreatePanel('System') if process.platform is 'win32'
             settingsView.getOrCreatePanel('Keybindings')
             settingsView.getOrCreatePanel('Packages')
             settingsView.getOrCreatePanel('Themes')
