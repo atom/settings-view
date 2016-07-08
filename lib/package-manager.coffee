@@ -431,19 +431,17 @@ class PackageManager
 
     @getStarred()
       .then (packages) ->
-        packages.indexOf(pkg) is not -1
+        _.filter(packages, (starredPkg) ->
+          starredPkg.name is pkg.name).length > 0
       .then (starred) =>
-        @starOrUnstar(not starred, pkg.name)
-      .then (action) =>
-
-        @starred = []
+        @starOrUnstar(starred, pkg.name)
 
   starOrUnstar: (star, pack) ->
     args = [pack]
     if star
-      args.unshift('star')
-    else
       args.unshift('unstar')
+    else
+      args.unshift('star')
 
     errorMessage = "Unable to #{args.join(' ')}"
     @runCommand args, (code, stdout, stderr) ->
