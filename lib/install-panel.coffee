@@ -262,6 +262,9 @@ class InstallPanel extends ScrollView
 
       @starredPackagesSection.hide()
 
+    @disposables.add @packageManager.on 'package-star package-unstar theme-star theme-unstar', (pkg) =>
+      @loadStarredPackages()
+
   showTokenForm: ->
     @tokenView.getModel().setPlaceholderText('Atom.io account token')
     @loadingStarredMessage.hide()
