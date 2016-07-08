@@ -283,7 +283,7 @@ class InstallPanel extends ScrollView
       @additionalStarCount.text packages.length - @maxStarredPackages
       @additionalStarrredPackages = packages.slice(@maxStarredPackages)
 
-      @showMoreStarred.on 'click', (e) =>
+      @disposables.add @showMoreStarred.on 'click', (e) =>
         @addPackageViews(@starredContainer, @additionalStarrredPackages)
         @showMoreStarred.hide()
         false
