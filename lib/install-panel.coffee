@@ -51,7 +51,7 @@ class InstallPanel extends ScrollView
           @div outlet: 'starreedErrors'
           @div outlet: 'loadingStarredMessage', class: 'alert alert-info icon icon-hourglass'
           @div outlet: 'starredContainer', class: 'container package-container'
-          @div outlet: 'showMoreStarred', =>
+          @div outlet: 'showMoreStarred', class: 'container-show-more', =>
             @span 'Show '
             @span outlet: 'additionalStarCount'
             @span ' more'
