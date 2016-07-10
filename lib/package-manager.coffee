@@ -19,7 +19,13 @@ class PackageManager
 
     @emitter = new Emitter
 
-  command: (args, errorMessage) ->
+  # Public: Runs `apm` with the provided arguments and an optional errorMessage
+  #
+  # * `args` {Array} to be used to execute `apm`
+  # * `errorMessage` (optional) {String}
+  #
+  # Returns a {Promise} resolving with the command output
+  command: (args, errorMessage = "Running apm failed") ->
     command = atom.packages.getApmPath()
     outputLines = []
     errorLines = []
