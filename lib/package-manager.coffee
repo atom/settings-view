@@ -19,6 +19,32 @@ class PackageManager
 
     @emitter = new Emitter
 
+  command: (args, errorMessage) ->
+    command = atom.packages.getApmPath()
+    outputLines = []
+    errorLines = []
+
+    args.push('--no-color')
+
+    new Promise (resolve, reject) ->
+      stdout = (lines) -> outputLines.push(lines)
+      stderr = (lines) -> errorLines.push(lines)
+      exit = (code) ->
+        if code is 0
+          resolve(outputLines.join('\n'))
+        else
+          error = new Error(errorMessage)
+          error.stdout = stdout
+          error.stderr = stderr
+          reject(error)
+
+      apmProcess = new BufferedProcess({command, args, stdout, stderr, exit})
+      apmProcess.onWillThrowError ({processError, handle}) ->
+        handle()
+        error = new Error(processError.message)
+        error.stdout = ''
+        error.stderr = stderr
+        reject(error)
   getClient: ->
     @client ?= new Client(this)
 
