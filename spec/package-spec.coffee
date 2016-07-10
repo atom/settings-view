@@ -73,3 +73,20 @@ describe "Package", ->
 
       runs ->
         expect(pack.enable.callCount).toBe(0)
+
+  describe "::update", ->
+    beforeEach ->
+      spyOn(pack, 'unload').andCallFake ->
+        new Promise (resolve, reject) ->
+          resolve()
+
+      spyOn(packageManager, 'update').andCallFake ->
+        new Promise (resolve, reject) ->
+          resolve()
+
+    it "calls update on PackageManager", ->
+      waitsForPromise ->
+        pack.update()
+
+      runs ->
+        expect(packageManager.update.callCount).toBe(1)

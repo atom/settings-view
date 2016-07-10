@@ -27,6 +27,16 @@ class Package
       .then =>
         @enable() if @isDisabled()
 
+  # Public: Updates the package for atom
+  #
+  # * `newVersion` {String} version to be updated to
+  #
+  # Returns a {Promise}
+  update: (newVersion) ->
+    @unload()
+      .then =>
+        @packageManager.update(this, newVersion)
+
   enable: ->
     atom.packages.enablePackage(@pack.name)
 
