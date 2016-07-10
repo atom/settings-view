@@ -2,6 +2,8 @@ module.exports =
 class Package
   constructor: (pkg, @packageManager) ->
     @name = pkg.name
+    @theme = pkg.theme
+    @version = pkg.version
 
   # Public: Unloads the package from atom
   #
@@ -14,3 +16,19 @@ class Package
         resolve()
       catch error
         reject(error)
+
+  # Public: Installs the package for atom and enables it if it was disabled before
+  #
+  # Returns a {Promise}
+  install: ->
+    @unload()
+      .then =>
+        @packageManager.install(this)
+      .then =>
+        @enable() if @isDisabled()
+
+  enable: ->
+    atom.packages.enablePackage(@pack.name)
+
+  isDisabled: ->
+    atom.packages.isPackageDisabled(@name)

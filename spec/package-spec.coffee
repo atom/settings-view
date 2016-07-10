@@ -30,3 +30,46 @@ describe "Package", ->
         pack.unload()
         expect(atom.packages.deactivatePackage.callCount).toBe(0)
         expect(atom.packages.unloadPackage.callCount).toBe(0)
+
+  describe "::install", ->
+    beforeEach ->
+      spyOn(pack, 'enable').andReturn(true)
+      spyOn(pack, 'unload').andCallFake ->
+        new Promise (resolve, reject) ->
+          resolve()
+
+      spyOn(packageManager, 'install').andCallFake ->
+        new Promise (resolve, reject) ->
+          resolve()
+
+    it "unloads the package", ->
+      waitsForPromise ->
+        pack.install()
+
+      runs ->
+        expect(pack.unload.callCount).toBe(1)
+
+    it "calls install on PackageManager", ->
+      waitsForPromise ->
+        pack.install()
+
+      runs ->
+        expect(packageManager.install.callCount).toBe(1)
+
+    it "enables the package when it is disabled", ->
+      spyOn(pack, 'isDisabled').andReturn(true)
+
+      waitsForPromise ->
+        pack.install()
+
+      runs ->
+        expect(pack.enable.callCount).toBe(1)
+
+    it "does not enable the package when it is is already", ->
+      spyOn(pack, 'isDisabled').andReturn(false)
+
+      waitsForPromise ->
+        pack.install()
+
+      runs ->
+        expect(pack.enable.callCount).toBe(0)
