@@ -45,6 +45,24 @@ class PackageManager
         error.stdout = ''
         error.stderr = stderr
         reject(error)
+
+  jsonCommand: (args, errorMessage) ->
+    args.push('--json')
+
+    @command(args, errorMessage)
+      .then @parseJSON
+
+  parseJSON: (jsonString) ->
+    new Promise (resolve, reject) ->
+      try
+        parsedJson = JSON.parse(jsonString) ? []
+        resolve(parsedJson)
+      catch parseError
+        error = new Error("JSON parsing failed")
+        error.stdout = ''
+        error.stderr = "#{parseError.message}: #{jsonString}"
+        reject(error)
+
   getClient: ->
     @client ?= new Client(this)
 
