@@ -23,6 +23,33 @@ describe "package manager", ->
       expect(packageManager.command).toHaveBeenCalled()
       expect(runArgs).toEqual ['two', 'arguments', '--json']
 
+  describe "::unload", ->
+    beforeEach ->
+      spyOn(atom.packages, 'deactivatePackage')
+      spyOn(atom.packages, 'unloadPackage')
+
+    it "deactivates and unloads a package when active and loaded", ->
+      spyOn(atom.packages, 'isPackageActive').andReturn(true)
+      spyOn(atom.packages, 'isPackageLoaded').andReturn(true)
+
+      waitsForPromise ->
+        packageManager.unload('package')
+
+      runs ->
+        expect(atom.packages.deactivatePackage.callCount).toBe(1)
+        expect(atom.packages.unloadPackage.callCount).toBe(1)
+
+    it "does not deactivate and unload a package when not active or loaded", ->
+      spyOn(atom.packages, 'isPackageActive').andReturn(false)
+      spyOn(atom.packages, 'isPackageLoaded').andReturn(false)
+
+      waitsForPromise ->
+        packageManager.unload('package')
+
+      runs ->
+        expect(atom.packages.deactivatePackage.callCount).toBe(0)
+        expect(atom.packages.unloadPackage.callCount).toBe(0)
+
   it "handle errors spawning apm", ->
     noSuchCommandError = if process.platform is 'win32' then ' cannot find the path ' else 'ENOENT'
     waitsForPromise shouldReject: true, -> packageManager.search('test')
