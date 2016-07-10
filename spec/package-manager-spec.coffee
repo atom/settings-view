@@ -9,6 +9,20 @@ describe "package manager", ->
     spyOn(atom.packages, 'getApmPath').andReturn('/an/invalid/apm/command/to/run')
     packageManager = new PackageManager()
 
+  describe "::jsonCommad", ->
+    runArgs = []
+
+    beforeEach ->
+      spyOn(packageManager, 'command').andCallFake (args, errorMessage) ->
+        runArgs = args
+        new Promise (resolve, reject) ->
+          resolve('{"foo":"bar"}')
+
+    it "calls ::command with --json", ->
+      packageManager.jsonCommand(['two', 'arguments'])
+      expect(packageManager.command).toHaveBeenCalled()
+      expect(runArgs).toEqual ['two', 'arguments', '--json']
+
   it "handle errors spawning apm", ->
     noSuchCommandError = if process.platform is 'win32' then ' cannot find the path ' else 'ENOENT'
     waitsForPromise shouldReject: true, -> packageManager.search('test')

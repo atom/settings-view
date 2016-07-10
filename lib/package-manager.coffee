@@ -52,19 +52,26 @@ class PackageManager
         error.stderr = stderr
         reject(error)
 
-  jsonCommand: (args, errorMessage) ->
+  # Public: Runs `::command` with `--json` as additional argument
+  #
+  # * `args` {Array} to be used to execute `apm`
+  # * `errorMessage` (optional) {String}
+  #
+  # Returns a {Promise} resolving with parsed JSON
+  jsonCommand: (args, errorMessage = "Running apm with --json failed") ->
     args.push('--json')
 
     @command(args, errorMessage)
-      .then @parseJSON
+      .then =>
+        @parseJSON(args, errorMessage)
 
-  parseJSON: (jsonString) ->
+  parseJSON: (jsonString, errorMessage = "Parsing JSON failed") ->
     new Promise (resolve, reject) ->
       try
         parsedJson = JSON.parse(jsonString) ? []
         resolve(parsedJson)
       catch parseError
-        error = new Error("JSON parsing failed")
+        error = new Error(errorMessage)
         error.stdout = ''
         error.stderr = "#{parseError.message}: #{jsonString}"
         reject(error)
