@@ -95,16 +95,15 @@ describe "PackageCard", ->
 
     it "can be installed if currently not installed", ->
       setPackageStatusSpies {installed: false, disabled: false}
-      spyOn(packageManager, 'install')
-
       card = new PackageCard {name: 'test-package'}, packageManager
+      spyOn(card.package, 'install')
+
       expect(card.installButton.css('display')).not.toBe('none')
       expect(card.uninstallButton.css('display')).toBe('none')
       card.installButton.click()
-      expect(packageManager.install).toHaveBeenCalled()
+      expect(card.package.install).toHaveBeenCalled()
 
     it "can be installed if currently not installed and package latest release engine match atom version", ->
-      spyOn(packageManager, 'install')
       spyOn(packageManager, 'loadCompatiblePackageVersion').andCallFake (packageName, callback) ->
         pack =
           name: packageName
@@ -122,6 +121,7 @@ describe "PackageCard", ->
         engines:
           atom: '>0.50.0'
       }, packageManager
+      spyOn(card.package, 'install')
 
       # In that case there's no need to make a request to get all the versions
       expect(packageManager.loadCompatiblePackageVersion).not.toHaveBeenCalled()
@@ -129,16 +129,9 @@ describe "PackageCard", ->
       expect(card.installButton.css('display')).not.toBe('none')
       expect(card.uninstallButton.css('display')).toBe('none')
       card.installButton.click()
-      expect(packageManager.install).toHaveBeenCalled()
-      expect(packageManager.install.mostRecentCall.args[0]).toEqual({
-        name: 'test-package'
-        version: '0.1.0'
-        engines:
-          atom: '>0.50.0'
-      })
+      expect(card.package.install).toHaveBeenCalled()
 
     it "can be installed with a previous version whose engine match the current atom version", ->
-      spyOn(packageManager, 'install')
       spyOn(packageManager, 'loadCompatiblePackageVersion').andCallFake (packageName, callback) ->
         pack =
           name: packageName
@@ -156,6 +149,7 @@ describe "PackageCard", ->
         engines:
           atom: '>99.0.0'
       }, packageManager
+      spyOn(card.installablePack, 'install')
 
       expect(card.installButton.css('display')).not.toBe('none')
       expect(card.uninstallButton.css('display')).toBe('none')
@@ -163,13 +157,8 @@ describe "PackageCard", ->
       expect(card.versionValue).toHaveClass('text-warning')
       expect(card.packageMessage).toHaveClass('text-warning')
       card.installButton.click()
-      expect(packageManager.install).toHaveBeenCalled()
-      expect(packageManager.install.mostRecentCall.args[0]).toEqual({
-        name: 'test-package'
-        version: '0.0.1'
-        engines:
-          atom: '>0.50.0'
-      })
+
+      expect(card.installablePack.install).toHaveBeenCalled()
 
     it "can't be installed if there is no version compatible with the current atom version", ->
       spyOn(packageManager, 'loadCompatiblePackageVersion').andCallFake (packageName, callback) ->

@@ -4,6 +4,7 @@ _ = require 'underscore-plus'
 {shell} = require 'electron'
 marked = null
 {ownerFromRepository} = require './utils'
+Package = require './package'
 
 module.exports =
 class PackageCard extends View
@@ -56,6 +57,7 @@ class PackageCard extends View
 
   initialize: (@pack, @packageManager, options={}) ->
     @disposables = new CompositeDisposable()
+    @package = new Package(@pack, @packageManager)
 
     # It might be useful to either wrap @pack in a class that has a ::validate
     # method, or add a method here. At the moment I think all cases of malformed
@@ -131,7 +133,7 @@ class PackageCard extends View
             Version #{packageVersion} is not the latest version available for this package, but it's the latest that is compatible with your version of Atom.
             """
 
-          @installablePack = pack
+          @installablePack = new Package(pack, @packageManager)
         else
           @hasCompatibleVersion = false
           @installButtonGroup.hide()
@@ -154,7 +156,10 @@ class PackageCard extends View
 
     @installButton.on 'click', (event) =>
       event.stopPropagation()
-      @install()
+      if @installablePack
+        @installablePack.install()
+      else
+        @package.install()
 
     @uninstallButton.on 'click', (event) =>
       event.stopPropagation()
@@ -456,14 +461,6 @@ class PackageCard extends View
   ###
   Section: Methods that should be on a Package model
   ###
-
-  install: ->
-    @packageManager.install @installablePack ? @pack, (error) =>
-      if error?
-        console.error("Installing #{@type} #{@pack.name} failed", error.stack ? error, error.stderr)
-      else
-        # if a package was disabled before installing it, re-enable it
-        atom.packages.enablePackage(@pack.name) if @isDisabled()
 
   update: ->
     return unless @newVersion or @newSha
