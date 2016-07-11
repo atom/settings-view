@@ -88,18 +88,6 @@ class PackageManager
     schema = atom.config.getSchema(packageName)
     schema? and (schema.type isnt 'any')
 
-  runCommand: (args, callback) ->
-    command = atom.packages.getApmPath()
-    outputLines = []
-    stdout = (lines) -> outputLines.push(lines)
-    errorLines = []
-    stderr = (lines) -> errorLines.push(lines)
-    exit = (code) ->
-      callback(code, outputLines.join('\n'), errorLines.join('\n'))
-
-    args.push('--no-color')
-    new BufferedProcess({command, args, stdout, stderr, exit})
-
   loadCompatiblePackageVersion: (packageName) ->
     args = ['view', packageName, '--compatible', @normalizeVersion(atom.getVersion())]
     errorMessage = "Fetching package '#{packageName}' failed."
@@ -338,20 +326,3 @@ class PackageManager
     for selector in selectors.split(" ")
       subscriptions.add @emitter.on(selector, callback)
     subscriptions
-
-createJsonParseError = (message, parseError, stdout) ->
-  error = new Error(message)
-  error.stdout = ''
-  error.stderr = "#{parseError.message}: #{stdout}"
-  error
-
-createProcessError = (message, processError) ->
-  error = new Error(message)
-  error.stdout = ''
-  error.stderr = processError.message
-  error
-
-handleProcessErrors = (apmProcess, message, callback) ->
-  apmProcess.onWillThrowError ({error, handle}) ->
-    handle()
-    callback(createProcessError(message, error))
