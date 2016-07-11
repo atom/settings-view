@@ -6,17 +6,9 @@ Client = require './atom-io-client'
 
 module.exports =
 class PackageManager
-  # Millisecond expiry for cached loadOutdated, etc. values
-  CACHE_EXPIRY: 1000*60*10
-
   constructor: ->
     @packagePromises = []
     @availablePackageCache = null
-    @apmCache =
-      loadOutdated:
-        value: null
-        expiry: 0
-
     @emitter = new Emitter
 
   # Public: Runs `apm` with the provided arguments and an optional errorMessage
@@ -157,42 +149,6 @@ class PackageManager
 
     handleProcessErrors(apmProcess, errorMessage, callback)
 
-  loadOutdated: (callback) ->
-    # Short circuit if we have cached data.
-    if @apmCache.loadOutdated.value and @apmCache.loadOutdated.expiry > Date.now()
-      return callback(null, @apmCache.loadOutdated.value)
-
-    args = ['outdated', '--json']
-    version = atom.getVersion()
-    args.push('--compatible', version) if semver.valid(version)
-    errorMessage = 'Fetching outdated packages and themes failed.'
-
-    apmProcess = @runCommand args, (code, stdout, stderr) =>
-      if code is 0
-        try
-          packages = JSON.parse(stdout) ? []
-        catch parseError
-          error = createJsonParseError(errorMessage, parseError, stdout)
-          return callback(error)
-
-        @apmCache.loadOutdated =
-          value: packages
-          expiry: Date.now() + @CACHE_EXPIRY
-
-        callback(null, packages)
-      else
-        error = new Error(errorMessage)
-        error.stdout = stdout
-        error.stderr = stderr
-        callback(error)
-
-    handleProcessErrors(apmProcess, errorMessage, callback)
-
-  clearOutdatedCache: ->
-    @apmCache.loadOutdated =
-      value: null
-      expiry: 0
-
   loadPackage: (packageName, callback) ->
     args = ['view', packageName, '--json']
     errorMessage = "Fetching package '#{packageName}' failed."
@@ -308,7 +264,6 @@ class PackageManager
         @emitPackageEvent('updating', {pack})
         @command(args, errorMessage)
       .then =>
-        @clearOutdatedCache()
         activation = if activateOnSuccess
           atom.packages.activatePackage(name)
         else
@@ -351,7 +306,6 @@ class PackageManager
           name = pack.name
         catch err
           # using old apm without --json support
-        @clearOutdatedCache()
 
         if activateOnSuccess
           atom.packages.activatePackage(name)
@@ -378,7 +332,6 @@ class PackageManager
         @emitPackageEvent 'uninstalling', pack
         @command(args, errorMessage)
       .then =>
-        @clearOutdatedCache()
         @removePackageFromAvailablePackageNames(name)
         @removePackageNameFromDisabledPackages(name)
         @emitPackageEvent 'uninstalled', pack
