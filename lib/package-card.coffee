@@ -116,33 +116,32 @@ class PackageCard extends View
     # The latest version is not compatible with the current Atom version,
     # we need to make a request to get the latest compatible version.
     unless @packageManager.satisfiesVersion(atomVersion, @pack)
-      @packageManager.loadCompatiblePackageVersion @pack.name, (err, pack) =>
-        return console.error(err) if err?
+      @packageManager.loadCompatiblePackageVersion(@pack.name)
+        .then (pack) =>
+          packageVersion = pack.version
 
-        packageVersion = pack.version
+          # A compatible version exist, we activate the install button and
+          # set @installablePack so that the install action installs the
+          # compatible version of the package.
+          if packageVersion
+            @versionValue.text(packageVersion)
+            if packageVersion isnt @pack.version
+              @versionValue.addClass('text-warning')
+              @packageMessage.addClass('text-warning')
+              @packageMessage.text """
+              Version #{packageVersion} is not the latest version available for this package, but it's the latest that is compatible with your version of Atom.
+              """
 
-        # A compatible version exist, we activate the install button and
-        # set @installablePack so that the install action installs the
-        # compatible version of the package.
-        if packageVersion
-          @versionValue.text(packageVersion)
-          if packageVersion isnt @pack.version
-            @versionValue.addClass('text-warning')
-            @packageMessage.addClass('text-warning')
-            @packageMessage.text """
-            Version #{packageVersion} is not the latest version available for this package, but it's the latest that is compatible with your version of Atom.
+            @installablePack = new Package(pack, @packageManager)
+          else
+            @hasCompatibleVersion = false
+            @installButtonGroup.hide()
+            @versionValue.addClass('text-error')
+            @packageMessage.addClass('text-error')
+            @packageMessage.append """
+            There's no version of this package that is compatible with your Atom version. The version must satisfy #{@pack.engines.atom}.
             """
-
-          @installablePack = new Package(pack, @packageManager)
-        else
-          @hasCompatibleVersion = false
-          @installButtonGroup.hide()
-          @versionValue.addClass('text-error')
-          @packageMessage.addClass('text-error')
-          @packageMessage.append """
-          There's no version of this package that is compatible with your Atom version. The version must satisfy #{@pack.engines.atom}.
-          """
-          console.error("No available version compatible with the installed Atom version: #{atom.getVersion()}")
+            console.error("No available version compatible with the installed Atom version: #{atom.getVersion()}")
 
   handleButtonEvents: (options) ->
     if options?.onSettingsView

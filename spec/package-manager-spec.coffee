@@ -86,6 +86,10 @@ describe "package manager", ->
         expect(error.packageInstallError).toBe true
         expect(error.stderr).toContain noSuchCommandError
 
+    packageManager.loadCompatiblePackageVersion('foo')
+      .catch (error) ->
+        expect(error.message).toBe "Fetching package 'foo' failed."
+
   describe "::isPackageInstalled()", ->
     it "returns false a package is not installed", ->
       expect(packageManager.isPackageInstalled('some-package')).toBe false
@@ -274,3 +278,19 @@ describe "package manager", ->
 
       runs ->
         expect(packageManager.packageHasSettings(packageName)).toBe true
+
+  describe "::loadCompatiblePackageVersion", ->
+    it "calls command", ->
+      spyOn(atom, 'getVersion').andReturn('1.0.0')
+      jasmine.unspy(packageManager, 'command')
+      spyOn(packageManager, 'command').andCallFake (args) ->
+        new Promise (resolve, reject) ->
+          runArgs = args
+          resolve('[]')
+      spyOn(packageManager, 'parseJSON').andReturn(Promise.resolve())
+
+      waitsForPromise ->
+        packageManager.loadCompatiblePackageVersion('git-repo-name')
+
+      runs ->
+        expect(runArgs).toEqual ['view', 'git-repo-name', '--compatible', '1.0.0', '--json']

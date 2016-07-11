@@ -169,26 +169,11 @@ class PackageManager
 
     handleProcessErrors(apmProcess, errorMessage, callback)
 
-  loadCompatiblePackageVersion: (packageName, callback) ->
-    args = ['view', packageName, '--json', '--compatible', @normalizeVersion(atom.getVersion())]
+  loadCompatiblePackageVersion: (packageName) ->
+    args = ['view', packageName, '--compatible', @normalizeVersion(atom.getVersion())]
     errorMessage = "Fetching package '#{packageName}' failed."
 
-    apmProcess = @runCommand args, (code, stdout, stderr) ->
-      if code is 0
-        try
-          packages = JSON.parse(stdout) ? []
-        catch parseError
-          error = createJsonParseError(errorMessage, parseError, stdout)
-          return callback(error)
-
-        callback(null, packages)
-      else
-        error = new Error(errorMessage)
-        error.stdout = stdout
-        error.stderr = stderr
-        callback(error)
-
-    handleProcessErrors(apmProcess, errorMessage, callback)
+    @jsonCommand(args, errorMessage)
 
   getInstalled: ->
     args = ['ls', '--json']
