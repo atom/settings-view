@@ -74,44 +74,32 @@ describe 'InstalledPackagesPanel', ->
       expect(@panel.deprecatedPackages.find('.package-card:not(.hidden)').length).toBe 0
 
     it 'adds newly installed packages to the list', ->
-      [installCallback] = []
-      spyOn(@packageManager, 'runCommand').andCallFake (args, callback) ->
-        installCallback = callback
-        onWillThrowError: ->
-      spyOn(atom.packages, 'activatePackage').andCallFake (name) =>
+      spyOn(@packageManager, 'install').andCallFake (name) =>
         @installed.user.push {name}
+        Promise.resolve()
 
       expect(@panel.communityCount.text().trim()).toBe '1'
       expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 1
 
       @packageManager.install({name: 'another-user-package'})
-      installCallback(0, '', '')
-
-      advanceClock InstalledPackagesPanel.loadPackagesDelay
-      waits 1
-      runs ->
-        expect(@panel.communityCount.text().trim()).toBe '2'
-        expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 2
+        .then =>
+          wait 1
+          expect(@panel.communityCount.text().trim()).toBe '2'
+          expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 2
 
     it 'removes uninstalled packages from the list', ->
-      [uninstallCallback] = []
-      spyOn(@packageManager, 'runCommand').andCallFake (args, callback) ->
-        uninstallCallback = callback
-        onWillThrowError: ->
-      spyOn(@packageManager, 'unload').andCallFake (name) =>
+      spyOn(@packageManager, 'uninstall').andCallFake (name) =>
         @installed.user = []
+        Promise.resolve()
 
       expect(@panel.communityCount.text().trim()).toBe '1'
       expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 1
 
       @packageManager.uninstall({name: 'user-package'})
-      uninstallCallback(0, '', '')
-
-      advanceClock InstalledPackagesPanel.loadPackagesDelay
-      waits 1
-      runs ->
-        expect(@panel.communityCount.text().trim()).toBe '0'
-        expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 0
+        .then =>
+          wait 1
+          expect(@panel.communityCount.text().trim()).toBe '0'
+          expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 0
 
     it 'correctly handles deprecated packages', ->
       resolve = null
@@ -120,14 +108,10 @@ describe 'InstalledPackagesPanel', ->
       spyOn(@packageManager, 'getOutdated').andReturn(promise)
       jasmine.attachToDOM(@panel[0])
 
-      [updateCallback] = []
       spyOn(atom.packages, 'isDeprecatedPackage').andCallFake =>
         return true if @installed.user[0].version is '1.0.0'
         false
-      spyOn(@packageManager, 'runCommand').andCallFake (args, callback) ->
-        updateCallback = callback
-        onWillThrowError: ->
-          atom.packages.activatePackage
+
       spyOn(atom.packages, 'activatePackage').andCallFake (name) =>
         @installed.user[0].version = '1.1.0'
 
@@ -147,17 +131,11 @@ describe 'InstalledPackagesPanel', ->
       runs ->
         expect(PackageCard::displayAvailableUpdate).toHaveBeenCalledWith('1.1.0')
         @packageManager.update({name: 'user-package'})
-        updateCallback(0, '', '')
-
-      waits 1
-      runs ->
-        advanceClock InstalledPackagesPanel.loadPackagesDelay
-
-      waits 1
-      runs ->
-        expect(@panel.deprecatedSection).not.toBeVisible()
-        expect(@panel.deprecatedCount.text().trim()).toBe '0'
-        expect(@panel.deprecatedPackages.find('.package-card:not(.hidden)').length).toBe 0
+          .then =>
+            wait 1
+            expect(@panel.deprecatedSection).not.toBeVisible()
+            expect(@panel.deprecatedCount.text().trim()).toBe '0'
+            expect(@panel.deprecatedPackages.find('.package-card:not(.hidden)').length).toBe 0
 
   describe 'expanding and collapsing sub-sections', ->
     beforeEach ->

@@ -236,36 +236,30 @@ class PackageManager
     handleProcessErrors(apmProcess, errorMessage, callback)
 
   getInstalled: ->
-    new Promise (resolve, reject) =>
-      @loadInstalled (error, result) ->
-        if error
-          reject(error)
-        else
-          resolve(result)
+    args = ['ls', '--json']
+    errorMessage = 'Fetching local packages failed.'
+
+    @jsonCommand(args, errorMessage)
 
   getFeatured: (loadThemes) ->
-    new Promise (resolve, reject) =>
-      @loadFeatured !!loadThemes, (error, result) ->
-        if error
-          reject(error)
-        else
-          resolve(result)
+    args = ['featured', '--json']
+    version = atom.getVersion()
+    args.push('--themes') if loadThemes
+    args.push('--compatible', version) if semver.valid(version)
+    errorMessage = 'Fetching featured packages failed.'
+
+    @jsonCommand(args, errorMessage)
 
   getOutdated: ->
-    new Promise (resolve, reject) =>
-      @loadOutdated (error, result) ->
-        if error
-          reject(error)
-        else
-          resolve(result)
+    args = ['outdated', '--json']
+    version = atom.getVersion()
+    args.push('--compatible', version) if semver.valid(version)
+    errorMessage = 'Fetching outdated packages and themes failed.'
+
+    @jsonCommand(args, errorMessage)
 
   getPackage: (packageName) ->
-    @packagePromises[packageName] ?= new Promise (resolve, reject) =>
-      @loadPackage packageName, (error, result) ->
-        if error
-          reject(error)
-        else
-          resolve(result)
+    @packagePromises[packageName] ?= @jsonCommand(['view', packageName, '--json'], "Fetching package '#{packageName}' failed.")
 
   satisfiesVersion: (version, metadata) ->
     engine = metadata.engines?.atom ? '*'
@@ -277,36 +271,20 @@ class PackageManager
     version
 
   search: (query, options = {}) ->
-    new Promise (resolve, reject) =>
-      args = ['search', query, '--json']
-      if options.themes
-        args.push '--themes'
-      else if options.packages
-        args.push '--packages'
-      errorMessage = "Searching for \u201C#{query}\u201D failed."
+    args = ['search', query]
+    if options.themes
+      args.push '--themes'
+    else if options.packages
+      args.push '--packages'
+    errorMessage = "Searching for \u201C#{query}\u201D failed."
 
-      apmProcess = @runCommand args, (code, stdout, stderr) ->
-        if code is 0
-          try
-            packages = JSON.parse(stdout) ? []
-            if options.sortBy
-              packages = _.sortBy packages, (pkg) ->
-                return pkg[options.sortBy]*-1
+    @jsonCommand(args, errorMessage)
+      .then (packages) ->
+        if options.sortBy
+          _.sortBy packages, (pkg) ->
+            pkg[options.sortBy] * -1
 
-            resolve(packages)
-          catch parseError
-            error = createJsonParseError(errorMessage, parseError, stdout)
-            reject(error)
-        else
-          error = new Error(errorMessage)
-          error.stdout = stdout
-          error.stderr = stderr
-          reject(error)
-
-      handleProcessErrors apmProcess, errorMessage, (error) ->
-        reject(error)
-
-  update: (pack, newVersion, callback) ->
+  update: (pack, newVersion) ->
     {name, theme, apmInstallSource} = pack
 
     if theme
@@ -314,25 +292,22 @@ class PackageManager
     else
       activateOnSuccess = not atom.packages.isPackageDisabled(name)
     activateOnFailure = atom.packages.isPackageActive(name)
-    atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
-    atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
 
     errorMessage = if newVersion
       "Updating to \u201C#{name}@#{newVersion}\u201D failed."
     else
       "Updating to latest sha failed."
-    onError = (error) =>
-      error.packageInstallError = not theme
-      @emitPackageEvent 'update-failed', pack, error
-      callback?(error)
 
     if apmInstallSource?.type is 'git'
       args = ['install', apmInstallSource.source]
     else
       args = ['install', "#{name}@#{newVersion}"]
 
-    exit = (code, stdout, stderr) =>
-      if code is 0
+    @unload(name)
+      .then =>
+        @emitPackageEvent('updating', {pack})
+        @command(args, errorMessage)
+      .then =>
         @clearOutdatedCache()
         activation = if activateOnSuccess
           atom.packages.activatePackage(name)
@@ -340,18 +315,12 @@ class PackageManager
           atom.packages.loadPackage(name)
 
         Promise.resolve(activation).then =>
-          callback?()
           @emitPackageEvent 'updated', pack
-      else
+      .catch (error) =>
         atom.packages.activatePackage(name) if activateOnFailure
         error = new Error(errorMessage)
-        error.stdout = stdout
-        error.stderr = stderr
-        onError(error)
-
-    @emitter.emit('package-updating', {pack})
-    apmProcess = @runCommand(args, exit)
-    handleProcessErrors(apmProcess, errorMessage, onError)
+        error.packageInstallError = not theme
+        @emitPackageEvent 'update-failed', pack, error
 
   unload: (name) ->
     new Promise (resolve, reject) ->
@@ -362,97 +331,73 @@ class PackageManager
       catch error
         reject(error)
 
-  install: (pack, callback) ->
+  install: (pack) ->
     {name, version, theme} = pack
     activateOnSuccess = not theme and not atom.packages.isPackageDisabled(name)
     activateOnFailure = atom.packages.isPackageActive(name)
     nameWithVersion = if version? then "#{name}@#{version}" else name
+    args = ['install', nameWithVersion, '--json']
+    errorMessage = "Installing \u201C#{nameWithVersion}\u201D failed."
 
     @unload(name)
-    args = ['install', nameWithVersion, '--json']
-
-    errorMessage = "Installing \u201C#{nameWithVersion}\u201D failed."
-    onError = (error) =>
-      error.packageInstallError = not theme
-      @emitPackageEvent 'install-failed', pack, error
-      callback?(error)
-
-    exit = (code, stdout, stderr) =>
-      if code is 0
+      .then =>
+        @emitPackageEvent 'installing', pack
+        @command(args, errorMessage)
+      .then (json) =>
         # get real package name from package.json
         try
-          packageInfo = JSON.parse(stdout)[0]
+          packageInfo = JSON.parse(json)
           pack = _.extend({}, pack, packageInfo.metadata)
           name = pack.name
         catch err
           # using old apm without --json support
         @clearOutdatedCache()
+
         if activateOnSuccess
           atom.packages.activatePackage(name)
         else
           atom.packages.loadPackage(name)
 
         @addPackageToAvailablePackageNames(name)
-        callback?()
         @emitPackageEvent 'installed', pack
-      else
+
+        pack
+      .catch (error) =>
         atom.packages.activatePackage(name) if activateOnFailure
         error = new Error(errorMessage)
-        error.stdout = stdout
-        error.stderr = stderr
-        onError(error)
+        error.packageInstallError = not theme
+        @emitPackageEvent 'install-failed', pack, error
 
-    @emitPackageEvent('installing', pack)
-    apmProcess = @runCommand(args, exit)
-    handleProcessErrors(apmProcess, errorMessage, onError)
-
-  uninstall: (pack, callback) ->
+  uninstall: (pack) ->
     {name} = pack
-
-    atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
-
+    args = ['uninstall', '--hard', name]
     errorMessage = "Uninstalling \u201C#{name}\u201D failed."
-    onError = (error) =>
-      @emitPackageEvent 'uninstall-failed', pack, error
-      callback?(error)
 
-    @emitPackageEvent('uninstalling', pack)
-    apmProcess = @runCommand ['uninstall', '--hard', name], (code, stdout, stderr) =>
-      if code is 0
+    @unload(name)
+      .then =>
+        @emitPackageEvent 'uninstalling', pack
+        @command(args, errorMessage)
+      .then =>
         @clearOutdatedCache()
-        @unload(name)
         @removePackageFromAvailablePackageNames(name)
         @removePackageNameFromDisabledPackages(name)
-        callback?()
         @emitPackageEvent 'uninstalled', pack
-      else
-        error = new Error(errorMessage)
-        error.stdout = stdout
-        error.stderr = stderr
-        onError(error)
+      .catch (error) =>
+        @emitPackageEvent 'uninstall-failed', pack, error
 
-    handleProcessErrors(apmProcess, errorMessage, onError)
-
-  installAlternative: (pack, alternativePackageName, callback) ->
+  installAlternative: (pack, alternativePackageName) ->
     eventArg = {pack, alternative: alternativePackageName}
-    @emitter.emit('package-installing-alternative', eventArg)
+    @emitPackageEvent('package-installing-alternative', eventArg)
 
-    uninstallPromise = new Promise (resolve, reject) =>
-      @uninstall pack, (error) ->
-        if error then reject(error) else resolve()
+    uninstallPromise = @uninstall pack
+    installPromise = @install {name: alternativePackageName}
 
-    installPromise = new Promise (resolve, reject) =>
-      @install {name: alternativePackageName}, (error) ->
-        if error then reject(error) else resolve()
-
-    Promise.all([uninstallPromise, installPromise]).then =>
-      callback(null, eventArg)
-      @emitter.emit('package-installed-alternative', eventArg)
-    .catch (error) =>
-      console.error error.message, error.stack
-      callback(error, eventArg)
-      eventArg.error = error
-      @emitter.emit('package-install-alternative-failed', eventArg)
+    Promise.all([uninstallPromise, installPromise])
+      .then =>
+        @emitPackageEvent('installed-alternative', eventArg)
+      .catch (error) =>
+        eventArg.error = error
+        @emitPackageEvent('install-alternative-failed', eventArg)
 
   canUpgrade: (installedPackage, availableVersion) ->
     return false unless installedPackage?
