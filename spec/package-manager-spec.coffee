@@ -294,3 +294,11 @@ describe "package manager", ->
 
       runs ->
         expect(runArgs).toEqual ['view', 'git-repo-name', '--compatible', '1.0.0', '--json']
+
+  describe "::checkNativeBuildTools", ->
+    it "calls command", ->
+      waitsForPromise ->
+        packageManager.checkNativeBuildTools()
+
+      runs ->
+        expect(runArgs).toEqual ['install', '--check']

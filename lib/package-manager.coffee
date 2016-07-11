@@ -291,16 +291,7 @@ class PackageManager
     repoUrl.replace(/\.git$/, '').replace(/\/+$/, '').replace(/^git\+/, '')
 
   checkNativeBuildTools: ->
-    new Promise (resolve, reject) =>
-      apmProcess = @runCommand ['install', '--check'], (code, stdout, stderr) ->
-        if code is 0
-          resolve()
-        else
-          reject(new Error())
-
-      apmProcess.onWillThrowError ({error, handle}) ->
-        handle()
-        reject(error)
+    @command(['install', '--check'])
 
   removePackageNameFromDisabledPackages: (packageName) ->
     atom.config.removeAtKeyPath('core.disabledPackages', packageName)
