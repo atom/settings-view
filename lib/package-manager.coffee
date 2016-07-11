@@ -7,7 +7,6 @@ Client = require './atom-io-client'
 module.exports =
 class PackageManager
   constructor: ->
-    @packagePromises = []
     @availablePackageCache = null
     @emitter = new Emitter
 
@@ -215,7 +214,10 @@ class PackageManager
     @jsonCommand(args, errorMessage)
 
   getPackage: (packageName) ->
-    @packagePromises[packageName] ?= @jsonCommand(['view', packageName, '--json'], "Fetching package '#{packageName}' failed.")
+    args = ['view', packageName, '--json']
+    errorMessage = "Fetching package '#{packageName}' failed."
+
+    @jsonCommand(args, errorMessage)
 
   satisfiesVersion: (version, metadata) ->
     engine = metadata.engines?.atom ? '*'
