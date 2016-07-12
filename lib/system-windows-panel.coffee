@@ -49,6 +49,9 @@ class SystemPanel extends ScrollView
       @setRegistration WinShell.folderContextMenu, e.target.checked
       @setRegistration WinShell.folderBackgroundContextMenu, e.target.checked
 
+  dispose: ->
+    return
+
   setRegistration: (option, shouldBeRegistered) ->
     if shouldBeRegistered
       option.register ->
