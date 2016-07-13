@@ -90,11 +90,20 @@ describe "SettingsView", ->
         settingsView = null
 
       describe "settings-view:open", ->
-        it "opens the core settings view", ->
+        it "opens the settings view", ->
           openWithCommand('settings-view:open')
           runs ->
             expect(atom.workspace.getActivePaneItem().activePanel)
               .toEqual name: 'Core', options: {}
+
+      describe "settings-view:core", ->
+        it "opens the core settings view", ->
+          openWithCommand('settings-view:editor')
+          runs ->
+            openWithCommand('settings-view:core')
+          runs ->
+            expect(atom.workspace.getActivePaneItem().activePanel)
+              .toEqual name: 'Core', options: uri: 'atom://config/core'
 
       describe "settings-view:editor", ->
         it "opens the editor settings view", ->
