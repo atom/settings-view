@@ -324,13 +324,15 @@ describe "SettingsView", ->
           panels = [
             settingsView.getOrCreatePanel('Core')
             settingsView.getOrCreatePanel('Editor')
-            settingsView.getOrCreatePanel('System') if process.platform is 'win32'
             settingsView.getOrCreatePanel('Keybindings')
             settingsView.getOrCreatePanel('Packages')
             settingsView.getOrCreatePanel('Themes')
             settingsView.getOrCreatePanel('Updates')
             settingsView.getOrCreatePanel('Install')
           ]
+          systemPanel = settingsView.getOrCreatePanel('System')
+          if systemPanel?
+            panels.push systemPanel
           for panel in panels
             spyOn(panel, 'dispose')
 
