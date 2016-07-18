@@ -237,14 +237,16 @@ describe "SettingsView", ->
         waitsForPromise ->
           atom.workspace.open('atom://config/install').then (s) -> settingsView = s
 
+        hasSystemPanel = false
         waits 1
         runs ->
           expect(settingsView.activePanel)
             .toEqual name: 'Install', options: uri: 'atom://config/install'
           expect(focusIsWithinActivePanel()).toBe true
           expectActivePanelToBeKeyboardScrollable()
+          hasSystemPanel = settingsView.panelsByName['System']?
 
-        if process.platform is 'win32'
+        if hasSystemPanel
           waitsForPromise ->
             atom.workspace.open('atom://config/system').then (s) -> settingsView = s
 

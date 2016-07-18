@@ -47,10 +47,6 @@ class SettingsView extends ScrollView
       panel.dispose?()
     return
 
-  #TODO Remove both of these post 1.0
-  onDidChangeTitle: -> new Disposable()
-  onDidChangeModified: -> new Disposable()
-
   initializePanels: ->
     return if @panels.size > 0
 
@@ -66,7 +62,7 @@ class SettingsView extends ScrollView
 
     @addCorePanel 'Core', 'settings', -> new GeneralPanel
     @addCorePanel 'Editor', 'file-text', -> new EditorPanel
-    if process.platform is 'win32'
+    if process.platform is 'win32' and require('atom').WinShell?
       SystemPanel = require './system-windows-panel'
       @addCorePanel 'System', 'device-desktop', -> new SystemPanel
     @addCorePanel 'Keybindings', 'keyboard', -> new KeybindingsPanel
