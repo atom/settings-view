@@ -1,5 +1,5 @@
 path = require 'path'
-process = require 'process'
+{process} = require 'electron'
 PackageManager = require '../lib/package-manager'
 
 describe "package manager", ->
