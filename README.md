@@ -22,6 +22,7 @@ All of the following commands are under the `atom-workspace` selector.
 |`settings-view:open`|Opens the Settings View|<kbd>ctrl-,</kbd>|<kbd>cmd-,</kbd>|<kbd>ctrl-,</kbd>|
 |`settings-view:core`|Opens the _Core_ section of the Settings View|
 |`settings-view:editor`|Opens the _Editor_ section of the Settings View|
+|`settings-view:system`|Opens the _System_ section of the Settings View (Windows)|
 |`settings-view:show-keybindings`|Opens the _Keybindings_ section of the Settings View|
 |`settings-view:uninstall-packages`|Opens the _Packages_ section of the Settings View|
 |`settings-view:change-themes`|Opens the _Themes_ section of the Settings View|
