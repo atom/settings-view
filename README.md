@@ -3,7 +3,7 @@
 
 Edit core configuration settings, install and configure packages, and change themes from within Atom.
 
-![Settings View](https://cloud.githubusercontent.com/assets/378023/7413735/2473cc46-ef89-11e4-9786-63797d04a916.png)
+![Settings View](https://cloud.githubusercontent.com/assets/118951/16886698/b0ca5fae-4a8a-11e6-8afc-2c03fda4618c.PNG)
 
 ## Usage
 You can open the Settings View by navigating to _Edit > Preferences_ (Linux), _Atom > Preferences_ (OS X), or _File > Preferences_ (Windows).
@@ -20,6 +20,9 @@ All of the following commands are under the `atom-workspace` selector.
 |Command|Description|Keybinding (Linux)|Keybinding (OS X)|Keybinding (Windows)|
 |-------|-----------|------------------|-----------------|--------------------|
 |`settings-view:open`|Opens the Settings View|<kbd>ctrl-,</kbd>|<kbd>cmd-,</kbd>|<kbd>ctrl-,</kbd>|
+|`settings-view:core`|Opens the _Core_ section of the Settings View|
+|`settings-view:editor`|Opens the _Editor_ section of the Settings View|
+|`settings-view:system`|Opens the _System_ section of the Settings View (Windows)|
 |`settings-view:show-keybindings`|Opens the _Keybindings_ section of the Settings View|
 |`settings-view:uninstall-packages`|Opens the _Packages_ section of the Settings View|
 |`settings-view:change-themes`|Opens the _Themes_ section of the Settings View|

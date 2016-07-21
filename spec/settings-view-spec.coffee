@@ -90,11 +90,20 @@ describe "SettingsView", ->
         settingsView = null
 
       describe "settings-view:open", ->
-        it "opens the core settings view", ->
+        it "opens the settings view", ->
           openWithCommand('settings-view:open')
           runs ->
             expect(atom.workspace.getActivePaneItem().activePanel)
               .toEqual name: 'Core', options: {}
+
+      describe "settings-view:core", ->
+        it "opens the core settings view", ->
+          openWithCommand('settings-view:editor')
+          runs ->
+            openWithCommand('settings-view:core')
+          runs ->
+            expect(atom.workspace.getActivePaneItem().activePanel)
+              .toEqual name: 'Core', options: uri: 'atom://config/core'
 
       describe "settings-view:editor", ->
         it "opens the editor settings view", ->
@@ -228,12 +237,25 @@ describe "SettingsView", ->
         waitsForPromise ->
           atom.workspace.open('atom://config/install').then (s) -> settingsView = s
 
+        hasSystemPanel = false
         waits 1
         runs ->
           expect(settingsView.activePanel)
             .toEqual name: 'Install', options: uri: 'atom://config/install'
           expect(focusIsWithinActivePanel()).toBe true
           expectActivePanelToBeKeyboardScrollable()
+          hasSystemPanel = settingsView.panelsByName['System']?
+
+        if hasSystemPanel
+          waitsForPromise ->
+            atom.workspace.open('atom://config/system').then (s) -> settingsView = s
+
+          waits 1
+          runs ->
+            expect(settingsView.activePanel)
+              .toEqual name: 'System', options: uri: 'atom://config/system'
+            expect(focusIsWithinActivePanel()).toBe true
+            expectActivePanelToBeKeyboardScrollable()
 
       it "opens the package settings view with atom://config/packages/<package-name>", ->
         waitsForPromise ->
@@ -308,6 +330,9 @@ describe "SettingsView", ->
             settingsView.getOrCreatePanel('Updates')
             settingsView.getOrCreatePanel('Install')
           ]
+          systemPanel = settingsView.getOrCreatePanel('System')
+          if systemPanel?
+            panels.push systemPanel
           for panel in panels
             spyOn(panel, 'dispose')
 
