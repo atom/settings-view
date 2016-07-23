@@ -21,7 +21,7 @@ describe 'InstalledPackagesPanel', ->
         @packageManager.getInstalled.callCount is 1 and @panel.communityCount.text().indexOf('…') < 0
 
       runs ->
-        expect(@panel.communityCount.text().trim()).toBe '1/1'
+        expect(@panel.communityCount.text().trim()).toBe '1/2'
         expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 1
 
         expect(@panel.coreCount.text().trim()).toBe '0/1'
@@ -46,8 +46,8 @@ describe 'InstalledPackagesPanel', ->
         @packageManager.getInstalled.callCount is 1 and @panel.communityCount.text().indexOf('…') < 0
 
     it 'shows packages', ->
-      expect(@panel.communityCount.text().trim()).toBe '1'
-      expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 1
+      expect(@panel.communityCount.text().trim()).toBe '2'
+      expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 2
 
       expect(@panel.coreCount.text().trim()).toBe '1'
       expect(@panel.corePackages.find('.package-card:not(.hidden)').length).toBe 1
@@ -61,7 +61,7 @@ describe 'InstalledPackagesPanel', ->
     it 'filters packages by name', ->
       @panel.filterEditor.getModel().setText('user-')
       window.advanceClock(@panel.filterEditor.getModel().getBuffer().stoppedChangingDelay)
-      expect(@panel.communityCount.text().trim()).toBe '1/1'
+      expect(@panel.communityCount.text().trim()).toBe '1/2'
       expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 1
 
       expect(@panel.coreCount.text().trim()).toBe '0/1'
@@ -73,6 +73,11 @@ describe 'InstalledPackagesPanel', ->
       expect(@panel.deprecatedCount.text().trim()).toBe '0/0'
       expect(@panel.deprecatedPackages.find('.package-card:not(.hidden)').length).toBe 0
 
+    it 'sorts packages case-insensitively', ->
+      @panel.filterEditor.getModel().setText('')
+      window.advanceClock(@panel.filterEditor.getModel().getBuffer().stoppedChangingDelay)
+      expect(@panel.communityPackages.find('.package-card:not(.hidden) .package-name')[0].textContent).not.toBe "Z-package"
+
     it 'adds newly installed packages to the list', ->
       [installCallback] = []
       spyOn(@packageManager, 'runCommand').andCallFake (args, callback) ->
@@ -81,8 +86,8 @@ describe 'InstalledPackagesPanel', ->
       spyOn(atom.packages, 'activatePackage').andCallFake (name) =>
         @installed.user.push {name}
 
-      expect(@panel.communityCount.text().trim()).toBe '1'
-      expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 1
+      expect(@panel.communityCount.text().trim()).toBe '2'
+      expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 2
 
       @packageManager.install({name: 'another-user-package'})
       installCallback(0, '', '')
@@ -90,8 +95,8 @@ describe 'InstalledPackagesPanel', ->
       advanceClock InstalledPackagesPanel.loadPackagesDelay
       waits 1
       runs ->
-        expect(@panel.communityCount.text().trim()).toBe '2'
-        expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 2
+        expect(@panel.communityCount.text().trim()).toBe '3'
+        expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 3
 
     it 'removes uninstalled packages from the list', ->
       [uninstallCallback] = []
@@ -101,8 +106,8 @@ describe 'InstalledPackagesPanel', ->
       spyOn(@packageManager, 'unload').andCallFake (name) =>
         @installed.user = []
 
-      expect(@panel.communityCount.text().trim()).toBe '1'
-      expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 1
+      expect(@panel.communityCount.text().trim()).toBe '2'
+      expect(@panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 2
 
       @packageManager.uninstall({name: 'user-package'})
       uninstallCallback(0, '', '')
@@ -137,8 +142,8 @@ describe 'InstalledPackagesPanel', ->
       waits 1
       runs ->
         expect(@panel.deprecatedSection).toBeVisible()
-        expect(@panel.deprecatedCount.text().trim()).toBe '1'
-        expect(@panel.deprecatedPackages.find('.package-card:not(.hidden)').length).toBe 1
+        expect(@panel.deprecatedCount.text().trim()).toBe '2'
+        expect(@panel.deprecatedPackages.find('.package-card:not(.hidden)').length).toBe 2
 
         spyOn(PackageCard::, 'displayAvailableUpdate')
         resolve([{name: 'user-package', latestVersion: '1.1.0'}])
