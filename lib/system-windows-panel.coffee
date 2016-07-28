@@ -5,11 +5,11 @@ SettingsPanel = require './settings-panel'
 module.exports =
 class SystemPanel extends ScrollView
   @content: ->
-    @div tabindex: 0, class: 'panels-item', =>
+    @div class: 'panels-item', =>
       @form class: 'general-panel section', =>
         @div class: 'settings-panel', =>
           @div class: 'section-container', =>
-            @div class: 'block section-heading icon icon-device-desktop', 'System settings'
+            @div class: 'block section-heading icon icon-device-desktop', 'System Settings'
             @div class: 'text icon icon-question', 'These settings determine how Atom integrates with your operating system.'
             @div class: 'section-body', =>
               @div class: 'control-group', =>

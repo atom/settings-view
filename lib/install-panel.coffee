@@ -19,7 +19,7 @@ class InstallPanel extends ScrollView
     @div class: 'panels-item', =>
       @div class: 'section packages', =>
         @div class: 'section-container', =>
-          @h1 outlet: 'installHeading', class: 'section-heading icon icon-cloud-download', 'Install Packages'
+          @h1 outlet: 'installHeading', class: 'section-heading icon icon-plus', 'Install Packages'
 
           @div class: 'text native-key-bindings', tabindex: -1, =>
             @span class: 'icon icon-question'
