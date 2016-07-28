@@ -61,7 +61,7 @@ class SettingsView extends ScrollView
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
 
     @addCorePanel 'Core', 'settings', -> new GeneralPanel
-    @addCorePanel 'Editor', 'file-text', -> new EditorPanel
+    @addCorePanel 'Editor', 'code', -> new EditorPanel
     if process.platform is 'win32' and require('atom').WinShell?
       SystemPanel = require './system-windows-panel'
       @addCorePanel 'System', 'device-desktop', -> new SystemPanel
