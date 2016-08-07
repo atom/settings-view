@@ -22,9 +22,12 @@ describe "package manager", ->
 
   describe "::jsonCommad", ->
     it "calls ::command with --json", ->
-      packageManager.jsonCommand(['two', 'arguments'])
-      expect(packageManager.command).toHaveBeenCalled()
-      expect(runArgs).toEqual ['two', 'arguments', '--json']
+      waitsForPromise shouldReject: true, ->
+        packageManager.jsonCommand(['two', 'arguments'])
+
+      runs ->
+        expect(packageManager.command)
+          .toHaveBeenCalledWith(['two', 'arguments', '--json'], 'Running apm with --json failed')
 
   describe "::unload", ->
     beforeEach ->

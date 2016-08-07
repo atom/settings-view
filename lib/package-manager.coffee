@@ -64,8 +64,8 @@ class PackageManager
     args.push('--json')
 
     @command(args, errorMessage)
-      .then =>
-        @parseJSON(args, errorMessage)
+      .then (result) =>
+        @parseJSON(result, errorMessage)
 
   parseJSON: (jsonString, errorMessage = "Parsing JSON failed") ->
     new Promise (resolve, reject) ->
