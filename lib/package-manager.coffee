@@ -3,12 +3,23 @@ _ = require 'underscore-plus'
 semver = require 'semver'
 
 Client = require './atom-io-client'
+CachedAssets = require './cached-assets'
 
 module.exports =
 class PackageManager
   constructor: ->
     @availablePackageCache = null
     @emitter = new Emitter
+    @assetCache ?= new CachedAssets()
+
+
+  # Public: Gets an asset from the @assetCache
+  #
+  # * `url` {String} to be requested from the asset-cache
+  #
+  # Returns a {Promise} resolving with the assetPath
+  asset: (url) ->
+    @assetCache.asset(url)
 
   # Public: Runs `apm` with the provided arguments and an optional errorMessage
   #

@@ -1,17 +1,24 @@
 path = require 'path'
 process = require 'process'
 PackageManager = require '../lib/package-manager'
+{mockedPackageManager} = require './spec-helper'
 
 describe "package manager", ->
-  [packageManager, runArgs] = []
+  [packageManager] = []
 
   beforeEach ->
-    packageManager = new PackageManager()
-    spyOn(packageManager, 'command').andCallFake (args, errorMessage) ->
-      new Promise (resolve, reject) ->
-        runArgs = args
-        fakeJson = "{name:\"#{args[1]}\"}"
-        resolve(fakeJson)
+    packageManager = mockedPackageManager()
+
+  describe "::asset", ->
+    it "requests an asset from the asset cache", ->
+      spyOn(packageManager.assetCache, 'asset').andReturn Promise.resolve()
+
+      waitsFor ->
+        packageManager.asset('http://url')
+
+      runs ->
+        expect(packageManager.assetCache.asset).toHaveBeenCalledWith('http://url')
+
 
   describe "::jsonCommad", ->
     it "calls ::command with --json", ->
