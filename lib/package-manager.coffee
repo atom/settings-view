@@ -1,11 +1,14 @@
 _ = require 'underscore-plus'
 {BufferedProcess, CompositeDisposable, Emitter} = require 'atom'
 semver = require 'semver'
+request = require 'request'
 
 Client = require './atom-io-client'
 List = require './list'
 Package = require './package'
 CachedAssets = require './cached-assets'
+
+DefaultRequestHeaders = {'User-Agent': navigator.userAgent}
 
 module.exports =
 class PackageManager
@@ -240,6 +243,23 @@ class PackageManager
         .then => @getPackageList(listName)
         .catch ->
           console.warn "Failed to reload #{listName}"
+
+  request: (url, callback) ->
+    options = {
+      url: url
+      headers: DefaultRequestHeaders
+    }
+
+    new Promise (resolve, reject) ->
+      request options, (err, res, body) ->
+        reject(err) if err
+        resolve(body)
+
+  getAtomPackagesUrl: ->
+    process.env.ATOM_PACKAGES_URL ? "#{@getAtomApiUrl()}/packages"
+
+  getAtomApiUrl: ->
+    process.env.ATOM_API_URL ? 'https://atom.io/api'
 
   # Public: Runs `apm` with the provided arguments and an optional errorMessage
   #
