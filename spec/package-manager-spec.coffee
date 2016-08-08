@@ -52,6 +52,32 @@ describe "PackageManager", ->
         .toHaveBeenCalledWith("#{packageManager.storageKey}:package:test-package")
       expect(storedPackage.name).toBe('test-package')
 
+  describe "::storeList", ->
+    it "saves a List to localStorage", ->
+      spyOn(packageManager, "storePackage").andReturn(Promise.resolve())
+      spyOn(localStorage, 'setItem').andCallThrough()
+      list = ['package-name']
+
+      waitsForPromise ->
+        packageManager.storeList('stored-list', list)
+
+      runs ->
+        expect(localStorage.setItem)
+          .toHaveBeenCalledWith('settings-view-specs:package-store:list:stored-list', '[null]')
+
+  describe "::storedList", ->
+    it "gets a list from localStorage", ->
+      list = ['package-name']
+      spyOn(packageManager, "storedPackage").andCallFake (name) ->
+        {name: name}
+      spyOn(localStorage, 'getItem').andCallFake (listName) ->
+        JSON.stringify list
+
+      packageManager.storedList('stored-list')
+
+      expect(localStorage.getItem)
+        .toHaveBeenCalledWith('settings-view-specs:package-store:list:stored-list')
+
   describe "::jsonCommad", ->
     it "calls ::command with --json", ->
       waitsForPromise shouldReject: true, ->

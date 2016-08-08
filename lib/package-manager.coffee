@@ -3,6 +3,7 @@ _ = require 'underscore-plus'
 semver = require 'semver'
 
 Client = require './atom-io-client'
+Package = require './package'
 CachedAssets = require './cached-assets'
 
 module.exports =
@@ -60,7 +61,7 @@ class PackageManager
     localStorage.setItem("#{@storageKey}:package:#{pack.name}", JSON.stringify(pack))
     @storedPackage(pack.name)
 
-  # Public: Retrives a Package from localStorage
+  # Public: Retrieves a Package from localStorage
   #
   # * `packName` {String}
   #
@@ -68,6 +69,64 @@ class PackageManager
   storedPackage: (packName) ->
     stored = localStorage.getItem("#{@storageKey}:package:#{packName}")
     JSON.parse(stored) if stored
+
+  # Public: Stores a lists packages to localStorage
+  #
+  # * `listName` {String}
+  # * `result` {Array} of {Package}s
+  #
+  # Returns an {Object}
+  storeList: (listName, result) ->
+    packages = []
+    newResult = null
+
+    unless _.isArray(result)
+      newResult = {}
+      _.each result, (packageList, key) =>
+        newResult[key] = @listResultToPackageNames(packageList)
+        packages.push(packageList)
+    else
+      newResult = @listResultToPackageNames(result)
+      packages.push(result)
+
+    packages = _.flatten packages
+    Promise.all _.map packages, (pack) =>
+      @storePackage(pack)
+    .then =>
+      localStorage.removeItem(@storeKeyForList(listName))
+      localStorage.setItem(@storeKeyForList(listName), JSON.stringify(newResult))
+      @storedList(listName)
+
+  # Public: Retrieves a list and returns them as {Package}s
+  #
+  # * `listName` {String}
+  #
+  # Returns an {Object}
+  storedList: (listName) ->
+    listKey = @storeKeyForList(listName)
+    stored = localStorage.getItem(listKey)
+    stored = if stored then JSON.parse(stored)
+
+    if stored
+      unless _.isArray(stored)
+        _.each stored, (packageList, key) =>
+          stored[key] = _.map packageList, (packName) =>
+            @storedPackage(packName)
+      else
+        stored = _.map stored, (packName) =>
+          @storedPackage(packName)
+
+    stored
+
+  # Takes a list of raw package objects and initializes Package instances for them
+  listResultToPackages: (packages) ->
+    _.map packages, (pack) =>
+      @cachedPackage pack
+
+  # Takes a list of raw package objects and initializes Package instances for them
+  listResultToPackageNames: (packages) ->
+    _.map packages, (pack) ->
+      pack.name
 
   # Public: Runs `apm` with the provided arguments and an optional errorMessage
   #
