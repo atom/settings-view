@@ -261,6 +261,13 @@ class PackageManager
   getAtomApiUrl: ->
     process.env.ATOM_API_URL ? 'https://atom.io/api'
 
+  getPackageMetadata: (pack) ->
+    @request("#{@getAtomPackagesUrl()}/#{pack.name}")
+        .then @parseJSON
+        .then (packJson) =>
+          _.extend pack, packJson
+          @storePackage(packJson)
+
   # Public: Runs `apm` with the provided arguments and an optional errorMessage
   #
   # * `args` {Array} to be used to execute `apm`
