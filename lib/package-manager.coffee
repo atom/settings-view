@@ -36,6 +36,39 @@ class PackageManager
   storeKeyForPackage: (packageName) ->
     "#{@storageKey}:package:#{packageName}"
 
+  # Public: Takes a {Package} object, grabs additional data and saves it to localStorage
+  #
+  # * `pack` {Package} object
+  #
+  # Returns an {Object}
+  storePackage: (pack) ->
+    properties = [
+      'name', 'version', 'latestVersion', 'description', 'readme',
+      'downloads', 'stargazers_count', 'repository',
+      'metadata', 'path', 'apmInstallSource', 'gitUrlInfo',
+      'activateTime', 'loadTime', 'bundledPackage', 'compatible'
+    ]
+
+    if storedPackage = @storedPackage(pack.name)
+      pack = _.extend pack, _.pick(storedPackage, properties)
+
+    pack = _.pick pack, properties
+
+    if loadedPackage = atom.packages.getLoadedPackage(pack.name)
+      pack = _.extend pack, _.pick(loadedPackage, properties)
+
+    localStorage.setItem("#{@storageKey}:package:#{pack.name}", JSON.stringify(pack))
+    @storedPackage(pack.name)
+
+  # Public: Retrives a Package from localStorage
+  #
+  # * `packName` {String}
+  #
+  # Returns an {Object}
+  storedPackage: (packName) ->
+    stored = localStorage.getItem("#{@storageKey}:package:#{packName}")
+    JSON.parse(stored) if stored
+
   # Public: Runs `apm` with the provided arguments and an optional errorMessage
   #
   # * `args` {Array} to be used to execute `apm`

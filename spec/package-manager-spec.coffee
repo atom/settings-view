@@ -1,9 +1,10 @@
 path = require 'path'
 process = require 'process'
+Package = require '../lib/package'
 PackageManager = require '../lib/package-manager'
 {mockedPackageManager} = require './spec-helper'
 
-describe "package manager", ->
+describe "PackageManager", ->
   [packageManager] = []
 
   beforeEach ->
@@ -30,6 +31,26 @@ describe "package manager", ->
       packageName = 'stored-package'
       expect(packageManager.storeKeyForPackage(packageName))
         .toBe "#{packageManager.storageKey}:package:#{packageName}"
+
+  describe "::storePackage", ->
+    it "saves a Package to localStorage", ->
+      spyOn(localStorage, "setItem").andCallThrough()
+      pack = new Package {name: 'test-package'}, packageManager
+
+      packageManager.storePackage(pack)
+
+      expect(localStorage.setItem)
+        .toHaveBeenCalledWith("#{packageManager.storageKey}:package:#{pack.name}", '{"name":"test-package"}')
+
+  describe "::storedPackage", ->
+    it "retrives a Package from localStorage", ->
+      spyOn(localStorage, "getItem").andReturn('{"name":"test-package"}')
+
+      storedPackage = packageManager.storedPackage('test-package')
+
+      expect(localStorage.getItem)
+        .toHaveBeenCalledWith("#{packageManager.storageKey}:package:test-package")
+      expect(storedPackage.name).toBe('test-package')
 
   describe "::jsonCommad", ->
     it "calls ::command with --json", ->
