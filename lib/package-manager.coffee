@@ -25,6 +25,13 @@ class PackageManager
     @cachedPackages = {}
     @assetCache ?= new CachedAssets()
 
+    @on 'package-installed package-updated package-updated-failed package-install-failed package-uninstalled package-uninstall-failed', =>
+      Promise.all([
+        @clearStoredList('installed:packages'),
+        @clearStoredList('installed:themes'),
+        @clearStoredList('outdated')
+      ]).then =>
+        @reloadCachedLists()
 
   # Public: Gets an asset from the @assetCache
   #
@@ -221,6 +228,18 @@ class PackageManager
     @getListArguments(listName)
       .then (args) =>
         @jsonCommand(args, "Fetching results for #{listName} failed")
+
+  clearStoredList: (listName) ->
+    localStorage.removeItem("#{@storeKeyForList(listName)}")
+    Promise.resolve(listName)
+
+  reloadCachedLists: ->
+    lists = _.keys @cachedLists
+    _.each lists, (listName) =>
+      @clearStoredList(listName)
+        .then => @getPackageList(listName)
+        .catch ->
+          console.warn "Failed to reload #{listName}"
 
   # Public: Runs `apm` with the provided arguments and an optional errorMessage
   #
