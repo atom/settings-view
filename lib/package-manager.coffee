@@ -22,6 +22,20 @@ class PackageManager
   asset: (url) ->
     @assetCache.asset(url)
 
+  # Returns a key for a list for storing in localStorage
+  #
+  # * `listName` {String} in the format of `LIST[:SUB-LIST]`
+  #
+  storeKeyForList: (listName) ->
+    "#{@storageKey}:list:#{listName}"
+
+  # Returns a key for a package for storing in localStorage
+  #
+  # * `packageName` {String}
+  #
+  storeKeyForPackage: (packageName) ->
+    "#{@storageKey}:package:#{packageName}"
+
   # Public: Runs `apm` with the provided arguments and an optional errorMessage
   #
   # * `args` {Array} to be used to execute `apm`
@@ -89,12 +103,6 @@ class PackageManager
       packageNames.indexOf(packageName) > -1
     else
       false
-  # Returns a key for a list for storing in localStorage
-  #
-  # * `listName` {String} in the format of `LIST[:SUB-LIST]`
-  #
-  storeKeyForList: (listName) ->
-    "#{@storageKey}:list:#{listName}"
 
   packageHasSettings: (packageName) ->
     grammars = atom.grammars.getGrammars() ? []

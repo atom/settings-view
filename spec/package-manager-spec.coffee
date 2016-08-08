@@ -25,6 +25,12 @@ describe "package manager", ->
       expect(packageManager.storeKeyForList(listName))
         .toBe "#{packageManager.storageKey}:list:#{listName}"
 
+  describe "::storeKeyForPackage", ->
+    it "returns a combination of the storage key and the list name", ->
+      packageName = 'stored-package'
+      expect(packageManager.storeKeyForPackage(packageName))
+        .toBe "#{packageManager.storageKey}:package:#{packageName}"
+
   describe "::jsonCommad", ->
     it "calls ::command with --json", ->
       waitsForPromise shouldReject: true, ->
