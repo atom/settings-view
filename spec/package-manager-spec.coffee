@@ -1,6 +1,7 @@
 path = require 'path'
 process = require 'process'
 Package = require '../lib/package'
+List = require '../lib/list'
 PackageManager = require '../lib/package-manager'
 {mockedPackageManager} = require './spec-helper'
 
@@ -52,6 +53,22 @@ describe "PackageManager", ->
         .toHaveBeenCalledWith("#{packageManager.storageKey}:package:test-package")
       expect(storedPackage.name).toBe('test-package')
 
+  describe "::cachedPackage", ->
+    [pack] = []
+
+    beforeEach ->
+      pack = new Package {name: 'test-package'}, packageManager
+
+    it "puts an object into cachedPackages", ->
+      expect(packageManager.cachedPackages[pack.name]).toBe undefined
+
+      packageManager.cachedPackage(pack)
+      expect(packageManager.cachedPackages[pack.name]).not.toBe undefined
+
+    it "returns an object if already in the cache", ->
+      packageManager.cachedPackages[pack.name] = pack
+      expect(packageManager.cachedPackage(pack)).toBe pack
+
   describe "::storeList", ->
     it "saves a List to localStorage", ->
       spyOn(packageManager, "storePackage").andReturn(Promise.resolve())
@@ -77,6 +94,24 @@ describe "PackageManager", ->
 
       expect(localStorage.getItem)
         .toHaveBeenCalledWith('settings-view-specs:package-store:list:stored-list')
+
+  describe "::cachedList", ->
+    it "puts creates a List from an Array and puts it into cachedLists", ->
+      listName = 'cached-list'
+      packageArray = [new Package({name: 'test-package'})]
+
+      expect(packageManager.cachedLists[listName]).toBe undefined
+      packageManager.cachedList(listName, packageArray)
+      expect(packageManager.cachedLists[listName]).not.toBe undefined
+
+    it "returns the List object if already set", ->
+      listName = 'cached-list'
+      list = new List 'name'
+      list.setItems [new Package({name: 'test-package'})]
+      packageManager.cachedLists[listName] = list
+
+      packageManager.cachedList(listName, [])
+      expect(packageManager.cachedLists[listName]).toBe list
 
   describe "::jsonCommad", ->
     it "calls ::command with --json", ->

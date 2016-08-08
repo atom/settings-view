@@ -3,6 +3,7 @@ _ = require 'underscore-plus'
 semver = require 'semver'
 
 Client = require './atom-io-client'
+List = require './list'
 Package = require './package'
 CachedAssets = require './cached-assets'
 
@@ -12,6 +13,8 @@ class PackageManager
     @availablePackageCache = null
     @emitter = new Emitter
     @storageKey = "settings-view:package-store"
+    @cachedLists = {}
+    @cachedPackages = {}
     @assetCache ?= new CachedAssets()
 
 
@@ -70,6 +73,17 @@ class PackageManager
     stored = localStorage.getItem("#{@storageKey}:package:#{packName}")
     JSON.parse(stored) if stored
 
+  # Gets a {Package} from the package object cache (@cachedPackages) or puts it in
+  #
+  # * `pack` {Package} to be cached
+  #
+  # Returns {Package}
+  cachedPackage: (pack) ->
+    if cachedPackage = @cachedPackages[pack.name]
+      _.extend cachedPackage, pack
+    else
+      @cachedPackages[pack.name] = new Package pack, this
+
   # Public: Stores a lists packages to localStorage
   #
   # * `listName` {String}
@@ -127,6 +141,26 @@ class PackageManager
   listResultToPackageNames: (packages) ->
     _.map packages, (pack) ->
       pack.name
+
+  # Gets a {List} from the list object cache (@cachedLists) or puts it in
+  #
+  # * `listName` {String}
+  # * `packages` {Array} or {Object} of {Package}s
+  #
+  # Returns a {List} or an {Object} with {List}s
+  cachedList: (listName, packages) ->
+    listKey = @storeKeyForList(listName)
+
+    unless _.isArray(packages)
+      _.each packages, (packageList, key) =>
+        @cachedLists[listName] ?= {}
+        @cachedLists[listName][key] ?= new List('name')
+        @cachedLists[listName][key].setItems(@listResultToPackages(packageList))
+    else
+      @cachedLists[listName] ?= new List('name')
+      @cachedLists[listName].setItems(@listResultToPackages(packages))
+
+    @cachedLists[listName]
 
   # Public: Runs `apm` with the provided arguments and an optional errorMessage
   #
