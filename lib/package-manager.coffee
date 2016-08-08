@@ -9,6 +9,14 @@ CachedAssets = require './cached-assets'
 
 module.exports =
 class PackageManager
+  PACKAGE_LISTS: {
+    "installed:packages": ['ls', '--packages'],
+    "installed:themes": ['ls', '--themes'],
+    "outdated": ['outdated', 'compatible'],
+    "featured:packages": ['featured', 'compatible'],
+    "featured:themes": ['featured', '--themes', 'compatible']
+  }
+
   constructor: ->
     @availablePackageCache = null
     @emitter = new Emitter
@@ -161,6 +169,27 @@ class PackageManager
       @cachedLists[listName].setItems(@listResultToPackages(packages))
 
     @cachedLists[listName]
+
+  # Public:  Looks up list arguments in PACKAGE_LISTS
+  # When a arguments for a list contain the `compatible` flag it'll push the command arguments for it in.
+  #
+  # * `listName` {String} in the format of `LIST[:SUB-LIST]`
+  #
+  # Returns a {Promise} resolving with an {Array} of arguments
+  getListArguments: (listName) ->
+    new Promise (resolve, reject) =>
+      if args = @PACKAGE_LISTS[listName]
+        resolve(args)
+      else
+        reject(new Error("Arguments for package list not found"))
+    .then (args) ->
+      args = _.clone(args)
+      if args.indexOf('compatible') > -1
+        args.splice(args.indexOf('compatible'), 1)
+        version = atom.getVersion()
+        args.push('--compatible', version) if semver.valid(version)
+
+      args
 
   # Public: Runs `apm` with the provided arguments and an optional errorMessage
   #

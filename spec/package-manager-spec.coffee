@@ -115,6 +115,31 @@ describe "PackageManager", ->
       packageManager.cachedList(listName, [])
       expect(packageManager.cachedLists[listName]).toBe list
 
+  describe "::getListArguments", ->
+    [args] = []
+
+    beforeEach ->
+      args = null
+
+    it "returns an array of arguments for a list from PACKAGE_LISTS", ->
+      waitsForPromise ->
+        packageManager.getListArguments('installed:packages')
+          .then (listArgs) ->
+            args = listArgs
+
+      runs ->
+        expect(args).toEqual packageManager.PACKAGE_LISTS['installed:packages']
+
+    it "replaces 'compatible' with the flag and current atom version", ->
+      waitsForPromise ->
+        packageManager.getListArguments('outdated')
+          .then (listArgs) ->
+            args = listArgs
+
+      runs ->
+        expect(args).toEqual [ 'outdated', '--compatible', atom.getVersion() ]
+
+
   describe "::jsonCommad", ->
     it "calls ::command with --json", ->
       waitsForPromise shouldReject: true, ->
