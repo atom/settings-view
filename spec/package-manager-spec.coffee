@@ -96,18 +96,20 @@ describe "PackageManager", ->
         .toHaveBeenCalledWith('settings-view-specs:package-store:list:stored-list')
 
   describe "::cachedList", ->
-    it "puts creates a List from an Array and puts it into cachedLists", ->
+    [listName, packageArray] = []
+
+    beforeEach ->
       listName = 'cached-list'
       packageArray = [new Package({name: 'test-package'})]
 
+    it "puts creates a List from an Array and puts it into cachedLists", ->
       expect(packageManager.cachedLists[listName]).toBe undefined
       packageManager.cachedList(listName, packageArray)
       expect(packageManager.cachedLists[listName]).not.toBe undefined
 
     it "returns the List object if already set", ->
-      listName = 'cached-list'
       list = new List 'name'
-      list.setItems [new Package({name: 'test-package'})]
+      list.setItems packageArray
       packageManager.cachedLists[listName] = list
 
       packageManager.cachedList(listName, [])
