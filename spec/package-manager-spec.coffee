@@ -139,6 +139,41 @@ describe "PackageManager", ->
       runs ->
         expect(args).toEqual [ 'outdated', '--compatible', atom.getVersion() ]
 
+  describe "::getPackageList", ->
+    [list, returnedList] = []
+
+    beforeEach ->
+      list = new List 'name'
+
+    it "returns list for the given listName", ->
+      spyOn(packageManager, "storedList").andReturn(list)
+      spyOn(packageManager, "storeList")
+      spyOn(packageManager, "cachedList").andReturn(list)
+
+      waitsForPromise ->
+        packageManager.getPackageList('installed:packages')
+          .then (result) ->
+            returnedList = result
+
+      runs ->
+        expect(packageManager.storedList).toHaveBeenCalled()
+        expect(packageManager.storeList).not.toHaveBeenCalled()
+        expect(returnedList).toBe list
+
+    describe "when no list is stored", ->
+      it "gets, stores and returns a list for the given listName", ->
+        spyOn(packageManager, "storedList").andReturn(undefined)
+        spyOn(packageManager, "storeList")
+        spyOn(packageManager, "cachedList").andReturn(list)
+
+        waitsForPromise ->
+          packageManager.getPackageList('installed:packages')
+            .then (result) ->
+              returnedList = result
+
+        runs ->
+          expect(packageManager.storeList).toHaveBeenCalled()
+          expect(returnedList).toBe list
 
   describe "::jsonCommad", ->
     it "calls ::command with --json", ->

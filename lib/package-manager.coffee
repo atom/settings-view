@@ -191,6 +191,37 @@ class PackageManager
 
       args
 
+  # Public: Looks up a list and returns it.
+  #
+  # When a list is not already stored it gets, stores and returns it
+  # When it is found it returns it and refreshes the List async
+  #
+  # * `listName` {String} in the format of `LIST[:SUB-LIST]`
+  #
+  # Returns a {Promise} resolving with {Package} objects in a {List}
+  getPackageList: (listName) ->
+    Promise.resolve()
+      .then =>
+        if result = @storedList(listName)
+          (=>
+            @getJSONListResult(listName)
+              .then (json) =>
+                @storeList(listName, result)
+          )()
+
+          result
+        else
+          @getJSONListResult(listName)
+            .then (result) =>
+              @storeList(listName, result)
+      .then (packages) =>
+        @cachedList(listName, packages)
+
+  getJSONListResult: (listName) ->
+    @getListArguments(listName)
+      .then (args) =>
+        @jsonCommand(args, "Fetching results for #{listName} failed")
+
   # Public: Runs `apm` with the provided arguments and an optional errorMessage
   #
   # * `args` {Array} to be used to execute `apm`
