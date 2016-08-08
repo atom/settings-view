@@ -10,6 +10,7 @@ class PackageManager
   constructor: ->
     @availablePackageCache = null
     @emitter = new Emitter
+    @storageKey = "settings-view:package-store"
     @assetCache ?= new CachedAssets()
 
 
@@ -88,6 +89,12 @@ class PackageManager
       packageNames.indexOf(packageName) > -1
     else
       false
+  # Returns a key for a list for storing in localStorage
+  #
+  # * `listName` {String} in the format of `LIST[:SUB-LIST]`
+  #
+  storeKeyForList: (listName) ->
+    "#{@storageKey}:list:#{listName}"
 
   packageHasSettings: (packageName) ->
     grammars = atom.grammars.getGrammars() ? []

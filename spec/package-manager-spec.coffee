@@ -19,6 +19,11 @@ describe "package manager", ->
       runs ->
         expect(packageManager.assetCache.asset).toHaveBeenCalledWith('http://url')
 
+  describe "::storeKeyForList", ->
+    it "returns a combination of the storage key and the list name", ->
+      listName = 'stored-list'
+      expect(packageManager.storeKeyForList(listName))
+        .toBe "#{packageManager.storageKey}:list:#{listName}"
 
   describe "::jsonCommad", ->
     it "calls ::command with --json", ->
