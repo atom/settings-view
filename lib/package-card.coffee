@@ -436,10 +436,20 @@ class PackageCard extends View
 
   update: ->
     return unless @newVersion or @newSha
-    @packageManager.update @installablePack ? @pack, @newVersion, (error) =>
+    pack = @installablePack ? @pack
+    version = if @newVersion then "v#{@newVersion}" else "##{@newSha.substr(0, 8)}"
+    @packageManager.update pack, @newVersion, (error) =>
       if error?
-        version = if @newVersion then "v#{newVersion}" else "##{@newSha.substr(0, 8)}"
-        console.error("Updating #{@type} #{@pack.name} to #{version} failed", error.stack ? error, error.stderr)
+        atom.assert false, "Package update failed", (assertionError) =>
+          assertionError.metadata = {
+            type: @type,
+            name: pack.name,
+            version: version,
+            errorMessage: error.message,
+            errorStack: error.stack,
+            errorStderr: error.stderr
+          }
+        console.error("Updating #{@type} #{pack.name} to #{version} failed:\n", error, error.stderr ? '')
 
   uninstall: ->
     @packageManager.uninstall @pack, (error) =>
