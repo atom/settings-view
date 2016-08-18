@@ -103,6 +103,7 @@ class AtomIoClient
       options.force = not @online()
 
     cached = localStorage.getItem(@cacheKeyForPath(packagePath))
+    debugger
     cached = if cached then JSON.parse(cached)
     if cached? and (not @online() or options.force or (Date.now() - cached.createdOn < @expiry))
       cached ?= data: {}
@@ -129,7 +130,7 @@ class AtomIoClient
       for imagePath in files
         filename = path.basename(imagePath)
         [..., createdOn] = filename.split('-')
-        if Date.now() - parseInt(createdOn) < @expiry
+        if Date.now() - parseInt(createdOn) < @expiry and fs.getSizeSync(filename) > 0
           return callback(null, imagePath)
       callback(null, null)
 
