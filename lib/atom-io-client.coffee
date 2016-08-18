@@ -103,7 +103,6 @@ class AtomIoClient
       options.force = not @online()
 
     cached = localStorage.getItem(@cacheKeyForPath(packagePath))
-    debugger
     cached = if cached then JSON.parse(cached)
     if cached? and (not @online() or options.force or (Date.now() - cached.createdOn < @expiry))
       cached ?= data: {}
