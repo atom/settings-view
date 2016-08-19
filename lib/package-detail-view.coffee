@@ -58,6 +58,7 @@ class PackageDetailView extends ScrollView
     super
     @disposables = new CompositeDisposable()
     @loadPackage()
+    @handleButtonEvents()
 
   completeInitialzation: ->
     unless @packageCard # Had to load this from the network
@@ -69,7 +70,6 @@ class PackageDetailView extends ScrollView
     @buttons.removeClass('hidden')
     @activateConfig()
     @populate()
-    @handleButtonEvents()
     @updateFileButtons()
     @subscribeToPackageManager()
     @renderReadme()
