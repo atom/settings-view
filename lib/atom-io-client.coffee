@@ -129,7 +129,7 @@ class AtomIoClient
       for imagePath in files
         filename = path.basename(imagePath)
         [..., createdOn] = filename.split('-')
-        if Date.now() - parseInt(createdOn) < @expiry and fs.getSizeSync(filename) > 0
+        if Date.now() - parseInt(createdOn) < @expiry
           return callback(null, imagePath)
       callback(null, null)
 
