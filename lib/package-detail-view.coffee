@@ -141,17 +141,21 @@ class PackageDetailView extends ScrollView
     @updateFileButtons()
     @activateConfig()
 
-    if @isInstalled()
-      @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
-      @sections.append(new PackageKeymapView(@pack))
+    if atom.packages.isPackageLoaded(@pack.name)
+      if not atom.packages.isPackageDisabled(@pack.name)
+        @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
+        @sections.append(new PackageKeymapView(@pack))
 
-      if @pack.path
-        @sections.append(new PackageGrammarsView(@pack.path))
-        @sections.append(new PackageSnippetsView(@pack.path, @snippetsProvider))
+        if @pack.path
+          @sections.append(new PackageGrammarsView(@pack.path))
+          @sections.append(new PackageSnippetsView(@pack.path, @snippetsProvider))
 
-      @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
-    else
-      @startupTime.hide()
+        @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
+      else
+        @startupTime.hide()
+        @openButton.hide()
+
+    @openButton.hide() if atom.packages.isBundledPackage(@pack.name)
 
     @renderReadme()
 
@@ -242,7 +246,5 @@ class PackageDetailView extends ScrollView
     activateTime = @pack.activateTime ? 0
     loadTime + activateTime
 
-  # Even though the title of this view is hilariously "PackageDetailView",
-  # the package might not be installed.
   isInstalled: ->
     atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)
