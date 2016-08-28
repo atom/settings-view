@@ -3,7 +3,6 @@ _ = require 'underscore-plus'
 semver = require 'semver'
 request = require 'request'
 
-Client = require './atom-io-client'
 List = require './list'
 Package = require './package'
 CachedAssets = require './cached-assets'
@@ -21,7 +20,6 @@ class PackageManager
   }
 
   constructor: ->
-    @availablePackageCache = null
     @emitter = new Emitter
     @storageKey = "settings-view:package-store"
     @cachedLists = {}
@@ -66,7 +64,7 @@ class PackageManager
   storePackage: (pack) ->
     properties = [
       'name', 'version', 'latestVersion', 'description', 'readme',
-      'downloads', 'stargazers_count', 'repository',
+      'downloads', 'stargazers_count', 'repository', 'theme'
       'metadata', 'path', 'apmInstallSource', 'gitUrlInfo',
       'activateTime', 'loadTime', 'bundledPackage', 'compatible'
     ]
@@ -213,12 +211,6 @@ class PackageManager
     Promise.resolve()
       .then =>
         if result = @storedList(listName)
-          (=>
-            @getJSONListResult(listName)
-              .then (json) =>
-                @storeList(listName, result)
-          )()
-
           result
         else
           @getJSONListResult(listName)
@@ -325,66 +317,19 @@ class PackageManager
         error.stderr = "#{parseError.message}: #{jsonString}"
         reject(error)
 
-  getClient: ->
-    @client ?= new Client(this)
-
-  isPackageInstalled: (packageName) ->
-    if atom.packages.isPackageLoaded(packageName)
-      true
-    else if packageNames = @getAvailablePackageNames()
-      packageNames.indexOf(packageName) > -1
-    else
-      false
-
-  packageHasSettings: (packageName) ->
-    grammars = atom.grammars.getGrammars() ? []
-    for grammar in grammars when grammar.path
-      return true if grammar.packageName is packageName
-
-    pack = atom.packages.getLoadedPackage(packageName)
-    pack.activateConfig() if pack? and not atom.packages.isPackageActive(packageName)
-    schema = atom.config.getSchema(packageName)
-    schema? and (schema.type isnt 'any')
-
   loadCompatiblePackageVersion: (packageName) ->
     args = ['view', packageName, '--compatible', @normalizeVersion(atom.getVersion())]
     errorMessage = "Fetching package '#{packageName}' failed."
 
     @jsonCommand(args, errorMessage)
+      .then (pack) =>
+        @cachedPackage(pack)
 
-  getInstalled: ->
-    args = ['ls', '--json']
-    errorMessage = 'Fetching local packages failed.'
-
-    @jsonCommand(args, errorMessage)
-
-  getFeatured: (loadThemes) ->
-    args = ['featured', '--json']
-    version = atom.getVersion()
-    args.push('--themes') if loadThemes
-    args.push('--compatible', version) if semver.valid(version)
-    errorMessage = 'Fetching featured packages failed.'
-
-    @jsonCommand(args, errorMessage)
-
-  getOutdated: ->
-    args = ['outdated', '--json']
-    version = atom.getVersion()
-    args.push('--compatible', version) if semver.valid(version)
-    errorMessage = 'Fetching outdated packages and themes failed.'
-
-    @jsonCommand(args, errorMessage)
-
-  getPackage: (packageName) ->
-    args = ['view', packageName, '--json']
+  view: (packageName) ->
+    args = ['view', packageName]
     errorMessage = "Fetching package '#{packageName}' failed."
 
     @jsonCommand(args, errorMessage)
-
-  satisfiesVersion: (version, metadata) ->
-    engine = metadata.engines?.atom ? '*'
-    return false unless semver.validRange(engine)
-    return semver.satisfies(version, engine)
 
   normalizeVersion: (version) ->
     [version] = version.split('-') if typeof version is 'string'
@@ -403,6 +348,10 @@ class PackageManager
         if options.sortBy
           _.sortBy packages, (pkg) ->
             pkg[options.sortBy] * -1
+      .then (packages) =>
+        packages = _.map packages, (pack) =>
+          @cachedPackage(pack)
+        packages
 
   update: (pack, newVersion) ->
     {name, theme, apmInstallSource} = pack
@@ -425,21 +374,29 @@ class PackageManager
 
     @unload(name)
       .then =>
-        @emitPackageEvent('updating', {pack})
+        pack.emit 'updating'
+        @emit 'package-updating', pack
         @command(args, errorMessage)
       .then =>
+        pack.version = newVersion
+        pack.latestVersion = null
+
         activation = if activateOnSuccess
           atom.packages.activatePackage(name)
         else
           atom.packages.loadPackage(name)
 
         Promise.resolve(activation).then =>
-          @emitPackageEvent 'updated', pack
+          @emit 'package-updated', pack
+          pack.emit 'updated'
+
       .catch (error) =>
         atom.packages.activatePackage(name) if activateOnFailure
+
         error = new Error(errorMessage)
         error.packageInstallError = not theme
-        @emitPackageEvent 'update-failed', pack, error
+        @emit 'package-updated-failed', pack, error
+        pack.emit 'update-failed', error
 
   unload: (name) ->
     new Promise (resolve, reject) ->
@@ -460,7 +417,8 @@ class PackageManager
 
     @unload(name)
       .then =>
-        @emitPackageEvent 'installing', pack
+        pack.emit 'installing'
+        @emit 'package-installing', pack
         @command(args, errorMessage)
       .then (json) =>
         # get real package name from package.json
@@ -476,15 +434,20 @@ class PackageManager
         else
           atom.packages.loadPackage(name)
 
-        @addPackageToAvailablePackageNames(name)
-        @emitPackageEvent 'installed', pack
+        @reloadCachedLists()
+
+        pack.emit 'installed'
+        @emit 'package-installed', pack
 
         pack
       .catch (error) =>
+        console.error error
         atom.packages.activatePackage(name) if activateOnFailure
         error = new Error(errorMessage)
         error.packageInstallError = not theme
-        @emitPackageEvent 'install-failed', pack, error
+
+        @emit 'package-install-failed', pack, error
+        pack.emit 'install-failed', error
 
   uninstall: (pack) ->
     {name} = pack
@@ -493,48 +456,29 @@ class PackageManager
 
     @unload(name)
       .then =>
-        @emitPackageEvent 'uninstalling', pack
+        pack.emit 'uninstalling'
         @command(args, errorMessage)
       .then =>
-        @removePackageFromAvailablePackageNames(name)
         @removePackageNameFromDisabledPackages(name)
-        @emitPackageEvent 'uninstalled', pack
+        pack.emit 'uninstalled'
+        @emitter.emit 'package-uninstalled', pack
       .catch (error) =>
-        @emitPackageEvent 'uninstall-failed', pack, error
+        @emitter.emit 'package-uninstall-failed', error
+        pack.emit 'uninstall-failed', error
 
-  installAlternative: (pack, alternativePackageName) ->
-    eventArg = {pack, alternative: alternativePackageName}
-    @emitPackageEvent('package-installing-alternative', eventArg)
+  installAlternative: (pack, alternativePackage) ->
+    eventArg = {pack, alternative: alternativePackage}
+    pack.emit 'installing-alternative', eventArg
 
     uninstallPromise = @uninstall pack
-    installPromise = @install {name: alternativePackageName}
+    installPromise = @install(alternativePackage)
 
     Promise.all([uninstallPromise, installPromise])
-      .then =>
-        @emitPackageEvent('installed-alternative', eventArg)
-      .catch (error) =>
+      .then ->
+        pack.emit 'installed-alternative', eventArg
+      .catch (error) ->
         eventArg.error = error
-        @emitPackageEvent('install-alternative-failed', eventArg)
-
-  canUpgrade: (installedPackage, availableVersion) ->
-    return false unless installedPackage?
-
-    installedVersion = installedPackage.metadata.version
-    return false unless semver.valid(installedVersion)
-    return false unless semver.valid(availableVersion)
-
-    semver.gt(availableVersion, installedVersion)
-
-  getPackageTitle: ({name}) ->
-    _.undasherize(_.uncamelcase(name))
-
-  getRepositoryUrl: ({metadata}) ->
-    {repository} = metadata
-    repoUrl = repository?.url ? repository ? ''
-    if repoUrl.match 'git@github'
-      repoName = repoUrl.split(':')[1]
-      repoUrl = "https://github.com/#{repoName}"
-    repoUrl.replace(/\.git$/, '').replace(/\/+$/, '').replace(/^git\+/, '')
+        pack.emit 'install-alternative-failed', eventArg
 
   checkNativeBuildTools: ->
     @command(['install', '--check'])
@@ -542,42 +486,9 @@ class PackageManager
   removePackageNameFromDisabledPackages: (packageName) ->
     atom.config.removeAtKeyPath('core.disabledPackages', packageName)
 
-  cacheAvailablePackageNames: (packages) ->
-    @availablePackageCache = []
-    for packageType in ['core', 'user', 'dev', 'git']
-      continue unless packages[packageType]?
-      packageNames = (pack.name for pack in packages[packageType])
-      @availablePackageCache.push(packageNames...)
-    @availablePackageCache
-
-  addPackageToAvailablePackageNames: (packageName) ->
-    @availablePackageCache ?= []
-    @availablePackageCache.push(packageName) if @availablePackageCache.indexOf(packageName) < 0
-    @availablePackageCache
-
-  removePackageFromAvailablePackageNames: (packageName) ->
-    @availablePackageCache ?= []
-    index = @availablePackageCache.indexOf(packageName)
-    @availablePackageCache.splice(index, 1) if index > -1
-    @availablePackageCache
-
-  getAvailablePackageNames: ->
-    @availablePackageCache
-
-  # Emits the appropriate event for the given package.
-  #
-  # All events are either of the form `theme-foo` or `package-foo` depending on
-  # whether the event is for a theme or a normal package. This method standardizes
-  # the logic to determine if a package is a theme or not and formats the event
-  # name appropriately.
-  #
-  # eventName - The event name suffix {String} of the event to emit.
-  # pack - The package for which the event is being emitted.
-  # error - Any error information to be included in the case of an error.
-  emitPackageEvent: (eventName, pack, error) ->
-    theme = pack.theme ? pack.metadata?.theme
-    eventName = if theme then "theme-#{eventName}" else "package-#{eventName}"
-    @emitter.emit(eventName, {pack, error})
+  # TODO: in case it is a package event and a package is given emit en event on the package
+  emit: (args...) ->
+    @emitter.emit(args)
 
   on: (selectors, callback) ->
     subscriptions = new CompositeDisposable

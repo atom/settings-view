@@ -218,34 +218,34 @@ describe "PackageManager", ->
       .catch (error) ->
         expect(error.message).toBe "Searching for \u201Ctest\u201D failed."
 
-    packageManager.getInstalled()
+    packageManager.getPackageList('installed:packages')
       .catch (error) ->
-        expect(error.message).toBe "Fetching local packages failed."
+        expect(error.message).toBe "Fetching results for installed:packages failed"
 
-    packageManager.getOutdated()
+    packageManager.getPackageList('outdated')
       .catch (error) ->
-        expect(error.message).toBe "Fetching outdated packages and themes failed."
+        expect(error.message).toBe "Fetching results for outdated failed"
 
-    packageManager.getFeatured()
+    packageManager.getPackageList('featured:packages')
       .catch (error) ->
-        expect(error.message).toBe "Fetching featured packages failed."
+        expect(error.message).toBe "Fetching results for featured:packages failed"
 
-    packageManager.getPackage('foo')
+    packageManager.view('foo')
       .catch (error) ->
         expect(error.message).toBe "Fetching package 'foo' failed."
 
-    packageManager.install({name: 'foo', version: '1.0.0'})
+    packageManager.install(new Package ({name: 'foo', version: '1.0.0'}))
       .catch (error) ->
         expect(error.message).toBe "Installing \u201Cfoo@1.0.0\u201D failed."
         expect(error.packageInstallError).toBe true
         expect(error.stderr).toContain noSuchCommandError
 
-    packageManager.uninstall({name: 'foo'})
+    packageManager.uninstall(new Package({name: 'foo'}))
       .catch (error) ->
         expect(error.message).toBe "Uninstalling \u201Cfoo\u201D failed."
         expect(error.stderr).toContain noSuchCommandError
 
-    packageManager.update({name: 'foo'}, '1.0.0')
+    packageManager.update(new Package({name: 'foo'}), '1.0.0')
       .catch (error) ->
         expect(error.message).toBe "Updating to \u201Cfoo@1.0.0\u201D failed."
         expect(error.packageInstallError).toBe true
@@ -255,56 +255,27 @@ describe "PackageManager", ->
       .catch (error) ->
         expect(error.message).toBe "Fetching package 'foo' failed."
 
-  describe "::isPackageInstalled()", ->
-    it "returns false a package is not installed", ->
-      expect(packageManager.isPackageInstalled('some-package')).toBe false
-
-    it "returns true when a package is loaded", ->
-      spyOn(atom.packages, 'isPackageLoaded').andReturn true
-      expect(packageManager.isPackageInstalled('some-package')).toBe true
-
-    it "returns true when a package is disabled", ->
-      spyOn(atom.packages, 'isPackageDisabled').andReturn true
-      expect(packageManager.isPackageInstalled('some-package')).toBe false
-
-    it "returns true when a package is in the availablePackageCache", ->
-      spyOn(packageManager, 'getAvailablePackageNames').andReturn ['some-package']
-      expect(packageManager.isPackageInstalled('some-package')).toBe true
 
   describe "::install()", ->
     it "installs the latest version when a package version is not specified", ->
       waitsForPromise ->
-        packageManager.install {name: 'something'}
+        packageManager.install new Package({name: 'something'})
 
       runs ->
-        expect(packageManager.command).toHaveBeenCalled()
-        expect(runArgs).toEqual ['install', 'something', '--json']
+        expect(packageManager.command)
+          .toHaveBeenCalledWith(['install', 'something', '--json'], "Installing \u201Csomething\u201D failed.")
 
     it "installs the package@version when a version is specified", ->
       waitsForPromise ->
-        packageManager.install {name: 'something', version: '0.2.3'}
+        packageManager.install new Package({name: 'something', version: '0.2.3'})
 
       runs ->
-        expect(packageManager.command).toHaveBeenCalled()
-        expect(runArgs).toEqual ['install', 'something@0.2.3', '--json']
-
-    it "installs the package and adds the package to the available package names", ->
-      packageManager.cacheAvailablePackageNames(user: [{name: 'a-package'}])
-
-      runs ->
-        expect(packageManager.getAvailablePackageNames()).not.toContain('something')
-
-      waitsForPromise ->
-        packageManager.install {name: 'something', version: '0.2.3'}
-
-      runs ->
-        expect(packageManager.getAvailablePackageNames()).toContain('something')
+        expect(packageManager.command)
+          .toHaveBeenCalledWith(['install', 'something@0.2.3', '--json'], "Installing \u201Csomething@0.2.3\u201D failed.")
 
     it "installs and loads the package", ->
-      spyOn(atom.packages, 'loadPackage').andReturn(true)
-
       waitsForPromise ->
-        packageManager.install {name: 'something', version: '0.2.3'}
+        packageManager.install new Package({name: 'something', version: '0.2.3'})
 
       runs ->
         expect(atom.packages.loadPackage).toHaveBeenCalledWith 'something'
@@ -314,31 +285,31 @@ describe "PackageManager", ->
         url = "https://github.com/user/repo.git"
 
         waitsForPromise ->
-          packageManager.install {name: url}
+          packageManager.install new Package({name: url})
 
         runs ->
-          expect(packageManager.command).toHaveBeenCalled()
-          expect(runArgs).toEqual ['install', 'https://github.com/user/repo.git', '--json']
+          expect(packageManager.command)
+            .toHaveBeenCalledWith(['install', 'https://github.com/user/repo.git', '--json'], "Installing \u201Chttps://github.com/user/repo.git\u201D failed.")
 
       it 'installs git@ urls', ->
         url = "git@github.com:user/repo.git"
 
         waitsForPromise ->
-          packageManager.install {name: url}
+          packageManager.install new Package({name: url})
 
         runs ->
-          expect(packageManager.command).toHaveBeenCalled()
-          expect(runArgs).toEqual ['install', 'git@github.com:user/repo.git', '--json']
+          expect(packageManager.command)
+            .toHaveBeenCalledWith(['install', 'git@github.com:user/repo.git', '--json'], "Installing \u201Cgit@github.com:user/repo.git\u201D failed.")
 
       it 'installs user/repo url shortcuts', ->
         url = "user/repo"
 
         waitsForPromise ->
-          packageManager.install {name: url}
+          packageManager.install new Package({name: url})
 
         runs ->
-          expect(packageManager.command).toHaveBeenCalled()
-          expect(runArgs).toEqual ['install', 'user/repo', '--json']
+          expect(packageManager.command)
+            .toHaveBeenCalledWith(['install', 'user/repo', '--json'], "Installing \u201Cuser/repo\u201D failed.")
 
       it 'installs and activates git pacakges with names different from the repo name', ->
         spyOn(atom.packages, 'activatePackage')
@@ -350,115 +321,101 @@ describe "PackageManager", ->
             resolve(jsonString)
 
         waitsForPromise ->
-          packageManager.install(name: 'git-repo-name')
+          packageManager.install(new Package(name: 'git-repo-name'))
 
         runs ->
           expect(atom.packages.activatePackage).toHaveBeenCalledWith 'real-package-name'
 
-      it 'emits an installed event with a copy of the pack including the full package metadata', ->
-        originalPackObject = name: 'git-repo-name', otherData: {will: 'beCopied'}
-        spyOn(packageManager, 'emitPackageEvent')
-
-        jasmine.unspy(packageManager, 'command')
-        spyOn(packageManager, 'command').andCallFake (args) ->
-          new Promise (resolve, reject) ->
-            runArgs = args
-            json = '{"metadata":{"name":"real-package-name", "moreInfo":"yep"}}'
-            resolve(json)
-
-        waitsForPromise ->
-          packageManager.install(originalPackObject)
-
-        runs ->
-          installEmittedCount = 0
-          for call in packageManager.emitPackageEvent.calls
-            if call.args[0] is "installed"
-              expect(call.args[1]).not.toEqual originalPackObject
-              expect(call.args[1].moreInfo).toEqual "yep"
-              expect(call.args[1].otherData).toBe originalPackObject.otherData
-              installEmittedCount++
-          expect(installEmittedCount).toBe 1
+      # TODO: Verify event emition per install, update and uninstall functions
+      # it 'emits an installed event with a copy of the pack including the full package metadata', ->
+      #   originalPackObject = name: 'git-repo-name', otherData: {will: 'beCopied'}
+      #
+      #   jasmine.unspy(packageManager, 'command')
+      #   spyOn(packageManager, 'command').andCallFake (args) ->
+      #     new Promise (resolve, reject) ->
+      #       runArgs = args
+      #       json = '{"metadata":{"name":"real-package-name", "moreInfo":"yep"}}'
+      #       resolve(json)
+      #
+      #   waitsForPromise ->
+      #     packageManager.install(originalPackObject)
+      #
+      #   runs ->
+      #     installEmittedCount = 0
+      #     for call in packageManager.emitPackageEvent.calls
+      #       if call.args[0] is "installed"
+      #         expect(call.args[1]).not.toEqual originalPackObject
+      #         expect(call.args[1].moreInfo).toEqual "yep"
+      #         expect(call.args[1].otherData).toBe originalPackObject.otherData
+      #         installEmittedCount++
+      #     expect(installEmittedCount).toBe 1
 
   describe "::uninstall()", ->
     it "uninstalls the package and removes the package from the available package names", ->
-      packageManager.cacheAvailablePackageNames(user: [{name: 'something'}])
-      expect(packageManager.getAvailablePackageNames()).toContain('something')
-
       waitsForPromise ->
-        packageManager.uninstall {name: 'something'}
+        packageManager.uninstall new Package({name: 'something'})
 
       runs ->
-        expect(runArgs).toEqual ['uninstall', '--hard', 'something']
-        expect(packageManager.getAvailablePackageNames()).not.toContain('something')
+        expect(packageManager.command)
+          .toHaveBeenCalledWith(['uninstall', '--hard', 'something'], "Uninstalling \u201Csomething\u201D failed.")
 
     it "removes the package from the core.disabledPackages list", ->
       atom.config.set('core.disabledPackages', ['something'])
-      packageManager.cacheAvailablePackageNames(user: [{name: 'something'}])
       expect(atom.config.get('core.disabledPackages')).toContain('something')
 
       waitsForPromise ->
-        packageManager.uninstall {name: 'something'}
+        packageManager.uninstall new Package({name: 'something'})
 
       runs ->
         expect(atom.config.get('core.disabledPackages')).not.toContain('something')
 
   describe "::installAlternative", ->
-    it "installs the latest version when a package version is not specified", ->
-      pack =
-        alternative: 'a-new-package'
-        pack:
-          name: 'language-test'
+    [pack, alternative] = []
 
-      installingEvent = jasmine.createSpy()
-      installedEvent = jasmine.createSpy()
-
-      packageManager.on 'package-installing-alternative', installingEvent
-      packageManager.on 'package-installed-alternative', installedEvent
-
-      spyOn(packageManager, 'uninstall').andCallFake ->
-        Promise.resolve()
-      spyOn(packageManager, 'install').andCallFake ->
-        Promise.resolve()
+    it "installs the alternative and uninstalls the other", ->
+      alternative = new Package({name: 'a-new-package'})
+      pack = new Package({name: 'language-test'})
 
       waitsForPromise ->
-        packageManager.installAlternative({name: 'language-test'}, 'a-new-package')
+        packageManager.installAlternative(pack, alternative)
 
       runs ->
-        expect(packageManager.uninstall).toHaveBeenCalledWith pack.pack
-        expect(packageManager.install).toHaveBeenCalledWith {name: pack.alternative}
+        expect(packageManager.uninstall).toHaveBeenCalledWith pack
+        expect(packageManager.install).toHaveBeenCalledWith alternative
 
-  describe "::packageHasSettings", ->
-    it "returns true when the pacakge has config", ->
-      atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-config'))
-      expect(packageManager.packageHasSettings('package-with-config')).toBe true
-
-    it "returns false when the pacakge does not have config and doesn't define language grammars", ->
-      expect(packageManager.packageHasSettings('random-package')).toBe false
-
-    it "returns true when the pacakge does not have config, but does define language grammars", ->
-      packageName = 'language-test'
-
-      waitsForPromise ->
-        atom.packages.activatePackage(path.join(__dirname, 'fixtures', packageName))
-
-      runs ->
-        expect(packageManager.packageHasSettings(packageName)).toBe true
-
-  describe "::loadCompatiblePackageVersion", ->
-    it "calls command", ->
-      spyOn(atom, 'getVersion').andReturn('1.0.0')
-      jasmine.unspy(packageManager, 'command')
-      spyOn(packageManager, 'command').andCallFake (args) ->
-        new Promise (resolve, reject) ->
-          runArgs = args
-          resolve('[]')
-      spyOn(packageManager, 'parseJSON').andReturn(Promise.resolve())
-
-      waitsForPromise ->
-        packageManager.loadCompatiblePackageVersion('git-repo-name')
-
-      runs ->
-        expect(runArgs).toEqual ['view', 'git-repo-name', '--compatible', '1.0.0', '--json']
+  # TODO: Move to Package
+  # describe "::packageHasSettings", ->
+  #   it "returns true when the pacakge has config", ->
+  #     atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-config'))
+  #     expect(packageManager.packageHasSettings('package-with-config')).toBe true
+  #
+  #   it "returns false when the pacakge does not have config and doesn't define language grammars", ->
+  #     expect(packageManager.packageHasSettings('random-package')).toBe false
+  #
+  #   it "returns true when the pacakge does not have config, but does define language grammars", ->
+  #     packageName = 'language-test'
+  #
+  #     waitsForPromise ->
+  #       atom.packages.activatePackage(path.join(__dirname, 'fixtures', packageName))
+  #
+  #     runs ->
+  #       expect(packageManager.packageHasSettings(packageName)).toBe true
+  #
+  # describe "::loadCompatiblePackageVersion", ->
+  #   it "calls command", ->
+  #     spyOn(atom, 'getVersion').andReturn('1.0.0')
+  #     jasmine.unspy(packageManager, 'command')
+  #     spyOn(packageManager, 'command').andCallFake (args) ->
+  #       new Promise (resolve, reject) ->
+  #         runArgs = args
+  #         resolve('[]')
+  #     spyOn(packageManager, 'parseJSON').andReturn(Promise.resolve())
+  #
+  #     waitsForPromise ->
+  #       packageManager.loadCompatiblePackageVersion('git-repo-name')
+  #
+  #     runs ->
+  #       expect(runArgs).toEqual ['view', 'git-repo-name', '--compatible', '1.0.0', '--json']
 
   describe "::checkNativeBuildTools", ->
     it "calls command", ->
@@ -466,4 +423,4 @@ describe "PackageManager", ->
         packageManager.checkNativeBuildTools()
 
       runs ->
-        expect(runArgs).toEqual ['install', '--check']
+        expect(packageManager.command).toHaveBeenCalledWith(['install', '--check'])
