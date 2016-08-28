@@ -28,5 +28,6 @@
       "name": "dev-package",
       "version": "1.0.0"
     }
-  ]
+  ],
+  "git": []
 }
