@@ -109,11 +109,10 @@ class PackageDetailView extends ScrollView
       if @package.path
         @sections.append(new PackageGrammarsView(@package.path))
         @sections.append(new PackageSnippetsView(@package.path, @snippetsProvider))
-
-      @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
-    else
-      @startupTime.hide()
-      @openButton.hide()
+        @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
+      else
+        @startupTime.hide()
+        @openButton.hide()
 
     @openButton.hide() if atom.packages.isBundledPackage(@package.name)
 
