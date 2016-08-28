@@ -6,11 +6,11 @@ async = require 'async'
 CSON = require 'season'
 fuzzaldrin = require 'fuzzaldrin'
 
-Client = require './atom-io-client'
 GeneralPanel = require './general-panel'
 EditorPanel = require './editor-panel'
 PackageDetailView = require './package-detail-view'
 KeybindingsPanel = require './keybindings-panel'
+Package = require './package'
 PackageManager = require './package-manager'
 InstallPanel = require './install-panel'
 ThemesPanel = require './themes-panel'
@@ -36,9 +36,9 @@ class SettingsView extends ScrollView
       # package card. Phew!
       @div class: 'panels', tabindex: -1, outlet: 'panels'
 
-  initialize: ({@uri, @snippetsProvider, activePanel}={}) ->
+  initialize: ({@uri, @snippetsProvider, activePanel}={}, packageManager) ->
     super
-    @packageManager = new PackageManager()
+    @packageManager = packageManager ? new PackageManager()
     @deferredPanel = activePanel
     process.nextTick => @initializePanels()
 
@@ -81,36 +81,6 @@ class SettingsView extends ScrollView
     activePanel: @activePanel ? @deferredPanel
     uri: @uri
 
-  getPackages: ->
-    return @packages if @packages?
-
-    @packages = atom.packages.getLoadedPackages()
-
-    try
-      bundledPackageMetadataCache = require(path.join(atom.getLoadSettings().resourcePath, 'package.json'))?._atomPackages
-
-    # Include disabled packages so they can be re-enabled from the UI
-    for packageName in atom.config.get('core.disabledPackages') ? []
-      packagePath = atom.packages.resolvePackagePath(packageName)
-      continue unless packagePath
-
-      try
-        metadata = require(path.join(packagePath, 'package.json'))
-      catch error
-        metadata = bundledPackageMetadataCache?[packageName]?.metadata
-      continue unless metadata?
-
-      name = metadata.name ? packageName
-      unless _.findWhere(@packages, {name})
-        @packages.push({name, metadata, path: packagePath})
-
-    @packages.sort (pack1, pack2) =>
-      title1 = @packageManager.getPackageTitle(pack1)
-      title2 = @packageManager.getPackageTitle(pack2)
-      title1.localeCompare(title2)
-
-    @packages
-
   addCorePanel: (name, iconName, panel) ->
     panelMenuItem = $$ ->
       @li name: name, =>
@@ -136,7 +106,8 @@ class SettingsView extends ScrollView
           unless options.pack.metadata
             metadata = _.clone(options.pack)
             options.pack.metadata = metadata
-          new PackageDetailView(options.pack, @packageManager, @snippetsProvider)
+          pack = @packageManager.cachedPackage(options.pack)
+          new PackageDetailView(pack, @snippetsProvider)
 
       if callback
         panel = callback()
