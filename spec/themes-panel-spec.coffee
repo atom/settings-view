@@ -1,44 +1,43 @@
+{mockedPackageManager} = require './spec-helper'
+
 path = require 'path'
 fs = require 'fs'
 
 _ = require 'underscore-plus'
 CSON = require 'season'
-
-PackageManager = require '../lib/package-manager'
+Package = require '../lib/package'
 ThemesPanel = require '../lib/themes-panel'
-SettingsView = require '../lib/settings-view'
 
 describe "ThemesPanel", ->
   [panel, packageManager, reloadedHandler] = []
-  settingsView = null
 
   beforeEach ->
-    settingsView = new SettingsView
     atom.packages.loadPackage('atom-light-ui')
     atom.packages.loadPackage('atom-dark-ui')
     atom.packages.loadPackage('atom-light-syntax')
     atom.packages.loadPackage('atom-dark-syntax')
-    atom.packages.packageDirPaths.push(path.join(__dirname, 'fixtures'))
+
     atom.config.set('core.themes', ['atom-dark-ui', 'atom-dark-syntax'])
     reloadedHandler = jasmine.createSpy('reloadedHandler')
     atom.themes.onDidChangeActiveThemes(reloadedHandler)
     atom.themes.activatePackages()
 
     waitsFor "themes to be reloaded", ->
-      reloadedHandler.callCount is 1
+      reloadedHandler.callCount >= 1
 
     runs ->
-      packageManager = new PackageManager
-      themeMetadata = CSON.readFileSync(path.join(__dirname, 'fixtures', 'a-theme', 'package.json'))
-      spyOn(packageManager, 'getFeatured').andCallFake (callback) ->
-        Promise.resolve([themeMetadata])
+      packageManager = mockedPackageManager(
+        featured:
+          themes: [CSON.readFileSync(path.join(__dirname, 'fixtures', 'a-theme', 'package.json'))]
+        installedPackages: CSON.readFileSync(path.join(__dirname, 'fixtures', 'installed.json'))
+      )
       panel = new ThemesPanel(packageManager)
-      settingsView.addPanel('Themes', null, -> panel)
 
       # Make updates synchronous
       spyOn(panel, 'scheduleUpdateThemeConfig').andCallFake -> @updateThemeConfig()
 
   afterEach ->
+    [panel, packageManager, reloadedHandler] = []
     atom.packages.unloadPackage('a-theme') if atom.packages.isPackageLoaded('a-theme')
     atom.themes.deactivateThemes()
 
@@ -52,6 +51,7 @@ describe "ThemesPanel", ->
         .attr('selected', false)
         .filter("[value=atom-light-ui]").attr('selected', true)
         .trigger('change')
+
       expect(atom.config.get('core.themes')).toEqual ['atom-light-ui', 'atom-dark-syntax']
 
   describe "when a syntax theme is selected", ->
@@ -60,6 +60,7 @@ describe "ThemesPanel", ->
         .attr('selected', false)
         .filter("[value=atom-light-syntax]").attr('selected', true)
         .trigger('change')
+
       expect(atom.config.get('core.themes')).toEqual ['atom-dark-ui', 'atom-light-syntax']
 
   describe "when the 'core.config' key changes", ->
@@ -68,31 +69,20 @@ describe "ThemesPanel", ->
       atom.config.set('core.themes', ['atom-light-ui', 'atom-light-syntax'])
 
       waitsFor ->
-        reloadedHandler.callCount is 1
+        reloadedHandler.callCount >= 1
 
       runs ->
         expect(panel.uiMenu.val()).toBe 'atom-light-ui'
         expect(panel.syntaxMenu.val()).toBe 'atom-light-syntax'
 
-  xdescribe "when the themes panel is navigated to", ->
-    xit "focuses the search filter", ->
-      settingsView.showPanel('Themes')
-      expect(panel.filterEditor.hasFocus()).toBe true
-
   describe "theme lists", ->
-    [installed] = []
     beforeEach ->
-      installed = JSON.parse fs.readFileSync(path.join(__dirname, 'fixtures', 'installed.json'))
-      spyOn(packageManager, 'loadCompatiblePackageVersion').andCallFake ->
-      spyOn(packageManager, 'getInstalled').andReturn Promise.resolve(installed)
-      panel = new ThemesPanel(packageManager)
-
       waitsFor ->
-        packageManager.getInstalled.callCount is 1 and panel.communityCount.text().indexOf('…') < 0
+        panel.userCount.text().indexOf('…') < 0
 
     it 'shows the themes', ->
-      expect(panel.communityCount.text().trim()).toBe '1'
-      expect(panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 1
+      expect(panel.userCount.text().trim()).toBe '1'
+      expect(panel.userPackages.find('.package-card:not(.hidden)').length).toBe 1
 
       expect(panel.coreCount.text().trim()).toBe '1'
       expect(panel.corePackages.find('.package-card:not(.hidden)').length).toBe 1
@@ -101,36 +91,32 @@ describe "ThemesPanel", ->
       expect(panel.devPackages.find('.package-card:not(.hidden)').length).toBe 1
 
     it 'filters themes by name', ->
-      panel.filterEditor.getModel().setText('user-')
-      window.advanceClock(panel.filterEditor.getModel().getBuffer().stoppedChangingDelay)
-      expect(panel.communityCount.text().trim()).toBe '1/1'
-      expect(panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 1
+      runs ->
+        panel.filterEditor.getModel().setText('user-')
+        window.advanceClock(panel.filterEditor.getModel().getBuffer().stoppedChangingDelay)
+        expect(panel.userCount.text().trim()).toBe '1/1'
+        expect(panel.userPackages.find('.package-card:not(.hidden)').length).toBe 1
 
-      expect(panel.coreCount.text().trim()).toBe '0/1'
-      expect(panel.corePackages.find('.package-card:not(.hidden)').length).toBe 0
+        expect(panel.coreCount.text().trim()).toBe '0/1'
+        expect(panel.corePackages.find('.package-card:not(.hidden)').length).toBe 0
 
-      expect(panel.devCount.text().trim()).toBe '0/1'
-      expect(panel.devPackages.find('.package-card:not(.hidden)').length).toBe 0
+        expect(panel.devCount.text().trim()).toBe '0/1'
+        expect(panel.devPackages.find('.package-card:not(.hidden)').length).toBe 0
 
     it 'adds newly installed themes to the list', ->
-      [installCallback] = []
-      spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
-        installCallback = callback
-        onWillThrowError: ->
-      spyOn(atom.packages, 'loadPackage').andCallFake (name) ->
-        installed.user.push {name, theme: 'ui'}
+      expect(panel.userCount.text().trim()).toBe '1'
+      expect(panel.userPackages.find('.package-card:not(.hidden)').length).toBe 1
 
-      expect(panel.communityCount.text().trim()).toBe '1'
-      expect(panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 1
+      waitsForPromise ->
+        pack = new Package({name: 'another-user-theme', theme: 'ui'}, packageManager)
+        packageManager.install(pack)
 
-      packageManager.install({name: 'another-user-theme', theme: 'ui'})
-      installCallback(0, '', '')
+      waitsFor ->
+        panel.userCount.text().trim() is '2'
 
-      advanceClock ThemesPanel.loadPackagesDelay
-      waits 1
       runs ->
-        expect(panel.communityCount.text().trim()).toBe '2'
-        expect(panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 2
+        expect(panel.userCount.text().trim()).toBe '2'
+        expect(panel.userPackages.find('.package-card:not(.hidden)').length).toBe 2
 
     it 'collapses/expands a sub-section if its header is clicked', ->
       expect(panel.find('.sub-section-heading.has-items').length).toBe 3
@@ -166,17 +152,17 @@ describe "ThemesPanel", ->
 
   describe 'when there are no themes', ->
     beforeEach ->
-      installed =
-        dev: []
-        user: []
-        core: []
-
-      spyOn(packageManager, 'loadCompatiblePackageVersion').andCallFake ->
-      spyOn(packageManager, 'getInstalled').andReturn Promise.resolve(installed)
+      packageManager = mockedPackageManager(
+        installedPackages:
+          dev: []
+          user: []
+          core: []
+          git: []
+      )
       panel = new ThemesPanel(packageManager)
 
       waitsFor ->
-        packageManager.getInstalled.callCount is 1 and panel.communityCount.text().indexOf('…') < 0
+        panel.userCount.text().indexOf('…') < 0
 
     afterEach ->
       atom.themes.deactivateThemes()
@@ -196,6 +182,6 @@ describe "ThemesPanel", ->
       panel.filterEditor.getModel().setText('user-')
       window.advanceClock(panel.filterEditor.getModel().getBuffer().stoppedChangingDelay)
 
-      expect(panel.find('.section-heading-count').text()).toMatch /^0(0\/0)+$/
+      expect(panel.find('.section-heading-count').text()).toMatch /^(0\/0)+$/
       expect(panel.find('.sub-section .icon-paintcan').length).toBe 4
       expect(panel.find('.sub-section .icon-paintcan.has-items').length).toBe 0

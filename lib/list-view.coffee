@@ -1,3 +1,5 @@
+{Emitter} = require 'atom'
+
 module.exports =
 class ListView
   # * `list` a {List} object
@@ -9,6 +11,8 @@ class ListView
     @viewMap = {}
     @list.onDidAddItem (item) => @addView(item)
     @list.onDidRemoveItem (item) => @removeView(item)
+    @emitter = new Emitter()
+
     @addViews()
 
   getViews: -> @views
@@ -26,6 +30,7 @@ class ListView
     @views.push(view)
     @viewMap[@list.keyForItem(item)] = view
     @container.prepend(view)
+    @emitter.emit('updated')
 
   removeView: (item) ->
     key = @list.keyForItem(item)
@@ -35,3 +40,4 @@ class ListView
       @views.splice(index, 1) if index > -1
       delete @viewMap[key]
       view.remove()
+      @emitter.emit('updated')
