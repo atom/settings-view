@@ -116,24 +116,44 @@ class Package
   isTheme: ->
     @type is 'theme'
 
+  isBundled: ->
+    atom.packages.isBundledPackage(@name)
+
   isCompatible: ->
     version = atom.getVersion() if typeof atom.getVersion() is 'string'
     engine = @metadata?.engines?.atom ? '*'
     return false unless semver.validRange(engine)
     return semver.satisfies(version, engine)
 
+  hasDeprecations: ->
+    @getDeprecatedMetadata()?.hasDeprecations
+
+  hasAlternative: ->
+    @getDeprecatedMetadata()?.hasAlternative
+
   newerVersion: ->
     @latestVersion unless @latestVersion is @version
+
+  newerPackage: ->
+    if newVersion = @newerVersion()
+      new Package {name: @name, version: @newerVersion()}, @pkgManager
 
   newerSha: ->
     if @apmInstallSource?.type is 'git'
       @newSha ?= @latestSha unless @apmInstallSource.sha is @latestSha
 
   loadCompatibleVersion: ->
-    @pkgManager.loadCompatiblePackageVersion(@name)
+    Promise.resolve new Package @pkgManager.loadCompatiblePackageVersion(@name), @pkgManager
+
+  alternative: ->
+    if @getDeprecatedMetadata() and @getDeprecatedMetadata().alternative
+      if @getDeprecatedMetadata().alternative is 'core'
+        @getDeprecatedMetadata().alternative
+      else
+        new Package({name: @getDeprecatedMetadata().alternative}, @pkgManager)
 
   getDeprecatedMetadata: ->
-    atom.packages.getDeprecatedPackageMetadata(@name, @version)
+    @deprecatedMetadata ?= atom.packages.getDeprecatedPackageMetadata(@name, @version)
 
   isInstalled: ->
     atom.packages.getAvailablePackageNames().indexOf(@name) > -1
