@@ -1,78 +1,89 @@
 _ = require 'underscore-plus'
+path = require 'path'
 PackageManager = require '../lib/package-manager'
 
 mockedPackageManager = (options = {}) ->
-  installedPackages = options.installedPackages ? {
+  packageManager = new PackageManager()
+
+  packageManager.installedPackages = options.installedPackages ? {
     dev: []
     user: []
     core: []
     git: []
   }
-  deprecated = []
-  featured = options.featured ? {
-    themes: []
-    packages: []
-  }
-  packageManager = new PackageManager()
+
+
   packageManager.storageKey = "settings-view-specs:package-store"
-  packageManager.installedPackages = installedPackages
+  packageManager.outdated = []
+  packageManager.deprecated = []
+  packageManager.featured = options.featured ? []
+
+  atom.packages.packageDirPaths.push(path.join(__dirname, 'fixtures'))
 
   for list in _.keys PackageManager.PACKAGE_LISTS
     packageManager.clearStoredList(list)
 
   packageManager.setDeprecated = (packageName) ->
-    deprecated.push(packageName)
+    packageManager.deprecated.push(packageName)
 
   packageManager.addPackage = (pack) ->
-    installedPackages.user.push({name: pack.name, version: pack.version})
-    installedPackages.user = _.uniq installedPackages.user
+    installedPack = _.filter(packageManager.installedPackages.user, (pkg) ->
+      pkg.name is pack.name)[0]
+
+    unless installedPack
+      packageManager.installedPackages.user.push({name: pack.name, version: pack.version, theme: pack.theme})
 
   try
     jasmine.unspy(atom.packages, 'isDeprecatedPackage')
     jasmine.unspy(atom.packages, 'loadPackage')
+    jasmine.unspy(atom.packages, 'getAvailablePackageNames')
   catch
 
   spyOn(atom.packages, 'isDeprecatedPackage').andCallFake (packageName) ->
-    deprecated.indexOf(packageName) > -1
+    packageManager.deprecated.indexOf(packageName) >= 0
+
+  spyOn(atom.packages, 'getAvailablePackageNames').andReturn(packageManager.installedPackages.user)
 
   origLoad = atom.packages.loadPackage
   spyOn(atom.packages, 'loadPackage').andCallFake (name) ->
     packageManager.addPackage({name})
-    origLoad.call(atom.packages, name)
+    try
+      origLoad.call(atom.packages, name)
+    catch
 
   ls = (kind) ->
     result = {}
 
     new Promise (resolve, __) ->
       if kind is '--themes'
-        _.each installedPackages, (list, listKey) ->
+        _.each packageManager.installedPackages, (list, listKey) ->
           result[listKey] = _.filter list, (pack) ->
             pack.theme
       else if kind is '--packages'
-        _.each installedPackages, (list, listKey) ->
+        _.each packageManager.installedPackages, (list, listKey) ->
           result[listKey] = _.filter list, (pack) ->
             not pack.theme
       else
-        result = installedPackages
+        result = packageManager.installedPackages
 
       resolve(JSON.stringify result)
 
-  featured = (kind) ->
-    new Promise (resolve, reject) ->
-      resolve(JSON.stringify featured[kind])
 
   spyOn(packageManager, 'command').andCallFake (args) ->
     switch args[0]
       when 'ls'
         ls(args[1])
       when 'featured'
-        featured(args[1])
+        Promise.resolve(JSON.stringify packageManager.featured)
+      when 'outdated'
+        Promise.resolve(JSON.stringify packageManager.outdated)
       when 'install'
         [name, version] = args[1].split('@')
-        packageManager.addPackage({name, version})
+        theme = name.endsWith('-theme')
+        packageManager.addPackage({name, version, theme})
         Promise.resolve(JSON.stringify {name})
       when 'uninstall'
-        installedPackages.user = _.reject installedPackages.user, (pack) ->
+        packageManager.installedPackages.user = _.reject packageManager.installedPackages.user, (pack) ->
           pack.name is args[2]
       when 'view'
         [name, version] = args[1].split('@')
