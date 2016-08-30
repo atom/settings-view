@@ -4,6 +4,7 @@ _ = require 'underscore-plus'
 CollapsibleSectionPanel = require './collapsible-section-panel'
 
 {getSettingDescription} = require './rich-description'
+fontManager = require 'font-manager'
 
 module.exports =
 class SettingsPanel extends CollapsibleSectionPanel
@@ -223,18 +224,26 @@ appendSetting = (namespace, name, value) ->
         appendArray.call(this, namespace, name, value) if isEditableArray(value)
       else if _.isObject(value) or schema?.type is 'object'
         appendObject.call(this, namespace, name, value)
+      else if name is 'fontFamily'
+        appendOptions.call(this, namespace, name, value, getFontFamilies())
       else
         appendEditor.call(this, namespace, name, value)
+
+getFontFamilies = ->
+  fonts = fontManager.getAvailableFontsSync()
+  fonts.sort (a, b) -> a.family.localeCompare(b.family)
+  fonts.filter((f, i, l) -> not i or f.family isnt l[i - 1].family) # Remove dupes
+    .map (f) -> {value: f.family, description: f.family, className: if f.monospace then 'monospace' else null}
 
 getSettingTitle = (keyPath, name='') ->
   title = atom.config.getSchema(keyPath)?.title
   title or _.uncamelcase(name).split('.').map(_.capitalize).join(' ')
 
-appendOptions = (namespace, name, value) ->
+appendOptions = (namespace, name, value, options) ->
   keyPath = "#{namespace}.#{name}"
   title = getSettingTitle(keyPath, name)
   description = getSettingDescription(keyPath)
-  options = atom.config.getSchema(keyPath)?.enum ? []
+  options = options or atom.config.getSchema(keyPath)?.enum ? []
 
   @label class: 'control-label', =>
     @div class: 'setting-title', title
@@ -244,7 +253,10 @@ appendOptions = (namespace, name, value) ->
   @select id: keyPath, class: 'form-control', =>
     for option in options
       if option.hasOwnProperty('value')
-        @option value: option.value, option.description
+        if option.className?
+          @option value: option.value, class: option.className, option.description
+        else
+          @option value: option.value, option.description
       else
         @option value: option, option
 
