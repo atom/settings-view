@@ -43,12 +43,13 @@ class SettingsView extends ScrollView
     process.nextTick => @initializePanels()
 
   dispose: ->
-    for name, panel of @panelsByName
-      panel.dispose?()
+    # Don't dispose right now as it doesn't initialize correctly
+    #for name, panel of @panelsByName
+    #  panel.dispose?()
     return
 
   initializePanels: ->
-    return if @panels.size > 0
+    return if @panels.size() > 1
 
     @panelsByName = {}
     @on 'click', '.panels-menu li a, .panels-packages li a', (e) =>
