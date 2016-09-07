@@ -42,10 +42,14 @@ class SettingsView extends ScrollView
     @deferredPanel = activePanel
     process.nextTick => @initializePanels()
 
+  # This prevents the view being actually disposed when closed
+  # If you remove it you will need to ensure the cached settingsView
+  # in main.coffee is correctly released on close as well...
+  onDidChangeTitle: -> new Disposable()
+
   dispose: ->
-    # Don't dispose right now as it doesn't initialize correctly
-    #for name, panel of @panelsByName
-    #  panel.dispose?()
+    for name, panel of @panelsByName
+      panel.dispose?()
     return
 
   initializePanels: ->
