@@ -109,6 +109,21 @@ describe "SettingsPanel", ->
       settingsPanel.set('foo.testZero', 0)
       expect(settingsPanel.isDefault('foo.testZero')).toBe true
 
+    describe 'when displaying scoped settings', ->
+      it 'displays the settings unscoped value of a setting as its default', ->
+        expect(atom.config.get('editor.tabLength')).toBe(2)
+        atom.config.set('editor.tabLength', 8)
+
+        settingsPanel = new SettingsPanel("editor", {includeTitle: false, scopeName: '.source.js'})
+        tabLengthEditor = settingsPanel.element.querySelector('[id="editor.tabLength"]')
+        expect(tabLengthEditor.getModel().getText()).toBe('')
+        expect(tabLengthEditor.getModel().getPlaceholderText()).toBe('Unscoped value: 8')
+
+        # This is the default value, but it differs from the unscoped value
+        settingsPanel.set('editor.tabLength', 2)
+        expect(tabLengthEditor.getModel().getText()).toBe('2')
+        expect(atom.config.get('editor.tabLength', {scope: ['source.js']})).toBe(2)
+
   describe 'grouped settings', ->
     beforeEach ->
       config =
