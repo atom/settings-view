@@ -181,7 +181,7 @@ class AtomIoClient
 
       for key, children of files
         children.sort()
-        keep = children.pop()
+        children.pop() # keep
         # Right now a bunch of clients might be instantiated at once, so
         # we can just ignore attempts to unlink files that have already been removed
         # - this should be fixed with a singleton client

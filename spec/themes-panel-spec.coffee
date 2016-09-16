@@ -1,7 +1,6 @@
 path = require 'path'
 fs = require 'fs'
 
-_ = require 'underscore-plus'
 CSON = require 'season'
 
 PackageManager = require '../lib/package-manager'

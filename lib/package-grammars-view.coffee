@@ -1,5 +1,4 @@
 path = require 'path'
-_ = require 'underscore-plus'
 {CompositeDisposable} = require 'atom'
 {$$$, View} = require 'atom-space-pen-views'
 SettingsPanel = require './settings-panel'

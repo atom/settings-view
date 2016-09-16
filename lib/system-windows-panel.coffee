@@ -1,6 +1,5 @@
 {ScrollView} = require 'atom-space-pen-views'
 {WinShell} = require 'atom'
-SettingsPanel = require './settings-panel'
 
 module.exports =
 class SystemPanel extends ScrollView

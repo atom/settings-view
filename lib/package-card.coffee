@@ -1,4 +1,3 @@
-_ = require 'underscore-plus'
 {View} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 {shell} = require 'electron'

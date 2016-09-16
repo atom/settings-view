@@ -168,7 +168,7 @@ describe "PackageDetailView", ->
         expect(atom.config.get('package-with-config.setting')).toBe undefined
 
         pack = atom.packages.getLoadedPackage('package-with-config')
-        view = new PackageDetailView(pack, new PackageManager(), SnippetsProvider)
+        new PackageDetailView(pack, new PackageManager(), SnippetsProvider)
 
         expect(atom.config.get('package-with-config.setting')).toBe 'something'
 
