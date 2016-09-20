@@ -166,7 +166,17 @@ class PackageCard extends View
 
     @updateButton.on 'click', (event) =>
       event.stopPropagation()
-      @update()
+      @update().then =>
+        buttons = []
+        # TODO: Remove conditional after 1.12.0 is released as stable
+        if atom.restartApplication?
+          buttons.push({
+            text: 'Restart',
+            onDidClick: -> atom.restartApplication()
+          })
+        atom.notifications.addSuccess("Restart Atom to complete the update of `#{@pack.name}`.", {
+          dismissable: true, buttons: buttons
+        })
 
     @packageName.on 'click', (event) =>
       event.stopPropagation()
@@ -469,18 +479,23 @@ class PackageCard extends View
     return unless @newVersion or @newSha
     pack = @installablePack ? @pack
     version = if @newVersion then "v#{@newVersion}" else "##{@newSha.substr(0, 8)}"
-    @packageManager.update pack, @newVersion, (error) =>
-      if error?
-        atom.assert false, "Package update failed", (assertionError) =>
-          assertionError.metadata = {
-            type: @type,
-            name: pack.name,
-            version: version,
-            errorMessage: error.message,
-            errorStack: error.stack,
-            errorStderr: error.stderr
-          }
-        console.error("Updating #{@type} #{pack.name} to #{version} failed:\n", error, error.stderr ? '')
+
+    new Promise (resolve, reject) =>
+      @packageManager.update pack, @newVersion, (error) =>
+        if error?
+          atom.assert false, "Package update failed", (assertionError) =>
+            assertionError.metadata = {
+              type: @type,
+              name: pack.name,
+              version: version,
+              errorMessage: error.message,
+              errorStack: error.stack,
+              errorStderr: error.stderr
+            }
+          console.error("Updating #{@type} #{pack.name} to #{version} failed:\n", error, error.stderr ? '')
+          reject(error)
+        else
+          resolve()
 
   uninstall: ->
     @packageManager.uninstall @pack, (error) =>
