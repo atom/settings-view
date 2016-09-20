@@ -67,4 +67,9 @@ describe 'UpdatesPanel', ->
 
       waits 0
       runs ->
-        expect(atom.notifications.getNotifications().length).toBe 1
+        notifications = atom.notifications.getNotifications()
+        expect(notifications.length).toBe 1
+
+        spyOn(atom, 'restartApplication')
+        notifications[0].options.buttons[0].onDidClick()
+        expect(atom.restartApplication).toHaveBeenCalled()
