@@ -463,9 +463,12 @@ describe "PackageCard", ->
 
             notifications = atom.notifications.getNotifications()
             expect(notifications.length).toBe 1
-            spyOn(atom, 'restartApplication')
-            notifications[0].options.buttons[0].onDidClick()
-            expect(atom.restartApplication).toHaveBeenCalled()
+
+            # TODO: Remove conditional after 1.12.0 is released as stable
+            if atom.restartApplication?
+              spyOn(atom, 'restartApplication')
+              notifications[0].options.buttons[0].onDidClick()
+              expect(atom.restartApplication).toHaveBeenCalled()
 
     describe "when hasAlternative is true and alternative is core", ->
       beforeEach ->

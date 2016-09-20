@@ -167,12 +167,15 @@ class PackageCard extends View
     @updateButton.on 'click', (event) =>
       event.stopPropagation()
       @update().then =>
-        atom.notifications.addSuccess("Restart Atom to complete the update of `#{@pack.name}`.", {
-          dismissable: true,
-          buttons: [{
+        buttons = []
+        # TODO: Remove conditional after 1.12.0 is released as stable
+        if atom.restartApplication?
+          buttons.push({
             text: 'Restart',
             onDidClick: -> atom.restartApplication()
-          }]
+          })
+        atom.notifications.addSuccess("Restart Atom to complete the update of `#{@pack.name}`.", {
+          dismissable: true, buttons: buttons
         })
 
     @packageName.on 'click', (event) =>

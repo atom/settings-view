@@ -85,13 +85,15 @@ class UpdatesPanel extends ScrollView
         pluralizedPackages = 'package'
         pluralizedPackages += 's' if successfulUpdatesCount > 1
         message = "Restart Atom to complete the update of #{successfulUpdatesCount} #{pluralizedPackages}."
-        atom.notifications.addSuccess(message, {
-          dismissable: true,
-          buttons: [{
+
+        buttons = []
+        # TODO: Remove conditional after 1.12.0 is released as stable
+        if atom.restartApplication?
+          buttons.push({
             text: 'Restart',
             onDidClick: -> atom.restartApplication()
-          }]
-        })
+          })
+        atom.notifications.addSuccess(message, {dismissable: true, buttons})
 
     onUpdateResolved = ->
       remainingPackagesCount--
