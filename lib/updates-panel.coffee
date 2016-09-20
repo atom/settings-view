@@ -20,10 +20,7 @@ class UpdatesPanel extends ScrollView
 
   initialize: (@packageManager) ->
     super
-    @updateAllButton.on 'click', =>
-      @updateAllButton.prop('disabled', true)
-      for packageCard in @updatesContainer.find('.package-card')
-        $(packageCard).view()?.update?()
+    @updateAllButton.on 'click', => @updateAll()
     @checkButton.on 'click', =>
       @checkForUpdates()
 
@@ -75,3 +72,40 @@ class UpdatesPanel extends ScrollView
 
     for pack in @availableUpdates
       @updatesContainer.append(new PackageCard(pack, @packageManager, {back: 'Updates'}))
+
+  updateAll: ->
+    @updateAllButton.prop('disabled', true)
+
+    packageCards = @getPackageCards()
+    successfulUpdatesCount = 0
+    remainingPackagesCount = packageCards.length
+
+    notifyIfDone = ->
+      if remainingPackagesCount is 0 and successfulUpdatesCount > 0
+        pluralizedPackages = 'package'
+        pluralizedPackages += 's' if successfulUpdatesCount > 1
+        message = "Restart Atom to complete the update of #{successfulUpdatesCount} #{pluralizedPackages}."
+        atom.notifications.addSuccess(message, {
+          dismissable: true,
+          buttons: [{
+            text: 'Restart',
+            onDidClick: -> atom.restartApplication()
+          }]
+        })
+
+    onUpdateResolved = ->
+      remainingPackagesCount--
+      successfulUpdatesCount++
+      notifyIfDone()
+
+    onUpdateRejected = ->
+      remainingPackagesCount--
+      notifyIfDone()
+
+    for packageCard in packageCards
+      packageCard.update().then(onUpdateResolved, onUpdateRejected)
+
+  getPackageCards: ->
+    @updatesContainer.find('.package-card').toArray()
+      .map((element) -> $(element).view())
+      .filter((view) -> view?)
