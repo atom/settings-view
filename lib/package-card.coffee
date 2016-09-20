@@ -477,7 +477,7 @@ class PackageCard extends View
     pack = @installablePack ? @pack
     version = if @newVersion then "v#{@newVersion}" else "##{@newSha.substr(0, 8)}"
 
-    new Promise (resolve) =>
+    new Promise (resolve, reject) =>
       @packageManager.update pack, @newVersion, (error) =>
         if error?
           atom.assert false, "Package update failed", (assertionError) =>
@@ -490,7 +490,9 @@ class PackageCard extends View
               errorStderr: error.stderr
             }
           console.error("Updating #{@type} #{pack.name} to #{version} failed:\n", error, error.stderr ? '')
-        resolve(error)
+          reject(error)
+        else
+          resolve()
 
   uninstall: ->
     @packageManager.uninstall @pack, (error) =>
