@@ -146,18 +146,6 @@ describe 'InstalledPackagesPanel', ->
       waits 1
       runs ->
         expect(PackageCard::displayAvailableUpdate).toHaveBeenCalledWith('1.1.0')
-        @packageManager.update({name: 'user-package'})
-        updateCallback(0, '', '')
-
-      waits 1
-      runs ->
-        advanceClock InstalledPackagesPanel.loadPackagesDelay
-
-      waits 1
-      runs ->
-        expect(@panel.deprecatedSection).not.toBeVisible()
-        expect(@panel.deprecatedCount.text().trim()).toBe '0'
-        expect(@panel.deprecatedPackages.find('.package-card:not(.hidden)').length).toBe 0
 
   describe 'expanding and collapsing sub-sections', ->
     beforeEach ->
