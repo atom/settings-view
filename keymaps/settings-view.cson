@@ -1,5 +1,2 @@
-'.platform-darwin':
+'.platform-darwin, .platform-win32, .platform-linux':
   'cmd-,': 'settings-view:open'
-
-'.platform-win32, .platform-linux':
-  'ctrl-,': 'settings-view:open'
