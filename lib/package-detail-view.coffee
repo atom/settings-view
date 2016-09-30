@@ -41,7 +41,7 @@ class PackageDetailView extends ScrollView
 
 
           @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link hidden'
-          @p outlet: 'startupTime', class: 'text icon icon-dashboard native-key-bindings hidden', tabindex: -1
+          @p outlet: 'startupTime', class: 'text icon icon-dashboard hidden', tabindex: -1
 
           @div outlet: 'buttons', class: 'btn-wrap-group hidden', =>
             @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io'
@@ -141,6 +141,8 @@ class PackageDetailView extends ScrollView
     @updateFileButtons()
     @activateConfig()
 
+    @startupTime.hide()
+
     if atom.packages.isPackageLoaded(@pack.name)
       if not atom.packages.isPackageDisabled(@pack.name)
         @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
@@ -151,8 +153,8 @@ class PackageDetailView extends ScrollView
           @sections.append(new PackageSnippetsView(@pack.path, @snippetsProvider))
 
         @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
+        @startupTime.show()
       else
-        @startupTime.hide()
         @openButton.hide()
 
     @openButton.hide() if atom.packages.isBundledPackage(@pack.name)
