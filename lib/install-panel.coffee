@@ -125,7 +125,7 @@ class InstallPanel extends ScrollView
       null
 
   performSearch: ->
-    if query = @searchEditorView.getText().trim()
+    if query = @searchEditorView.getText().trim().toLowerCase()
       @performSearchForQuery(query)
 
   performSearchForQuery: (query) ->
@@ -170,6 +170,8 @@ class InstallPanel extends ScrollView
       .then (packages=[]) =>
         @highlightExactMatch(@resultsContainer, query, packages)
       .then (packages=[]) =>
+        @addCloseMatches(@resultsContainer, query, packages)
+      .then (packages=[]) =>
         @addPackageViews(@resultsContainer, packages)
       .catch (error) =>
         @searchMessage.hide()
@@ -183,16 +185,23 @@ class InstallPanel extends ScrollView
       pkg.name is query)[0]
 
     if exactMatch
-      packageCard = @getPackageCardView(exactMatch)
-      @addPackageCardView(container, packageCard)
+      @addPackageCardView(container, @getPackageCardView(exactMatch))
       packages.splice(packages.indexOf(exactMatch), 1)
 
     packages
 
+  addCloseMatches: (container, query, packages) ->
+    matches = _.filter(packages, (pkg) -> pkg.name.indexOf(query) >= 0)
+
+    for pack in matches
+      @addPackageCardView(container, @getPackageCardView(pack))
+      packages.splice(packages.indexOf(pack), 1)
+
+    packages
+
   addPackageViews: (container, packages) ->
-    for pack, index in packages
-      packageCard = @getPackageCardView(pack)
-      @addPackageCardView(container, packageCard)
+    for pack in packages
+      @addPackageCardView(container, @getPackageCardView(pack))
 
   addPackageCardView: (container, packageCard) ->
     packageRow = $$ -> @div class: 'row'
