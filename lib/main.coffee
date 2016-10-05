@@ -36,6 +36,8 @@ module.exports =
 
     atom.commands.add 'atom-workspace',
       'settings-view:open': -> atom.workspace.open(configUri)
+      'settings-view:core': -> atom.workspace.open("#{configUri}/core")
+      'settings-view:editor': -> atom.workspace.open("#{configUri}/editor")
       'settings-view:show-keybindings': -> atom.workspace.open("#{configUri}/keybindings")
       'settings-view:change-themes': -> atom.workspace.open("#{configUri}/themes")
       'settings-view:install-packages-and-themes': -> atom.workspace.open("#{configUri}/install")
@@ -44,6 +46,9 @@ module.exports =
       'settings-view:view-installed-packages': -> atom.workspace.open("#{configUri}/packages")
       'settings-view:uninstall-packages': -> atom.workspace.open("#{configUri}/packages")
       'settings-view:check-for-package-updates': -> atom.workspace.open("#{configUri}/updates")
+
+    if process.platform is 'win32' and require('atom').WinShell?
+      atom.commands.add 'atom-workspace', 'settings-view:system': -> atom.workspace.open("#{configUri}/system")
 
   deactivate: ->
     settingsView?.dispose()

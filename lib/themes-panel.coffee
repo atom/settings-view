@@ -22,7 +22,7 @@ class ThemesPanel extends CollapsibleSectionPanel
     @div class: 'panels-item', =>
       @div class: 'section packages themes-panel', =>
         @div class: 'section-container', =>
-          @div class: 'section-heading icon icon-device-desktop', 'Choose a Theme'
+          @div class: 'section-heading icon icon-paintcan', 'Choose a Theme'
 
           @div class: 'text native-key-bindings', tabindex: -1, =>
             @span class: 'icon icon-question', 'You can also style Atom by editing '

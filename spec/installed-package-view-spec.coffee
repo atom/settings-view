@@ -51,6 +51,7 @@ describe "InstalledPackageView", ->
 
     waitsFor ->
       snippetsTable.children().length is 2
+    , 'Snippets table children to contain 2 items', 5000
 
     runs ->
       expect(snippetsTable.find('tr:eq(0) td:eq(0)').text()).toBe 'b'
@@ -187,4 +188,4 @@ describe "InstalledPackageView", ->
 
         view = new PackageDetailView(pack, new PackageManager(), SnippetsProvider)
         expect(view.sections.find('.package-readme').text()).not.toBe normalizePackageDataReadmeError
-        expect(view.sections.find('.package-readme').text().trim()).toBe 'I am a Readme!'
+        expect(view.sections.find('.package-readme').text().trim()).toContain 'I am a Readme!'

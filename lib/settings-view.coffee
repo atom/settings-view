@@ -8,6 +8,7 @@ fuzzaldrin = require 'fuzzaldrin'
 
 Client = require './atom-io-client'
 GeneralPanel = require './general-panel'
+EditorPanel = require './editor-panel'
 PackageDetailView = require './package-detail-view'
 KeybindingsPanel = require './keybindings-panel'
 InstallPanel = require './install-panel'
@@ -35,24 +36,25 @@ class SettingsView extends ScrollView
       # package card. Phew!
       @div class: 'panels', tabindex: -1, outlet: 'panels'
 
-  initialize: ({@uri, @packageManager, @snippetsProvider, activePanelName}={}) ->
+  initialize: ({@uri, @packageManager, @snippetsProvider, activePanel}={}) ->
     super
 
     @packageManager ?= new PackageManager()
-    @deferredPanel = {name: activePanelName}
+    @deferredPanel = activePanel
     process.nextTick => @initializePanels()
+
+  # This prevents the view being actually disposed when closed
+  # If you remove it you will need to ensure the cached settingsView
+  # in main.coffee is correctly released on close as well...
+  onDidChangeTitle: -> new Disposable()
 
   dispose: ->
     for name, panel of @panelsByName
       panel.dispose?()
     return
 
-  #TODO Remove both of these post 1.0
-  onDidChangeTitle: -> new Disposable()
-  onDidChangeModified: -> new Disposable()
-
   initializePanels: ->
-    return if @panels.size > 0
+    return if @panels.size() > 1
 
     @panelsByName = {}
     @on 'click', '.panels-menu li a, .panels-packages li a', (e) =>
@@ -64,7 +66,11 @@ class SettingsView extends ScrollView
     @openDotAtom.on 'click', ->
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
 
-    @addCorePanel 'Settings', 'settings', -> new GeneralPanel
+    @addCorePanel 'Core', 'settings', -> new GeneralPanel
+    @addCorePanel 'Editor', 'code', -> new EditorPanel
+    if process.platform is 'win32' and require('atom').WinShell?
+      SystemPanel = require './system-windows-panel'
+      @addCorePanel 'System', 'device-desktop', -> new SystemPanel
     @addCorePanel 'Keybindings', 'keyboard', -> new KeybindingsPanel
     @addCorePanel 'Packages', 'package', => new InstalledPackagesPanel(@packageManager)
     @addCorePanel 'Themes', 'paintcan', => new ThemesPanel(@packageManager)
@@ -72,13 +78,13 @@ class SettingsView extends ScrollView
     @addCorePanel 'Install', 'plus', => new InstallPanel(@packageManager)
 
     @showDeferredPanel()
-    @showPanel('Settings') unless @activePanelName
+    @showPanel('Core') unless @activePanel
     @sidebar.width(@sidebar.width()) if @isOnDom()
 
   serialize: ->
     deserializer: 'SettingsView'
     version: 2
-    activePanelName: @activePanelName ? @deferredPanel?.name
+    activePanel: @activePanel ? @deferredPanel
     uri: @uri
 
   getPackages: ->
@@ -174,16 +180,22 @@ class SettingsView extends ScrollView
   #   * `uri` the URI the panel was launched from
   showPanel: (name, options) ->
     if panel = @getOrCreatePanel(name, options)
-      @panels.children().hide()
-      @panels.append(panel) unless $.contains(@panels[0], panel[0])
-      panel.beforeShow?(options)
-      panel.show()
-      panel.focus()
+      @appendPanel(panel, options)
       @makePanelMenuActive(name)
-      @activePanelName = name
+      @setActivePanel(name, options)
       @deferredPanel = null
     else
       @deferredPanel = {name, options}
+
+  appendPanel: (panel, options) ->
+    @panels.children().hide()
+    @panels.append(panel) unless $.contains(@panels[0], panel[0])
+    panel.beforeShow?(options)
+    panel.show()
+    panel.focus()
+
+  setActivePanel: (name, options = {}) ->
+    @activePanel = {name, options}
 
   removePanel: (name) ->
     if panel = @panelsByName?[name]

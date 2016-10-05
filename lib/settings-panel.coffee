@@ -42,7 +42,6 @@ class SettingsPanel extends CollapsibleSectionPanel
     @bindEditors()
     @handleEvents()
 
-
   dispose: ->
     @disposables.dispose()
 
@@ -111,12 +110,15 @@ class SettingsPanel extends CollapsibleSectionPanel
     params.scope = [@options.scopeName] if @options.scopeName?
     defaultValue = @getDefault(name)
     value = atom.config.get(name, params)
-    not value or defaultValue is value
+    not value? or defaultValue is value
 
   getDefault: (name) ->
-    params = {excludeSources: [atom.config.getUserConfigPath()]}
-    params.scope = [@options.scopeName] if @options.scopeName?
-    atom.config.get(name, params)
+    if @options.scopeName?
+      atom.config.get(name)
+    else
+      params = {excludeSources: [atom.config.getUserConfigPath()]}
+      params.scope = [@options.scopeName] if @options.scopeName?
+      atom.config.get(name, params)
 
   set: (name, value) ->
     if @options.scopeName
@@ -146,7 +148,10 @@ class SettingsPanel extends CollapsibleSectionPanel
       type = editorView.attr('type')
 
       if defaultValue = @valueToString(@getDefault(name))
-        editor.setPlaceholderText("Default: #{defaultValue}")
+        if @options.scopeName?
+          editor.setPlaceholderText("Unscoped value: #{defaultValue}")
+        else
+          editor.setPlaceholderText("Default: #{defaultValue}")
 
       editorElement.on 'focus', =>
         if @isDefault(name)
@@ -243,7 +248,10 @@ appendOptions = (namespace, name, value) ->
 
   @select id: keyPath, class: 'form-control', =>
     for option in options
-      @option value: option, option
+      if option.hasOwnProperty('value')
+        @option value: option.value, option.description
+      else
+        @option value: option, option
 
 appendCheckbox = (namespace, name, value) ->
   keyPath = "#{namespace}.#{name}"

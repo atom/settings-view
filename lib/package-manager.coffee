@@ -30,7 +30,7 @@ class PackageManager
     else
       false
 
-  packageHasSettings: _.memoize((packageName) ->
+  packageHasSettings: (packageName) ->
     grammars = atom.grammars.getGrammars() ? []
     for grammar in grammars when grammar.path
       return true if grammar.packageName is packageName
@@ -39,7 +39,6 @@ class PackageManager
     pack.activateConfig() if pack? and not atom.packages.isPackageActive(packageName)
     schema = atom.config.getSchema(packageName)
     schema? and (schema.type isnt 'any')
-  )
 
   runCommand: (args, callback) ->
     command = atom.packages.getApmPath()
@@ -236,6 +235,10 @@ class PackageManager
         if code is 0
           try
             packages = JSON.parse(stdout) ? []
+            if options.sortBy
+              packages = _.sortBy packages, (pkg) ->
+                return pkg[options.sortBy]*-1
+
             resolve(packages)
           catch parseError
             error = createJsonParseError(errorMessage, parseError, stdout)
@@ -251,14 +254,6 @@ class PackageManager
 
   update: (pack, newVersion, callback) ->
     {name, theme, apmInstallSource} = pack
-
-    if theme
-      activateOnSuccess = atom.packages.isPackageActive(name)
-    else
-      activateOnSuccess = not atom.packages.isPackageDisabled(name)
-    activateOnFailure = atom.packages.isPackageActive(name)
-    atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
-    atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
 
     errorMessage = if newVersion
       "Updating to \u201C#{name}@#{newVersion}\u201D failed."
@@ -277,16 +272,9 @@ class PackageManager
     exit = (code, stdout, stderr) =>
       if code is 0
         @clearOutdatedCache()
-        activation = if activateOnSuccess
-          atom.packages.activatePackage(name)
-        else
-          atom.packages.loadPackage(name)
-
-        Promise.resolve(activation).then =>
-          callback?()
-          @emitPackageEvent 'updated', pack
+        callback?()
+        @emitPackageEvent 'updated', pack
       else
-        atom.packages.activatePackage(name) if activateOnFailure
         error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr

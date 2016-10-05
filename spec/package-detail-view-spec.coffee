@@ -85,6 +85,11 @@ describe "PackageDetailView", ->
     expect(view.packageCard.packageName.text()).toBe('package-with-readme')
     expect(view.find('.package-readme').length).toBe(1)
 
+  it "renders the README successfully with sanitized html", ->
+    loadPackageFromRemote()
+    expect(view.find('.package-readme script').length).toBe(0)
+    expect(view.find('.package-readme :checkbox[disabled]').length).toBe(2)
+
   it "should show 'Install' as the first breadcrumb by default", ->
     loadPackageFromRemote()
     expect(view.breadcrumb.text()).toBe('Install')

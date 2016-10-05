@@ -15,18 +15,21 @@ class PackageCard extends View
 
     @div class: 'package-card col-lg-8', =>
       @div outlet: 'statsContainer', class: 'stats pull-right', =>
-        @span class: "stats-item", =>
-          @span class: 'icon icon-versions'
-          @span outlet: 'versionValue', class: 'value', String(version)
+        @span outlet: 'packageStars', class: 'stats-item', =>
+          @span outlet: 'stargazerIcon', class: 'icon icon-star'
+          @span outlet: 'stargazerCount', class: 'value'
 
-        @span class: 'stats-item', =>
+        @span outlet: 'packageDownloads', class: 'stats-item', =>
           @span outlet: 'downloadIcon', class: 'icon icon-cloud-download'
           @span outlet: 'downloadCount', class: 'value'
 
       @div class: 'body', =>
         @h4 class: 'card-name', =>
-          @a outlet: 'packageName', displayName
+          @a class: 'package-name', outlet: 'packageName', displayName
           @span ' '
+          @span class: 'package-version', =>
+            @span outlet: 'versionValue', class: 'value', String(version)
+
           @span class: 'deprecation-badge highlight-warning inline-block', 'Deprecated'
         @span outlet: 'packageDescription', class: 'package-description', description
         @div outlet: 'packageMessage', class: 'package-message'
@@ -51,7 +54,7 @@ class PackageCard extends View
                 @span class: 'disable-text', 'Disable'
               @button type: 'button', class: 'btn status-indicator', tabindex: -1, outlet: 'statusIndicator'
 
-  initialize: (@pack, @packageManager, options) ->
+  initialize: (@pack, @packageManager, options={}) ->
     @disposables = new CompositeDisposable()
 
     # It might be useful to either wrap @pack in a class that has a ::validate
@@ -64,10 +67,19 @@ class PackageCard extends View
 
     {@name} = @pack
 
+    @onSettingsView = options?.onSettingsView
+
     @newVersion = @pack.latestVersion unless @pack.latestVersion is @pack.version
     if @pack.apmInstallSource?.type is 'git'
       @newSha = @pack.latestSha unless @pack.apmInstallSource.sha is @pack.latestSha
 
+    # Default to displaying the download count
+    unless options?.stats
+      options.stats = {
+        downloads: true
+      }
+
+    @displayStats(options)
     @handlePackageEvents()
     @handleButtonEvents(options)
     @loadCachedMetadata()
@@ -83,7 +95,6 @@ class PackageCard extends View
       @statusIndicator.remove()
       @enablementButton.remove()
 
-    @settingsButton.remove() unless @hasSettings()
     if atom.packages.isBundledPackage(@pack.name)
       @installButtonGroup.remove()
       @uninstallButton.remove()
@@ -133,7 +144,7 @@ class PackageCard extends View
 
   handleButtonEvents: (options) ->
     if options?.onSettingsView
-      @settingsButton.remove()
+      @settingsButton.hide()
     else
       @on 'click', =>
         @parents('.settings-view').view()?.showPanel(@pack.name, {back: options?.back, pack: @pack})
@@ -155,7 +166,17 @@ class PackageCard extends View
 
     @updateButton.on 'click', (event) =>
       event.stopPropagation()
-      @update()
+      @update().then =>
+        buttons = []
+        # TODO: Remove conditional after 1.12.0 is released as stable
+        if atom.restartApplication?
+          buttons.push({
+            text: 'Restart',
+            onDidClick: -> atom.restartApplication()
+          })
+        atom.notifications.addSuccess("Restart Atom to complete the update of `#{@pack.name}`.", {
+          dismissable: true, buttons: buttons
+        })
 
     @packageName.on 'click', (event) =>
       event.stopPropagation()
@@ -186,15 +207,24 @@ class PackageCard extends View
           @downloadIcon.addClass('icon-git-branch')
           @downloadCount.text @pack.apmInstallSource.sha.substr(0, 8)
         else
+          @stargazerCount.text data.stargazers_count?.toLocaleString()
           @downloadCount.text data.downloads?.toLocaleString()
 
   updateInterfaceState: ->
     @versionValue.text(@installablePack?.version ? @pack.version)
     if @pack.apmInstallSource?.type is 'git'
       @downloadCount.text @pack.apmInstallSource.sha.substr(0, 8)
+
+    @updateSettingsState()
     @updateInstalledState()
     @updateDisabledState()
     @updateDeprecatedState()
+
+  updateSettingsState: ->
+    if @hasSettings() and not @onSettingsView
+      @settingsButton.show()
+    else
+      @settingsButton.hide()
 
   # Section: disabled state updates
 
@@ -271,6 +301,17 @@ class PackageCard extends View
       @displayDeprecatedState()
     else if @hasClass('deprecated')
       @displayUndeprecatedState()
+
+  displayStats: (options) ->
+    if options?.stats?.downloads
+      @packageDownloads.show()
+    else
+      @packageDownloads.hide()
+
+    if options?.stats?.stars
+      @packageStars.show()
+    else
+      @packageStars.hide()
 
   displayUndeprecatedState: ->
     @removeClass('deprecated')
@@ -436,10 +477,25 @@ class PackageCard extends View
 
   update: ->
     return unless @newVersion or @newSha
-    @packageManager.update @installablePack ? @pack, @newVersion, (error) =>
-      if error?
-        version = if @newVersion then "v#{newVersion}" else "##{@newSha.substr(0, 8)}"
-        console.error("Updating #{@type} #{@pack.name} to #{version} failed", error.stack ? error, error.stderr)
+    pack = @installablePack ? @pack
+    version = if @newVersion then "v#{@newVersion}" else "##{@newSha.substr(0, 8)}"
+
+    new Promise (resolve, reject) =>
+      @packageManager.update pack, @newVersion, (error) =>
+        if error?
+          atom.assert false, "Package update failed", (assertionError) =>
+            assertionError.metadata = {
+              type: @type,
+              name: pack.name,
+              version: version,
+              errorMessage: error.message,
+              errorStack: error.stack,
+              errorStderr: error.stderr
+            }
+          console.error("Updating #{@type} #{pack.name} to #{version} failed:\n", error, error.stderr ? '')
+          reject(error)
+        else
+          resolve()
 
   uninstall: ->
     @packageManager.uninstall @pack, (error) =>

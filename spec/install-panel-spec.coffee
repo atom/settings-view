@@ -56,6 +56,31 @@ describe 'InstallPanel', ->
       expect(@panel.searchType).toBe 'themes'
       expect(@panel.search.callCount).toBe 3
 
+  describe "searching packages", ->
+    it "highlights exact name matches", ->
+      spyOn(@packageManager, 'search').andCallFake ->
+        new Promise (resolve, reject) -> resolve([ {name: 'not-first'}, {name: 'first'} ])
+      spyOn(@panel, 'getPackageCardView').andCallThrough()
+
+      waitsForPromise =>
+        @panel.search('first')
+
+      runs ->
+        expect(@panel.getPackageCardView.argsForCall[0][0].name).toEqual 'first'
+        expect(@panel.getPackageCardView.argsForCall[1][0].name).toEqual 'not-first'
+
+    it "prioritizes partial name matches", ->
+      spyOn(@packageManager, 'search').andCallFake ->
+        new Promise (resolve, reject) -> resolve([ {name: 'something else'}, {name: 'partial name match'} ])
+      spyOn(@panel, 'getPackageCardView').andCallThrough()
+
+      waitsForPromise =>
+        @panel.search('match')
+
+      runs ->
+        expect(@panel.getPackageCardView.argsForCall[0][0].name).toEqual 'partial name match'
+        expect(@panel.getPackageCardView.argsForCall[1][0].name).toEqual 'something else'
+
   describe "searching git packages", ->
     beforeEach ->
       spyOn(@panel, 'showGitInstallPackageCard').andCallThrough()

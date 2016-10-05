@@ -89,3 +89,14 @@ describe "KeybindingsPanel", ->
       expect(row.find('.command').text()).toBe 'window:toggle-full-screen'
       expect(row.find('.source').text()).toBe 'Core'
       expect(row.find('.selector').text()).toBe 'body'
+
+    it "perform a fuzzy match for each keyword", ->
+      panel.filterKeyBindings keyBindings, 'core ctrl-a'
+
+      expect(panel.keybindingRows.children().length).toBe 1
+
+      row = panel.keybindingRows.children(':first')
+      expect(row.find('.keystroke').text()).toBe 'ctrl-a'
+      expect(row.find('.command').text()).toBe 'core:select-all'
+      expect(row.find('.source').text()).toBe 'Core'
+      expect(row.find('.selector').text()).toBe '.editor, .platform-test'

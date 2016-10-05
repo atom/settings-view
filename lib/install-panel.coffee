@@ -18,7 +18,7 @@ class InstallPanel extends ScrollView
     @div class: 'panels-item', =>
       @div class: 'section packages', =>
         @div class: 'section-container', =>
-          @h1 outlet: 'installHeading', class: 'section-heading icon icon-cloud-download', 'Install Packages'
+          @h1 outlet: 'installHeading', class: 'section-heading icon icon-plus', 'Install Packages'
 
           @div class: 'text native-key-bindings', tabindex: -1, =>
             @span class: 'icon icon-question'
@@ -124,7 +124,7 @@ class InstallPanel extends ScrollView
       null
 
   performSearch: ->
-    if query = @searchEditorView.getText().trim()
+    if query = @searchEditorView.getText().trim().toLowerCase()
       @performSearchForQuery(query)
 
   performSearchForQuery: (query) ->
@@ -156,23 +156,51 @@ class InstallPanel extends ScrollView
 
     opts = {}
     opts[@searchType] = true
+    opts['sortBy'] = "downloads"
+
     @packageManager.search(query, opts)
       .then (packages=[]) =>
-        if packages.length is 0
-          @searchMessage.text("No #{@searchType.replace(/s$/, '')} results for \u201C#{query}\u201D").show()
-        else
-          @searchMessage.hide()
+        @resultsContainer.empty()
+        packages
+      .then (packages=[]) =>
+        @searchMessage.hide()
+        @showNoResultMessage if packages.length is 0
+        packages
+      .then (packages=[]) =>
+        @highlightExactMatch(@resultsContainer, query, packages)
+      .then (packages=[]) =>
+        @addCloseMatches(@resultsContainer, query, packages)
+      .then (packages=[]) =>
         @addPackageViews(@resultsContainer, packages)
       .catch (error) =>
         @searchMessage.hide()
         @searchErrors.append(new ErrorView(@packageManager, error))
 
-  addPackageViews: (container, packages) ->
-    container.empty()
+  showNoResultMessage: ->
+    @searchMessage.text("No #{@searchType.replace(/s$/, '')} results for \u201C#{query}\u201D").show()
 
-    for pack, index in packages
-      packageCard = @getPackageCardView(pack)
-      @addPackageCardView(container, packageCard)
+  highlightExactMatch: (container, query, packages) ->
+    exactMatch = _.filter(packages, (pkg) ->
+      pkg.name is query)[0]
+
+    if exactMatch
+      @addPackageCardView(container, @getPackageCardView(exactMatch))
+      packages.splice(packages.indexOf(exactMatch), 1)
+
+    packages
+
+  addCloseMatches: (container, query, packages) ->
+    matches = _.filter(packages, (pkg) -> pkg.name.indexOf(query) >= 0)
+
+    for pack in matches
+      @addPackageCardView(container, @getPackageCardView(pack))
+      packages.splice(packages.indexOf(pack), 1)
+
+    packages
+
+  addPackageViews: (container, packages) ->
+    for pack in packages
+      @addPackageCardView(container, @getPackageCardView(pack))
 
   addPackageCardView: (container, packageCard) ->
     packageRow = $$ -> @div class: 'row'

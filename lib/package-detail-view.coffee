@@ -41,7 +41,7 @@ class PackageDetailView extends ScrollView
 
 
           @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link hidden'
-          @p outlet: 'startupTime', class: 'text icon icon-dashboard native-key-bindings hidden', tabindex: -1
+          @p outlet: 'startupTime', class: 'text icon icon-dashboard hidden', tabindex: -1
 
           @div outlet: 'buttons', class: 'btn-wrap-group hidden', =>
             @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io'
@@ -58,6 +58,7 @@ class PackageDetailView extends ScrollView
     super
     @disposables = new CompositeDisposable()
     @loadPackage()
+    @handleButtonEvents()
 
   completeInitialzation: ->
     unless @packageCard # Had to load this from the network
@@ -69,7 +70,6 @@ class PackageDetailView extends ScrollView
     @buttons.removeClass('hidden')
     @activateConfig()
     @populate()
-    @handleButtonEvents()
     @updateFileButtons()
     @subscribeToPackageManager()
     @renderReadme()
@@ -141,18 +141,21 @@ class PackageDetailView extends ScrollView
     @updateFileButtons()
     @activateConfig()
 
-    if @isInstalled()
-      @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
-      @sections.append(new PackageKeymapView(@pack))
+    @startupTime.hide()
 
-      if @pack.path
-        @sections.append(new PackageGrammarsView(@pack.path))
-        @sections.append(new PackageSnippetsView(@pack.path, @snippetsProvider))
+    if atom.packages.isPackageLoaded(@pack.name)
+      if not atom.packages.isPackageDisabled(@pack.name)
+        @sections.append(new SettingsPanel(@pack.name, {includeTitle: false}))
+        @sections.append(new PackageKeymapView(@pack))
 
-      @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
-    else
-      @startupTime.hide()
-      @openButton.hide()
+        if @pack.path
+          @sections.append(new PackageGrammarsView(@pack.path))
+          @sections.append(new PackageSnippetsView(@pack.path, @snippetsProvider))
+
+        @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
+        @startupTime.show()
+      else
+        @openButton.hide()
 
     @openButton.hide() if atom.packages.isBundledPackage(@pack.name)
 
@@ -245,7 +248,5 @@ class PackageDetailView extends ScrollView
     activateTime = @pack.activateTime ? 0
     loadTime + activateTime
 
-  # Even though the title of this view is hilariously "PackageDetailView",
-  # the package might not be installed.
   isInstalled: ->
     atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)
