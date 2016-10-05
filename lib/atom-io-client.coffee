@@ -153,8 +153,9 @@ class AtomIoClient
           writeStream = fs.createWriteStream imagePath
           writeStream.on 'finish', -> callback(null, imagePath)
           writeStream.on 'error', (error) ->
-            writeStream.end()
-            fs.unlinkSync imagePath
+            writeStream.close()
+            try
+              fs.unlinkSync imagePath if fs.existsSync imagePath
             callback(error)
           request(requestObject).pipe(writeStream)
 
