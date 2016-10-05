@@ -283,7 +283,10 @@ describe "SettingsView", ->
         waitsForPromise ->
           atom.workspace.open('atom://config/install/package:something').then (s) -> settingsView = s
 
-        waits 1
+        waitsFor ->
+          settingsView.activePanel?
+        , 'The activePanel should be set', 5000
+
         runs ->
           expect(settingsView.activePanel)
             .toEqual name: 'Install', options: uri: 'atom://config/install/package:something'
