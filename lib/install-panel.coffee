@@ -185,8 +185,7 @@ class InstallPanel extends ScrollView
       pkg.name is query)[0]
 
     if exactMatch
-      packageCard = @getPackageCardView(exactMatch)
-      @addPackageCardView(container, packageCard)
+      @addPackageCardView(container, @getPackageCardView(exactMatch))
       packages.splice(packages.indexOf(exactMatch), 1)
 
     packages
@@ -195,16 +194,14 @@ class InstallPanel extends ScrollView
     matches = _.filter(packages, (pkg) -> pkg.name.indexOf(query) >= 0)
 
     for pack in matches
-      packageCard = @getPackageCardView(pack)
-      @addPackageCardView(container, packageCard)
+      @addPackageCardView(container, @getPackageCardView(pack))
       packages.splice(packages.indexOf(pack), 1)
 
     packages
 
   addPackageViews: (container, packages) ->
     for pack in packages
-      packageCard = @getPackageCardView(pack)
-      @addPackageCardView(container, packageCard)
+      @addPackageCardView(container, @getPackageCardView(pack))
 
   addPackageCardView: (container, packageCard) ->
     packageRow = $$ -> @div class: 'row'
