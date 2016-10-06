@@ -78,6 +78,7 @@ module.exports =
     settingsView = new SettingsView(params)
 
   showDeprecatedNotification: (packages) ->
+    return unless packages.user?
     deprecatedPackages = packages.user.filter ({name, version}) ->
       atom.packages.isDeprecatedPackage(name, version)
     return unless deprecatedPackages.length

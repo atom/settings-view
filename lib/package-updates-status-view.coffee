@@ -14,7 +14,7 @@ class PackageUpdatesStatusView extends View
     packageManager.on 'package-updated theme-updated', ({error, pack}) => @onDidUpdatePackage(pack)
     packageManager.on 'package-update-available theme-update-available', ({error, pack}) => @onPackageUpdateAvailable(pack)
 
-    if updates.length
+    if @updates.length
       @countLabel.text("#{_.pluralize(@updates.length, 'update')}")
       @tooltip = atom.tooltips.add(@element, title: "#{_.pluralize(@updates.length, 'package update')} available")
       @tile = @statusBar.addRightTile(item: this, priority: 0)
