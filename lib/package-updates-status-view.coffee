@@ -24,7 +24,7 @@ class PackageUpdatesStatusView extends View
       atom.commands.dispatch(atom.views.getView(atom.workspace), 'settings-view:check-for-package-updates')
 
   onDidUpdatePackage: (pack) ->
-    for update, index in @updates
+    for index, update of @updates
       if update.name is pack.name
         @updates.splice(index, 1)
 
