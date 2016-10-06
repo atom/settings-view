@@ -57,6 +57,7 @@ module.exports =
     packageManager = null
 
   consumeStatusBar: (statusBar) ->
+    packageManager ?= new PackageManager() # TODO: Why is this needed when the package manager is initialized at the top of the file?
     Promise.all([packageManager.getOutdated(), packageManager.getInstalled()]).then (values) =>
       updates = values[0]
       allPackages = values[1]

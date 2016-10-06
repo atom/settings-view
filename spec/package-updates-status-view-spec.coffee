@@ -22,6 +22,7 @@ describe "package updates status view", ->
 
     runs ->
       atom.packages.emitter.emit('did-activate-all')
+      expect($('status-bar .package-updates-status-view')).toExist()
 
   describe "when packages are outdated", ->
     it "adds a tile to the status bar", ->
