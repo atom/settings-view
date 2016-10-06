@@ -2,7 +2,7 @@
 PackageManager = require '../lib/package-manager'
 PackageUpdatesStatusView = require '../lib/package-updates-status-view'
 
-describe "package updates status view", ->
+describe "PackageUpdatesStatusView", ->
   packageManager = null
 
   outdatedPackage1 =
