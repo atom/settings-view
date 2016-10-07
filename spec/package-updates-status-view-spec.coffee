@@ -57,6 +57,14 @@ describe "PackageUpdatesStatusView", ->
       packageManager.emitPackageEvent('updated', outdatedPackage2)
       expect($('status-bar .package-updates-status-view')).not.toExist()
 
+  describe "when a new update becomes available and the tile is destroyed", ->
+    it "recreates the tile", ->
+      packageManager.emitPackageEvent('updated', outdatedPackage1)
+      packageManager.emitPackageEvent('updated', outdatedPackage2)
+      packageManager.emitPackageEvent('update-available', installedPackage)
+      expect($('status-bar .package-updates-status-view')).toExist()
+      expect($('status-bar .package-updates-status-view').text()).toBe '1 update'
+
   describe "when an update becomes available for a package", ->
     it "updates the tile", ->
       packageManager.emitPackageEvent('update-available', installedPackage)
@@ -67,4 +75,4 @@ describe "PackageUpdatesStatusView", ->
       packageManager.emitPackageEvent('update-available', outdatedPackage1)
       packageManager.emitPackageEvent('update-available', outdatedPackage1)
       packageManager.emitPackageEvent('update-available', outdatedPackage1)
-      # expect($('status-bar .package-updates-status-view').text()).toBe '2 updates'
+      expect($('status-bar .package-updates-status-view').text()).toBe '2 updates'
