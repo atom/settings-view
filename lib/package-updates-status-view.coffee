@@ -11,7 +11,8 @@ class PackageUpdatesStatusView extends View
   initialize: (statusBar, packages) ->
     @countLabel.text("#{_.pluralize(packages.length, 'update')}")
     @tooltip = atom.tooltips.add(@element, title: "#{_.pluralize(packages.length, 'package update')} available")
-    @tile = statusBar.addRightTile(item: this, priority: 0)
+    # Priority of -99 should put us just to the left of the Squirrel icon, which displays when Atom has updates available
+    @tile = statusBar.addRightTile(item: this, priority: -99)
 
     @on 'click', =>
       atom.commands.dispatch(atom.views.getView(atom.workspace), 'settings-view:check-for-package-updates')
