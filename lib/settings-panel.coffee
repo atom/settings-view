@@ -260,7 +260,7 @@ appendCheckbox = (namespace, name, value) ->
 
   @div class: 'checkbox', =>
     @label for: keyPath, =>
-      @input id: keyPath, type: 'checkbox'
+      @input id: keyPath, class: 'input-checkbox', type: 'checkbox'
       @div class: 'setting-title', title
     @div class: 'setting-description', =>
       @raw(description)

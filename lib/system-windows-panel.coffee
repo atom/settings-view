@@ -16,7 +16,7 @@ class SystemPanel extends ScrollView
                 @div class: 'controls', =>
                   @div class: 'checkbox', =>
                     @label for: 'system.windows.file-handler', =>
-                      @input outlet: 'fileHandlerCheckbox', id: 'system.windows.file-handler', type: 'checkbox'
+                      @input outlet: 'fileHandlerCheckbox', id: 'system.windows.file-handler', class: 'input-checkbox', type: 'checkbox'
                       @div class: 'setting-title', 'Register as file handler'
                       @div class: 'setting-description', =>
                         @raw("Show #{WinShell.appName} in the \"Open with\" application list for easy association with file types.")
@@ -24,7 +24,7 @@ class SystemPanel extends ScrollView
                 @div class: 'controls', =>
                   @div class: 'checkbox', =>
                     @label for: 'system.windows.shell-menu-files', =>
-                      @input outlet: 'fileContextMenuCheckbox', id: 'system.windows.shell-menu-files', type: 'checkbox'
+                      @input outlet: 'fileContextMenuCheckbox', id: 'system.windows.shell-menu-files', class: 'input-checkbox', type: 'checkbox'
                       @div class: 'setting-title', 'Show in file context menus'
                       @div class: 'setting-description', =>
                         @raw("Add \"Open with #{WinShell.appName}\" to the File Explorer context menu for files.")
@@ -32,7 +32,7 @@ class SystemPanel extends ScrollView
                 @div class: 'controls', =>
                   @div class: 'checkbox', =>
                     @label for: 'system.windows.shell-menu-folders', =>
-                      @input outlet: 'folderContextMenuCheckbox', id: 'system.windows.shell-menu-folders', type: 'checkbox'
+                      @input outlet: 'folderContextMenuCheckbox', id: 'system.windows.shell-menu-folders', class: 'input-checkbox', type: 'checkbox'
                       @div class: 'setting-title', 'Show in folder context menus'
                       @div class: 'setting-description', =>
                         @raw("Add \"Open with #{WinShell.appName}\" to the File Explorer context menu for folders.")
