@@ -113,6 +113,7 @@ describe 'InstallPanel', ->
     beforeEach ->
       atom.config.set('settings-view.enableStarredPackages', true)
       @panel = new InstallPanel(@packageManager)
+      jasmine.attachToDOM(@panel.element)
 
     it 'shows the starred packages section', ->
       expect(@panel.starredPackagesSection).toBeVisible()

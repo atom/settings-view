@@ -72,6 +72,8 @@ class InstallPanel extends ScrollView
     @atomIoURL = 'https://atom.io/packages'
     @enableStarredPackages = atom.config.get('settings-view.enableStarredPackages')
     @maxStarredPackages = 10
+    @additionalStarrredPackages = []
+
     @searchMessage.hide()
     @searchEditorView.getModel().setPlaceholderText('Search packages')
     @setSearchType('packages')
@@ -273,6 +275,7 @@ class InstallPanel extends ScrollView
       @loadStarredPackages()
 
   showTokenForm: ->
+    @showMoreStarred.hide()
     @tokenView.getModel().setPlaceholderText('Atom.io account token')
     @loadingStarredMessage.hide()
     @tokenView.getModel().onDidStopChanging =>
@@ -289,7 +292,7 @@ class InstallPanel extends ScrollView
       @additionalStarCount.text packages.length - @maxStarredPackages
       @additionalStarrredPackages = packages.slice(@maxStarredPackages)
 
-      @disposables.add @showMoreStarred.on 'click', (e) =>
+      @showMoreStarred.on 'click', (e) =>
         @addPackageViews(@starredContainer, @additionalStarrredPackages)
         @showMoreStarred.hide()
         false
@@ -303,6 +306,8 @@ class InstallPanel extends ScrollView
   # Load starred packages
   loadStarredPackages: ->
     @starredContainer.empty()
+    @additionalStarrredPackages = []
+    @showMoreStarred.hide()
 
     @loadingStarredMessage.show()
     @loadingStarredMessage.text('Loading starred packages')
