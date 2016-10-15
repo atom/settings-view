@@ -35,7 +35,7 @@ class PackageDetailView extends ScrollView
               @div outlet: 'errorMessage', class: 'alert alert-danger icon icon-hourglass hidden', "Failed to load #{pack.name} - try again later."
 
           @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link hidden'
-          @p outlet: 'startupTime', class: 'text icon icon-dashboard native-key-bindings hidden', tabindex: -1
+          @p outlet: 'startupTime', class: 'text icon icon-dashboard hidden', tabindex: -1
 
           @div outlet: 'buttons', class: 'btn-wrap-group hidden', =>
             @button outlet: 'learnMoreButton', class: 'btn btn-default icon icon-link', 'View on Atom.io'
@@ -110,8 +110,8 @@ class PackageDetailView extends ScrollView
         @sections.append(new PackageGrammarsView(@package.path))
         @sections.append(new PackageSnippetsView(@package.path, @snippetsProvider))
         @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
+        @startupTime.show()
       else
-        @startupTime.hide()
         @openButton.hide()
 
     @openButton.hide() if atom.packages.isBundledPackage(@package.name)

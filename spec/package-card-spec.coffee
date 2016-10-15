@@ -478,11 +478,16 @@ describe "PackageCard", ->
             expect(card.installButtonGroup).not.toBeVisible()
             expect(card.packageActionButtonGroup).toBeVisible()
             expect(card.installAlternativeButtonGroup).not.toBeVisible()
+            expect(card.versionValue.text()).toBe '1.0.0' # Does not update until restart
 
-            expect(card).not.toHaveClass 'deprecated'
-            expect(card.packageMessage).not.toHaveClass 'text-warning'
-            expect(card.packageMessage.text()).toBe ''
-            expect(card.versionValue.text()).toBe '1.1.0'
+            notifications = atom.notifications.getNotifications()
+            expect(notifications.length).toBe 1
+
+            # TODO: Remove conditional after 1.12.0 is released as stable
+            if atom.restartApplication?
+              spyOn(atom, 'restartApplication')
+              notifications[0].options.buttons[0].onDidClick()
+              expect(atom.restartApplication).toHaveBeenCalled()
 
     describe "when hasAlternative is true and alternative is core", ->
       beforeEach ->

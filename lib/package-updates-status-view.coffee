@@ -11,7 +11,7 @@ class PackageUpdatesStatusView extends View
   initialize: (@statusBar, @packageList) ->
     @countLabel.text("#{_.pluralize(@packageList.length(), 'update')}")
     @tooltip = atom.tooltips.add(@element, title: "#{_.pluralize(@packageList.length(), 'package update')} available")
-    @tile = @statusBar.addRightTile(item: this, priority: 0)
+    @tile = @statusBar.addRightTile(item: this, priority: -99)
 
     @on 'click', =>
       @destroy()
