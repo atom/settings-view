@@ -42,7 +42,6 @@ class SettingsPanel extends CollapsibleSectionPanel
     @bindEditors()
     @handleEvents()
 
-
   dispose: ->
     @disposables.dispose()
 
@@ -114,9 +113,12 @@ class SettingsPanel extends CollapsibleSectionPanel
     not value? or defaultValue is value
 
   getDefault: (name) ->
-    params = {excludeSources: [atom.config.getUserConfigPath()]}
-    params.scope = [@options.scopeName] if @options.scopeName?
-    atom.config.get(name, params)
+    if @options.scopeName?
+      atom.config.get(name)
+    else
+      params = {excludeSources: [atom.config.getUserConfigPath()]}
+      params.scope = [@options.scopeName] if @options.scopeName?
+      atom.config.get(name, params)
 
   set: (name, value) ->
     if @options.scopeName
@@ -146,7 +148,10 @@ class SettingsPanel extends CollapsibleSectionPanel
       type = editorView.attr('type')
 
       if defaultValue = @valueToString(@getDefault(name))
-        editor.setPlaceholderText("Default: #{defaultValue}")
+        if @options.scopeName?
+          editor.setPlaceholderText("Unscoped value: #{defaultValue}")
+        else
+          editor.setPlaceholderText("Default: #{defaultValue}")
 
       editorElement.on 'focus', =>
         if @isDefault(name)

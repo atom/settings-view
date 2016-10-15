@@ -8,6 +8,7 @@ fuzzaldrin = require 'fuzzaldrin'
 
 Client = require './atom-io-client'
 GeneralPanel = require './general-panel'
+EditorPanel = require './editor-panel'
 PackageDetailView = require './package-detail-view'
 KeybindingsPanel = require './keybindings-panel'
 PackageManager = require './package-manager'
@@ -46,17 +47,18 @@ class SettingsView extends ScrollView
 
     process.nextTick => @initializePanels()
 
+  # This prevents the view being actually disposed when closed
+  # If you remove it you will need to ensure the cached settingsView
+  # in main.coffee is correctly released on close as well...
+  onDidChangeTitle: -> new Disposable()
+
   dispose: ->
     for name, panel of @panelsByName
       panel.dispose?()
     return
 
-  #TODO Remove both of these post 1.0
-  onDidChangeTitle: -> new Disposable()
-  onDidChangeModified: -> new Disposable()
-
   initializePanels: ->
-    return if @panels.size > 0
+    return if @panels.size() > 1
 
     @panelsByName = {}
     @on 'click', '.panels-menu li a, .panels-packages li a', (e) =>
@@ -68,7 +70,11 @@ class SettingsView extends ScrollView
     @openDotAtom.on 'click', ->
       atom.open(pathsToOpen: [atom.getConfigDirPath()])
 
-    @addCorePanel 'Settings', 'settings', -> new GeneralPanel
+    @addCorePanel 'Core', 'settings', -> new GeneralPanel
+    @addCorePanel 'Editor', 'code', -> new EditorPanel
+    if process.platform is 'win32' and require('atom').WinShell?
+      SystemPanel = require './system-windows-panel'
+      @addCorePanel 'System', 'device-desktop', -> new SystemPanel
     @addCorePanel 'Keybindings', 'keyboard', -> new KeybindingsPanel
     @addCorePanel 'Packages', 'package', => new InstalledPackagesPanel(@packageManager)
     @addCorePanel 'Themes', 'paintcan', => new ThemesPanel(@packageManager)
@@ -76,7 +82,7 @@ class SettingsView extends ScrollView
     @addCorePanel 'Install', 'plus', => new InstallPanel(@packageManager)
 
     @showDeferredPanel()
-    @showPanel('Settings') unless @activePanel
+    @showPanel('Core') unless @activePanel
     @sidebar.width(@sidebar.width()) if @isOnDom()
 
   serialize: ->

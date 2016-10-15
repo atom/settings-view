@@ -19,7 +19,7 @@ class InstallPanel extends ScrollView
     @div class: 'panels-item', =>
       @div class: 'section packages', =>
         @div class: 'section-container', =>
-          @h1 outlet: 'installHeading', class: 'section-heading icon icon-cloud-download', 'Install Packages'
+          @h1 outlet: 'installHeading', class: 'section-heading icon icon-plus', 'Install Packages'
 
           @div class: 'text native-key-bindings', tabindex: -1, =>
             @span class: 'icon icon-question'
@@ -151,9 +151,7 @@ class InstallPanel extends ScrollView
       null
 
   performSearch: ->
-    query = @searchEditorView.getText().trim()
-
-    if query and query isnt ''
+    if query = @searchEditorView.getText().trim().toLowerCase()
       @performSearchForQuery(query)
     else
       @resultsContainer.empty()
@@ -200,6 +198,8 @@ class InstallPanel extends ScrollView
       .then (packages=[]) =>
         @highlightExactMatch(@resultsContainer, query, packages)
       .then (packages=[]) =>
+        @addCloseMatches(@resultsContainer, query, packages)
+      .then (packages=[]) =>
         @addPackageViews(@resultsContainer, packages)
       .catch (error) =>
         @searchMessage.hide()
@@ -213,16 +213,23 @@ class InstallPanel extends ScrollView
       pkg.name is query)[0]
 
     if exactMatch
-      packageCard = @getPackageCardView(exactMatch)
-      @addPackageCardView(container, packageCard)
+      @addPackageCardView(container, @getPackageCardView(exactMatch))
       packages.splice(packages.indexOf(exactMatch), 1)
 
     packages
 
+  addCloseMatches: (container, query, packages) ->
+    matches = _.filter(packages, (pkg) -> pkg.name.indexOf(query) >= 0)
+
+    for pack in matches
+      @addPackageCardView(container, @getPackageCardView(pack))
+      packages.splice(packages.indexOf(pack), 1)
+
+    packages
+
   addPackageViews: (container, packages) ->
-    for pack, index in packages
-      packageCard = @getPackageCardView(pack)
-      @addPackageCardView(container, packageCard)
+    for pack in packages
+      @addPackageCardView(container, @getPackageCardView(pack))
 
   addPackageCardView: (container, packageCard) ->
     packageRow = $$ -> @div class: 'row'

@@ -7,6 +7,7 @@
 
 .settings-view {
   display: flex;
+  overflow: auto;
 
   .breadcrumb {
     margin-bottom: 0;
@@ -548,7 +549,6 @@
   }
 
   .packages {
-    height: 100%;
     display: flex;
     flex-flow: column;
 
@@ -704,6 +704,10 @@
       margin: 2px 0;
     }
   }
+}
+
+.package-updates-status-view:hover {
+  text-decoration: underline;
 }
 
 .available-updates-status {

@@ -51,6 +51,7 @@ describe "PackageDetailView", ->
 
     waitsFor ->
       snippetsTable.children().length is 2
+    , 'Snippets table children to contain 2 items', 5000
 
     runs ->
       expect(snippetsTable.find('tr:eq(0) td:eq(0)').text()).toBe 'b'

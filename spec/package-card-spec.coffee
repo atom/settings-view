@@ -415,7 +415,7 @@ describe "PackageCard", ->
           expect(card.enablementButton).toBeVisible()
           expect(card.enablementButton.text()).toBe 'Disable'
 
-        it "updates the package when the update button is clicked", ->
+        it "updates the package and shows a restart notification when the update button is clicked", ->
           expect(atom.packages.getLoadedPackage('package-with-config')).toBeTruthy()
 
           [updateCallback] = []
@@ -450,8 +450,7 @@ describe "PackageCard", ->
 
           updateCallback(0, '', '')
 
-          waitsFor ->
-            atom.packages.isPackageActive('package-with-config')
+          waits 0 # Wait for PackageCard.update promise to resolve
 
           runs ->
             expect(card.updateButton[0].disabled).toBe false
@@ -460,11 +459,16 @@ describe "PackageCard", ->
             expect(card.installButtonGroup).not.toBeVisible()
             expect(card.packageActionButtonGroup).toBeVisible()
             expect(card.installAlternativeButtonGroup).not.toBeVisible()
+            expect(card.versionValue.text()).toBe '1.0.0' # Does not update until restart
 
-            expect(card).not.toHaveClass 'deprecated'
-            expect(card.packageMessage).not.toHaveClass 'text-warning'
-            expect(card.packageMessage.text()).toBe ''
-            expect(card.versionValue.text()).toBe '1.1.0'
+            notifications = atom.notifications.getNotifications()
+            expect(notifications.length).toBe 1
+
+            # TODO: Remove conditional after 1.12.0 is released as stable
+            if atom.restartApplication?
+              spyOn(atom, 'restartApplication')
+              notifications[0].options.buttons[0].onDidClick()
+              expect(atom.restartApplication).toHaveBeenCalled()
 
     describe "when hasAlternative is true and alternative is core", ->
       beforeEach ->

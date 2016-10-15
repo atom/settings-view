@@ -286,14 +286,6 @@ class PackageManager
   update: (pack, newVersion, callback) ->
     {name, theme, apmInstallSource} = pack
 
-    if theme
-      activateOnSuccess = atom.packages.isPackageActive(name)
-    else
-      activateOnSuccess = not atom.packages.isPackageDisabled(name)
-    activateOnFailure = atom.packages.isPackageActive(name)
-    atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
-    atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
-
     errorMessage = if newVersion
       "Updating to \u201C#{name}@#{newVersion}\u201D failed."
     else
@@ -311,16 +303,9 @@ class PackageManager
     exit = (code, stdout, stderr) =>
       if code is 0
         @clearOutdatedCache()
-        activation = if activateOnSuccess
-          atom.packages.activatePackage(name)
-        else
-          atom.packages.loadPackage(name)
-
-        Promise.resolve(activation).then =>
-          callback?()
-          @emitPackageEvent 'updated', pack
+        callback?()
+        @emitPackageEvent 'updated', pack
       else
-        atom.packages.activatePackage(name) if activateOnFailure
         error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr
