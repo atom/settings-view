@@ -1,16 +1,28 @@
+{mockedPackageManager} = require './spec-helper'
+
+_ = require 'underscore-plus'
 path = require 'path'
 {$, $$} = require 'atom-space-pen-views'
 SettingsView = require '../lib/settings-view'
+Package = require '../lib/package'
 SnippetsProvider =
   getSnippets: -> {}
 
 describe "SettingsView", ->
-  settingsView = null
+  [packageManager, settingsView] = []
 
   beforeEach ->
-    settingsView = new SettingsView({snippetsProvider: SnippetsProvider})
+    packageManager = mockedPackageManager()
+    settingsView = new SettingsView({snippetsProvider: SnippetsProvider}, packageManager)
+
+    spyOn(atom.themes, 'getActiveThemes').andReturn [
+      new Package({name: 'ui-theme', metadata: theme: 'ui'}, packageManager),
+      new Package({name: 'syntax-theme', metadata: theme: 'syntax'}, packageManager)
+    ]
+
     spyOn(settingsView, "initializePanels").andCallThrough()
     window.advanceClock(10000)
+
     waitsFor ->
       settingsView.initializePanels.callCount > 0
 
@@ -348,13 +360,17 @@ describe "SettingsView", ->
 
   describe "when an installed package is clicked from the Install panel", ->
     it "displays the package details", ->
+      packageManager.clearStoredList('featured:packages')
+      packageManager.clearStoredList('featured:themes')
+      atom.packages.loadPackage('settings-view')
+      pack = new Package atom.packages.getLoadedPackages('settings-view')
+      packageManager.addPackage(pack)
+      packageManager.featured = [{name: pack.name}]
+
       waitsFor ->
         atom.packages.activatePackage('settings-view')
 
       runs ->
-        settingsView.packageManager.getClient()
-        spyOn(settingsView.packageManager.client, 'featuredPackages').andCallFake (callback) ->
-          callback(null, [{name: 'settings-view'}])
         settingsView.showPanel('Install')
 
       waitsFor ->
@@ -370,7 +386,6 @@ describe "SettingsView", ->
     panel = null
 
     beforeEach ->
-      atom.packages.packageDirPaths.push(path.join(__dirname, 'fixtures'))
       atom.packages.loadPackage('ui-theme-with-config')
       atom.packages.loadPackage('syntax-theme-with-config')
       atom.config.set('core.themes', ['ui-theme-with-config', 'syntax-theme-with-config'])
@@ -380,7 +395,7 @@ describe "SettingsView", ->
       atom.themes.activatePackages()
 
       waitsFor "themes to be reloaded", ->
-        reloadedHandler.callCount is 1
+        reloadedHandler.callCount >= 1
 
       runs ->
         settingsView.showPanel('Themes')
@@ -391,7 +406,6 @@ describe "SettingsView", ->
 
     describe "when the UI theme's settings button is clicked", ->
       it "navigates to that theme's detail view", ->
-        jasmine.attachToDOM(settingsView.element)
         expect(panel.activeUiThemeSettings).toBeVisible()
 
         panel.activeUiThemeSettings.click()
@@ -400,7 +414,6 @@ describe "SettingsView", ->
 
     describe "when the syntax theme's settings button is clicked", ->
       it "navigates to that theme's detail view", ->
-        jasmine.attachToDOM(settingsView.element)
         expect(panel.activeSyntaxThemeSettings).toBeVisible()
 
         panel.activeSyntaxThemeSettings.click()

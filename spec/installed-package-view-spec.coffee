@@ -1,14 +1,26 @@
+{mockedPackageManager} = require './spec-helper'
+
 path = require 'path'
+
+Package = require '../lib/package'
 PackageDetailView = require '../lib/package-detail-view'
-PackageManager = require '../lib/package-manager'
 PackageKeymapView = require '../lib/package-keymap-view'
 _ = require 'underscore-plus'
 SnippetsProvider =
   getSnippets: -> atom.config.scopedSettingsStore.propertySets
 
 describe "PackageDetailView", ->
+  [pack, packageManager] = []
+
   beforeEach ->
-    spyOn(PackageManager.prototype, 'loadCompatiblePackageVersion').andCallFake ->
+    packageManager = mockedPackageManager()
+
+    # Trigger observeDisabledPackages() here
+    # because it is not default in specs
+    atom.packages.observeDisabledPackages()
+
+  afterEach ->
+    [pack, packageManager] = []
 
   it "displays the grammars registered by the package", ->
     settingsPanels = null
@@ -18,11 +30,13 @@ describe "PackageDetailView", ->
 
     runs ->
       pack = atom.packages.getActivePackage('language-test')
-      view = new PackageDetailView(pack, new PackageManager(), SnippetsProvider)
+      pack = new Package(pack, packageManager)
+      spyOn(pack, 'isInstalled').andReturn(true)
+      view = new PackageDetailView(pack, SnippetsProvider)
       settingsPanels = view.find('.package-grammars .settings-panel')
 
     waitsFor ->
-      settingsPanels.children().length is 2
+      settingsPanels.children().length >= 1
 
     runs ->
       expect(settingsPanels.eq(0).find('.grammar-scope').text()).toBe 'Scope: source.a'
@@ -46,12 +60,14 @@ describe "PackageDetailView", ->
 
     runs ->
       pack = atom.packages.getActivePackage('language-test')
-      view = new PackageDetailView(pack, new PackageManager(), SnippetsProvider)
+      pack = new Package(pack, packageManager)
+      spyOn(pack, 'isInstalled').andReturn(true)
+
+      view = new PackageDetailView(pack, SnippetsProvider)
       snippetsTable = view.find('.package-snippets-table tbody')
 
     waitsFor ->
-      snippetsTable.children().length is 2
-    , 'Snippets table children to contain 2 items', 5000
+      snippetsTable.find('tr:eq(0) td:eq(0)').text() is 'b'
 
     runs ->
       expect(snippetsTable.find('tr:eq(0) td:eq(0)').text()).toBe 'b'
@@ -70,7 +86,10 @@ describe "PackageDetailView", ->
 
     runs ->
       pack = atom.packages.getActivePackage('language-test')
-      view = new PackageDetailView(pack, new PackageManager(), SnippetsProvider)
+      pack = new Package(pack, packageManager)
+      spyOn(pack, 'isInstalled').andReturn(true)
+
+      view = new PackageDetailView(pack, SnippetsProvider)
       keybindingsTable = view.find('.package-keymap-table tbody')
       expect(keybindingsTable.children().length).toBe 1
 
@@ -82,6 +101,7 @@ describe "PackageDetailView", ->
 
       runs ->
         pack = atom.packages.getActivePackage('language-test')
+        pack = new Package(pack, packageManager)
         card = new PackageKeymapView(pack)
         jasmine.attachToDOM(card[0])
 
@@ -102,6 +122,7 @@ describe "PackageDetailView", ->
 
       runs ->
         pack = atom.packages.getActivePackage('language-test')
+        pack = new Package(pack, packageManager)
         card = new PackageKeymapView(pack)
 
     describe "when the keybinding file ends in .cson", ->
@@ -124,24 +145,23 @@ describe "PackageDetailView", ->
         """
 
   describe "when the package is active", ->
-    it "displays the correct enablement state", ->
-      packageCard = null
+    packageCard = null
 
+    it "displays the correct enablement state", ->
       waitsForPromise ->
         atom.packages.activatePackage('status-bar')
 
       runs ->
         expect(atom.packages.isPackageActive('status-bar')).toBe(true)
         pack = atom.packages.getLoadedPackage('status-bar')
-        view = new PackageDetailView(pack, new PackageManager(), SnippetsProvider)
+        pack = new Package(pack, packageManager)
+        view = new PackageDetailView(pack, SnippetsProvider)
         packageCard = view.find('.package-card')
 
       runs ->
-        # Trigger observeDisabledPackages() here
-        # because it is not default in specs
-        atom.packages.observeDisabledPackages()
         atom.packages.disablePackage('status-bar')
         expect(atom.packages.isPackageDisabled('status-bar')).toBe(true)
+        expect(pack.isDisabled()).toBe true
         expect(packageCard.hasClass('disabled')).toBe(true)
 
   describe "when the package is not active", ->
@@ -149,12 +169,10 @@ describe "PackageDetailView", ->
       atom.packages.loadPackage('status-bar')
       expect(atom.packages.isPackageActive('status-bar')).toBe(false)
       pack = atom.packages.getLoadedPackage('status-bar')
-      view = new PackageDetailView(pack, new PackageManager(), SnippetsProvider)
+      pack = new Package(pack, packageManager)
+      view = new PackageDetailView(pack, SnippetsProvider)
       packageCard = view.find('.package-card')
 
-      # Trigger observeDisabledPackages() here
-      # because it is not default in specs
-      atom.packages.observeDisabledPackages()
       atom.packages.disablePackage('status-bar')
       expect(atom.packages.isPackageDisabled('status-bar')).toBe(true)
       expect(packageCard.hasClass('disabled')).toBe(true)
@@ -169,7 +187,8 @@ describe "PackageDetailView", ->
         expect(atom.config.get('package-with-config.setting')).toBe undefined
 
         pack = atom.packages.getLoadedPackage('package-with-config')
-        view = new PackageDetailView(pack, new PackageManager(), SnippetsProvider)
+        pack = new Package(pack, packageManager)
+        view = new PackageDetailView(pack, SnippetsProvider)
 
         expect(atom.config.get('package-with-config.setting')).toBe 'something'
 
@@ -185,7 +204,7 @@ describe "PackageDetailView", ->
       runs ->
         pack = atom.packages.getLoadedPackage('package-with-readme')
         expect(pack.metadata.readme).toBe normalizePackageDataReadmeError
-
-        view = new PackageDetailView(pack, new PackageManager(), SnippetsProvider)
+        pack = new Package(pack, packageManager)
+        view = new PackageDetailView(pack, SnippetsProvider)
         expect(view.sections.find('.package-readme').text()).not.toBe normalizePackageDataReadmeError
         expect(view.sections.find('.package-readme').text().trim()).toContain 'I am a Readme!'

@@ -1,5 +1,5 @@
-SettingsView = null
-settingsView = null
+_ = require 'underscore-plus'
+[PackageManager, packageManager, SettingsView, settingsView] = []
 
 SnippetsProvider =
   getSnippets: -> atom.config.scopedSettingsStore.propertySets
@@ -51,21 +51,37 @@ module.exports =
     settingsView?.dispose()
     settingsView?.remove()
     settingsView = null
+    packageManager = null
 
   consumeStatusBar: (statusBar) ->
-    PackageManager = require './package-manager'
-    packageManager = new PackageManager()
-    Promise.all([packageManager.getOutdated(), packageManager.getInstalled()]).then (values) ->
-      outdatedPackages = values[0]
-      allPackages = values[1]
-      if outdatedPackages.length > 0
-        PackageUpdatesStatusView = require './package-updates-status-view'
-        packageUpdatesStatusView = new PackageUpdatesStatusView(statusBar, outdatedPackages)
+    PackageManager ?= require './package-manager'
+    packageManager ?= new PackageManager()
 
-      if allPackages.length > 0 and not localStorage.getItem('hasSeenDeprecatedNotification')
-        @showDeprecatedNotification(allPackages)
-    .catch (error) ->
-      console.log error.message, error.stack
+    Promise.resolve()
+    .then =>
+      Promise.all([
+        packageManager.getJSONListResult("outdated"),
+        packageManager.getJSONListResult('installed:packages')
+        packageManager.getJSONListResult('installed:themes')
+      ]).then (values) ->
+        Promise.all([
+          packageManager.storeList('outdated', values[0]),
+          packageManager.storeList('installed:packages', values[1]),
+          packageManager.storeList('installed:themes', values[2])
+        ])
+      .then (values) =>
+        outdatedPackages = values[0]
+        allPackages = _.flatten [_.values(values[1]), _.values(values[2])]
+
+        if outdatedPackages.length > 0
+          PackageUpdatesStatusView = require './package-updates-status-view'
+          outdatedPackagesList = packageManager.cachedList('outdated', outdatedPackages)
+          packageUpdatesStatusView = new PackageUpdatesStatusView(statusBar, outdatedPackagesList)
+          packageManager.reloadCachedLists()
+          packageManager.emit('updates-available')
+
+        if allPackages.length > 0 and not localStorage.getItem('hasSeenDeprecatedNotification')
+          @showDeprecatedNotification(allPackages)
 
   consumeSnippets: (snippets) ->
     if typeof snippets.getUnparsedSnippets is "function"
@@ -73,11 +89,13 @@ module.exports =
 
   createSettingsView: (params) ->
     SettingsView ?= require './settings-view'
+    PackageManager ?= require './package-manager'
+    packageManager ?= new PackageManager()
     params.snippetsProvider = SnippetsProvider
-    settingsView = new SettingsView(params)
+    settingsView = new SettingsView(params, packageManager)
 
   showDeprecatedNotification: (packages) ->
-    deprecatedPackages = packages.user.filter ({name, version}) ->
+    deprecatedPackages = packages.filter ({name, version}) ->
       atom.packages.isDeprecatedPackage(name, version)
     return unless deprecatedPackages.length
 

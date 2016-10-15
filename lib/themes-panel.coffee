@@ -1,12 +1,12 @@
 path = require 'path'
 
 fs = require 'fs-plus'
-fuzzaldrin = require 'fuzzaldrin'
 _ = require 'underscore-plus'
 {CompositeDisposable} = require 'atom'
 {$$, TextEditorView} = require 'atom-space-pen-views'
 
 CollapsibleSectionPanel = require './collapsible-section-panel'
+Package = require './package'
 PackageCard = require './package-card'
 ErrorView = require './error-view'
 PackageManager = require './package-manager'
@@ -17,8 +17,6 @@ ListView = require './list-view'
 
 module.exports =
 class ThemesPanel extends CollapsibleSectionPanel
-  @loadPackagesDelay: 300
-
   @content: ->
     @div class: 'panels-item', =>
       @div class: 'section packages themes-panel', =>
@@ -59,28 +57,28 @@ class ThemesPanel extends CollapsibleSectionPanel
           @div outlet: 'themeErrors'
 
           @section class: 'sub-section installed-packages', =>
-            @h3 outlet: 'communityThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
+            @h3 outlet: 'userPackagesHeader', class: 'sub-section-heading icon icon-paintcan', =>
               @text 'Community Themes'
-              @span outlet: 'communityCount', class: 'section-heading-count badge badge-flexible', '…'
-            @div outlet: 'communityPackages', class: 'container package-container', =>
+              @span outlet: 'userCount', class: 'section-heading-count badge badge-flexible', '…'
+            @div outlet: 'userPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
           @section class: 'sub-section core-packages', =>
-            @h3 outlet: 'coreThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
+            @h3 outlet: 'corePackagesHeader', class: 'sub-section-heading icon icon-paintcan', =>
               @text 'Core Themes'
               @span outlet: 'coreCount', class: 'section-heading-count badge badge-flexible', '…'
             @div outlet: 'corePackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
           @section class: 'sub-section dev-packages', =>
-            @h3 outlet: 'developmentThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
+            @h3 outlet: 'devPackagesHeader', class: 'sub-section-heading icon icon-paintcan', =>
               @text 'Development Themes'
               @span outlet: 'devCount', class: 'section-heading-count badge badge-flexible', '…'
             @div outlet: 'devPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
           @section class: 'sub-section git-packages', =>
-            @h3 outlet: 'gitThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
+            @h3 outlet: 'gitPackagesHeader', class: 'sub-section-heading icon icon-paintcan', =>
               @text 'Git Themes'
               @span outlet: 'gitCount', class: 'section-heading-count badge badge-flexible', '…'
             @div outlet: 'gitPackages', class: 'container package-container', =>
@@ -88,48 +86,30 @@ class ThemesPanel extends CollapsibleSectionPanel
 
   initialize: (@packageManager) ->
     super
-    @items =
-      dev: new List('name')
-      core: new List('name')
-      user: new List('name')
-      git: new List('name')
-    @itemViews =
-      dev: new ListView(@items.dev, @devPackages, @createPackageCard)
-      core: new ListView(@items.core, @corePackages, @createPackageCard)
-      user: new ListView(@items.user, @communityPackages, @createPackageCard)
-      git: new ListView(@items.git, @gitPackages, @createPackageCard)
-
+    @itemViews = {}
     @handleEvents()
     @loadPackages()
 
     @disposables = new CompositeDisposable()
-    @disposables.add @packageManager.on 'theme-install-failed theme-uninstall-failed', ({pack, error}) =>
-      @themeErrors.append(new ErrorView(@packageManager, error))
 
     @openUserStysheet.on 'click', ->
       atom.commands.dispatch(atom.views.getView(atom.workspace), 'application:open-your-stylesheet')
       false
 
-    @disposables.add @packageManager.on 'theme-installed theme-uninstalled', =>
-      clearTimeout(loadPackagesTimeout)
-      loadPackagesTimeout = setTimeout =>
-        @populateThemeMenus()
-        @loadPackages()
-      , ThemesPanel.loadPackagesDelay
-
     @disposables.add atom.themes.onDidChangeActiveThemes => @updateActiveThemes()
     @disposables.add atom.tooltips.add(@activeUiThemeSettings, {title: 'Settings'})
     @disposables.add atom.tooltips.add(@activeSyntaxThemeSettings, {title: 'Settings'})
+
     @updateActiveThemes()
 
     @filterEditor.getModel().onDidStopChanging => @matchPackages()
 
     @syntaxMenu.change =>
-      @activeSyntaxTheme = @syntaxMenu.val()
+      @activeSyntaxTheme = new Package({name: @syntaxMenu.val()}, @packageManager)
       @scheduleUpdateThemeConfig()
 
     @uiMenu.change =>
-      @activeUiTheme = @uiMenu.val()
+      @activeUiTheme = new Package({name: @uiMenu.val()}, @packageManager)
       @scheduleUpdateThemeConfig()
 
   focus: ->
@@ -138,51 +118,30 @@ class ThemesPanel extends CollapsibleSectionPanel
   dispose: ->
     @disposables.dispose()
 
-  filterThemes: (packages) ->
-    packages.dev = packages.dev.filter ({theme}) -> theme
-    packages.user = packages.user.filter ({theme}) -> theme
-    packages.core = packages.core.filter ({theme}) -> theme
-    packages.git = (packages.git or []).filter ({theme}) -> theme
-
-    for pack in packages.core
-      pack.repository ?= "https://github.com/atom/#{pack.name}"
-
-    for packageType in ['dev', 'core', 'user', 'git']
-      for pack in packages[packageType]
-        pack.owner = ownerFromRepository(pack.repository)
-    packages
-
-  sortThemes: (packages) ->
-    packages.dev.sort(packageComparatorAscending)
-    packages.core.sort(packageComparatorAscending)
-    packages.user.sort(packageComparatorAscending)
-    packages.git.sort(packageComparatorAscending)
-    packages
-
   loadPackages: ->
-    @packageViews = []
-    @packageManager.getInstalled()
-      .then (packages) =>
-        @packages = @sortThemes(@filterThemes(packages))
+    @packageManager.getPackageList('installed:themes')
+      .then (packageLists) =>
+        @packages = packageLists
 
-        @devPackages.find('.alert.loading-area').remove()
-        @items.dev.setItems(@packages.dev)
+        _.each packageLists, (packagesList, listName) =>
+          if section = @["#{listName}Packages"]
+            packagesList.sort(packageComparatorAscending)
+            @itemViews[listName] = new ListView(packagesList, section, @createPackageCard)
+            @itemViews[listName].emitter.on 'updated', =>
+              @updateSectionCounts()
+              @matchPackages()
+              @populateThemeMenus()
 
-        @corePackages.find('.alert.loading-area').remove()
-        @items.core.setItems(@packages.core)
+            section.find('.alert.loading-area').remove()
 
-        @communityPackages.find('.alert.loading-area').remove()
-        @items.user.setItems(@packages.user)
-
-        @gitPackages.find('.alert.loading-area').remove()
-        @items.git.setItems(@packages.git)
-
-        # TODO show empty mesage per section
-
+      .then =>
         @updateSectionCounts()
+        @matchPackages()
+        @updateActiveThemes()
+        @packageManager.reloadCachedLists()
 
       .catch (error) =>
-        @loadingMessage.hide()
+        console.error error.message
         @themeErrors.append(new ErrorView(@packageManager, error))
 
   # Update the active UI and syntax themes and populate the menu
@@ -213,17 +172,15 @@ class ThemesPanel extends CollapsibleSectionPanel
         })
 
   toggleActiveThemeButtons: ->
-    if @hasSettings(@activeUiTheme)
+    if @activeUiTheme.hasSettings()
       @activeUiThemeSettings.show()
     else
       @activeUiThemeSettings.hide()
 
-    if @hasSettings(@activeSyntaxTheme)
+    if @activeSyntaxTheme.hasSettings()
       @activeSyntaxThemeSettings.show()
     else
       @activeSyntaxThemeSettings.hide()
-
-  hasSettings: (packageName) -> @packageManager.packageHasSettings(packageName)
 
   # Populate the theme menus from the theme manager's active themes
   populateThemeMenus: ->
@@ -234,30 +191,34 @@ class ThemesPanel extends CollapsibleSectionPanel
       switch metadata.theme
         when 'ui'
           themeItem = @createThemeMenuItem(name)
-          themeItem.attr('selected', true) if name is @activeUiTheme
+          themeItem.attr('selected', true) if name is @activeUiTheme.name
           @uiMenu.append(themeItem)
         when 'syntax'
           themeItem = @createThemeMenuItem(name)
-          themeItem.attr('selected', true) if name is @activeSyntaxTheme
+          themeItem.attr('selected', true) if name is @activeSyntaxTheme.name
           @syntaxMenu.append(themeItem)
 
   # Get the name of the active ui theme.
   getActiveUiTheme: ->
-    for {name, metadata} in atom.themes.getActiveThemes()
-      return name if metadata.theme is 'ui'
-    null
+    pkg = null
+    for pack in atom.themes.getActiveThemes()
+      if pack.metadata.theme is 'ui'
+        pkg = new Package(pack, @packageManager)
+    pkg if pkg
 
   # Get the name of the active syntax theme.
   getActiveSyntaxTheme: ->
-    for {name, metadata} in atom.themes.getActiveThemes()
-      return name if metadata.theme is 'syntax'
-    null
+    pkg = null
+    for pack in atom.themes.getActiveThemes()
+      if pack.metadata.theme is 'syntax'
+        pkg = new Package(pack, @packageManager)
+    pkg if pkg
 
   # Update the config with the selected themes
   updateThemeConfig: ->
     themes = []
-    themes.push(@activeUiTheme) if @activeUiTheme
-    themes.push(@activeSyntaxTheme) if @activeSyntaxTheme
+    themes.push(@activeUiTheme.name) if @activeUiTheme
+    themes.push(@activeSyntaxTheme.name) if @activeSyntaxTheme
     atom.config.set("core.themes", themes) if themes.length > 0
 
   scheduleUpdateThemeConfig: ->
@@ -273,54 +234,8 @@ class ThemesPanel extends CollapsibleSectionPanel
     title = themeName.replace(/-(ui|syntax)/g, '').replace(/-theme$/g, '')
     _.undasherize(_.uncamelcase(title))
 
-  createPackageCard: (pack) =>
+  createPackageCard: (pack) ->
     packageRow = $$ -> @div class: 'row'
-    packView = new PackageCard(pack, @packageManager, {back: 'Themes'})
+    packView = new PackageCard(pack, {back: 'Themes'})
     packageRow.append(packView)
     packageRow
-
-  filterPackageListByText: (text) ->
-    return unless @packages
-
-    for packageType in ['dev', 'core', 'user', 'git']
-      allViews = @itemViews[packageType].getViews()
-      activeViews = @itemViews[packageType].filterViews (pack) ->
-        return true if text is ''
-        owner = pack.owner ? ownerFromRepository(pack.repository)
-        filterText = "#{pack.name} #{owner}"
-        fuzzaldrin.score(filterText, text) > 0
-
-      for view in allViews when view
-        view.find('.package-card').hide().addClass('hidden')
-      for view in activeViews when view
-        view.find('.package-card').show().removeClass('hidden')
-
-    @updateSectionCounts()
-
-  updateUnfilteredSectionCounts: ->
-    @updateSectionCount(@communityThemesHeader, @communityCount, @packages.user.length)
-    @updateSectionCount(@coreThemesHeader, @coreCount, @packages.core.length)
-    @updateSectionCount(@developmentThemesHeader, @devCount, @packages.dev.length)
-    @updateSectionCount(@gitThemesHeader, @gitCount, @packages.git.length)
-
-    @totalPackages.text "#{@packages.user.length + @packages.core.length + @packages.dev.length + @packages.git.length}"
-
-  updateFilteredSectionCounts: ->
-    community = @notHiddenCardsLength(@communityPackages)
-    @updateSectionCount(@communityThemesHeader, @communityCount, community, @packages.user.length)
-
-    dev = @notHiddenCardsLength(@devPackages)
-    @updateSectionCount(@developmentThemesHeader, @devCount, dev, @packages.dev.length)
-
-    core = @notHiddenCardsLength(@corePackages)
-    @updateSectionCount(@coreThemesHeader, @coreCount, core, @packages.core.length)
-
-    git = @notHiddenCardsLength(@gitPackages)
-    @updateSectionCount(@gitThemesHeader, @gitCount, git, @packages.git.length)
-
-  resetSectionHasItems: ->
-    @resetCollapsibleSections([@communityThemesHeader, @coreThemesHeader, @developmentThemesHeader, @gitThemesHeader])
-
-  matchPackages: ->
-    filterText = @filterEditor.getModel().getText()
-    @filterPackageListByText(filterText)

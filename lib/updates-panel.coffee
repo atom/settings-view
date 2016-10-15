@@ -1,4 +1,4 @@
-{$, $$, ScrollView} = require 'atom-space-pen-views'
+{$, ScrollView} = require 'atom-space-pen-views'
 ErrorView = require './error-view'
 PackageCard = require './package-card'
 
@@ -24,7 +24,8 @@ class UpdatesPanel extends ScrollView
     @checkButton.on 'click', =>
       @checkForUpdates()
 
-    @checkForUpdates()
+    @packageManager.on 'updates-available', =>
+      @checkForUpdates()
 
     @packageManagerSubscription = @packageManager.on 'package-update-failed theme-update-failed', ({pack, error}) =>
       @updateErrors.append(new ErrorView(@packageManager, error))
@@ -44,23 +45,29 @@ class UpdatesPanel extends ScrollView
       @updatesContainer.empty()
       @checkForUpdates()
 
+  updateAll: ->
+    Promise.all(@availableUpdates.map (pack) ->
+      pack.update()
+    ).then =>
+      @availableUpdates = []
+      @updatesContainer.empty()
+      @checkForUpdates()
+
   # Check for updates and display them
   checkForUpdates: ->
     @noUpdatesMessage.hide()
     @updateAllButton.hide()
     @checkButton.prop('disabled', true)
-
     @checkingMessage.show()
-
-    @packageManager.getInstalled().then =>
-      @packageManager.getOutdated()
-        .then (@availableUpdates) =>
-          @checkButton.prop('disabled', false)
-          @addUpdateViews()
-        .catch (error) =>
-          @checkButton.prop('disabled', false)
-          @checkingMessage.hide()
-          @updateErrors.append(new ErrorView(@packageManager, error))
+    @packageManager.getPackageList('outdated')
+      .then (packages) =>
+        @availableUpdates = packages.getItems()
+        @checkButton.prop('disabled', false)
+        @addUpdateViews()
+      .catch (error) =>
+        @checkButton.prop('disabled', false)
+        @checkingMessage.hide()
+        @updateErrors.append(new ErrorView(@packageManager, error))
 
   addUpdateViews: ->
     if @availableUpdates.length > 0

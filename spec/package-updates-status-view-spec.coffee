@@ -1,26 +1,29 @@
+PackageUpdatesStatusView = require '../lib/package-updates-status-view'
+Package = require '../lib/package'
+{mockedPackageManager} = require './spec-helper'
 {$} = require 'atom-space-pen-views'
-PackageManager = require '../lib/package-manager'
 
-describe "package updates status view", ->
+describe "PackageUpdatesStatusView", ->
+  [packageManager, statusBarView] = []
+
   beforeEach ->
-    outdatedPackage =
-      name: 'out-dated'
-    installedPackage =
-      name: 'user-package'
-    spyOn(PackageManager.prototype, 'loadCompatiblePackageVersion').andCallFake ->
-    spyOn(PackageManager.prototype, 'getInstalled').andCallFake -> Promise.resolve([installedPackage])
-    spyOn(PackageManager.prototype, 'getOutdated').andCallFake -> Promise.resolve([outdatedPackage])
     jasmine.attachToDOM(atom.views.getView(atom.workspace))
+    packageManager = mockedPackageManager()
+    pack = new Package({name: 'outdated-test-package', version: '0.0.1'}, packageManager)
+    packageManager.outdated.push({name: pack.name, version: pack.version})
 
     waitsForPromise ->
       atom.packages.activatePackage('status-bar')
 
-    waitsForPromise ->
-      atom.packages.activatePackage('settings-view')
-
     runs ->
       atom.packages.emitter.emit('did-activate-all')
 
+    waitsForPromise ->
+      packageManager.getPackageList('outdated')
+        .then (packages) ->
+          statusBar = atom.views.getView($('status-bar'))
+          statusBarView = new PackageUpdatesStatusView(statusBar, packages)
+
   describe "when packages are outdated", ->
     it "adds a tile to the status bar", ->
-      expect($('status-bar .package-updates-status-view').text()).toBe '1 update'
+      expect(statusBarView.countLabel.text()).toBe '1 update'

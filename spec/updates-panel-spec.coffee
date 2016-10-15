@@ -1,20 +1,21 @@
 UpdatesPanel = require '../lib/updates-panel'
-PackageManager = require '../lib/package-manager'
+Package = require '../lib/package'
+{mockedPackageManager} = require './spec-helper'
 
 describe 'UpdatesPanel', ->
-  panel = null
+  [panel, pack, packageManager] = []
 
   beforeEach ->
-    panel = new UpdatesPanel(new PackageManager)
-
-  it "Shows updates when updates are available", ->
-    pack =
+    packageManager = mockedPackageManager()
+    pack = new Package {
       name: 'test-package'
       description: 'some description'
       latestVersion: '99.0.0'
       version: '1.0.0'
+    }, packageManager
+    panel = new UpdatesPanel(packageManager)
 
-    # skip packman stubbing
+  it "Shows updates when updates are available", ->
     panel.beforeShow(updates: [pack])
     expect(panel.updatesContainer.children().length).toBe(1)
 

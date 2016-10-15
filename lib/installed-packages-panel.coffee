@@ -9,12 +9,10 @@ ErrorView = require './error-view'
 
 List = require './list'
 ListView = require './list-view'
-{ownerFromRepository, packageComparatorAscending} = require './utils'
+{packageComparatorAscending} = require './utils'
 
 module.exports =
 class InstalledPackagesPanel extends CollapsibleSectionPanel
-  @loadPackagesDelay: 300
-
   @content: ->
     @div class: 'panels-item', =>
       @section class: 'section', =>
@@ -36,10 +34,10 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
           @section class: 'sub-section installed-packages', =>
-            @h3 outlet: 'communityPackagesHeader', class: 'sub-section-heading icon icon-package', =>
+            @h3 outlet: 'userPackagesHeader', class: 'sub-section-heading icon icon-package', =>
               @text 'Community Packages'
-              @span outlet: 'communityCount', class: 'section-heading-count badge badge-flexible', '…'
-            @div outlet: 'communityPackages', class: 'container package-container', =>
+              @span outlet: 'userCount', class: 'section-heading-count badge badge-flexible', '…'
+            @div outlet: 'userPackages', class: 'container package-container', =>
               @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
           @section class: 'sub-section core-packages', =>
@@ -65,31 +63,8 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
 
   initialize: (@packageManager) ->
     super
-    @items =
-      dev: new List('name')
-      core: new List('name')
-      user: new List('name')
-      git: new List('name')
-      deprecated: new List('name')
-    @itemViews =
-      dev: new ListView(@items.dev, @devPackages, @createPackageCard)
-      core: new ListView(@items.core, @corePackages, @createPackageCard)
-      user: new ListView(@items.user, @communityPackages, @createPackageCard)
-      git: new ListView(@items.git, @gitPackages, @createPackageCard)
-      deprecated: new ListView(@items.deprecated, @deprecatedPackages, @createPackageCard)
-
+    @itemViews = {}
     @filterEditor.getModel().onDidStopChanging => @matchPackages()
-
-    @packageManagerSubscriptions = new CompositeDisposable
-    @packageManagerSubscriptions.add @packageManager.on 'package-install-failed theme-install-failed package-uninstall-failed theme-uninstall-failed package-update-failed theme-update-failed', ({pack, error}) =>
-      @updateErrors.append(new ErrorView(@packageManager, error))
-
-    loadPackagesTimeout = null
-    @packageManagerSubscriptions.add @packageManager.on 'package-updated package-installed package-uninstalled package-installed-alternative', =>
-      clearTimeout(loadPackagesTimeout)
-      loadPackagesTimeout = setTimeout =>
-        @loadPackages()
-      , InstalledPackagesPanel.loadPackagesDelay
 
     @handleEvents()
     @loadPackages()
@@ -98,136 +73,50 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
     @filterEditor.focus()
 
   dispose: ->
-    @packageManagerSubscriptions.dispose()
+    return
 
-  filterPackages: (packages) ->
-    packages.dev = packages.dev.filter ({theme}) -> not theme
-    packages.user = packages.user.filter ({theme}) -> not theme
-    packages.deprecated = packages.user.filter ({name, version}) -> atom.packages.isDeprecatedPackage(name, version)
-    packages.core = packages.core.filter ({theme}) -> not theme
-    packages.git = (packages.git or []).filter ({theme}) -> not theme
+  extractDeprecated: (packageLists) ->
+    deprecated = _.filter packageLists.user.getItems(), (pack) ->
+      pack.isDeprecated()
 
-    for pack in packages.core
-      pack.repository ?= "https://github.com/atom/#{pack.name}"
+    if deprecated
+      packageLists.deprecated = new List('name')
+      packageLists.deprecated.setItems deprecated
 
-    for packageType in ['dev', 'core', 'user', 'git', 'deprecated']
-      for pack in packages[packageType]
-        pack.owner = ownerFromRepository(pack.repository)
-
-    packages
-
-  sortPackages: (packages) ->
-    packages.dev.sort(packageComparatorAscending)
-    packages.core.sort(packageComparatorAscending)
-    packages.user.sort(packageComparatorAscending)
-    packages.git.sort(packageComparatorAscending)
-    packages.deprecated.sort(packageComparatorAscending)
-    packages
+    packageLists
 
   loadPackages: ->
-    packagesWithUpdates = {}
-    @packageManager.getOutdated().then (packages) =>
-      for {name, latestVersion} in packages
-        packagesWithUpdates[name] = latestVersion
-      @displayPackageUpdates(packagesWithUpdates)
+    @packageManager.getPackageList('installed:packages')
+      .then (lists) =>
+        @extractDeprecated(lists)
+      .then (packageLists) =>
+        @packages = packageLists
 
-    @packageManager.getInstalled()
-      .then (packages) =>
-        @packages = @sortPackages(@filterPackages(packages))
-        @devPackages.find('.alert.loading-area').remove()
-        @items.dev.setItems(@packages.dev)
-
-        @corePackages.find('.alert.loading-area').remove()
-        @items.core.setItems(@packages.core)
-
-        @communityPackages.find('.alert.loading-area').remove()
-        @items.user.setItems(@packages.user)
-
-        @gitPackages.find('.alert.loading-area').remove()
-        @items.git.setItems(@packages.git)
-
-        if @packages.deprecated.length
+        if @packages.deprecated.length() > 0
           @deprecatedSection.show()
         else
           @deprecatedSection.hide()
-        @deprecatedPackages.find('.alert.loading-area').remove()
-        @items.deprecated.setItems(@packages.deprecated)
 
-        # TODO show empty mesage per section
+        _.each @packages, (packagesList, listName) =>
+          if section = @["#{listName}Packages"]
+            packagesList.sort(packageComparatorAscending)
+            @itemViews[listName] = new ListView(packagesList, section, @createPackageCard)
+            @itemViews[listName].emitter.on 'updated', =>
+              @updateSectionCounts()
+              @matchPackages()
 
+            section.find('.alert.loading-area').remove()
+
+      .then =>
         @updateSectionCounts()
-        @displayPackageUpdates(packagesWithUpdates)
-
         @matchPackages()
-
+        @packageManager.reloadCachedLists()
       .catch (error) =>
-        console.error error.message, error.stack
-        @loadingMessage.hide()
-        @featuredErrors.append(new ErrorView(@packageManager, error))
+        console.error error
+        @updateErrors.append(new ErrorView(@packageManager, error))
 
-  displayPackageUpdates: (packagesWithUpdates) ->
-    for packageType in ['dev', 'core', 'user', 'git', 'deprecated']
-      for packageView in @itemViews[packageType].getViews()
-        packageCard = packageView.find('.package-card').view()
-        if newVersion = packagesWithUpdates[packageCard.pack.name]
-          packageCard.displayAvailableUpdate(newVersion)
-
-  createPackageCard: (pack) =>
+  createPackageCard: (pack) ->
     packageRow = $$ -> @div class: 'row'
-    packView = new PackageCard(pack, @packageManager, {back: 'Packages'})
+    packView = new PackageCard(pack, {back: 'Packages'})
     packageRow.append(packView)
     packageRow
-
-  filterPackageListByText: (text) ->
-    return unless @packages
-
-    for packageType in ['dev', 'core', 'user', 'git', 'deprecated']
-      allViews = @itemViews[packageType].getViews()
-      activeViews = @itemViews[packageType].filterViews (pack) ->
-        return true if text is ''
-        owner = pack.owner ? ownerFromRepository(pack.repository)
-        filterText = "#{pack.name} #{owner}"
-        fuzzaldrin.score(filterText, text) > 0
-
-      for view in allViews when view
-        view.find('.package-card').hide().addClass('hidden')
-      for view in activeViews when view
-        view.find('.package-card').show().removeClass('hidden')
-
-    @updateSectionCounts()
-
-  updateUnfilteredSectionCounts: ->
-    @updateSectionCount(@deprecatedPackagesHeader, @deprecatedCount, @packages.deprecated.length)
-    @updateSectionCount(@communityPackagesHeader, @communityCount, @packages.user.length)
-    @updateSectionCount(@corePackagesHeader, @coreCount, @packages.core.length)
-    @updateSectionCount(@devPackagesHeader, @devCount, @packages.dev.length)
-    @updateSectionCount(@gitPackagesHeader, @gitCount, @packages.git.length)
-
-    @totalPackages.text(@packages.user.length + @packages.core.length + @packages.dev.length + @packages.git.length)
-
-  updateFilteredSectionCounts: ->
-    deprecated = @notHiddenCardsLength(@deprecatedPackages)
-    @updateSectionCount(@deprecatedPackagesHeader, @deprecatedCount, deprecated, @packages.deprecated.length)
-
-    community = @notHiddenCardsLength(@communityPackages)
-    @updateSectionCount(@communityPackagesHeader, @communityCount, community, @packages.user.length)
-
-    core = @notHiddenCardsLength(@corePackages)
-    @updateSectionCount(@corePackagesHeader, @coreCount, core, @packages.core.length)
-
-    dev = @notHiddenCardsLength @devPackages
-    @updateSectionCount(@devPackagesHeader, @devCount, dev, @packages.dev.length)
-
-    git = @notHiddenCardsLength @gitPackages
-    @updateSectionCount(@gitPackagesHeader, @gitCount, git, @packages.git.length)
-
-    shownPackages = dev + core + community + git
-    totalPackages = @packages.user.length + @packages.core.length + @packages.dev.length + @packages.git.length
-    @totalPackages.text "#{shownPackages}/#{totalPackages}"
-
-  resetSectionHasItems: ->
-    @resetCollapsibleSections([@deprecatedPackagesHeader, @communityPackagesHeader, @corePackagesHeader, @devPackagesHeader, @gitPackagesHeader])
-
-  matchPackages: ->
-    filterText = @filterEditor.getModel().getText()
-    @filterPackageListByText(filterText)

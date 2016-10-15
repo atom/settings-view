@@ -1,12 +1,9 @@
 path = require 'path'
-
-_ = require 'underscore-plus'
-fs = require 'fs-plus'
 {$, $$, TextEditorView, ScrollView} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 
+Package = require './package'
 PackageCard = require './package-card'
-Client = require './atom-io-client'
 ErrorView = require './error-view'
 PackageManager = require './package-manager'
 
@@ -48,8 +45,6 @@ class InstallPanel extends ScrollView
   initialize: (@packageManager) ->
     super
     @disposables = new CompositeDisposable()
-    client = $('.settings-view').view()?.client
-    @client = @packageManager.getClient()
     @atomIoURL = 'https://atom.io/packages'
     @openAtomIo.on 'click', =>
       require('electron').shell.openExternal(@atomIoURL)
@@ -70,11 +65,8 @@ class InstallPanel extends ScrollView
     @searchEditorView.focus()
 
   handleSearchEvents: ->
-    @disposables.add @packageManager.on 'package-install-failed', ({pack, error}) =>
-      @searchErrors.append(new ErrorView(@packageManager, error))
-
-    @disposables.add @packageManager.on 'package-installed theme-installed', ({pack}) =>
-      gitUrlInfo = @currentGitPackageCard?.pack?.gitUrlInfo
+    @disposables.add @packageManager.on 'package-installed', (pack) =>
+      gitUrlInfo = @currentGitPackageCard?.package?.gitUrlInfo
       if gitUrlInfo? and gitUrlInfo is pack.gitUrlInfo
         @updateGitPackageCard(pack)
 
@@ -157,7 +149,6 @@ class InstallPanel extends ScrollView
 
     opts = {}
     opts[@searchType] = true
-    opts['sortBy'] = "downloads"
 
     @packageManager.search(query, opts)
       .then (packages=[]) =>
@@ -168,10 +159,6 @@ class InstallPanel extends ScrollView
         @showNoResultMessage if packages.length is 0
         packages
       .then (packages=[]) =>
-        @highlightExactMatch(@resultsContainer, query, packages)
-      .then (packages=[]) =>
-        @addCloseMatches(@resultsContainer, query, packages)
-      .then (packages=[]) =>
         @addPackageViews(@resultsContainer, packages)
       .catch (error) =>
         @searchMessage.hide()
@@ -179,25 +166,6 @@ class InstallPanel extends ScrollView
 
   showNoResultMessage: ->
     @searchMessage.text("No #{@searchType.replace(/s$/, '')} results for \u201C#{query}\u201D").show()
-
-  highlightExactMatch: (container, query, packages) ->
-    exactMatch = _.filter(packages, (pkg) ->
-      pkg.name is query)[0]
-
-    if exactMatch
-      @addPackageCardView(container, @getPackageCardView(exactMatch))
-      packages.splice(packages.indexOf(exactMatch), 1)
-
-    packages
-
-  addCloseMatches: (container, query, packages) ->
-    matches = _.filter(packages, (pkg) -> pkg.name.indexOf(query) >= 0)
-
-    for pack in matches
-      @addPackageCardView(container, @getPackageCardView(pack))
-      packages.splice(packages.indexOf(pack), 1)
-
-    packages
 
   addPackageViews: (container, packages) ->
     for pack in packages
@@ -209,14 +177,8 @@ class InstallPanel extends ScrollView
     packageRow.append(packageCard)
 
   getPackageCardView: (pack) ->
-    new PackageCard(pack, @packageManager, back: 'Install')
-
-  filterPackages: (packages, themes) ->
-    packages.filter ({theme}) ->
-      if themes
-        theme
-      else
-        not theme
+    pack = @packageManager.cachedPackage(pack)
+    new PackageCard(pack, back: 'Install')
 
   # Load and display the featured packages that are available to install.
   loadFeaturedPackages: (loadThemes) ->
@@ -235,23 +197,24 @@ class InstallPanel extends ScrollView
     @loadingMessage.show()
 
     handle = (error) =>
+      console.error error
       @loadingMessage.hide()
       @featuredErrors.append(new ErrorView(@packageManager, error))
 
     if loadThemes
-      @client.featuredThemes (error, themes) =>
-        if error
-          handle(error)
-        else
+      @packageManager.getPackageList('featured:themes')
+        .then (packages) =>
           @loadingMessage.hide()
           @featuredHeading.text 'Featured Themes'
-          @addPackageViews(@featuredContainer, themes)
-
-    else
-      @client.featuredPackages (error, packages) =>
-        if error
+          @addPackageViews(@featuredContainer, packages.getItems())
+        .catch (error) ->
           handle(error)
-        else
+    else
+      @packageManager.getPackageList('featured:packages')
+        .then (packages) =>
+          console.log packages.length()
           @loadingMessage.hide()
           @featuredHeading.text 'Featured Packages'
-          @addPackageViews(@featuredContainer, packages)
+          @addPackageViews(@featuredContainer, packages.getItems())
+        .catch (error) ->
+          handle(error)
