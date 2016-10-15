@@ -149,7 +149,6 @@ class InstallPanel extends ScrollView
 
     opts = {}
     opts[@searchType] = true
-    opts['sortBy'] = "downloads"
 
     @packageManager.search(query, opts)
       .then (packages=[]) =>
