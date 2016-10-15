@@ -159,10 +159,6 @@ class InstallPanel extends ScrollView
         @showNoResultMessage if packages.length is 0
         packages
       .then (packages=[]) =>
-        @highlightExactMatch(@resultsContainer, query, packages)
-      .then (packages=[]) =>
-        @addCloseMatches(@resultsContainer, query, packages)
-      .then (packages=[]) =>
         @addPackageViews(@resultsContainer, packages)
       .catch (error) =>
         @searchMessage.hide()
@@ -170,25 +166,6 @@ class InstallPanel extends ScrollView
 
   showNoResultMessage: ->
     @searchMessage.text("No #{@searchType.replace(/s$/, '')} results for \u201C#{query}\u201D").show()
-
-  highlightExactMatch: (container, query, packages) ->
-    exactMatch = packages.filter((pkg) ->
-      pkg.name is query)[0]
-
-    if exactMatch
-      @addPackageCardView(container, @getPackageCardView(exactMatch))
-      packages.splice(packages.indexOf(exactMatch), 1)
-
-    packages
-
-  addCloseMatches: (container, query, packages) ->
-    matches = _.filter(packages, (pkg) -> pkg.name.indexOf(query) >= 0)
-
-    for pack in matches
-      @addPackageCardView(container, @getPackageCardView(pack))
-      packages.splice(packages.indexOf(pack), 1)
-
-    packages
 
   addPackageViews: (container, packages) ->
     for pack in packages

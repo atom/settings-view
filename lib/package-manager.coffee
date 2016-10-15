@@ -2,6 +2,7 @@ _ = require 'underscore-plus'
 {BufferedProcess, CompositeDisposable, Emitter} = require 'atom'
 semver = require 'semver'
 request = require 'request'
+levenshtein = require('fast-levenshtein')
 
 List = require './list'
 Package = require './package'
@@ -348,6 +349,10 @@ class PackageManager
         if options.sortBy
           _.sortBy packages, (pkg) ->
             pkg[options.sortBy] * -1
+        else
+          _.sortBy (packages), (pkg) ->
+            levenshtein.get(pkg.name, query)
+
       .then (packages) =>
         packages = _.map packages, (pack) =>
           @cachedPackage(pack)

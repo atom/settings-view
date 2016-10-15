@@ -8,6 +8,7 @@
     "async": "~0.2.9",
     "atom-space-pen-views": "^2.1.1",
     "cheerio": "0.15.0",
+    "fast-levenshtein": "^2.0.5",
     "fs-plus": "^2.4",
     "fuzzaldrin": "^2.1",
     "glob": "4.3.1",
