@@ -77,6 +77,34 @@ describe "PackageCard", ->
     expect(card.loginLink.text()).toBe(authorName)
     expect(card.loginLink.attr("href")).toBe("https://atom.io/users/#{authorName}")
 
+  describe "when stats options are given", ->
+    [pack] = []
+
+    beforeEach ->
+      pack = {theme: 'syntax', name: 'test-theme'}
+
+    describe "for downloads", ->
+      it "shows the downloads count", ->
+        card = new PackageCard(pack, packageManager, {
+          stats: {
+            downloads: true
+          }
+        })
+        jasmine.attachToDOM(card[0])
+
+        expect(card.packageDownloads).toBeVisible()
+
+    describe "for stars", ->
+      it "shows the star count", ->
+        card = new PackageCard(pack, packageManager, {
+          stats: {
+            stars: true
+          }
+        })
+        jasmine.attachToDOM(card[0])
+
+        expect(card.packageStars).toBeVisible()
+
   describe "when the package is not installed", ->
     it "shows the settings, uninstall, and disable buttons", ->
       pack =
