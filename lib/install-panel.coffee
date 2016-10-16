@@ -286,16 +286,16 @@ class InstallPanel extends ScrollView
 
   showStarredPackagesList: (packages) ->
     @loadingStarredMessage.hide()
+    @additionalStarrredPackages = []
     @showMoreStarred.hide()
 
     if packages.length > @maxStarredPackages
-      @additionalStarCount.text packages.length - @maxStarredPackages
       @additionalStarrredPackages = packages.slice(@maxStarredPackages)
+      @additionalStarCount.text @additionalStarrredPackages.length
 
       @showMoreStarred.on 'click', (e) =>
-        @addPackageViews(@starredContainer, @additionalStarrredPackages)
-        @showMoreStarred.hide()
-        false
+        e.preventDefault()
+        @showAdditionalStarredPackages()
 
       packages = packages.slice(0, @maxStarredPackages)
       @showMoreStarred.show()
@@ -303,10 +303,14 @@ class InstallPanel extends ScrollView
     @addPackageViews(@starredContainer, packages)
     @starredPackagesSection.show()
 
+  showAdditionalStarredPackages: ->
+    @addPackageViews(@starredContainer, @additionalStarrredPackages)
+    @additionalStarrredPackages = []
+    @showMoreStarred.hide()
+
   # Load starred packages
   loadStarredPackages: ->
     @starredContainer.empty()
-    @additionalStarrredPackages = []
     @showMoreStarred.hide()
 
     @loadingStarredMessage.show()
