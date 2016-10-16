@@ -217,8 +217,6 @@ class PackageManager
           reject(error)
         else
           resolve(result)
-    .then (packages) =>
-      packages
 
   getFeatured: (loadThemes) ->
     new Promise (resolve, reject) =>
