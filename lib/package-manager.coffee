@@ -12,6 +12,7 @@ class PackageManager
   constructor: ->
     @packagePromises = []
     @availablePackageCache = null
+    @starredPackages = null
     @apmCache =
       loadOutdated:
         value: null
@@ -210,14 +211,14 @@ class PackageManager
     args = ['stars']
     errorMessage = 'Fetching starred packages failed.'
 
-    new Promise (resolve, reject) =>
+    @starredPackages ?= new Promise (resolve, reject) =>
       @loadPackagesJson args, errorMessage, (error, result) ->
         if error
           reject(error)
         else
           resolve(result)
     .then (packages) =>
-      @starredPackages = packages
+      packages
 
   getFeatured: (loadThemes) ->
     new Promise (resolve, reject) =>
@@ -428,6 +429,8 @@ class PackageManager
       args.unshift('unstar')
     else
       args.unshift('star')
+
+    @starredPackages = null
 
     errorMessage = "Unable to #{args.join(' ')}"
     @runCommand args, (code, stdout, stderr) ->
