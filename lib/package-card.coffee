@@ -315,23 +315,19 @@ class PackageCard extends View
       @packageStars.hide()
 
   enableStarPackage: ->
-    new Promise (resolve, reject) =>
-      if @packageManager.starredPackages
-        resolve(@packageManager.starredPackages)
-      else
-        resolve(@packageManager.getStarred())
-    .then (packages) =>
-      @starred = _.filter(packages, (pkg) =>
-        pkg.name is @pack.name).length > 0
-    .then =>
-      @packageStars.addClass('active') if @starred
-    .then =>
-      @packageStars.on 'click', (e) =>
-        @packageManager.toggleStar(@pack)
-        @packageStars.toggleClass('active')
-        e.stopPropagation()
-    .catch (error) ->
-      console.log error
+    @packageManager.getStarred()
+      .then (packages) =>
+        @starred = _.filter(packages, (pkg) =>
+          pkg.name is @pack.name).length > 0
+      .then =>
+        @packageStars.addClass('active') if @starred
+      .then =>
+        @packageStars.on 'click', (e) =>
+          @packageManager.toggleStar(@pack)
+          @packageStars.toggleClass('active')
+          e.stopPropagation()
+      .catch (error) ->
+        console.log error
 
   displayUndeprecatedState: ->
     @removeClass('deprecated')

@@ -11,7 +11,6 @@ class PackageManager
 
   constructor: ->
     @packagePromises = []
-    @starredPackages = []
     @availablePackageCache = null
     @apmCache =
       loadOutdated:
