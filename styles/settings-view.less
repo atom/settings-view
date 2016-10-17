@@ -227,14 +227,14 @@
       border-top: none;
     }
 
-    atom-text-editor[mini], atom-text-editor[mini]::shadow {
+    atom-text-editor[mini] {
       opacity: .75;
       .selection .region {
         background-color: contrast(@input-background-color, lighten(@input-background-color, 8%), darken(@input-background-color, 8%) );
       }
     }
 
-    atom-text-editor[mini].is-focused, atom-text-editor[mini].is-focused::shadow {
+    atom-text-editor[mini].is-focused {
       opacity: 1;
       .selection .region {
       background-color: contrast(@input-background-color, lighten(@input-background-color, 12%), darken(@input-background-color, 12%) );
