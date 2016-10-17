@@ -40,7 +40,7 @@ class InstallPanel extends ScrollView
 
       @div class: 'section packages', =>
         @div class: 'section-container', =>
-          @div outlet: 'featuredHeading', class: 'section-heading icon icon-star'
+          @div outlet: 'featuredHeading', class: 'section-heading icon icon-megaphone'
           @div outlet: 'featuredErrors'
           @div outlet: 'loadingMessage', class: 'alert alert-info icon icon-hourglass'
           @div outlet: 'featuredContainer', class: 'container package-container'
