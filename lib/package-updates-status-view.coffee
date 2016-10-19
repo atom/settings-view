@@ -17,7 +17,9 @@ class PackageUpdatesStatusView extends View
     if @updates.length
       @countLabel.text("#{_.pluralize(@updates.length, 'update')}")
       @tooltip = atom.tooltips.add(@element, title: "#{_.pluralize(@updates.length, 'package update')} available")
-      @tile = @statusBar.addRightTile(item: this, priority: 0)
+
+      # Priority of -99 should put us just to the left of the Squirrel icon, which displays when Atom has updates available
+      @tile = @statusBar.addRightTile(item: this, priority: -99)
       @destroyed = false
 
     @on 'click', ->
