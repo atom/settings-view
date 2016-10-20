@@ -11,7 +11,7 @@ class PackageKeymapView extends View
       @div class: 'section-heading icon icon-keyboard', 'Keybindings'
       @div class: 'checkbox', =>
         @label for: 'toggleKeybindings', =>
-          @input id: 'toggleKeybindings', type: 'checkbox', outlet: 'keybindingToggle'
+          @input id: 'toggleKeybindings', class: 'input-checkbox', type: 'checkbox', outlet: 'keybindingToggle'
           @div class: 'setting-title', 'Enable'
         @div class: 'setting-description', 'Disable this if you want to bind your own keystrokes for this package\'s commands in your keymap.'
       @table class: 'package-keymap-table table native-key-bindings text', tabindex: -1, =>
