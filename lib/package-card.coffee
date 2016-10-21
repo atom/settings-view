@@ -102,45 +102,38 @@ class PackageCard extends View
     @updateButtonGroup.hide() unless @newVersion or @newSha
 
     @hasCompatibleVersion = true
-    @updateForUninstalledCommunityPackage() unless @isInstalled()
     @updateInterfaceState()
 
-  updateForUninstalledCommunityPackage: ->
-    # The package is not bundled with Atom and is not installed so we'll have
-    # to find a package version that is compatible with this Atom version.
+  locateCompatiblePackageVersion: (callback) ->
+    @packageManager.loadCompatiblePackageVersion @pack.name, (err, pack) =>
+      return console.error(err) if err?
 
-    @uninstallButton.hide()
-    atomVersion = @packageManager.normalizeVersion(atom.getVersion())
-    # The latest version is not compatible with the current Atom version,
-    # we need to make a request to get the latest compatible version.
-    unless @packageManager.satisfiesVersion(atomVersion, @pack)
-      @packageManager.loadCompatiblePackageVersion @pack.name, (err, pack) =>
-        return console.error(err) if err?
+      packageVersion = pack.version
 
-        packageVersion = pack.version
-
-        # A compatible version exist, we activate the install button and
-        # set @installablePack so that the install action installs the
-        # compatible version of the package.
-        if packageVersion
-          @versionValue.text(packageVersion)
-          if packageVersion isnt @pack.version
-            @versionValue.addClass('text-warning')
-            @packageMessage.addClass('text-warning')
-            @packageMessage.text """
-            Version #{packageVersion} is not the latest version available for this package, but it's the latest that is compatible with your version of Atom.
-            """
-
-          @installablePack = pack
-        else
-          @hasCompatibleVersion = false
-          @installButtonGroup.hide()
-          @versionValue.addClass('text-error')
-          @packageMessage.addClass('text-error')
-          @packageMessage.append """
-          There's no version of this package that is compatible with your Atom version. The version must satisfy #{@pack.engines.atom}.
+      # A compatible version exist, we activate the install button and
+      # set @installablePack so that the install action installs the
+      # compatible version of the package.
+      if packageVersion
+        @versionValue.text(packageVersion)
+        if packageVersion isnt @pack.version
+          @versionValue.addClass('text-warning')
+          @packageMessage.addClass('text-warning')
+          @packageMessage.text """
+          Version #{packageVersion} is not the latest version available for this package, but it's the latest that is compatible with your version of Atom.
           """
-          console.error("No available version compatible with the installed Atom version: #{atom.getVersion()}")
+
+        @installablePack = pack
+        @hasCompatibleVersion = true
+      else
+        @hasCompatibleVersion = false
+        @versionValue.addClass('text-error')
+        @packageMessage.addClass('text-error')
+        @packageMessage.append """
+        There's no version of this package that is compatible with your Atom version. The version must satisfy #{@pack.engines.atom}.
+        """
+        console.error("No available version compatible with the installed Atom version: #{atom.getVersion()}")
+
+      callback()
 
   handleButtonEvents: (options) ->
     if options?.onSettingsView
@@ -282,6 +275,16 @@ class PackageCard extends View
     @uninstallButton.show()
 
   displayNotInstalledState: ->
+    @uninstallButton.hide()
+    atomVersion = @packageManager.normalizeVersion(atom.getVersion())
+    if not @packageManager.satisfiesVersion(atomVersion, @pack)
+      @hasCompatibleVersion = false
+      @setNotInstalledStateButtons()
+      @locateCompatiblePackageVersion => @setNotInstalledStateButtons()
+    else
+      @setNotInstalledStateButtons()
+
+  setNotInstalledStateButtons: ->
     if not @hasCompatibleVersion
       @installButtonGroup.hide()
       @updateButtonGroup.hide()
