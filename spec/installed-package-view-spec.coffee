@@ -52,7 +52,7 @@ describe "PackageDetailView", ->
       snippetsTable = view.find('.package-snippets-table tbody')
 
     waitsFor ->
-      snippetsTable.children().length is 2
+      snippetsTable.children().length >= 2
     , 'Snippets table children to contain 2 items', 5000
 
     runs ->
