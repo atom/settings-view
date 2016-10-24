@@ -1,6 +1,5 @@
-{$, $$$, View} = require 'atom-space-pen-views'
+{View} = require 'atom-space-pen-views'
 roaster = require 'roaster'
-fs = require 'fs'
 cheerio = require 'cheerio'
 
 # Displays the readme for a package, if it has one

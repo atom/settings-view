@@ -235,11 +235,9 @@ describe "PackageCard", ->
     it "is uninstalled when the uninstallButton is clicked", ->
       setPackageStatusSpies {installed: true, disabled: false}
 
-      [installCallback, uninstallCallback] = []
+      [uninstallCallback] = []
       packageManager.runCommand.andCallFake (args, callback) ->
-        if args[0] is 'install'
-          installCallback = callback
-        else if args[0] is 'uninstall'
+        if args[0] is 'uninstall'
           uninstallCallback = callback
         onWillThrowError: ->
 

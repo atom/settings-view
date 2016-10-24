@@ -1,6 +1,3 @@
-path = require 'path'
-
-fs = require 'fs-plus'
 fuzzaldrin = require 'fuzzaldrin'
 _ = require 'underscore-plus'
 {CompositeDisposable} = require 'atom'
@@ -9,7 +6,6 @@ _ = require 'underscore-plus'
 CollapsibleSectionPanel = require './collapsible-section-panel'
 PackageCard = require './package-card'
 ErrorView = require './error-view'
-PackageManager = require './package-manager'
 
 List = require './list'
 ListView = require './list-view'
