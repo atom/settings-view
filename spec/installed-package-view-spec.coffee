@@ -31,6 +31,8 @@ describe "PackageDetailView", ->
       expect(settingsPanels.eq(1).find('.grammar-scope').text()).toBe 'Scope: source.b'
       expect(settingsPanels.eq(1).find('.grammar-filetypes').text()).toBe 'File Types: '
 
+      expect(settingsPanels.eq(2).length).toEqual(0)
+
   it "displays the snippets registered by the package", ->
     snippetsTable = null
 
@@ -50,7 +52,7 @@ describe "PackageDetailView", ->
       snippetsTable = view.find('.package-snippets-table tbody')
 
     waitsFor ->
-      snippetsTable.children().length is 2
+      snippetsTable.children().length >= 2
     , 'Snippets table children to contain 2 items', 5000
 
     runs ->
