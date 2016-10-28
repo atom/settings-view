@@ -19,7 +19,6 @@ class SettingsPanel extends CollapsibleSectionPanel
         'autoIndentOnPaste'
         'invisibles'
         'nonWordCharacters'
-        'normalizeIndentOnPaste'
         'preferredLineLength'
         'scrollPastEnd'
         'showIndentGuide'
