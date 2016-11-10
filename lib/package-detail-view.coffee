@@ -154,10 +154,10 @@ class PackageDetailView extends ScrollView
 
         @startupTime.html("This #{@type} added <span class='highlight'>#{@getStartupTime()}ms</span> to startup time.")
         @startupTime.show()
-      else
-        @openButton.hide()
 
-    @openButton.hide() if atom.packages.isBundledPackage(@pack.name)
+    sourceIsAvailable = @packageManager.isPackageInstalled(@pack.name) and not atom.packages.isBundledPackage(@pack.name)
+    @openButton.hide() unless sourceIsAvailable
+    @openButton.show() if sourceIsAvailable
 
     @renderReadme()
 
@@ -247,6 +247,3 @@ class PackageDetailView extends ScrollView
     loadTime = @pack.loadTime ? 0
     activateTime = @pack.activateTime ? 0
     loadTime + activateTime
-
-  isInstalled: ->
-    atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageDisabled(@pack.name)
