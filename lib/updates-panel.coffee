@@ -1,4 +1,4 @@
-{$, $$, ScrollView} = require 'atom-space-pen-views'
+{$, ScrollView} = require 'atom-space-pen-views'
 ErrorView = require './error-view'
 PackageCard = require './package-card'
 

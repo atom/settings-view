@@ -1,5 +1,4 @@
 path = require 'path'
-_ = require 'underscore-plus'
 {CompositeDisposable} = require 'atom'
 {$$$, View} = require 'atom-space-pen-views'
 SettingsPanel = require './settings-panel'
@@ -46,11 +45,11 @@ class PackageGrammarsView extends View
     @grammarSettings.empty()
 
     for grammar in @getPackageGrammars()
-      {scopeName} = grammar
-      continue unless scopeName
+      {scopeName, name} = grammar
+      continue unless scopeName and name
       scopeName = ".#{scopeName}" unless scopeName.startsWith('.')
 
-      title = "#{grammar.name} Grammar"
+      title = "#{name} Grammar"
       panel = new SettingsPanel(null, {title, scopeName, icon: 'puzzle'})
       @addGrammarHeading(grammar, panel)
       @grammarSettings.append(panel)

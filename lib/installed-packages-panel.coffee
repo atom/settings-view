@@ -1,4 +1,3 @@
-_ = require 'underscore-plus'
 {$$, TextEditorView} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 fuzzaldrin = require 'fuzzaldrin'

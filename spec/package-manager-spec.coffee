@@ -145,12 +145,11 @@ describe "package manager", ->
         expect(installEmittedCount).toBe 1
 
   describe "::uninstall()", ->
-    [runArgs, runCallback] = []
+    [runCallback] = []
 
     beforeEach ->
       spyOn(packageManager, 'unload')
       spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
-        runArgs = args
         runCallback = callback
         onWillThrowError: ->
 
@@ -244,7 +243,6 @@ describe "package manager", ->
 
   describe "::loadOutdated", ->
     it "caches results", ->
-      [runArgs, runCallback] = []
       spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
         callback(0, '["boop"]', '')
         onWillThrowError: ->
@@ -273,7 +271,6 @@ describe "package manager", ->
       value: ['hi']
       expiry: Date.now() + 999999999
 
-    [runArgs, runCallback] = []
     spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
       callback(0, '["boop"]', '')
       onWillThrowError: ->

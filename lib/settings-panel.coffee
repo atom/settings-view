@@ -1,5 +1,5 @@
 {CompositeDisposable} = require 'atom'
-{$, $$, TextEditorView, View} = require 'atom-space-pen-views'
+{$, $$, TextEditorView} = require 'atom-space-pen-views'
 _ = require 'underscore-plus'
 CollapsibleSectionPanel = require './collapsible-section-panel'
 
@@ -19,7 +19,6 @@ class SettingsPanel extends CollapsibleSectionPanel
         'autoIndentOnPaste'
         'invisibles'
         'nonWordCharacters'
-        'normalizeIndentOnPaste'
         'preferredLineLength'
         'scrollPastEnd'
         'showIndentGuide'
@@ -260,7 +259,7 @@ appendCheckbox = (namespace, name, value) ->
 
   @div class: 'checkbox', =>
     @label for: keyPath, =>
-      @input id: keyPath, type: 'checkbox'
+      @input id: keyPath, class: 'input-checkbox', type: 'checkbox'
       @div class: 'setting-title', title
     @div class: 'setting-description', =>
       @raw(description)

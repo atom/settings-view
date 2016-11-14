@@ -1,12 +1,10 @@
 path = require 'path'
 
 _ = require 'underscore-plus'
-fs = require 'fs-plus'
-{$, $$, TextEditorView, ScrollView} = require 'atom-space-pen-views'
+{$$, TextEditorView, ScrollView} = require 'atom-space-pen-views'
 {CompositeDisposable} = require 'atom'
 
 PackageCard = require './package-card'
-Client = require './atom-io-client'
 ErrorView = require './error-view'
 
 PackageNameRegex = /config\/install\/(package|theme):([a-z0-9-_]+)/i
@@ -47,7 +45,6 @@ class InstallPanel extends ScrollView
   initialize: (@packageManager) ->
     super
     @disposables = new CompositeDisposable()
-    client = $('.settings-view').view()?.client
     @client = @packageManager.getClient()
     @atomIoURL = 'https://atom.io/packages'
     @openAtomIo.on 'click', =>
@@ -164,7 +161,7 @@ class InstallPanel extends ScrollView
         packages
       .then (packages=[]) =>
         @searchMessage.hide()
-        @showNoResultMessage if packages.length is 0
+        @showNoResultMessage(query) if packages.length is 0
         packages
       .then (packages=[]) =>
         @highlightExactMatch(@resultsContainer, query, packages)
@@ -176,7 +173,7 @@ class InstallPanel extends ScrollView
         @searchMessage.hide()
         @searchErrors.append(new ErrorView(@packageManager, error))
 
-  showNoResultMessage: ->
+  showNoResultMessage: (query) ->
     @searchMessage.text("No #{@searchType.replace(/s$/, '')} results for \u201C#{query}\u201D").show()
 
   highlightExactMatch: (container, query, packages) ->

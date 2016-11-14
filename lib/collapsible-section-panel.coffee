@@ -1,4 +1,4 @@
-{$$, TextEditorView, ScrollView} = require 'atom-space-pen-views'
+{ScrollView} = require 'atom-space-pen-views'
 
 module.exports =
 class CollapsibleSectionPanel extends ScrollView

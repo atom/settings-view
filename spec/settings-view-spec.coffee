@@ -71,8 +71,6 @@ describe "SettingsView", ->
       expect(settingsView.panels.find('#panel-2')).toBeVisible()
 
   describe "when the package is activated", ->
-    [mainModule] = []
-
     openWithCommand = (command) ->
       atom.commands.dispatch(atom.views.getView(atom.workspace), command)
       waitsFor ->

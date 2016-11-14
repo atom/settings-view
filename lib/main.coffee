@@ -63,7 +63,7 @@ module.exports =
       allPackages = values[1]
 
       PackageUpdatesStatusView = require './package-updates-status-view'
-      packageUpdatesStatusView = new PackageUpdatesStatusView(statusBar, packageManager, updates)
+      new PackageUpdatesStatusView(statusBar, packageManager, updates)
 
       if allPackages.length > 0 and not localStorage.getItem('hasSeenDeprecatedNotification')
         @showDeprecatedNotification(allPackages)

@@ -1,12 +1,8 @@
 path = require 'path'
 _ = require 'underscore-plus'
-{$, $$, ScrollView, TextEditorView} = require 'atom-space-pen-views'
+{$, $$, ScrollView} = require 'atom-space-pen-views'
 {Disposable} = require 'atom'
-async = require 'async'
-CSON = require 'season'
-fuzzaldrin = require 'fuzzaldrin'
 
-Client = require './atom-io-client'
 GeneralPanel = require './general-panel'
 EditorPanel = require './editor-panel'
 PackageDetailView = require './package-detail-view'
