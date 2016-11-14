@@ -1,6 +1,9 @@
 SettingsView = null
 settingsView = null
 
+PackageManager = require './package-manager'
+packageManager = new PackageManager()
+
 SnippetsProvider =
   getSnippets: -> atom.config.scopedSettingsStore.propertySets
 
@@ -51,21 +54,19 @@ module.exports =
     settingsView?.dispose()
     settingsView?.remove()
     settingsView = null
+    packageManager = null
 
   consumeStatusBar: (statusBar) ->
-    PackageManager = require './package-manager'
-    packageManager = new PackageManager()
-    Promise.all([packageManager.getOutdated(), packageManager.getInstalled()]).then (values) ->
-      outdatedPackages = values[0]
+    packageManager ?= new PackageManager() # TODO: Why is this needed when the package manager is initialized at the top of the file?
+    Promise.all([packageManager.getOutdated(), packageManager.getInstalled()]).then (values) =>
+      updates = values[0]
       allPackages = values[1]
-      if outdatedPackages.length > 0
-        PackageUpdatesStatusView = require './package-updates-status-view'
-        new PackageUpdatesStatusView(statusBar, outdatedPackages)
+
+      PackageUpdatesStatusView = require './package-updates-status-view'
+      new PackageUpdatesStatusView(statusBar, packageManager, updates)
 
       if allPackages.length > 0 and not localStorage.getItem('hasSeenDeprecatedNotification')
         @showDeprecatedNotification(allPackages)
-    .catch (error) ->
-      console.log error.message, error.stack
 
   consumeSnippets: (snippets) ->
     if typeof snippets.getUnparsedSnippets is "function"
@@ -73,10 +74,12 @@ module.exports =
 
   createSettingsView: (params) ->
     SettingsView ?= require './settings-view'
+    params.packageManager = packageManager
     params.snippetsProvider = SnippetsProvider
     settingsView = new SettingsView(params)
 
   showDeprecatedNotification: (packages) ->
+    return unless packages.user?
     deprecatedPackages = packages.user.filter ({name, version}) ->
       atom.packages.isDeprecatedPackage(name, version)
     return unless deprecatedPackages.length

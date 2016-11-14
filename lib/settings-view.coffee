@@ -7,11 +7,11 @@ GeneralPanel = require './general-panel'
 EditorPanel = require './editor-panel'
 PackageDetailView = require './package-detail-view'
 KeybindingsPanel = require './keybindings-panel'
-PackageManager = require './package-manager'
 InstallPanel = require './install-panel'
 ThemesPanel = require './themes-panel'
 InstalledPackagesPanel = require './installed-packages-panel'
 UpdatesPanel = require './updates-panel'
+PackageManager = require './package-manager'
 
 module.exports =
 class SettingsView extends ScrollView
@@ -32,9 +32,10 @@ class SettingsView extends ScrollView
       # package card. Phew!
       @div class: 'panels', tabindex: -1, outlet: 'panels'
 
-  initialize: ({@uri, @snippetsProvider, activePanel}={}) ->
+  initialize: ({@uri, @packageManager, @snippetsProvider, activePanel}={}) ->
     super
-    @packageManager = new PackageManager()
+
+    @packageManager ?= new PackageManager()
     @deferredPanel = activePanel
     process.nextTick => @initializePanels()
 

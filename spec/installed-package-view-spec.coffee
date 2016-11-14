@@ -6,7 +6,7 @@ _ = require 'underscore-plus'
 SnippetsProvider =
   getSnippets: -> atom.config.scopedSettingsStore.propertySets
 
-describe "PackageDetailView", ->
+describe "InstalledPackageView", ->
   beforeEach ->
     spyOn(PackageManager.prototype, 'loadCompatiblePackageVersion').andCallFake ->
 

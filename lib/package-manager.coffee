@@ -122,6 +122,9 @@ class PackageManager
           value: packages
           expiry: Date.now() + @CACHE_EXPIRY
 
+        for pack in packages
+          @emitPackageEvent 'update-available', pack
+
         callback(null, packages)
       else
         error = new Error(errorMessage)
