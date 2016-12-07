@@ -11,10 +11,12 @@ class PackageUpdatesStatusView extends View
   initialize: (@statusBar, packageManager, @updates) ->
     @destroyed = true
     @updatingPackages = []
+    @failedUpdates = []
 
     packageManager.on 'package-updated theme-updated', ({error, pack}) => @onDidUpdatePackage(pack)
     packageManager.on 'package-update-available theme-update-available', ({error, pack}) => @onPackageUpdateAvailable(pack)
     packageManager.on 'package-updating theme-updating', ({error, pack}) => @onPackageUpdating(pack)
+    packageManager.on 'package-update-failed theme-update-failed', ({error, pack}) => @onPackageUpdateFailed(pack)
 
     @updateTile()
 
@@ -43,6 +45,14 @@ class PackageUpdatesStatusView extends View
   onPackageUpdating: (pack) ->
     @updatingPackages.push(pack)
     @updateTile()
+
+  onPackageUpdateFailed: (pack) ->
+    for update in @failedUpdates
+      if update.name is pack.name
+        return
+
+    @failedUpdates.push(pack)
+    # @updateTile()
 
   updateTile: ->
     if @updates.length
