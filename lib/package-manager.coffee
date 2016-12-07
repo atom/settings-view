@@ -280,7 +280,7 @@ class PackageManager
         error.stderr = stderr
         onError(error)
 
-    @emitter.emit('package-updating', {pack})
+    @emitPackageEvent 'updating', pack
     apmProcess = @runCommand(args, exit)
     handleProcessErrors(apmProcess, errorMessage, onError)
 
