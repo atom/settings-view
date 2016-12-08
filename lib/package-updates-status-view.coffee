@@ -44,7 +44,7 @@ class PackageUpdatesStatusView extends View
       if update.name is pack.name
         @updatingPackages.splice(index, 1)
 
-    for index, update in @failedUpdates
+    for index, update of @failedUpdates
       if update.name is pack.name
         @failedUpdates.splice(index, 1)
 
