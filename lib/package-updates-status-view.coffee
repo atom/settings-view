@@ -13,26 +13,15 @@ class PackageUpdatesStatusView extends View
     @updatingPackages = []
     @failedUpdates = []
 
-    packageManager.on 'package-updated theme-updated', ({error, pack}) => @onDidUpdatePackage(pack)
     packageManager.on 'package-update-available theme-update-available', ({error, pack}) => @onPackageUpdateAvailable(pack)
     packageManager.on 'package-updating theme-updating', ({error, pack}) => @onPackageUpdating(pack)
+    packageManager.on 'package-updated theme-updated', ({error, pack}) => @onPackageUpdated(pack)
     packageManager.on 'package-update-failed theme-update-failed', ({error, pack}) => @onPackageUpdateFailed(pack)
 
     @updateTile()
 
     @on 'click', ->
       atom.commands.dispatch(atom.views.getView(atom.workspace), 'settings-view:check-for-package-updates')
-
-  onDidUpdatePackage: (pack) ->
-    for index, update of @updates
-      if update.name is pack.name
-        @updates.splice(index, 1)
-
-    for index, update of @updatingPackages
-      if update.name is pack.name
-        @updatingPackages.splice(index, 1)
-
-    @updateTile()
 
   onPackageUpdateAvailable: (pack) ->
     for update in @updates
@@ -44,6 +33,21 @@ class PackageUpdatesStatusView extends View
 
   onPackageUpdating: (pack) ->
     @updatingPackages.push(pack)
+    @updateTile()
+
+  onPackageUpdated: (pack) ->
+    for index, update of @updates
+      if update.name is pack.name
+        @updates.splice(index, 1)
+
+    for index, update of @updatingPackages
+      if update.name is pack.name
+        @updatingPackages.splice(index, 1)
+
+    for index, update in @failedUpdates
+      if update.name is pack.name
+        @failedUpdates.splice(index, 1)
+
     @updateTile()
 
   onPackageUpdateFailed: (pack) ->
