@@ -55,10 +55,6 @@ class PackageUpdatesStatusView extends View
       if update.name is pack.name
         return
 
-    for index, update of @updates
-      if update.name is pack.name
-        @updates.splice(index, 1)
-
     for index, update of @updatingPackages
       if update.name is pack.name
         @updatingPackages.splice(index, 1)
@@ -74,28 +70,19 @@ class PackageUpdatesStatusView extends View
         @destroyed = false
 
       @tooltip?.dispose()
-      labelText = "#{_.pluralize(@updates.length, 'update')}"
+      labelText = "#{_.pluralize(@updates.length, 'update')}" # 5 updates
       tooltipText = "#{_.pluralize(@updates.length, 'package update')} available"
 
       if @updatingPackages.length
-        labelText += " (#{@updatingPackages.length} updating)"
+        labelText = "#{@updatingPackages.length}/#{@updates.length} updating" # 3/5 updating
         tooltipText += ", #{_.pluralize(@updatingPackages.length, 'package')} currently updating"
 
       if @failedUpdates.length
-        labelText += ", #{@failedUpdates.length} failed"
+        labelText += " (#{@failedUpdates.length} failed)" # 1 update (1 failed), or 3/5 updating (1 failed)
         tooltipText += ", #{_.pluralize(@failedUpdates.length, 'failed update')}"
 
       @countLabel.text(labelText)
       @tooltip = atom.tooltips.add(@element, title: tooltipText)
-    else if @failedUpdates.length
-      if @destroyed
-        # Priority of -99 should put us just to the left of the Squirrel icon, which displays when Atom has updates available
-        @tile = @statusBar.addRightTile(item: this, priority: -99)
-        @destroyed = false
-
-      @tooltip?.dispose()
-      @countLabel.text("#{@failedUpdates.length} failed")
-      @tooltip = atom.tooltips.add(@element, title: "#{_.pluralize(@failedUpdates.length, 'failed update')}")
     else
       @tooltip?.dispose()
       @tile.destroy()
