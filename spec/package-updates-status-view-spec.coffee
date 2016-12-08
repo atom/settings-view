@@ -62,6 +62,13 @@ describe "PackageUpdatesStatusView", ->
       packageManager.emitPackageEvent('updated', outdatedPackage1)
       expect($('status-bar .package-updates-status-view').text()).toBe '1 update'
 
+  describe "when multiple packages are updating and one finishes", ->
+    it "updates the tile", ->
+      packageManager.emitPackageEvent('updating', outdatedPackage1)
+      packageManager.emitPackageEvent('updating', outdatedPackage2)
+      packageManager.emitPackageEvent('updated', outdatedPackage1)
+      expect($('status-bar .package-updates-status-view').text()).toBe '1 update (1 updating)'
+
   describe "when a package fails to update", ->
     it "updates the tile", ->
       packageManager.emitPackageEvent('update-failed', outdatedPackage1)
