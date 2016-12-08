@@ -52,15 +52,14 @@ class UpdatesPanel extends ScrollView
 
     @checkingMessage.show()
 
-    @packageManager.getInstalled().then =>
-      @packageManager.getOutdated()
-        .then (@availableUpdates) =>
-          @checkButton.prop('disabled', false)
-          @addUpdateViews()
-        .catch (error) =>
-          @checkButton.prop('disabled', false)
-          @checkingMessage.hide()
-          @updateErrors.append(new ErrorView(@packageManager, error))
+    @packageManager.getOutdated()
+      .then (@availableUpdates) =>
+        @checkButton.prop('disabled', false)
+        @addUpdateViews()
+      .catch (error) =>
+        @checkButton.prop('disabled', false)
+        @checkingMessage.hide()
+        @updateErrors.append(new ErrorView(@packageManager, error))
 
   addUpdateViews: ->
     if @availableUpdates.length > 0
@@ -86,13 +85,10 @@ class UpdatesPanel extends ScrollView
         pluralizedPackages += 's' if successfulUpdatesCount > 1
         message = "Restart Atom to complete the update of #{successfulUpdatesCount} #{pluralizedPackages}."
 
-        buttons = []
-        # TODO: Remove conditional after 1.12.0 is released as stable
-        if atom.restartApplication?
-          buttons.push({
-            text: 'Restart',
-            onDidClick: -> atom.restartApplication()
-          })
+        buttons = [{
+          text: 'Restart',
+          onDidClick: -> atom.restartApplication()
+        }]
         atom.notifications.addSuccess(message, {dismissable: true, buttons})
 
     onUpdateResolved = ->
