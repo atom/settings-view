@@ -53,7 +53,7 @@ module.exports =
     unless localStorage.getItem('hasSeenDeprecatedNotification')
       packageManager ?= new PackageManager()
       packageManager.getInstalled().then (packages) =>
-        @showDeprecatedNotification(packages) if packages.user.length
+        @showDeprecatedNotification(packages) if packages.user?.length
 
   deactivate: ->
     settingsView?.dispose()
