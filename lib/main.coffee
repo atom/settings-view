@@ -102,8 +102,3 @@ module.exports =
           notification.dismiss()
       }]
     localStorage.setItem('hasSeenDeprecatedNotification', true)
-
-if parseFloat(atom.getVersion()) < 1.7
-  atom.deserializers.add
-    name: 'SettingsView'
-    deserialize: module.exports.createSettingsView.bind(module.exports)
