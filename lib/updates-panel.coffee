@@ -24,6 +24,7 @@ class UpdatesPanel extends ScrollView
     @checkButton.on 'click', =>
       @checkForUpdates()
 
+    @updateAllButton.hide()
     @checkForUpdates()
 
     @packageManagerSubscription = @packageManager.on 'package-update-failed theme-update-failed', ({pack, error}) =>
@@ -47,7 +48,7 @@ class UpdatesPanel extends ScrollView
   # Check for updates and display them
   checkForUpdates: ->
     @noUpdatesMessage.hide()
-    @updateAllButton.hide()
+    @updateAllButton.prop('disabled', true)
     @checkButton.prop('disabled', true)
 
     @checkingMessage.show()
@@ -93,7 +94,9 @@ class UpdatesPanel extends ScrollView
           }]
           atom.notifications.addSuccess(message, {dismissable: true, buttons})
 
-        if successfulUpdatesCount < totalUpdatesCount # Some updates failed
+        if successfulUpdatesCount is totalUpdatesCount
+          @updateAllButton.hide()
+        else # Some updates failed
           @updateAllButton.prop('disabled', false)
 
     onUpdateResolved = ->
