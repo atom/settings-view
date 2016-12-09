@@ -247,10 +247,10 @@ describe "package manager", ->
         callback(0, '["boop"]', '')
         onWillThrowError: ->
 
-      packageManager.loadOutdated ->
+      packageManager.loadOutdated false, ->
       expect(packageManager.apmCache.loadOutdated.value).toMatch(['boop'])
 
-      packageManager.loadOutdated ->
+      packageManager.loadOutdated false, ->
       expect(packageManager.runCommand.calls.length).toBe(1)
 
 
@@ -259,10 +259,10 @@ describe "package manager", ->
         callback(0, '["boop"]', '')
         onWillThrowError: ->
 
-      packageManager.loadOutdated ->
+      packageManager.loadOutdated false, ->
       now = Date.now()
       spyOn(Date, 'now').andReturn((-> now + packageManager.CACHE_EXPIRY + 1)())
-      packageManager.loadOutdated ->
+      packageManager.loadOutdated false, ->
 
       expect(packageManager.runCommand.calls.length).toBe(2)
 
@@ -281,16 +281,16 @@ describe "package manager", ->
     spyOn(atom.packages, 'unloadPackage').andReturn(true)
     spyOn(atom.packages, 'loadPackage').andReturn(true)
 
-    packageManager.loadOutdated ->
+    packageManager.loadOutdated false, ->
     expect(packageManager.runCommand.calls.length).toBe(0)
 
     packageManager.update {}, {}, -> # +1 runCommand call to update the package
-    packageManager.loadOutdated -> # +1 runCommand call to load outdated because the cache should be wiped
+    packageManager.loadOutdated false, -> # +1 runCommand call to load outdated because the cache should be wiped
     expect(packageManager.runCommand.calls.length).toBe(2)
 
     packageManager.install {}, -> # +1 runCommand call to install the package
-    packageManager.loadOutdated -> # +1 runCommand call to load outdated because the cache should be wiped
+    packageManager.loadOutdated false, -> # +1 runCommand call to load outdated because the cache should be wiped
     expect(packageManager.runCommand.calls.length).toBe(4)
 
-    packageManager.loadOutdated -> # +0 runCommand call, should be cached
+    packageManager.loadOutdated false, -> # +0 runCommand call, should be cached
     expect(packageManager.runCommand.calls.length).toBe(4)
