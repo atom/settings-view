@@ -423,12 +423,17 @@ class PackageCard extends View
       @installButton.removeClass('is-installing')
       @updateInterfaceState()
 
-    @subscribeToPackageEvent 'package-updated theme-updated package-update-failed theme-update-failed', =>
+    @subscribeToPackageEvent 'package-updated theme-updated', =>
       metadata = atom.packages.getLoadedPackage(@pack.name)?.metadata
       @pack.version = version if version = metadata?.version
       @pack.apmInstallSource = apmInstallSource if apmInstallSource = metadata?.apmInstallSource
       @newVersion = null
       @newSha = null
+      @updateButton.prop('disabled', false)
+      @updateButton.removeClass('is-installing')
+      @updateInterfaceState()
+
+    @subscribeToPackageEvent 'package-update-failed theme-update-failed', =>
       @updateButton.prop('disabled', false)
       @updateButton.removeClass('is-installing')
       @updateInterfaceState()
