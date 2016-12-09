@@ -22,7 +22,7 @@ class UpdatesPanel extends ScrollView
     super
     @updateAllButton.on 'click', => @updateAll()
     @checkButton.on 'click', =>
-      @checkForUpdates()
+      @checkForUpdates(true)
 
     @updateAllButton.hide()
     @checkForUpdates()
@@ -46,14 +46,14 @@ class UpdatesPanel extends ScrollView
       @checkForUpdates()
 
   # Check for updates and display them
-  checkForUpdates: ->
+  checkForUpdates: (clearCache) ->
     @noUpdatesMessage.hide()
     @updateAllButton.prop('disabled', true)
     @checkButton.prop('disabled', true)
 
     @checkingMessage.show()
 
-    @packageManager.getOutdated()
+    @packageManager.getOutdated(clearCache)
       .then (@availableUpdates) =>
         @checkButton.prop('disabled', false)
         @addUpdateViews()

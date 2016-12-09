@@ -100,9 +100,11 @@ class PackageManager
 
     handleProcessErrors(apmProcess, errorMessage, callback)
 
-  loadOutdated: (callback) ->
+  loadOutdated: (clearCache, callback) ->
+    if clearCache
+      @clearOutdatedCache()
     # Short circuit if we have cached data.
-    if @apmCache.loadOutdated.value and @apmCache.loadOutdated.expiry > Date.now()
+    else if @apmCache.loadOutdated.value and @apmCache.loadOutdated.expiry > Date.now()
       return callback(null, @apmCache.loadOutdated.value)
 
     args = ['outdated', '--json']
@@ -197,9 +199,9 @@ class PackageManager
         else
           resolve(result)
 
-  getOutdated: ->
+  getOutdated: (clearCache = false) ->
     new Promise (resolve, reject) =>
-      @loadOutdated (error, result) ->
+      @loadOutdated clearCache, (error, result) ->
         if error
           reject(error)
         else
