@@ -127,7 +127,11 @@ class UpdatesPanel extends ScrollView
       notifyIfDone()
 
     for packageCard in packageCards
-      packageCard.update().then(onUpdateResolved, onUpdateRejected)
+      if packageCard.pack not in @updatingPackages
+        packageCard.update().then(onUpdateResolved, onUpdateRejected)
+      else
+        remainingPackagesCount--
+        totalUpdatesCount--
 
   getPackageCards: ->
     @updatesContainer.find('.package-card').toArray()
