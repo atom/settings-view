@@ -207,6 +207,58 @@ describe "PackageCard", ->
       card.enablementButton.click()
       expect(atom.packages.disablePackage).toHaveBeenCalled()
 
+    it "can be updated", ->
+      pack = atom.packages.getLoadedPackage('package-with-config')
+      pack.latestVersion = '1.1.0'
+      packageUpdated = false
+
+      packageManager.on 'package-updated', -> packageUpdated = true
+      packageManager.runCommand.andCallFake (args, callback) ->
+        callback(0, '', '')
+        onWillThrowError: ->
+
+      originalLoadPackage = atom.packages.loadPackage
+      spyOn(atom.packages, 'loadPackage').andCallFake ->
+        originalLoadPackage.call(atom.packages, path.join(__dirname, 'fixtures', 'package-with-config'))
+
+      card = new PackageCard(pack, packageManager)
+      jasmine.attachToDOM(card[0])
+      expect(card.updateButton).toBeVisible()
+
+      card.update()
+
+      waitsFor ->
+        packageUpdated
+
+      runs ->
+        expect(card.updateButton).not.toBeVisible()
+
+    it 'keeps the update button visible if the update failed', ->
+      pack = atom.packages.getLoadedPackage('package-with-config')
+      pack.latestVersion = '1.1.0'
+      updateFailed = false
+
+      packageManager.on 'package-update-failed', -> updateFailed = true
+      packageManager.runCommand.andCallFake (args, callback) ->
+        callback(1, '', '')
+        onWillThrowError: ->
+
+      originalLoadPackage = atom.packages.loadPackage
+      spyOn(atom.packages, 'loadPackage').andCallFake ->
+        originalLoadPackage.call(atom.packages, path.join(__dirname, 'fixtures', 'package-with-config'))
+
+      card = new PackageCard(pack, packageManager)
+      jasmine.attachToDOM(card[0])
+      expect(card.updateButton).toBeVisible()
+
+      card.update()
+
+      waitsFor ->
+        updateFailed
+
+      runs ->
+        expect(card.updateButton).toBeVisible()
+
     it "will stay disabled after an update", ->
       pack = atom.packages.getLoadedPackage('package-with-config')
       pack.latestVersion = '1.1.0'
