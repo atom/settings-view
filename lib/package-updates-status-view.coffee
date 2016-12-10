@@ -13,10 +13,10 @@ class PackageUpdatesStatusView extends View
     @updatingPackages = []
     @failedUpdates = []
 
-    packageManager.on 'package-update-available theme-update-available', ({error, pack}) => @onPackageUpdateAvailable(pack)
-    packageManager.on 'package-updating theme-updating', ({error, pack}) => @onPackageUpdating(pack)
-    packageManager.on 'package-updated theme-updated', ({error, pack}) => @onPackageUpdated(pack)
-    packageManager.on 'package-update-failed theme-update-failed', ({error, pack}) => @onPackageUpdateFailed(pack)
+    packageManager.on 'package-update-available theme-update-available', ({pack, error}) => @onPackageUpdateAvailable(pack)
+    packageManager.on 'package-updating theme-updating', ({pack, error}) => @onPackageUpdating(pack)
+    packageManager.on 'package-updated theme-updated', ({pack, error}) => @onPackageUpdated(pack)
+    packageManager.on 'package-update-failed theme-update-failed', ({pack, error}) => @onPackageUpdateFailed(pack)
 
     @updateTile()
 
