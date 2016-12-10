@@ -2,7 +2,7 @@ path = require 'path'
 process = require 'process'
 PackageManager = require '../lib/package-manager'
 
-describe "package manager", ->
+describe "PackageManager", ->
   [packageManager] = []
 
   beforeEach ->
