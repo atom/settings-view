@@ -83,7 +83,7 @@ class PackageUpdatesStatusView extends View
 
       @countLabel.text(labelText)
       @tooltip = atom.tooltips.add(@element, title: tooltipText)
-    else
+    else if not @destroyed
       @tooltip?.dispose()
       @tile.destroy()
       @destroyed = true
