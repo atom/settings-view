@@ -264,6 +264,10 @@ describe "SettingsView", ->
 
         waitsFor (done) -> process.nextTick(done)
         runs ->
+          # TODO: Hopefully temporary until https://github.com/atom/atom/pull/13438 is merged
+          delete settingsView.activePanel.options.pack.loadTime
+          delete settingsView.activePanel.options.pack.activationTime
+
           expect(settingsView.activePanel)
             .toEqual name: 'package-with-readme', options: {
               uri: 'atom://config/packages/package-with-readme',

@@ -77,7 +77,7 @@ class PackageDetailView extends ScrollView
 
   loadPackage: ->
     if atom.packages.isPackageLoaded(@pack.name)
-      # Hopefully temporary until https://github.com/atom/atom/pull/13438 is merged
+      # TODO: Hopefully temporary until https://github.com/atom/atom/pull/13438 is merged
       {loadTime, activationTime} = atom.packages.getLoadedPackage(@pack.name)
       @pack.loadTime = loadTime
       @pack.activationTime = activationTime
