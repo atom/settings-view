@@ -269,8 +269,6 @@ describe "SettingsView", ->
               uri: 'atom://config/packages/package-with-readme',
               pack:
                 name: 'package-with-readme'
-                metadata:
-                  name: 'package-with-readme'
               back: 'Packages'
             }
 

@@ -139,10 +139,10 @@ class PackageCard extends View
       @settingsButton.hide()
     else
       @on 'click', =>
-        @parents('.settings-view').view()?.showPanel(@pack.name, {back: options?.back, pack: @pack})
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: options?.back, pack: @pack, packageCard: this})
       @settingsButton.on 'click', (event) =>
         event.stopPropagation()
-        @parents('.settings-view').view()?.showPanel(@pack.name, {back: options?.back, pack: @pack})
+        @parents('.settings-view').view()?.showPanel(@pack.name, {back: options?.back, pack: @pack, packageCard: this})
 
     @installButton.on 'click', (event) =>
       event.stopPropagation()

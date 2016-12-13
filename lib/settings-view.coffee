@@ -135,10 +135,7 @@ class SettingsView extends ScrollView
 
       if options?.pack and not callback
         callback = =>
-          unless options.pack.metadata
-            metadata = _.clone(options.pack)
-            options.pack.metadata = metadata
-          new PackageDetailView(options.pack, @packageManager, @snippetsProvider)
+          new PackageDetailView(options.pack, options.packageCard, @packageManager, @snippetsProvider)
 
       if callback
         panel = callback()

@@ -25,20 +25,20 @@ describe "PackageDetailView", ->
       packageData = require(path.join(__dirname, 'fixtures', 'package-with-readme', 'package.json'))
       packageData.readme = fs.readFileSync(path.join(__dirname, 'fixtures', 'package-with-readme', 'README.md'), 'utf8')
       cb(null, packageData)
-    view = new PackageDetailView({name: 'package-with-readme'}, packageManager, SnippetsProvider)
+    view = new PackageDetailView({name: 'package-with-readme'}, null, packageManager, SnippetsProvider)
     view.beforeShow(opts)
 
   it "renders a package when provided in `initialize`", ->
     atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-config'))
     pack = atom.packages.getLoadedPackage('package-with-config')
-    view = new PackageDetailView(pack, packageManager, SnippetsProvider)
+    view = new PackageDetailView(pack, null, packageManager, SnippetsProvider)
 
     # Perhaps there are more things to assert here.
     expect(view.title.text()).toBe('Package With Config')
 
   it "does not call the atom.io api for package metadata when present", ->
     packageManager.client = createClientSpy()
-    view = new PackageDetailView({name: 'package-with-config'}, packageManager, SnippetsProvider)
+    view = new PackageDetailView({name: 'package-with-config'}, null, packageManager, SnippetsProvider)
 
     # PackageCard is a subview, and it calls AtomIoClient::package once to load
     # metadata from the cache.
@@ -56,7 +56,7 @@ describe "PackageDetailView", ->
       error = new Error('API error')
       cb(error, null)
 
-    view = new PackageDetailView({name: 'nonexistent-package'}, packageManager, SnippetsProvider)
+    view = new PackageDetailView({name: 'nonexistent-package'}, null, packageManager, SnippetsProvider)
 
     expect(view.errorMessage[0].classList.contains('hidden')).not.toBe(true)
     expect(view.loadingMessage[0].classList.contains('hidden')).toBe(true)
@@ -70,7 +70,7 @@ describe "PackageDetailView", ->
       # and there's no connectivity
       cb(null, {})
 
-    view = new PackageDetailView({name: 'some-package'}, packageManager, SnippetsProvider)
+    view = new PackageDetailView({name: 'some-package'}, null, packageManager, SnippetsProvider)
 
     expect(AtomIoClient.prototype.fetchFromCache).toHaveBeenCalled()
     expect(AtomIoClient.prototype.request).not.toHaveBeenCalled()

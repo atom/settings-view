@@ -32,8 +32,8 @@ class PackageDetailView extends ScrollView
           @div class: 'container package-container', =>
             @div outlet: 'packageCardParent', class: 'row', =>
               # Packages that need to be fetched will *only* have `name` set
-              if pack?.metadata and pack.metadata.owner
-                @subview 'packageCard', new PackageCard(pack.metadata, packageManager, onSettingsView: true)
+              if pack?.owner
+                @subview 'packageCard', new PackageCard(pack, packageManager, onSettingsView: true)
               else
                 @div outlet: 'loadingMessage', class: 'alert alert-info icon icon-hourglass', "Loading #{pack.name}\u2026"
 
@@ -54,36 +54,34 @@ class PackageDetailView extends ScrollView
 
       @div outlet: 'sections'
 
-  initialize: (@pack, @packageManager, @snippetsProvider) ->
+  initialize: (@pack, @packageCard, @packageManager, @snippetsProvider) ->
     super
     @disposables = new CompositeDisposable()
     @loadPackage()
     @handleButtonEvents()
 
-  completeInitialzation: ->
-    unless @packageCard # Had to load this from the network
-      @packageCard = new PackageCard(@pack.metadata, @packageManager, onSettingsView: true)
-      @loadingMessage.replaceWith(@packageCard)
+  completeInitialization: ->
+    @packageCard = new PackageCard(@pack, @packageManager) unless @packageCard
+    @packageCard.onSettingsView = true
+    @loadingMessage.replaceWith(@packageCard)
 
     @packageRepo.removeClass('hidden')
     @startupTime.removeClass('hidden')
     @buttons.removeClass('hidden')
-    @activateConfig()
     @populate()
     @updateFileButtons()
     @subscribeToPackageManager()
     @renderReadme()
 
   loadPackage: ->
-    if loadedPackage = atom.packages.getLoadedPackage(@pack.name)
-      @pack = loadedPackage
-      @completeInitialzation()
+    if atom.packages.isPackageLoaded(@pack.name)
+      @completeInitialization()
     else
       # If the package metadata in `@pack` isn't complete, hit the network.
-      unless @pack.metadata? and @pack.metadata.owner
+      unless @pack.owner
         @fetchPackage()
       else
-        @completeInitialzation()
+        @completeInitialization()
 
   fetchPackage: ->
     @showLoadingMessage()
@@ -93,10 +91,7 @@ class PackageDetailView extends ScrollView
         @showErrorMessage()
       else
         @pack = packageData
-        # TODO: this should match Package.loadMetadata from core, but this is
-        # an acceptable hacky workaround
-        @pack.metadata = _.extend(@pack.metadata ? {}, @pack)
-        @completeInitialzation()
+        @completeInitialization()
 
   showLoadingMessage: ->
     @loadingMessage.removeClass('hidden')
@@ -110,11 +105,6 @@ class PackageDetailView extends ScrollView
   hideErrorMessage: ->
     @errorMessage.addClass('hidden')
 
-  activateConfig: ->
-    # Package.activateConfig() is part of the Private package API and should not be used outside of core.
-    if atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageActive(@pack.name)
-      @pack.activateConfig()
-
   dispose: ->
     @disposables.dispose()
 
@@ -126,7 +116,7 @@ class PackageDetailView extends ScrollView
   populate: ->
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")
 
-    @type = if @pack.metadata.theme then 'theme' else 'package'
+    @type = if @pack.theme then 'theme' else 'package'
 
     if repoUrl = @packageManager.getRepositoryUrl(@pack)
       repoName = url.parse(repoUrl).pathname
@@ -139,7 +129,6 @@ class PackageDetailView extends ScrollView
   updateInstalledState: ->
     @sections.empty()
     @updateFileButtons()
-    @activateConfig()
 
     @startupTime.hide()
 
@@ -162,8 +151,8 @@ class PackageDetailView extends ScrollView
     @renderReadme()
 
   renderReadme: ->
-    if @pack.metadata.readme and @pack.metadata.readme.trim() isnt NORMALIZE_PACKAGE_DATA_README_ERROR
-      readme = @pack.metadata.readme
+    if @pack.readme and @pack.readme.trim() isnt NORMALIZE_PACKAGE_DATA_README_ERROR
+      readme = @pack.readme
     else
       readme = null
 
