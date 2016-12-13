@@ -19,7 +19,7 @@ NORMALIZE_PACKAGE_DATA_README_ERROR = 'ERROR: No README data found!'
 module.exports =
 class PackageDetailView extends ScrollView
 
-  @content: (pack, packageManager) ->
+  @content: (pack, packageCard, packageManager) ->
     @div tabindex: 0, class: 'package-detail panels-item', =>
       @ol outlet: 'breadcrumbContainer', class: 'native-key-bindings breadcrumb', tabindex: -1, =>
         @li =>
@@ -32,8 +32,9 @@ class PackageDetailView extends ScrollView
           @div class: 'container package-container', =>
             @div outlet: 'packageCardParent', class: 'row', =>
               # Packages that need to be fetched will *only* have `name` set
-              if pack?.owner
-                @subview 'packageCard', new PackageCard(pack, packageManager, onSettingsView: true)
+              if pack?.owner and packageCard?
+                @subview 'packageCard', packageCard
+                packageCard.onSettingsView = true
               else
                 @div outlet: 'loadingMessage', class: 'alert alert-info icon icon-hourglass', "Loading #{pack.name}\u2026"
 
@@ -61,9 +62,10 @@ class PackageDetailView extends ScrollView
     @handleButtonEvents()
 
   completeInitialization: ->
-    @packageCard = new PackageCard(@pack, @packageManager) unless @packageCard
-    @packageCard.onSettingsView = true
-    @loadingMessage.replaceWith(@packageCard)
+    if @loadingMessage?
+      @packageCard = new PackageCard(@pack, @packageManager) unless @packageCard
+      @packageCard.onSettingsView = true
+      @loadingMessage.replaceWith(@packageCard)
 
     @packageRepo.removeClass('hidden')
     @startupTime.removeClass('hidden')
