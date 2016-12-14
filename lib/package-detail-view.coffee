@@ -69,7 +69,6 @@ class PackageDetailView extends ScrollView
     @populate()
     @updateFileButtons()
     @subscribeToPackageManager()
-    @renderReadme()
 
   loadPackage: ->
     if atom.packages.isPackageLoaded(@pack.name)
