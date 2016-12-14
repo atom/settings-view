@@ -232,7 +232,7 @@ describe "PackageCard", ->
       runs ->
         expect(atom.packages.isPackageDisabled('package-with-config')).toBe true
 
-    it "is uninstalled when the uninstallButton is clicked", ->
+    it "asks for confirmation when the uninstallButton is clicked", ->
       setPackageStatusSpies {installed: true, disabled: false}
 
       [uninstallCallback] = []
@@ -249,6 +249,39 @@ describe "PackageCard", ->
       jasmine.attachToDOM(card[0])
 
       expect(card.uninstallButton).toBeVisible()
+      expect(card.enablementButton).toBeVisible()
+      card.uninstallButton.click()
+
+      expect(card.uninstallButton[0].disabled).toBe false
+      expect(card.enablementButton[0].disabled).toBe false
+      expect(card.uninstallButton).toHaveClass('confirm-uninstall')
+
+      expect(packageManager.uninstall).not.toHaveBeenCalled()
+
+    it "is uninstalled when the uninstallButton is clicked twice to confirm", ->
+      setPackageStatusSpies {installed: true, disabled: false}
+
+      [installCallback, uninstallCallback] = []
+      packageManager.runCommand.andCallFake (args, callback) ->
+        if args[0] is 'install'
+          installCallback = callback
+        else if args[0] is 'uninstall'
+          uninstallCallback = callback
+        onWillThrowError: ->
+
+      spyOn(packageManager, 'install').andCallThrough()
+      spyOn(packageManager, 'uninstall').andCallThrough()
+
+      pack = atom.packages.getLoadedPackage('package-with-config')
+      card = new PackageCard(pack, packageManager)
+      jasmine.attachToDOM(card[0])
+
+      expect(card.uninstallButton).toBeVisible()
+      expect(card.enablementButton).toBeVisible()
+      card.uninstallButton.click()
+
+      expect(card.uninstallButton).toBeVisible()
+      expect(card.uninstallButton).toHaveClass('confirm-uninstall')
       expect(card.enablementButton).toBeVisible()
       card.uninstallButton.click()
 
