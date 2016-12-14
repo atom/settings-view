@@ -135,7 +135,7 @@ class SettingsView extends ScrollView
 
       if options?.pack and not callback
         callback = =>
-          new PackageDetailView(options.pack, options.packageCard, @packageManager, @snippetsProvider)
+          new PackageDetailView(options.pack, @packageManager, @snippetsProvider)
 
       if callback
         panel = callback()

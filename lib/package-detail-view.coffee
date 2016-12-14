@@ -19,7 +19,7 @@ NORMALIZE_PACKAGE_DATA_README_ERROR = 'ERROR: No README data found!'
 module.exports =
 class PackageDetailView extends ScrollView
 
-  @content: (pack, packageCard, packageManager) ->
+  @content: (pack, packageManager) ->
     @div tabindex: 0, class: 'package-detail panels-item', =>
       @ol outlet: 'breadcrumbContainer', class: 'native-key-bindings breadcrumb', tabindex: -1, =>
         @li =>
@@ -32,14 +32,11 @@ class PackageDetailView extends ScrollView
           @div class: 'container package-container', =>
             @div outlet: 'packageCardParent', class: 'row', =>
               # Packages that need to be fetched will *only* have `name` set
-              if pack?.owner and packageCard?
-                @subview 'packageCard', packageCard
-                packageCard.onSettingsView = true
+              if pack?.owner
+                @subview 'packageCard', new PackageCard(pack, packageManager, onSettingsView: true)
               else
                 @div outlet: 'loadingMessage', class: 'alert alert-info icon icon-hourglass', "Loading #{pack.name}\u2026"
-
                 @div outlet: 'errorMessage', class: 'alert alert-danger icon icon-hourglass hidden', "Failed to load #{pack.name} - try again later."
-
 
           @p outlet: 'packageRepo', class: 'link icon icon-repo repo-link hidden'
           @p outlet: 'startupTime', class: 'text icon icon-dashboard hidden', tabindex: -1
@@ -55,7 +52,7 @@ class PackageDetailView extends ScrollView
 
       @div outlet: 'sections'
 
-  initialize: (@pack, @packageCard, @packageManager, @snippetsProvider) ->
+  initialize: (@pack, @packageManager, @snippetsProvider) ->
     super
     @disposables = new CompositeDisposable()
     @loadPackage()
@@ -63,8 +60,7 @@ class PackageDetailView extends ScrollView
 
   completeInitialization: ->
     if @loadingMessage?
-      @packageCard = new PackageCard(@pack, @packageManager) unless @packageCard
-      @packageCard.onSettingsView = true
+      @packageCard = new PackageCard(@pack, @packageManager, onSettingsView: true) unless @packageCard
       @loadingMessage.replaceWith(@packageCard)
 
     @packageRepo.removeClass('hidden')
