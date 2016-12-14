@@ -73,9 +73,11 @@ class PackageDetailView extends ScrollView
   loadPackage: ->
     if atom.packages.isPackageLoaded(@pack.name)
       # TODO: Hopefully temporary until https://github.com/atom/atom/pull/13438 is merged
-      {loadTime, activationTime} = atom.packages.getLoadedPackage(@pack.name)
-      @pack.loadTime = loadTime
-      @pack.activationTime = activationTime
+      # {loadTime, activationTime} = atom.packages.getLoadedPackage(@pack.name)
+      # @pack.loadTime = loadTime
+      # @pack.activateTime = activateTime
+      # Ugly, but allows us to access the package path and load/activateTime values
+      @pack = _.extend(atom.packages.getLoadedPackage(@pack.name), @pack)
       @completeInitialization()
     else
       # If the package metadata in `@pack` isn't complete, hit the network.
