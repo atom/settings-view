@@ -232,7 +232,8 @@ class PackageDetailView extends ScrollView
     @licensePath = null
     @readmePath = null
 
-    for child in fs.listSync(@pack.path)
+    packagePath = @pack.path ? atom.packages.resolvePackagePath(@pack.name)
+    for child in fs.listSync(packagePath)
       switch path.basename(child, path.extname(child)).toLowerCase()
         when 'changelog', 'history' then @changelogPath = child
         when 'license', 'licence' then @licensePath = child
