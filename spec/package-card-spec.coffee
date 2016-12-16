@@ -471,7 +471,7 @@ describe "PackageCard", ->
         spyOn(atom.packages, 'isDeprecatedPackage').andReturn true
         spyOn(atom.packages, 'isPackageLoaded').andReturn false
         spyOn(atom.packages, 'isPackageDisabled').andReturn false
-        spyOn(packageManager, 'getAvailablePackageNames').andReturn(['package-with-config'])
+        spyOn(atom.packages, 'getAvailablePackageNames').andReturn(['package-with-config'])
         spyOn(PackageCard::, 'getDeprecatedPackageMetadata').andReturn
           hasAlternative: true
           alternative: 'core'

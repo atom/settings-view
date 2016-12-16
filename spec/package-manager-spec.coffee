@@ -63,11 +63,7 @@ describe "PackageManager", ->
       expect(packageManager.isPackageInstalled('some-package')).toBe true
 
     it "returns true when a package is disabled", ->
-      spyOn(atom.packages, 'isPackageDisabled').andReturn true
-      expect(packageManager.isPackageInstalled('some-package')).toBe false
-
-    it "returns true when a package is in the availablePackageCache", ->
-      spyOn(packageManager, 'getAvailablePackageNames').andReturn ['some-package']
+      spyOn(atom.packages, 'getAvailablePackageNames').andReturn ['some-package']
       expect(packageManager.isPackageInstalled('some-package')).toBe true
 
   describe "::install()", ->
@@ -88,14 +84,6 @@ describe "PackageManager", ->
       packageManager.install {name: 'something', version: '0.2.3'}, ->
       expect(packageManager.runCommand).toHaveBeenCalled()
       expect(runArgs).toEqual ['install', 'something@0.2.3', '--json']
-
-    it "installs the package and adds the package to the available package names", ->
-      packageManager.cacheAvailablePackageNames(user: [{name: 'a-package'}])
-      packageManager.install {name: 'something', version: '0.2.3'}, ->
-
-      expect(packageManager.getAvailablePackageNames()).not.toContain('something')
-      runCallback(0, '', '')
-      expect(packageManager.getAvailablePackageNames()).toContain('something')
 
     describe "git url installation", ->
       it 'installs https:// urls', ->
@@ -153,18 +141,9 @@ describe "PackageManager", ->
         runCallback = callback
         onWillThrowError: ->
 
-    it "uninstalls the package and removes the package from the available package names", ->
-      packageManager.cacheAvailablePackageNames(user: [{name: 'something'}])
-      packageManager.uninstall {name: 'something'}, ->
-
-      expect(packageManager.getAvailablePackageNames()).toContain('something')
-      runCallback(0, '', '')
-      expect(packageManager.getAvailablePackageNames()).not.toContain('something')
-
     it "removes the package from the core.disabledPackages list", ->
       atom.config.set('core.disabledPackages', ['something'])
 
-      packageManager.cacheAvailablePackageNames(user: [{name: 'something'}])
       packageManager.uninstall {name: 'something'}, ->
 
       expect(atom.config.get('core.disabledPackages')).toContain('something')
