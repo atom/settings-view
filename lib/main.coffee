@@ -78,6 +78,8 @@ module.exports =
     settingsView = new SettingsView(params)
 
   showDeprecatedNotification: (packages) ->
+    localStorage.setItem('hasSeenDeprecatedNotification', true)
+
     deprecatedPackages = packages.user.filter ({name, version}) ->
       atom.packages.isDeprecatedPackage(name, version)
     return unless deprecatedPackages.length
@@ -99,4 +101,3 @@ module.exports =
           atom.commands.dispatch(atom.views.getView(atom.workspace), 'settings-view:view-installed-packages')
           notification.dismiss()
       }]
-    localStorage.setItem('hasSeenDeprecatedNotification', true)
