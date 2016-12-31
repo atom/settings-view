@@ -11,7 +11,6 @@ class PackageManager
 
   constructor: ->
     @packagePromises = []
-    @availablePackageCache = null
     @apmCache =
       loadOutdated:
         value: null
@@ -25,10 +24,8 @@ class PackageManager
   isPackageInstalled: (packageName) ->
     if atom.packages.isPackageLoaded(packageName)
       true
-    else if packageNames = @getAvailablePackageNames()
-      packageNames.indexOf(packageName) > -1
     else
-      false
+      atom.packages.getAvailablePackageNames().indexOf(packageName) > -1
 
   packageHasSettings: (packageName) ->
     grammars = atom.grammars.getGrammars() ? []
@@ -55,14 +52,13 @@ class PackageManager
   loadInstalled: (callback) ->
     args = ['ls', '--json']
     errorMessage = 'Fetching local packages failed.'
-    apmProcess = @runCommand args, (code, stdout, stderr) =>
+    apmProcess = @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
         catch parseError
           error = createJsonParseError(errorMessage, parseError, stdout)
           return callback(error)
-        @cacheAvailablePackageNames(packages)
         callback(null, packages)
       else
         error = new Error(errorMessage)
@@ -282,7 +278,7 @@ class PackageManager
         error.stderr = stderr
         onError(error)
 
-    @emitter.emit('package-updating', {pack})
+    @emitPackageEvent 'updating', pack
     apmProcess = @runCommand(args, exit)
     handleProcessErrors(apmProcess, errorMessage, onError)
 
@@ -321,7 +317,6 @@ class PackageManager
         else
           atom.packages.loadPackage(name)
 
-        @addPackageToAvailablePackageNames(name)
         callback?()
         @emitPackageEvent 'installed', pack
       else
@@ -350,7 +345,6 @@ class PackageManager
       if code is 0
         @clearOutdatedCache()
         @unload(name)
-        @removePackageFromAvailablePackageNames(name)
         @removePackageNameFromDisabledPackages(name)
         callback?()
         @emitPackageEvent 'uninstalled', pack
@@ -417,28 +411,6 @@ class PackageManager
 
   removePackageNameFromDisabledPackages: (packageName) ->
     atom.config.removeAtKeyPath('core.disabledPackages', packageName)
-
-  cacheAvailablePackageNames: (packages) ->
-    @availablePackageCache = []
-    for packageType in ['core', 'user', 'dev', 'git']
-      continue unless packages[packageType]?
-      packageNames = (pack.name for pack in packages[packageType])
-      @availablePackageCache.push(packageNames...)
-    @availablePackageCache
-
-  addPackageToAvailablePackageNames: (packageName) ->
-    @availablePackageCache ?= []
-    @availablePackageCache.push(packageName) if @availablePackageCache.indexOf(packageName) < 0
-    @availablePackageCache
-
-  removePackageFromAvailablePackageNames: (packageName) ->
-    @availablePackageCache ?= []
-    index = @availablePackageCache.indexOf(packageName)
-    @availablePackageCache.splice(index, 1) if index > -1
-    @availablePackageCache
-
-  getAvailablePackageNames: ->
-    @availablePackageCache
 
   # Emits the appropriate event for the given package.
   #

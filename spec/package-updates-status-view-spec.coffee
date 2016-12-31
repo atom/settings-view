@@ -46,10 +46,46 @@ describe "PackageUpdatesStatusView", ->
       $('status-bar .package-updates-status-view').click()
       expect($('status-bar .package-updates-status-view')).toExist()
 
-  describe "when a package is updated", ->
+  describe "when a package is updating", ->
+    it "updates the tile", ->
+      packageManager.emitPackageEvent('updating', outdatedPackage1)
+      expect($('status-bar .package-updates-status-view').text()).toBe '1/2 updating'
+
+  describe "when a package finishes updating", ->
+    it "updates the tile", ->
+      packageManager.emitPackageEvent('updating', outdatedPackage1)
+      packageManager.emitPackageEvent('updated', outdatedPackage1)
+      expect($('status-bar .package-updates-status-view').text()).toBe '1 update'
+
+  describe "when a package is updated without a prior updating event", ->
     it "updates the tile", ->
       packageManager.emitPackageEvent('updated', outdatedPackage1)
       expect($('status-bar .package-updates-status-view').text()).toBe '1 update'
+
+  describe "when multiple packages are updating and one finishes", ->
+    it "updates the tile", ->
+      packageManager.emitPackageEvent('updating', outdatedPackage1)
+      packageManager.emitPackageEvent('updating', outdatedPackage2)
+      packageManager.emitPackageEvent('updated', outdatedPackage1)
+      expect($('status-bar .package-updates-status-view').text()).toBe '1/1 updating'
+
+  describe "when a package fails to update", ->
+    it "updates the tile", ->
+      packageManager.emitPackageEvent('update-failed', outdatedPackage1)
+      expect($('status-bar .package-updates-status-view').text()).toBe '2 updates (1 failed)'
+
+  describe "when a package update that previously failed succeeds on a subsequent try", ->
+    it "updates the tile", ->
+      packageManager.emitPackageEvent('update-failed', outdatedPackage1)
+      packageManager.emitPackageEvent('updated', outdatedPackage1)
+      expect($('status-bar .package-updates-status-view').text()).toBe '1 update'
+
+  describe "when multiple events are happening at the same time", ->
+    it "updates the tile", ->
+      packageManager.emitPackageEvent('update-available', installedPackage)
+      packageManager.emitPackageEvent('updating', outdatedPackage1)
+      packageManager.emitPackageEvent('update-failed', outdatedPackage2)
+      expect($('status-bar .package-updates-status-view').text()).toBe '1/3 updating (1 failed)'
 
   describe "when there are no more updates", ->
     it "destroys the tile", ->
@@ -76,3 +112,10 @@ describe "PackageUpdatesStatusView", ->
       packageManager.emitPackageEvent('update-available', outdatedPackage1)
       packageManager.emitPackageEvent('update-available', outdatedPackage1)
       expect($('status-bar .package-updates-status-view').text()).toBe '2 updates'
+
+  describe "when the same update fails multiple times", ->
+    it "does not keep updating the tile", ->
+      packageManager.emitPackageEvent('update-failed', outdatedPackage1)
+      packageManager.emitPackageEvent('update-failed', outdatedPackage1)
+      packageManager.emitPackageEvent('update-failed', outdatedPackage1)
+      expect($('status-bar .package-updates-status-view').text()).toBe '2 updates (1 failed)'
