@@ -78,18 +78,23 @@ class UpdatesPanel extends ScrollView
     packageCards = @getPackageCards()
     successfulUpdatesCount = 0
     remainingPackagesCount = packageCards.length
+    totalUpdatesCount = packageCards.length # This value doesn't change unlike remainingPackagesCount
 
-    notifyIfDone = ->
-      if remainingPackagesCount is 0 and successfulUpdatesCount > 0
-        pluralizedPackages = 'package'
-        pluralizedPackages += 's' if successfulUpdatesCount > 1
-        message = "Restart Atom to complete the update of #{successfulUpdatesCount} #{pluralizedPackages}."
+    notifyIfDone = =>
+      if remainingPackagesCount is 0
+        if successfulUpdatesCount > 0
+          pluralizedPackages = 'package'
+          pluralizedPackages += 's' if successfulUpdatesCount > 1
+          message = "Restart Atom to complete the update of #{successfulUpdatesCount} #{pluralizedPackages}."
 
-        buttons = [{
-          text: 'Restart',
-          onDidClick: -> atom.restartApplication()
-        }]
-        atom.notifications.addSuccess(message, {dismissable: true, buttons})
+          buttons = [{
+            text: 'Restart',
+            onDidClick: -> atom.restartApplication()
+          }]
+          atom.notifications.addSuccess(message, {dismissable: true, buttons})
+
+        if successfulUpdatesCount < totalUpdatesCount # Some updates failed
+          @updateAllButton.prop('disabled', false)
 
     onUpdateResolved = ->
       remainingPackagesCount--
