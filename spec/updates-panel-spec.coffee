@@ -3,9 +3,10 @@ PackageManager = require '../lib/package-manager'
 
 describe 'UpdatesPanel', ->
   panel = null
+  packageManager = new PackageManager
 
   beforeEach ->
-    panel = new UpdatesPanel(new PackageManager)
+    panel = new UpdatesPanel(packageManager)
 
   it "shows updates when updates are available", ->
     pack =
@@ -98,3 +99,32 @@ describe 'UpdatesPanel', ->
       waits 0
       runs ->
         expect(panel.updateAllButton.prop('disabled')).toBe false
+
+  describe 'when the Check for Updates button is clicked', ->
+    [resolveOutdated, rejectOutdated] = []
+
+    beforeEach ->
+      spyOn(packageManager, 'getOutdated').andReturn(new Promise((resolve, reject) -> [resolveOutdated, rejectOutdated] = [resolve, reject]))
+
+    it 'disables the Check for Updates button and checks for updates', ->
+      # Updates panel checks for updates on initialization so resolve the promise
+      resolveOutdated()
+
+      waits 0
+      runs ->
+        expect(panel.checkButton.prop('disabled')).toBe false
+
+      panel.checkForUpdates()
+      expect(panel.checkButton.prop('disabled')).toBe true
+
+      resolveOutdated()
+
+      waits 0
+      runs ->
+        expect(panel.checkButton.prop('disabled')).toBe false
+
+    it 'clears the outdated cache and explicitly checks for updates', ->
+      # This spec just tests that we're passing the clearCache bool through, not the actual implementation
+      # For that, look at the PackageManager specs
+      panel.checkButton.click()
+      expect(packageManager.getOutdated).toHaveBeenCalledWith true
