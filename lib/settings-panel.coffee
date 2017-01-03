@@ -104,6 +104,13 @@ class SettingsPanel extends CollapsibleSectionPanel
     params.scope = [@options.scopeName] if @options.scopeName?
     @disposables.add atom.config.observe(name, params, callback)
 
+  isGlobal: (name) ->
+    params = {sources: [atom.config.getUserConfigPath()]}
+    params.scope = [@options.scopeName] if @options.scopeName?
+    globalValue = atom.config.get(name)
+    value = atom.config.get(name, params)
+    not value? or globalValue is value
+
   isDefault: (name) ->
     params = {sources: [atom.config.getUserConfigPath()]}
     params.scope = [@options.scopeName] if @options.scopeName?
@@ -153,15 +160,15 @@ class SettingsPanel extends CollapsibleSectionPanel
           editor.setPlaceholderText("Default: #{defaultValue}")
 
       editorElement.on 'focus', =>
-        if @isDefault(name)
+        if @isDefault(name) and @isGlobal(name)
           editorView.setText(@valueToString(@getDefault(name)) ? '')
-
+          
       editorElement.on 'blur', =>
-        if @isDefault(name)
+        if @isDefault(name) and @isGlobal(name)
           editorView.setText('')
 
       @observe name, (value) =>
-        if @isDefault(name)
+        if @isDefault(name) and @isGlobal(name)
           stringValue = ''
         else
           stringValue = @valueToString(value) ? ''
