@@ -273,7 +273,7 @@ describe "PackageManager", ->
       packageManager.loadOutdated false, -> # +0 runCommand call, should be cached
       expect(packageManager.runCommand.calls.length).toBe(4)
 
-    fit "expires results if it is called with clearCache set to true", ->
+    it "expires results if it is called with clearCache set to true", ->
       packageManager.apmCache.loadOutdated =
         value: ['hi']
         expiry: Date.now() + 999999999
