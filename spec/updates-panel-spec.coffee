@@ -107,6 +107,13 @@ describe 'UpdatesPanel', ->
         expect(panel.updateAllButton.prop('disabled')).toBe false
         expect(panel.updateAllButton).toBeVisible()
 
+    it 'does not attempt to update packages that are already updating', ->
+      cardA.update()
+      packageManager.emitPackageEvent 'updating', packA
+      panel.updateAll()
+
+      expect(cardA.update.calls.length).toBe 1
+
   describe 'the Check for Updates button', ->
     pack =
       name: 'test-package'
