@@ -4,9 +4,14 @@ PackageManager = require '../lib/package-manager'
 describe 'UpdatesPanel', ->
   panel = null
   packageManager = new PackageManager
+  [resolveOutdated, rejectOutdated] = []
 
   beforeEach ->
+    # This spy is only needed for the Check for Updates specs,
+    # but we have to instantiate it here because we need to pass the spy to the UpdatesPanel
+    spyOn(packageManager, 'getOutdated').andReturn(new Promise((resolve, reject) -> [resolveOutdated, rejectOutdated] = [resolve, reject]))
     panel = new UpdatesPanel(packageManager)
+    jasmine.attachToDOM(panel[0])
 
   it "shows updates when updates are available", ->
     pack =
@@ -24,7 +29,7 @@ describe 'UpdatesPanel', ->
     expect(panel.updatesContainer.children().length).toBe(0)
     expect(panel.noUpdatesMessage.css('display')).not.toBe('none')
 
-  describe "when the 'Update All' button is clicked", ->
+  describe "the Update All button", ->
     packA =
       name: 'test-package-a'
       description: 'some description'
@@ -77,7 +82,7 @@ describe 'UpdatesPanel', ->
         notifications[0].options.buttons[0].onDidClick()
         expect(atom.restartApplication).toHaveBeenCalled()
 
-    it 'disables the Update All button if all updates succeed', ->
+    it 'becomes hidden if all updates succeed', ->
       expect(panel.updateAllButton.prop('disabled')).toBe false
       panel.updateAll()
 
@@ -87,9 +92,9 @@ describe 'UpdatesPanel', ->
 
       waits 0
       runs ->
-        expect(panel.updateAllButton.prop('disabled')).toBe true
+        expect(panel.updateAllButton).toBeHidden()
 
-    it 'keeps the Update All button enabled if not all updates succeed', ->
+    it 'remains enabled and visible if not all updates succeed', ->
       panel.updateAll()
 
       resolveA()
@@ -99,6 +104,7 @@ describe 'UpdatesPanel', ->
       waits 0
       runs ->
         expect(panel.updateAllButton.prop('disabled')).toBe false
+        expect(panel.updateAllButton).toBeVisible()
 
   describe 'the Check for Updates button', ->
     pack =
@@ -107,13 +113,10 @@ describe 'UpdatesPanel', ->
       latestVersion: '99.0.0'
       version: '1.0.0'
 
-    [resolveOutdated, rejectOutdated] = []
-
     beforeEach ->
       # skip packman stubbing - without this, getOutdated() is called another time
       # this is not an issue in actual usage as getOutdated() isn't blocked on a spy
       panel.beforeShow(updates: [pack])
-      spyOn(packageManager, 'getOutdated').andReturn(new Promise((resolve, reject) -> [resolveOutdated, rejectOutdated] = [resolve, reject]))
 
     it 'disables itself when clicked until the list of outdated packages is returned', ->
       # Updates panel checks for updates on initialization so resolve the promise
