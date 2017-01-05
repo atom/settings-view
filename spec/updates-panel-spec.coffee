@@ -100,13 +100,22 @@ describe 'UpdatesPanel', ->
       runs ->
         expect(panel.updateAllButton.prop('disabled')).toBe false
 
-  describe 'when the Check for Updates button is clicked', ->
+  describe 'the Check for Updates button', ->
+    pack =
+      name: 'test-package'
+      description: 'some description'
+      latestVersion: '99.0.0'
+      version: '1.0.0'
+
     [resolveOutdated, rejectOutdated] = []
 
     beforeEach ->
+      # skip packman stubbing - without this, getOutdated() is called another time
+      # this is not an issue in actual usage as getOutdated() isn't blocked on a spy
+      panel.beforeShow(updates: [pack])
       spyOn(packageManager, 'getOutdated').andReturn(new Promise((resolve, reject) -> [resolveOutdated, rejectOutdated] = [resolve, reject]))
 
-    it 'disables the Check for Updates button and checks for updates', ->
+    it 'disables itself when clicked until the list of outdated packages is returned', ->
       # Updates panel checks for updates on initialization so resolve the promise
       resolveOutdated()
 
@@ -114,17 +123,37 @@ describe 'UpdatesPanel', ->
       runs ->
         expect(panel.checkButton.prop('disabled')).toBe false
 
-      panel.checkForUpdates()
-      expect(panel.checkButton.prop('disabled')).toBe true
+        panel.checkForUpdates()
+        expect(panel.checkButton.prop('disabled')).toBe true
 
+        resolveOutdated()
+
+      waits 0
+      runs ->
+        expect(panel.checkButton.prop('disabled')).toBe false
+
+    it 'clears the outdated cache when checking for updates', ->
+      # This spec just tests that we're passing the clearCache bool through, not the actual implementation
+      # For that, look at the PackageManager specs
+      panel.checkButton.click()
+      expect(packageManager.getOutdated).toHaveBeenCalledWith true
+
+    it 'is disabled when packages are updating', ->
+      # Updates panel checks for updates on initialization so resolve the promise
       resolveOutdated()
 
       waits 0
       runs ->
         expect(panel.checkButton.prop('disabled')).toBe false
 
-    it 'clears the outdated cache and explicitly checks for updates', ->
-      # This spec just tests that we're passing the clearCache bool through, not the actual implementation
-      # For that, look at the PackageManager specs
-      panel.checkButton.click()
-      expect(packageManager.getOutdated).toHaveBeenCalledWith true
+        packageManager.emitPackageEvent 'updating', {name: 'packA'}
+        expect(panel.checkButton.prop('disabled')).toBe true
+
+        packageManager.emitPackageEvent 'updating', {name: 'packB'}
+        expect(panel.checkButton.prop('disabled')).toBe true
+
+        packageManager.emitPackageEvent 'updated', {name: 'packB'}
+        expect(panel.checkButton.prop('disabled')).toBe true
+
+        packageManager.emitPackageEvent 'update-failed', {name: 'packA'}
+        expect(panel.checkButton.prop('disabled')).toBe false
