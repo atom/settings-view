@@ -59,8 +59,9 @@ describe 'UpdatesPanel', ->
       spyOn(cardB, 'update').andReturn(new Promise((resolve, reject) -> [resolveB, rejectB] = [resolve, reject]))
       spyOn(cardC, 'update').andReturn(new Promise((resolve, reject) -> [resolveC, rejectC] = [resolve, reject]))
 
-    it "attempts to update all packages and prompts to restart if at least one package updates successfully", ->
+    it 'attempts to update all packages and prompts to restart if at least one package updates successfully', ->
       expect(atom.notifications.getNotifications().length).toBe 0
+      expect(panel.updateAllButton).toBeVisible()
 
       panel.updateAll()
 
