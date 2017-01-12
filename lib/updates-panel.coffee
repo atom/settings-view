@@ -1,4 +1,5 @@
 {$, ScrollView} = require 'atom-space-pen-views'
+{CompositeDisposable} = require 'atom'
 ErrorView = require './error-view'
 PackageCard = require './package-card'
 
@@ -20,17 +21,32 @@ class UpdatesPanel extends ScrollView
 
   initialize: (@packageManager) ->
     super
-    @updateAllButton.on 'click', => @updateAll()
-    @checkButton.on 'click', =>
-      @checkForUpdates()
 
+    @disposables = new CompositeDisposable()
+    @updatingPackages = []
+
+    @updateAllButton.on 'click', => @updateAll()
+    @checkButton.on 'click', => @checkForUpdates(true)
+
+    @updateAllButton.hide()
     @checkForUpdates()
 
-    @packageManagerSubscription = @packageManager.on 'package-update-failed theme-update-failed', ({pack, error}) =>
-      @updateErrors.append(new ErrorView(@packageManager, error))
+    @disposables.add @packageManager.on 'package-updating theme-updating', ({pack, error}) =>
+      @checkButton.prop('disabled', true)
+      @updatingPackages.push(pack)
+
+    @disposables.add @packageManager.on 'package-updated theme-updated package-update-failed theme-update-failed', ({pack, error}) =>
+      @updateErrors.append(new ErrorView(@packageManager, error)) if error?
+
+      for index, update of @updatingPackages
+        if update.name is pack.name
+          @updatingPackages.splice(index, 1)
+
+      unless @updatingPackages.length
+        @checkButton.prop('disabled', false)
 
   dispose: ->
-    @packageManagerSubscription.dispose()
+    @disposables.dispose()
 
   beforeShow: (opts) ->
     if opts?.back
@@ -45,14 +61,14 @@ class UpdatesPanel extends ScrollView
       @checkForUpdates()
 
   # Check for updates and display them
-  checkForUpdates: ->
+  checkForUpdates: (clearCache) ->
     @noUpdatesMessage.hide()
-    @updateAllButton.hide()
+    @updateAllButton.prop('disabled', true)
     @checkButton.prop('disabled', true)
 
     @checkingMessage.show()
 
-    @packageManager.getOutdated()
+    @packageManager.getOutdated(clearCache)
       .then (@availableUpdates) =>
         @checkButton.prop('disabled', false)
         @addUpdateViews()
@@ -73,6 +89,7 @@ class UpdatesPanel extends ScrollView
       @updatesContainer.append(new PackageCard(pack, @packageManager, {back: 'Updates'}))
 
   updateAll: ->
+    @checkButton.prop('disabled', true)
     @updateAllButton.prop('disabled', true)
 
     packageCards = @getPackageCards()
@@ -93,7 +110,11 @@ class UpdatesPanel extends ScrollView
           }]
           atom.notifications.addSuccess(message, {dismissable: true, buttons})
 
-        if successfulUpdatesCount < totalUpdatesCount # Some updates failed
+        if successfulUpdatesCount is totalUpdatesCount
+          @checkButton.prop('disabled', false)
+          @updateAllButton.hide()
+        else # Some updates failed
+          @checkButton.prop('disabled', false)
           @updateAllButton.prop('disabled', false)
 
     onUpdateResolved = ->
@@ -106,7 +127,11 @@ class UpdatesPanel extends ScrollView
       notifyIfDone()
 
     for packageCard in packageCards
-      packageCard.update().then(onUpdateResolved, onUpdateRejected)
+      if packageCard.pack not in @updatingPackages
+        packageCard.update().then(onUpdateResolved, onUpdateRejected)
+      else
+        remainingPackagesCount--
+        totalUpdatesCount--
 
   getPackageCards: ->
     @updatesContainer.find('.package-card').toArray()
