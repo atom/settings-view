@@ -2,7 +2,7 @@ SettingsView = null
 settingsView = null
 
 PackageManager = require './package-manager'
-packageManager = new PackageManager()
+packageManager = null
 
 SnippetsProvider =
   getSnippets: -> atom.config.scopedSettingsStore.propertySets
@@ -50,6 +50,11 @@ module.exports =
     if process.platform is 'win32' and require('atom').WinShell?
       atom.commands.add 'atom-workspace', 'settings-view:system': -> atom.workspace.open("#{configUri}/system")
 
+    unless localStorage.getItem('hasSeenDeprecatedNotification')
+      packageManager ?= new PackageManager()
+      packageManager.getInstalled().then (packages) =>
+        @showDeprecatedNotification(packages) if packages.user?.length
+
   deactivate: ->
     settingsView?.dispose()
     settingsView?.remove()
@@ -57,16 +62,10 @@ module.exports =
     packageManager = null
 
   consumeStatusBar: (statusBar) ->
-    packageManager ?= new PackageManager() # TODO: Why is this needed when the package manager is initialized at the top of the file?
-    Promise.all([packageManager.getOutdated(), packageManager.getInstalled()]).then (values) =>
-      updates = values[0]
-      allPackages = values[1]
-
+    packageManager ?= new PackageManager()
+    packageManager.getOutdated().then (updates) ->
       PackageUpdatesStatusView = require './package-updates-status-view'
       new PackageUpdatesStatusView(statusBar, packageManager, updates)
-
-      if allPackages.length > 0 and not localStorage.getItem('hasSeenDeprecatedNotification')
-        @showDeprecatedNotification(allPackages)
 
   consumeSnippets: (snippets) ->
     if typeof snippets.getUnparsedSnippets is "function"
@@ -79,7 +78,8 @@ module.exports =
     settingsView = new SettingsView(params)
 
   showDeprecatedNotification: (packages) ->
-    return unless packages.user?
+    localStorage.setItem('hasSeenDeprecatedNotification', true)
+
     deprecatedPackages = packages.user.filter ({name, version}) ->
       atom.packages.isDeprecatedPackage(name, version)
     return unless deprecatedPackages.length
@@ -101,4 +101,3 @@ module.exports =
           atom.commands.dispatch(atom.views.getView(atom.workspace), 'settings-view:view-installed-packages')
           notification.dismiss()
       }]
-    localStorage.setItem('hasSeenDeprecatedNotification', true)
