@@ -37,6 +37,21 @@ class PackageManager
     schema = atom.config.getSchema(packageName)
     schema? and (schema.type isnt 'any')
 
+  setProxyServers: (callback) =>
+    session = atom.getCurrentWindow().webContents.session
+    session.resolveProxy 'http://atom.io', (httpProxy) =>
+      @applyProxyToEnv 'http_proxy', httpProxy, =>
+        session.resolveProxy 'https://atom.io', (httpsProxy) =>
+          @applyProxyToEnv 'https_proxy', httpsProxy, callback
+
+  applyProxyToEnv: (envName, proxy, callback) ->
+    if proxy?
+      proxy = proxy.split(' ')
+      switch proxy[0].trim().toUpperCase()
+        when 'DIRECT' then delete process.env[envName]
+        when 'PROXY'  then process.env[envName] = 'http://' + proxy[1]
+    callback()
+
   runCommand: (args, callback) ->
     command = atom.packages.getApmPath()
     outputLines = []
@@ -47,7 +62,13 @@ class PackageManager
       callback(code, outputLines.join('\n'), errorLines.join('\n'))
 
     args.push('--no-color')
-    new BufferedProcess({command, args, stdout, stderr, exit})
+
+    if atom.config.get('core.useProxySettingsWhenCallingApm')
+      bufferedProcess = new BufferedProcess({command, args, stdout, stderr, exit, autoStart: false})
+      @setProxyServers -> bufferedProcess.start()
+      return bufferedProcess
+    else
+      return new BufferedProcess({command, args, stdout, stderr, exit})
 
   loadInstalled: (callback) ->
     args = ['ls', '--json']
