@@ -73,6 +73,7 @@ module.exports =
 
   createSettingsView: (params) ->
     SettingsView ?= require './settings-view'
+    packageManager ?= new PackageManager()
     params.packageManager = packageManager
     params.snippetsProvider = SnippetsProvider
     settingsView = new SettingsView(params)
