@@ -6,7 +6,7 @@ Edit core configuration settings, install and configure packages, and change the
 ![Settings View](https://cloud.githubusercontent.com/assets/118951/16886698/b0ca5fae-4a8a-11e6-8afc-2c03fda4618c.PNG)
 
 ## Usage
-You can open the Settings View by navigating to _Edit > Preferences_ (Linux), _Atom > Preferences_ (macOS), or _File > Preferences_ (Windows).
+You can open the Settings View by navigating to _Edit > Preferences_ (Linux), _Atom > Preferences_ (macOS), or _File > Settings_ (Windows).
 
 In order to install new packages and themes, click on the _Install_ section on the left-hand side.
 Once installed, community packages/themes and their settings are housed within their respective section.
