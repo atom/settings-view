@@ -67,7 +67,7 @@ class InstallPanel extends ScrollView
 
   handleSearchEvents: ->
     @disposables.add @packageManager.on 'package-install-failed', ({pack, error}) =>
-      @searchErrors.append(new ErrorView(@packageManager, error))
+      @searchErrors.append(new ErrorView(@packageManager, error).element)
 
     @disposables.add @packageManager.on 'package-installed theme-installed', ({pack}) =>
       gitUrlInfo = @currentGitPackageCard?.pack?.gitUrlInfo
@@ -171,7 +171,7 @@ class InstallPanel extends ScrollView
         @addPackageViews(@resultsContainer, packages)
       .catch (error) =>
         @searchMessage.hide()
-        @searchErrors.append(new ErrorView(@packageManager, error))
+        @searchErrors.append(new ErrorView(@packageManager, error).element)
 
   showNoResultMessage: (query) ->
     @searchMessage.text("No #{@searchType.replace(/s$/, '')} results for \u201C#{query}\u201D").show()
@@ -232,7 +232,7 @@ class InstallPanel extends ScrollView
 
     handle = (error) =>
       @loadingMessage.hide()
-      @featuredErrors.append(new ErrorView(@packageManager, error))
+      @featuredErrors.append(new ErrorView(@packageManager, error).element)
 
     if loadThemes
       @client.featuredThemes (error, themes) =>
