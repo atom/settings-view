@@ -36,4 +36,4 @@ class ErrorView extends View
     return unless process.platform is 'win32'
 
     @packageManager.checkNativeBuildTools().catch (error) =>
-      @alert.append(new CompileToolsErrorView(error))
+      @alert.append(new CompileToolsErrorView().element)
