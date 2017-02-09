@@ -335,12 +335,18 @@ describe "SettingsView", ->
           if systemPanel?
             panels.push systemPanel
           for panel in panels
-            spyOn(panel, 'dispose')
+            if panel.dispose
+              spyOn(panel, 'dispose')
+            else
+              spyOn(panel, 'destroy')
 
           atom.packages.deactivatePackage('settings-view')
 
           for panel in panels
-            expect(panel.dispose).toHaveBeenCalled()
+            if panel.dispose
+              expect(panel.dispose).toHaveBeenCalled()
+            else
+              expect(panel.destroy).toHaveBeenCalled()
 
           return
 

@@ -46,7 +46,10 @@ class SettingsView extends ScrollView
 
   dispose: ->
     for name, panel of @panelsByName
-      panel.dispose?()
+      if panel.dispose?
+        panel.dispose()
+      else if panel.destroy?
+        panel.destroy()
     return
 
   initializePanels: ->
@@ -185,7 +188,11 @@ class SettingsView extends ScrollView
 
   appendPanel: (panel, options) ->
     @panels.children().hide()
-    @panels.append(panel) unless $.contains(@panels[0], panel[0])
+    unless $.contains(@panels[0], panel.element)
+      if panel[0]
+        @panels.append(panel)
+      else
+        @panels.append(panel.element)
     panel.beforeShow?(options)
     panel.show()
     panel.focus()
@@ -195,7 +202,10 @@ class SettingsView extends ScrollView
 
   removePanel: (name) ->
     if panel = @panelsByName?[name]
-      panel.remove()
+      if panel.remove?
+        panel.remove()
+      else if panel.destroy?
+        panel.destroy()
       delete @panelsByName[name]
 
   getTitle: ->

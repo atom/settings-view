@@ -4,24 +4,24 @@ describe "GeneralPanel", ->
   panel = null
 
   getValueForId = (id) ->
-    element = panel.find("##{id.replace(/\./g, '\\.')}")
-    if element.is("input")
-      element.prop('checked')
-    else if element.is("select")
-      element.val()
+    element = panel.element.querySelector("##{id.replace(/\./g, '\\.')}")
+    if element.tagName is "INPUT"
+      element.checked
+    else if element.tagName is "SELECT"
+      element.value
     else
-      element.view()?.getText()
+      element.getModel().getText()
 
   setValueForId = (id, value) ->
-    element = panel.find("##{id.replace(/\./g, '\\.')}")
-    if element.is("input")
-      element.prop('checked', value)
-      element.change()
-    else if element.is("select")
-      element.val(value)
-      element.change()
+    element = panel.element.querySelector("##{id.replace(/\./g, '\\.')}")
+    if element.tagName is "INPUT"
+      element.checked = value
+      element.dispatchEvent(new Event('change', {bubbles: true}))
+    else if element.tagName is "SELECT"
+      element.value = value
+      element.dispatchEvent(new Event('change', {bubbles: true}))
     else
-      element.view().setText(value?.toString())
+      element.getModel().setText(value?.toString())
       window.advanceClock(10000) # wait for contents-modified to be triggered
 
   beforeEach ->
@@ -86,5 +86,5 @@ describe "GeneralPanel", ->
     expect(getValueForId('core.int')).toBe '2.'
 
   it "shows the package settings notes for core and editor settings", ->
-    expect(panel.find('#core-settings-note')).toExist()
-    expect(panel.find('#core-settings-note').text()).toContain('their package card in')
+    expect(panel.element.querySelector('#core-settings-note')).toExist()
+    expect(panel.element.querySelector('#core-settings-note').textContent).toContain('their package card in')
