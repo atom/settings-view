@@ -179,7 +179,7 @@ class PackageCard extends View
         atom.packages.disablePackage(@pack.name)
       false
 
-  dispose: ->
+  destroy: ->
     @disposables.dispose()
 
   loadCachedMetadata: ->
