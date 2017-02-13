@@ -7,7 +7,7 @@ PackageManager = require '../lib/package-manager'
 ThemesPanel = require '../lib/themes-panel'
 SettingsView = require '../lib/settings-view'
 
-fdescribe "ThemesPanel", ->
+describe "ThemesPanel", ->
   [panel, packageManager, reloadedHandler] = []
   settingsView = null
 

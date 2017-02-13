@@ -388,7 +388,7 @@ describe "SettingsView", ->
 
       runs ->
         settingsView.showPanel('Themes')
-        panel = settingsView.find('.themes-panel').view()
+        panel = settingsView.find('.themes-panel')[0]
 
     afterEach ->
       atom.themes.unwatchUserStylesheet()
@@ -396,17 +396,17 @@ describe "SettingsView", ->
     describe "when the UI theme's settings button is clicked", ->
       it "navigates to that theme's detail view", ->
         jasmine.attachToDOM(settingsView.element)
-        expect(panel.activeUiThemeSettings).toBeVisible()
+        expect(panel.querySelector('.active-theme-settings')).toBeVisible()
 
-        panel.activeUiThemeSettings.click()
+        panel.querySelector('.active-theme-settings').click()
         packageDetail = settingsView.find('.package-detail').view()
         expect(packageDetail.title.text()).toBe 'Ui Theme With Config'
 
     describe "when the syntax theme's settings button is clicked", ->
       it "navigates to that theme's detail view", ->
         jasmine.attachToDOM(settingsView.element)
-        expect(panel.activeSyntaxThemeSettings).toBeVisible()
+        expect(panel.querySelector('.active-syntax-settings')).toBeVisible()
 
-        panel.activeSyntaxThemeSettings.click()
+        panel.querySelector('.active-syntax-settings').click()
         packageDetail = settingsView.find('.package-detail').view()
         expect(packageDetail.title.text()).toBe 'Syntax Theme With Config'
