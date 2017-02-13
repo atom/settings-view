@@ -181,6 +181,7 @@ class PackageCard extends View
 
   destroy: ->
     @disposables.dispose()
+    @remove()
 
   loadCachedMetadata: ->
     @client.avatar ownerFromRepository(@pack.repository), (err, avatarPath) =>

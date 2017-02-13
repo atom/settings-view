@@ -1,17 +1,21 @@
 UpdatesPanel = require '../lib/updates-panel'
 PackageManager = require '../lib/package-manager'
+SettingsView = require '../lib/settings-view'
 
 describe 'UpdatesPanel', ->
   panel = null
-  packageManager = new PackageManager
+  settingsView = null
+  packageManager = null
   [resolveOutdated, rejectOutdated] = []
 
   beforeEach ->
+    settingsView = new SettingsView
+    packageManager = new PackageManager
     # This spy is only needed for the Check for Updates specs,
     # but we have to instantiate it here because we need to pass the spy to the UpdatesPanel
     spyOn(packageManager, 'getOutdated').andReturn(new Promise((resolve, reject) -> [resolveOutdated, rejectOutdated] = [resolve, reject]))
-    panel = new UpdatesPanel(packageManager)
-    jasmine.attachToDOM(panel[0])
+    panel = new UpdatesPanel(settingsView, packageManager)
+    jasmine.attachToDOM(panel.element)
 
   it "shows updates when updates are available", ->
     pack =
@@ -22,12 +26,12 @@ describe 'UpdatesPanel', ->
 
     # skip packman stubbing
     panel.beforeShow(updates: [pack])
-    expect(panel.updatesContainer.children().length).toBe(1)
+    expect(panel.refs.updatesContainer.children.length).toBe(1)
 
   it "shows a message when updates are not available", ->
     panel.beforeShow(updates: [])
-    expect(panel.updatesContainer.children().length).toBe(0)
-    expect(panel.noUpdatesMessage.css('display')).not.toBe('none')
+    expect(panel.refs.updatesContainer.children.length).toBe(0)
+    expect(panel.refs.noUpdatesMessage.style.display).not.toBe('none')
 
   describe "the Update All button", ->
     packA =
@@ -53,7 +57,7 @@ describe 'UpdatesPanel', ->
       # skip packman stubbing
       panel.beforeShow(updates: [packA, packB, packC])
 
-      [cardA, cardB, cardC] = panel.getPackageCards()
+      [cardA, cardB, cardC] = panel.packageCards
 
       spyOn(cardA, 'update').andReturn(new Promise((resolve, reject) -> [resolveA, rejectA] = [resolve, reject]))
       spyOn(cardB, 'update').andReturn(new Promise((resolve, reject) -> [resolveB, rejectB] = [resolve, reject]))
@@ -61,7 +65,7 @@ describe 'UpdatesPanel', ->
 
     it 'attempts to update all packages and prompts to restart if at least one package updates successfully', ->
       expect(atom.notifications.getNotifications().length).toBe 0
-      expect(panel.updateAllButton).toBeVisible()
+      expect(panel.refs.updateAllButton).toBeVisible()
 
       panel.updateAll()
 
@@ -84,7 +88,7 @@ describe 'UpdatesPanel', ->
         expect(atom.restartApplication).toHaveBeenCalled()
 
     it 'becomes hidden if all updates succeed', ->
-      expect(panel.updateAllButton.prop('disabled')).toBe false
+      expect(panel.refs.updateAllButton.disabled).toBe false
       panel.updateAll()
 
       resolveA()
@@ -93,7 +97,7 @@ describe 'UpdatesPanel', ->
 
       waits 0
       runs ->
-        expect(panel.updateAllButton).toBeHidden()
+        expect(panel.refs.updateAllButton).toBeHidden()
 
     it 'remains enabled and visible if not all updates succeed', ->
       panel.updateAll()
@@ -104,8 +108,8 @@ describe 'UpdatesPanel', ->
 
       waits 0
       runs ->
-        expect(panel.updateAllButton.prop('disabled')).toBe false
-        expect(panel.updateAllButton).toBeVisible()
+        expect(panel.refs.updateAllButton.disabled).toBe false
+        expect(panel.refs.updateAllButton).toBeVisible()
 
     it 'does not attempt to update packages that are already updating', ->
       cardA.update()
@@ -132,22 +136,25 @@ describe 'UpdatesPanel', ->
 
       waits 0
       runs ->
-        expect(panel.checkButton.prop('disabled')).toBe false
+        expect(panel.refs.checkButton.disabled).toBe false
 
         panel.checkForUpdates()
-        expect(panel.checkButton.prop('disabled')).toBe true
+        expect(panel.refs.checkButton.disabled).toBe true
 
         resolveOutdated()
 
       waits 0
       runs ->
-        expect(panel.checkButton.prop('disabled')).toBe false
+        expect(panel.refs.checkButton.disabled).toBe false
 
     it 'clears the outdated cache when checking for updates', ->
       # This spec just tests that we're passing the clearCache bool through, not the actual implementation
       # For that, look at the PackageManager specs
-      panel.checkButton.click()
-      expect(packageManager.getOutdated).toHaveBeenCalledWith true
+      resolveOutdated()
+      waits 0
+      runs ->
+        panel.refs.checkButton.click()
+        expect(packageManager.getOutdated).toHaveBeenCalledWith true
 
     it 'is disabled when packages are updating', ->
       # Updates panel checks for updates on initialization so resolve the promise
@@ -155,16 +162,16 @@ describe 'UpdatesPanel', ->
 
       waits 0
       runs ->
-        expect(panel.checkButton.prop('disabled')).toBe false
+        expect(panel.refs.checkButton.disabled).toBe false
 
         packageManager.emitPackageEvent 'updating', {name: 'packA'}
-        expect(panel.checkButton.prop('disabled')).toBe true
+        expect(panel.refs.checkButton.disabled).toBe true
 
         packageManager.emitPackageEvent 'updating', {name: 'packB'}
-        expect(panel.checkButton.prop('disabled')).toBe true
+        expect(panel.refs.checkButton.disabled).toBe true
 
         packageManager.emitPackageEvent 'updated', {name: 'packB'}
-        expect(panel.checkButton.prop('disabled')).toBe true
+        expect(panel.refs.checkButton.disabled).toBe true
 
         packageManager.emitPackageEvent 'update-failed', {name: 'packA'}
-        expect(panel.checkButton.prop('disabled')).toBe false
+        expect(panel.refs.checkButton.disabled).toBe false

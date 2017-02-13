@@ -73,7 +73,7 @@ class SettingsView extends ScrollView
     @addCorePanel 'Keybindings', 'keyboard', -> new KeybindingsPanel
     @addCorePanel 'Packages', 'package', => new InstalledPackagesPanel(@packageManager)
     @addCorePanel 'Themes', 'paintcan', => new ThemesPanel(this, @packageManager)
-    @addCorePanel 'Updates', 'cloud-download', => new UpdatesPanel(@packageManager)
+    @addCorePanel 'Updates', 'cloud-download', => new UpdatesPanel(this, @packageManager)
     @addCorePanel 'Install', 'plus', => new InstallPanel(@packageManager)
 
     @showDeferredPanel()
