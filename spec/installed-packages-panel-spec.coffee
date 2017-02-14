@@ -4,16 +4,18 @@ fs = require 'fs-plus'
 InstalledPackagesPanel = require '../lib/installed-packages-panel'
 PackageManager = require '../lib/package-manager'
 PackageCard = require '../lib/package-card'
+SettingsView = require '../lib/settings-view'
 
 describe 'InstalledPackagesPanel', ->
   describe 'when the packages are loading', ->
     it 'filters packages by name once they have loaded', ->
+      settingsView = new SettingsView
       @packageManager = new PackageManager
       @installed = JSON.parse fs.readFileSync(path.join(__dirname, 'fixtures', 'installed.json'))
       spyOn(@packageManager, 'getOutdated').andReturn new Promise ->
       spyOn(@packageManager, 'loadCompatiblePackageVersion').andCallFake ->
       spyOn(@packageManager, 'getInstalled').andReturn Promise.resolve(@installed)
-      @panel = new InstalledPackagesPanel(@packageManager)
+      @panel = new InstalledPackagesPanel(settingsView, @packageManager)
       @panel.refs.filterEditor.setText('user-')
       window.advanceClock(@panel.refs.filterEditor.getBuffer().stoppedChangingDelay)
 
@@ -35,12 +37,13 @@ describe 'InstalledPackagesPanel', ->
 
   describe 'when the packages have finished loading', ->
     beforeEach ->
+      settingsView = new SettingsView
       @packageManager = new PackageManager
       @installed = JSON.parse fs.readFileSync(path.join(__dirname, 'fixtures', 'installed.json'))
       spyOn(@packageManager, 'getOutdated').andReturn new Promise ->
       spyOn(@packageManager, 'loadCompatiblePackageVersion').andCallFake ->
       spyOn(@packageManager, 'getInstalled').andReturn Promise.resolve(@installed)
-      @panel = new InstalledPackagesPanel(@packageManager)
+      @panel = new InstalledPackagesPanel(settingsView, @packageManager)
 
       waitsFor ->
         @packageManager.getInstalled.callCount is 1 and @panel.refs.communityCount.textContent.indexOf('…') < 0
@@ -149,6 +152,7 @@ describe 'InstalledPackagesPanel', ->
 
   describe 'expanding and collapsing sub-sections', ->
     beforeEach ->
+      settingsView = new SettingsView
       @packageManager = new PackageManager
       @installed = JSON.parse fs.readFileSync(path.join(__dirname, 'fixtures', 'installed.json'))
       spyOn(@packageManager, 'getOutdated').andReturn new Promise ->
@@ -158,7 +162,7 @@ describe 'InstalledPackagesPanel', ->
         return true if @installed.user[0].version is '1.0.0'
         false
 
-      @panel = new InstalledPackagesPanel(@packageManager)
+      @panel = new InstalledPackagesPanel(settingsView, @packageManager)
 
       waitsFor ->
         @packageManager.getInstalled.callCount is 1 and @panel.refs.communityCount.textContent.indexOf('…') < 0
@@ -204,6 +208,7 @@ describe 'InstalledPackagesPanel', ->
 
   describe 'when there are no packages', ->
     beforeEach ->
+      settingsView = new SettingsView
       @packageManager = new PackageManager
       @installed =
         dev: []
@@ -212,7 +217,7 @@ describe 'InstalledPackagesPanel', ->
       spyOn(@packageManager, 'getOutdated').andReturn new Promise ->
       spyOn(@packageManager, 'loadCompatiblePackageVersion').andCallFake ->
       spyOn(@packageManager, 'getInstalled').andReturn Promise.resolve(@installed)
-      @panel = new InstalledPackagesPanel(@packageManager)
+      @panel = new InstalledPackagesPanel(settingsView, @packageManager)
 
       waitsFor ->
         @packageManager.getInstalled.callCount is 1 and @panel.refs.communityCount.textContent.indexOf('…') < 0

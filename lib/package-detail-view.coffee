@@ -19,7 +19,7 @@ NORMALIZE_PACKAGE_DATA_README_ERROR = 'ERROR: No README data found!'
 module.exports =
 class PackageDetailView extends ScrollView
 
-  @content: (pack, packageManager) ->
+  @content: (pack, settingsView, packageManager) ->
     @div tabindex: 0, class: 'package-detail panels-item', =>
       @ol outlet: 'breadcrumbContainer', class: 'native-key-bindings breadcrumb', tabindex: -1, =>
         @li =>
@@ -33,7 +33,7 @@ class PackageDetailView extends ScrollView
             @div outlet: 'packageCardParent', class: 'row', =>
               # Packages that need to be fetched will *only* have `name` set
               if pack?.metadata and pack.metadata.owner
-                @subview 'packageCard', new PackageCard(pack.metadata, packageManager, onSettingsView: true)
+                @subview 'packageCard', new PackageCard(pack.metadata, settingsView, packageManager, onSettingsView: true)
               else
                 @div outlet: 'loadingMessage', class: 'alert alert-info icon icon-hourglass', "Loading #{pack.name}\u2026"
 
@@ -54,7 +54,7 @@ class PackageDetailView extends ScrollView
 
       @div outlet: 'sections'
 
-  initialize: (@pack, @packageManager, @snippetsProvider) ->
+  initialize: (@pack, @settingsView, @packageManager, @snippetsProvider) ->
     super
     @disposables = new CompositeDisposable()
     @loadPackage()
@@ -62,7 +62,7 @@ class PackageDetailView extends ScrollView
 
   completeInitialzation: ->
     unless @packageCard # Had to load this from the network
-      @packageCard = new PackageCard(@pack.metadata, @packageManager, onSettingsView: true)
+      @packageCard = new PackageCard(@pack.metadata, @settingsView, @packageManager, onSettingsView: true)
       @loadingMessage.replaceWith(@packageCard)
 
     @packageRepo.removeClass('hidden')
@@ -115,13 +115,14 @@ class PackageDetailView extends ScrollView
     if atom.packages.isPackageLoaded(@pack.name) and not atom.packages.isPackageActive(@pack.name)
       @pack.activateConfig()
 
-  dispose: ->
+  destroy: ->
     @disposables.dispose()
+    @remove()
 
   beforeShow: (opts) ->
     opts.back ?= 'Install'
     @breadcrumb.text(opts.back).on 'click', =>
-      @parents('.settings-view').view()?.showPanel(opts.back)
+      @settingsView.showPanel(opts.back)
 
   populate: ->
     @title.text("#{_.undasherize(_.uncamelcase(@pack.name))}")

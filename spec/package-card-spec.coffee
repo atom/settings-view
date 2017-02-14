@@ -1,6 +1,7 @@
 path = require 'path'
 PackageCard = require '../lib/package-card'
 PackageManager = require '../lib/package-manager'
+SettingsView = require '../lib/settings-view'
 
 describe "PackageCard", ->
   setPackageStatusSpies = (opts) ->
@@ -16,50 +17,50 @@ describe "PackageCard", ->
 
   it "doesn't show the disable control for a theme", ->
     setPackageStatusSpies {installed: true, disabled: false}
-    card = new PackageCard({theme: 'syntax', name: 'test-theme'}, packageManager)
+    card = new PackageCard({theme: 'syntax', name: 'test-theme'}, new SettingsView(), packageManager)
     jasmine.attachToDOM(card[0])
     expect(card.enablementButton).not.toBeVisible()
 
   it "doesn't show the status indicator for a theme", ->
     setPackageStatusSpies {installed: true, disabled: false}
-    card = new PackageCard {theme: 'syntax', name: 'test-theme'}, packageManager
+    card = new PackageCard {theme: 'syntax', name: 'test-theme'}, new SettingsView(), packageManager
     jasmine.attachToDOM(card[0])
     expect(card.statusIndicatorButton).not.toBeVisible()
 
   it "doesn't show the settings button for a theme", ->
     setPackageStatusSpies {installed: true, disabled: false}
-    card = new PackageCard {theme: 'syntax', name: 'test-theme'}, packageManager
+    card = new PackageCard {theme: 'syntax', name: 'test-theme'}, new SettingsView(), packageManager
     jasmine.attachToDOM(card[0])
     expect(card.settingsButton).not.toBeVisible()
 
   it "doesn't show the settings button on the settings view", ->
     setPackageStatusSpies {installed: true, disabled: false, hasSettings: true}
-    card = new PackageCard {name: 'test-package'}, packageManager, {onSettingsView: true}
+    card = new PackageCard {name: 'test-package'}, new SettingsView(), packageManager, {onSettingsView: true}
     jasmine.attachToDOM(card[0])
     expect(card.settingsButton).not.toBeVisible()
 
   it "removes the settings button if a package has no settings", ->
     setPackageStatusSpies {installed: true, disabled: false, hasSettings: false}
-    card = new PackageCard {name: 'test-package'}, packageManager
+    card = new PackageCard {name: 'test-package'}, new SettingsView(), packageManager
     jasmine.attachToDOM(card[0])
     expect(card.settingsButton).not.toBeVisible()
 
   it "removes the uninstall button if a package has is a bundled package", ->
     setPackageStatusSpies {installed: true, disabled: false, hasSettings: true}
-    card = new PackageCard {name: 'find-and-replace'}, packageManager
+    card = new PackageCard {name: 'find-and-replace'}, new SettingsView(), packageManager
     jasmine.attachToDOM(card[0])
     expect(card.uninstallButton).not.toBeVisible()
 
   it "displays the new version in the update button", ->
     setPackageStatusSpies {installed: true, disabled: false, hasSettings: true}
-    card = new PackageCard {name: 'find-and-replace', version: '1.0.0', latestVersion: '1.2.0'}, packageManager
+    card = new PackageCard {name: 'find-and-replace', version: '1.0.0', latestVersion: '1.2.0'}, new SettingsView(), packageManager
     jasmine.attachToDOM(card[0])
     expect(card.updateButton).toBeVisible()
     expect(card.updateButton.text()).toContain 'Update to 1.2.0'
 
   it "displays the new version in the update button when the package is disabled", ->
     setPackageStatusSpies {installed: true, disabled: true, hasSettings: true}
-    card = new PackageCard {name: 'find-and-replace', version: '1.0.0', latestVersion: '1.2.0'}, packageManager
+    card = new PackageCard {name: 'find-and-replace', version: '1.0.0', latestVersion: '1.2.0'}, new SettingsView(), packageManager
     jasmine.attachToDOM(card[0])
     expect(card.updateButton).toBeVisible()
     expect(card.updateButton.text()).toContain 'Update to 1.2.0'
@@ -70,7 +71,7 @@ describe "PackageCard", ->
       name: 'some-package'
       version: '0.1.0'
       repository: "https://github.com/#{authorName}/some-package"
-    card = new PackageCard(pack, packageManager)
+    card = new PackageCard(pack, new SettingsView(), packageManager)
 
     jasmine.attachToDOM(card[0])
 
@@ -84,7 +85,7 @@ describe "PackageCard", ->
         version: '0.1.0'
         repository: 'http://github.com/omgwow/some-package'
       spyOn(PackageCard::, 'isDeprecated').andReturn(false)
-      card = new PackageCard(pack, packageManager)
+      card = new PackageCard(pack, new SettingsView(), packageManager)
 
       jasmine.attachToDOM(card[0])
 
@@ -97,7 +98,7 @@ describe "PackageCard", ->
       setPackageStatusSpies {installed: false, disabled: false}
       spyOn(packageManager, 'install')
 
-      card = new PackageCard {name: 'test-package'}, packageManager
+      card = new PackageCard {name: 'test-package'}, new SettingsView(), packageManager
       expect(card.installButton.css('display')).not.toBe('none')
       expect(card.uninstallButton.css('display')).toBe('none')
       card.installButton.click()
@@ -121,7 +122,7 @@ describe "PackageCard", ->
         version: '0.1.0'
         engines:
           atom: '>0.50.0'
-      }, packageManager
+      }, new SettingsView(), packageManager
 
       # In that case there's no need to make a request to get all the versions
       expect(packageManager.loadCompatiblePackageVersion).not.toHaveBeenCalled()
@@ -155,7 +156,7 @@ describe "PackageCard", ->
         version: '0.1.0'
         engines:
           atom: '>99.0.0'
-      }, packageManager
+      }, new SettingsView(), packageManager
 
       expect(card.installButton.css('display')).not.toBe('none')
       expect(card.uninstallButton.css('display')).toBe('none')
@@ -184,7 +185,7 @@ describe "PackageCard", ->
         name: 'test-package'
         engines:
           atom: '>=99.0.0'
-      card = new PackageCard(pack , packageManager)
+      card = new PackageCard(pack , new SettingsView(), packageManager)
       jasmine.attachToDOM(card[0])
 
       expect(card.installButtonGroup).not.toBeVisible()
@@ -202,7 +203,7 @@ describe "PackageCard", ->
       setPackageStatusSpies {installed: true, disabled: false}
       spyOn(atom.packages, 'disablePackage').andReturn(true)
 
-      card = new PackageCard {name: 'test-package'}, packageManager
+      card = new PackageCard {name: 'test-package'}, new SettingsView(), packageManager
       expect(card.enablementButton.find('.disable-text').text()).toBe('Disable')
       card.enablementButton.click()
       expect(atom.packages.disablePackage).toHaveBeenCalled()
@@ -221,7 +222,7 @@ describe "PackageCard", ->
       spyOn(atom.packages, 'loadPackage').andCallFake ->
         originalLoadPackage.call(atom.packages, path.join(__dirname, 'fixtures', 'package-with-config'))
 
-      card = new PackageCard(pack, packageManager)
+      card = new PackageCard(pack, new SettingsView(), packageManager)
       jasmine.attachToDOM(card[0])
       expect(card.updateButton).toBeVisible()
 
@@ -247,7 +248,7 @@ describe "PackageCard", ->
       spyOn(atom.packages, 'loadPackage').andCallFake ->
         originalLoadPackage.call(atom.packages, path.join(__dirname, 'fixtures', 'package-with-config'))
 
-      card = new PackageCard(pack, packageManager)
+      card = new PackageCard(pack, new SettingsView(), packageManager)
       jasmine.attachToDOM(card[0])
       expect(card.updateButton).toBeVisible()
 
@@ -274,7 +275,7 @@ describe "PackageCard", ->
         originalLoadPackage.call(atom.packages, path.join(__dirname, 'fixtures', 'package-with-config'))
 
       pack.disable()
-      card = new PackageCard(pack, packageManager)
+      card = new PackageCard(pack, new SettingsView(), packageManager)
       expect(atom.packages.isPackageDisabled('package-with-config')).toBe true
       card.update()
 
@@ -297,7 +298,7 @@ describe "PackageCard", ->
       spyOn(packageManager, 'uninstall').andCallThrough()
 
       pack = atom.packages.getLoadedPackage('package-with-config')
-      card = new PackageCard(pack, packageManager)
+      card = new PackageCard(pack, new SettingsView(), packageManager)
       jasmine.attachToDOM(card[0])
 
       expect(card.uninstallButton).toBeVisible()
@@ -328,7 +329,7 @@ describe "PackageCard", ->
       atom.config.set('package-with-config.setting', 'something')
       pack = atom.packages.getLoadedPackage('package-with-config')
       spyOn(atom.packages, 'isPackageDisabled').andReturn(true)
-      card = new PackageCard(pack, packageManager)
+      card = new PackageCard(pack, new SettingsView(), packageManager)
       jasmine.attachToDOM(card[0])
 
       expect(card.updateButtonGroup).not.toBeVisible()
@@ -344,7 +345,7 @@ describe "PackageCard", ->
       atom.config.set('package-with-config.setting', 'something')
       pack = atom.packages.getLoadedPackage('package-with-config')
       spyOn(PackageCard::, 'isDeprecated').andReturn(false)
-      card = new PackageCard(pack, packageManager)
+      card = new PackageCard(pack, new SettingsView(), packageManager)
 
       jasmine.attachToDOM(card[0])
 
@@ -361,7 +362,7 @@ describe "PackageCard", ->
       pack = atom.packages.getLoadedPackage('package-with-config')
       spyOn(PackageCard::, 'isDeprecated').andReturn(false)
       spyOn(PackageCard::, 'hasSettings').andReturn(false)
-      card = new PackageCard(pack, packageManager)
+      card = new PackageCard(pack, new SettingsView(), packageManager)
 
       jasmine.attachToDOM(card[0])
 
@@ -396,7 +397,7 @@ describe "PackageCard", ->
           version: '<=1.0.0'
         pack = atom.packages.getLoadedPackage('package-with-config')
         pack.version = pack.metadata.version
-        card = new PackageCard(pack, packageManager)
+        card = new PackageCard(pack, new SettingsView(), packageManager)
         jasmine.attachToDOM(card[0])
 
       it "shows the correct state", ->
@@ -443,7 +444,7 @@ describe "PackageCard", ->
           version: '<=1.0.1'
         pack = atom.packages.getLoadedPackage('package-with-config')
         pack.version = pack.metadata.version
-        card = new PackageCard(pack, packageManager)
+        card = new PackageCard(pack, new SettingsView(), packageManager)
         jasmine.attachToDOM(card[0])
 
       it "explains that the update WILL NOT fix the deprecations when the new version isnt higher than the max version", ->
@@ -528,7 +529,7 @@ describe "PackageCard", ->
           hasAlternative: true
           alternative: 'core'
         pack = atom.packages.getLoadedPackage('package-with-config')
-        card = new PackageCard(pack, packageManager)
+        card = new PackageCard(pack, new SettingsView(), packageManager)
         jasmine.attachToDOM(card[0])
 
       it "notifies that the package has been replaced, shows uninstallButton", ->
@@ -550,7 +551,7 @@ describe "PackageCard", ->
           hasAlternative: true
           alternative: 'not-installed-package'
         pack = atom.packages.getLoadedPackage('package-with-config')
-        card = new PackageCard(pack, packageManager)
+        card = new PackageCard(pack, new SettingsView(), packageManager)
         jasmine.attachToDOM(card[0])
 
       it "shows installAlternativeButton and uninstallButton", ->
@@ -620,7 +621,7 @@ describe "PackageCard", ->
             hasAlternative: true
             alternative: 'language-test'
           pack = atom.packages.getLoadedPackage('package-with-config')
-          card = new PackageCard(pack, packageManager)
+          card = new PackageCard(pack, new SettingsView(), packageManager)
           jasmine.attachToDOM(card[0])
 
       it "notifies that the package has been replaced, shows uninstallButton", ->

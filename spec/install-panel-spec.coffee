@@ -1,10 +1,12 @@
 InstallPanel = require '../lib/install-panel'
 PackageManager = require '../lib/package-manager'
+SettingsView = require '../lib/settings-view'
 
 describe 'InstallPanel', ->
   beforeEach ->
+    settingsView = new SettingsView()
     @packageManager = new PackageManager()
-    @panel = new InstallPanel(@packageManager)
+    @panel = new InstallPanel(settingsView, @packageManager)
 
   describe "when the packages button is clicked", ->
     beforeEach ->

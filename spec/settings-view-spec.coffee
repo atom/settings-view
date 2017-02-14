@@ -17,13 +17,13 @@ describe "SettingsView", ->
     it "remembers which panel was visible", ->
       settingsView.showPanel('Themes')
       newSettingsView = new SettingsView(settingsView.serialize())
-      settingsView.remove()
+      settingsView.destroy()
       jasmine.attachToDOM(newSettingsView.element)
       newSettingsView.initializePanels()
       expect(newSettingsView.activePanel).toEqual {name: 'Themes', options: {}}
 
     it "shows the previously active panel if it is added after deserialization", ->
-      settingsView.addCorePanel('Panel 1', 'panel1', ->
+      settingsView.addCorePanel('Panel 1', 'panel-1', ->
         div = document.createElement('div')
         div.id = 'panel-1'
         {
@@ -35,7 +35,7 @@ describe "SettingsView", ->
       )
       settingsView.showPanel('Panel 1')
       newSettingsView = new SettingsView(settingsView.serialize())
-      newSettingsView.addPanel('Panel 1', 'panel1', ->
+      newSettingsView.addPanel('Panel 1', ->
         div = document.createElement('div')
         div.id = 'panel-1'
         {
@@ -62,7 +62,7 @@ describe "SettingsView", ->
       )
       settingsView.showPanel('Panel 1')
       newSettingsView = new SettingsView(settingsView.serialize())
-      settingsView.remove()
+      settingsView.destroy()
       jasmine.attachToDOM(newSettingsView.element)
       newSettingsView.initializePanels()
       expect(newSettingsView.activePanel).toEqual {name: 'Core', options: {}}
@@ -98,21 +98,21 @@ describe "SettingsView", ->
         }
       )
 
-      expect(settingsView.panelMenu.find('li a:contains(Panel 1)')).toExist()
-      expect(settingsView.panelMenu.find('li a:contains(Panel 2)')).toExist()
-      expect(settingsView.panelMenu.children(':first')).toHaveClass 'active'
+      expect(settingsView.refs.panelMenu.querySelector('li[name="Panel 1"]')).toExist()
+      expect(settingsView.refs.panelMenu.querySelector('li[name="Panel 2"]')).toExist()
+      expect(settingsView.refs.panelMenu.children[0]).toHaveClass 'active'
 
       jasmine.attachToDOM(settingsView.element)
-      settingsView.panelMenu.find('li a:contains(Panel 1)').click()
-      expect(settingsView.panelMenu.children('.active').length).toBe 1
-      expect(settingsView.panelMenu.find('li:contains(Panel 1)')).toHaveClass('active')
-      expect(settingsView.panels.find('#panel-1')).toBeVisible()
-      expect(settingsView.panels.find('#panel-2')).not.toExist()
-      settingsView.panelMenu.find('li a:contains(Panel 2)').click()
-      expect(settingsView.panelMenu.children('.active').length).toBe 1
-      expect(settingsView.panelMenu.find('li:contains(Panel 2)')).toHaveClass('active')
-      expect(settingsView.panels.find('#panel-1')).toBeHidden()
-      expect(settingsView.panels.find('#panel-2')).toBeVisible()
+      settingsView.refs.panelMenu.querySelector('li[name="Panel 1"] a').click()
+      expect(settingsView.refs.panelMenu.querySelectorAll('.active').length).toBe 1
+      expect(settingsView.refs.panelMenu.querySelector('li[name="Panel 1"]')).toHaveClass('active')
+      expect(settingsView.refs.panels.querySelector('#panel-1')).toBeVisible()
+      expect(settingsView.refs.panels.querySelector('#panel-2')).not.toExist()
+      settingsView.refs.panelMenu.querySelector('li[name="Panel 2"] a').click()
+      expect(settingsView.refs.panelMenu.querySelectorAll('.active').length).toBe 1
+      expect(settingsView.refs.panelMenu.querySelector('li[name="Panel 2"]')).toHaveClass('active')
+      expect(settingsView.refs.panels.querySelector('#panel-1')).toBeHidden()
+      expect(settingsView.refs.panels.querySelector('#panel-2')).toBeVisible()
 
   describe "when the package is activated", ->
     openWithCommand = (command) ->
@@ -405,13 +405,13 @@ describe "SettingsView", ->
         settingsView.showPanel('Install')
 
       waitsFor ->
-        settingsView.find('.package-card:not(.hidden)').length > 0
+        settingsView.element.querySelectorAll('.package-card:not(.hidden)').length > 0
 
       runs ->
-        settingsView.find('.package-card:not(.hidden):first').click()
+        settingsView.element.querySelectorAll('.package-card:not(.hidden)')[0].click()
 
-        packageDetail = settingsView.find('.package-detail').view()
-        expect(packageDetail.title.text()).toBe 'Settings View'
+        packageDetail = settingsView.element.querySelector('.package-detail .active')
+        expect(packageDetail.textContent).toBe 'Settings View'
 
   describe "when the active theme has settings", ->
     panel = null
@@ -431,7 +431,7 @@ describe "SettingsView", ->
 
       runs ->
         settingsView.showPanel('Themes')
-        panel = settingsView.find('.themes-panel')[0]
+        panel = settingsView.element.querySelector('.themes-panel')
 
     afterEach ->
       atom.themes.unwatchUserStylesheet()
@@ -442,8 +442,8 @@ describe "SettingsView", ->
         expect(panel.querySelector('.active-theme-settings')).toBeVisible()
 
         panel.querySelector('.active-theme-settings').click()
-        packageDetail = settingsView.find('.package-detail').view()
-        expect(packageDetail.title.text()).toBe 'Ui Theme With Config'
+        packageDetail = settingsView.element.querySelector('.package-detail li.active')
+        expect(packageDetail.textContent).toBe 'Ui Theme With Config'
 
     describe "when the syntax theme's settings button is clicked", ->
       it "navigates to that theme's detail view", ->
@@ -451,5 +451,5 @@ describe "SettingsView", ->
         expect(panel.querySelector('.active-syntax-settings')).toBeVisible()
 
         panel.querySelector('.active-syntax-settings').click()
-        packageDetail = settingsView.find('.package-detail').view()
-        expect(packageDetail.title.text()).toBe 'Syntax Theme With Config'
+        packageDetail = settingsView.element.querySelector('.package-detail li.active')
+        expect(packageDetail.textContent).toBe 'Syntax Theme With Config'

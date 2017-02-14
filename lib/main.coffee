@@ -56,8 +56,7 @@ module.exports =
         @showDeprecatedNotification(packages) if packages.user?.length
 
   deactivate: ->
-    settingsView?.dispose()
-    settingsView?.remove()
+    settingsView?.destroy()
     settingsView = null
     packageManager = null
 

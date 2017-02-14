@@ -32,7 +32,7 @@ describe "ThemesPanel", ->
       spyOn(packageManager, 'getFeatured').andCallFake (callback) ->
         Promise.resolve([themeMetadata])
       panel = new ThemesPanel(settingsView, packageManager)
-      settingsView.addPanel('Themes', null, -> panel)
+      settingsView.addPanel('Themes', -> panel)
 
       # Make updates synchronous
       spyOn(panel, 'scheduleUpdateThemeConfig').andCallFake -> @updateThemeConfig()
