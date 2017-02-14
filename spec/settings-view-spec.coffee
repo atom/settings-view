@@ -1,5 +1,4 @@
 path = require 'path'
-{$, $$} = require 'atom-space-pen-views'
 SettingsView = require '../lib/settings-view'
 SnippetsProvider =
   getSnippets: -> {}
@@ -24,16 +23,43 @@ describe "SettingsView", ->
       expect(newSettingsView.activePanel).toEqual {name: 'Themes', options: {}}
 
     it "shows the previously active panel if it is added after deserialization", ->
-      settingsView.addCorePanel('Panel 1', 'panel1', -> $$ -> @div id: 'panel-1')
+      settingsView.addCorePanel('Panel 1', 'panel1', ->
+        div = document.createElement('div')
+        div.id = 'panel-1'
+        {
+          element: div,
+          show: -> div.style.display = '',
+          focus: -> div.focus(),
+          destroy: -> div.remove()
+        }
+      )
       settingsView.showPanel('Panel 1')
       newSettingsView = new SettingsView(settingsView.serialize())
-      newSettingsView.addPanel('Panel 1', 'panel1', -> $$ -> @div id: 'panel-1')
+      newSettingsView.addPanel('Panel 1', 'panel1', ->
+        div = document.createElement('div')
+        div.id = 'panel-1'
+        {
+          element: div,
+          show: -> div.style.display = '',
+          focus: -> div.focus(),
+          destroy: -> div.remove()
+        }
+      )
       newSettingsView.initializePanels()
       jasmine.attachToDOM(newSettingsView.element)
       expect(newSettingsView.activePanel).toEqual {name: 'Panel 1', options: {}}
 
     it "shows the Settings panel if the last saved active panel name no longer exists", ->
-      settingsView.addCorePanel('Panel 1', 'panel1', -> $$ -> @div id: 'panel-1')
+      settingsView.addCorePanel('Panel 1', 'panel1', ->
+        div = document.createElement('div')
+        div.id = 'panel-1'
+        {
+          element: div,
+          show: -> div.style.display = '',
+          focus: -> div.focus(),
+          destroy: -> div.remove()
+        }
+      )
       settingsView.showPanel('Panel 1')
       newSettingsView = new SettingsView(settingsView.serialize())
       settingsView.remove()
@@ -51,8 +77,26 @@ describe "SettingsView", ->
 
   describe ".addCorePanel(name, iconName, view)", ->
     it "adds a menu entry to the left and a panel that can be activated by clicking it", ->
-      settingsView.addCorePanel('Panel 1', 'panel1', -> $$ -> @div id: 'panel-1')
-      settingsView.addCorePanel('Panel 2', 'panel2', -> $$ -> @div id: 'panel-2')
+      settingsView.addCorePanel('Panel 1', 'panel1', ->
+        div = document.createElement('div')
+        div.id = 'panel-1'
+        {
+          element: div,
+          show: -> div.style.display = '',
+          focus: -> div.focus(),
+          destroy: -> div.remove()
+        }
+      )
+      settingsView.addCorePanel('Panel 2', 'panel2', ->
+        div = document.createElement('div')
+        div.id = 'panel-2'
+        {
+          element: div,
+          show: -> div.style.display = '',
+          focus: -> div.focus(),
+          destroy: -> div.remove()
+        }
+      )
 
       expect(settingsView.panelMenu.find('li a:contains(Panel 1)')).toExist()
       expect(settingsView.panelMenu.find('li a:contains(Panel 2)')).toExist()
@@ -155,8 +199,7 @@ describe "SettingsView", ->
     describe "when atom.workspace.open() is used with a config URI", ->
       focusIsWithinActivePanel = ->
         activePanel = settingsView.panelsByName[settingsView.activePanel.name]
-        # Return true if the element that has the focus, or its ancestors, is the activePanel
-        $(document.activeElement).parents().addBack().toArray().indexOf(activePanel.element) isnt -1
+        activePanel.element is document.activeElement or activePanel.contains(document.activeElement)
 
       expectActivePanelToBeKeyboardScrollable = ->
         activePanel = settingsView.panelsByName[settingsView.activePanel.name]
