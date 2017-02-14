@@ -9,15 +9,15 @@ describe 'InstallPanel', ->
   describe "when the packages button is clicked", ->
     beforeEach ->
       spyOn(@panel, 'search')
-      @panel.searchEditorView.setText('something')
+      @panel.refs.searchEditor.setText('something')
 
     it "performs a search for the contents of the input", ->
-      @panel.searchPackagesButton.click()
+      @panel.refs.searchPackagesButton.click()
       expect(@panel.searchType).toBe 'packages'
       expect(@panel.search).toHaveBeenCalledWith 'something'
       expect(@panel.search.callCount).toBe 1
 
-      @panel.searchPackagesButton.click()
+      @panel.refs.searchPackagesButton.click()
       expect(@panel.searchType).toBe 'packages'
       expect(@panel.search).toHaveBeenCalledWith 'something'
       expect(@panel.search.callCount).toBe 2
@@ -25,34 +25,34 @@ describe 'InstallPanel', ->
   describe "when the themes button is clicked", ->
     beforeEach ->
       spyOn(@panel, 'search')
-      @panel.searchEditorView.setText('something')
+      @panel.refs.searchEditor.setText('something')
 
     it "performs a search for the contents of the input", ->
-      @panel.searchThemesButton.click()
+      @panel.refs.searchThemesButton.click()
       expect(@panel.searchType).toBe 'themes'
       expect(@panel.search.callCount).toBe 1
       expect(@panel.search).toHaveBeenCalledWith 'something'
 
-      @panel.searchThemesButton.click()
+      @panel.refs.searchThemesButton.click()
       expect(@panel.searchType).toBe 'themes'
       expect(@panel.search.callCount).toBe 2
 
   describe "when the buttons are toggled", ->
     beforeEach ->
       spyOn(@panel, 'search')
-      @panel.searchEditorView.setText('something')
+      @panel.refs.searchEditor.setText('something')
 
     it "performs a search for the contents of the input", ->
-      @panel.searchThemesButton.click()
+      @panel.refs.searchThemesButton.click()
       expect(@panel.searchType).toBe 'themes'
       expect(@panel.search.callCount).toBe 1
       expect(@panel.search).toHaveBeenCalledWith 'something'
 
-      @panel.searchPackagesButton.click()
+      @panel.refs.searchPackagesButton.click()
       expect(@panel.searchType).toBe 'packages'
       expect(@panel.search.callCount).toBe 2
 
-      @panel.searchThemesButton.click()
+      @panel.refs.searchThemesButton.click()
       expect(@panel.searchType).toBe 'themes'
       expect(@panel.search.callCount).toBe 3
 
