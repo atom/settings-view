@@ -27,7 +27,8 @@ module.exports =
   activate: ->
     atom.workspace.addOpener (uri) =>
       if uri.startsWith(configUri)
-        settingsView ?= @createSettingsView({uri})
+        if not settingsView? or settingsView.destroyed
+          settingsView = @createSettingsView({uri})
         if match = uriRegex.exec(uri)
           panelName = match[1]
           panelName = panelName[0].toUpperCase() + panelName.slice(1)
