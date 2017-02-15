@@ -85,7 +85,7 @@ describe "SettingsPanel", ->
       atom.config.setSchema("foo", config)
       atom.config.setDefaults("foo", gong: 'gong')
       expect(_.size(atom.config.get('foo'))).toBe 3
-      settingsPanel = new SettingsPanel("foo", {includeTitle: false})
+      settingsPanel = new SettingsPanel({namespace: "foo", includeTitle: false})
 
     it 'ensures default stays default', ->
       expect(settingsPanel.getDefault('foo.haz')).toBe 'haz'
