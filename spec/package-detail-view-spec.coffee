@@ -35,7 +35,7 @@ describe "PackageDetailView", ->
     view = new PackageDetailView(pack, new SettingsView(), packageManager, SnippetsProvider)
 
     # Perhaps there are more things to assert here.
-    expect(view.title.text()).toBe('Package With Config')
+    expect(view.refs.title.textContent).toBe('Package With Config')
 
   it "does not call the atom.io api for package metadata when present", ->
     packageManager.client = createClientSpy()
@@ -47,8 +47,8 @@ describe "PackageDetailView", ->
 
   it "shows a loading message and calls out to atom.io when package metadata is missing", ->
     loadPackageFromRemote()
-    expect(view.loadingMessage).not.toBe(null)
-    expect(view.loadingMessage[0].classList.contains('hidden')).not.toBe(true)
+    expect(view.refs.loadingMessage).not.toBe(null)
+    expect(view.refs.loadingMessage.classList.contains('hidden')).not.toBe(true)
     expect(packageManager.client.package).toHaveBeenCalled()
 
   it "shows an error when package metadata cannot be loaded via the API", ->
@@ -59,9 +59,9 @@ describe "PackageDetailView", ->
 
     view = new PackageDetailView({name: 'nonexistent-package'}, new SettingsView(), packageManager, SnippetsProvider)
 
-    expect(view.errorMessage[0].classList.contains('hidden')).not.toBe(true)
-    expect(view.loadingMessage[0].classList.contains('hidden')).toBe(true)
-    expect(view.find('.package-card').length).toBe(0)
+    expect(view.refs.errorMessage.classList.contains('hidden')).not.toBe(true)
+    expect(view.refs.loadingMessage.classList.contains('hidden')).toBe(true)
+    expect(view.element.querySelectorAll('.package-card').length).toBe(0)
 
   it "shows an error when package metadata cannot be loaded from the cache and the network is unavailable", ->
     spyOn(AtomIoClient.prototype, 'online').andReturn(false)
@@ -76,20 +76,20 @@ describe "PackageDetailView", ->
     expect(AtomIoClient.prototype.fetchFromCache).toHaveBeenCalled()
     expect(AtomIoClient.prototype.request).not.toHaveBeenCalled()
 
-    expect(view.errorMessage[0].classList.contains('hidden')).not.toBe(true)
-    expect(view.loadingMessage[0].classList.contains('hidden')).toBe(true)
-    expect(view.find('.package-card').length).toBe(0)
+    expect(view.refs.errorMessage.classList.contains('hidden')).not.toBe(true)
+    expect(view.refs.loadingMessage.classList.contains('hidden')).toBe(true)
+    expect(view.element.querySelectorAll('.package-card').length).toBe(0)
 
   it "renders the README successfully after a call to the atom.io api", ->
     loadPackageFromRemote()
     expect(view.packageCard).toBeDefined()
     expect(view.packageCard.packageName.text()).toBe('package-with-readme')
-    expect(view.find('.package-readme').length).toBe(1)
+    expect(view.element.querySelectorAll('.package-readme').length).toBe(1)
 
   it "renders the README successfully with sanitized html", ->
     loadPackageFromRemote()
-    expect(view.find('.package-readme script').length).toBe(0)
-    expect(view.find('.package-readme :checkbox[disabled]').length).toBe(2)
+    expect(view.element.querySelectorAll('.package-readme script').length).toBe(0)
+    expect(view.element.querySelectorAll('.package-readme input[type="checkbox"][disabled]').length).toBe(2)
 
   it "renders the README when the package path is undefined", ->
     atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-readme'))
@@ -99,8 +99,8 @@ describe "PackageDetailView", ->
 
     expect(view.packageCard).toBeDefined()
     expect(view.packageCard.packageName.text()).toBe('package-with-readme')
-    expect(view.find('.package-readme').length).toBe(1)
+    expect(view.element.querySelectorAll('.package-readme').length).toBe(1)
 
   it "should show 'Install' as the first breadcrumb by default", ->
     loadPackageFromRemote()
-    expect(view.breadcrumb.text()).toBe('Install')
+    expect(view.refs.breadcrumb.textContent).toBe('Install')

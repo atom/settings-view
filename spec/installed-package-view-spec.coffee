@@ -20,19 +20,20 @@ describe "InstalledPackageView", ->
     runs ->
       pack = atom.packages.getActivePackage('language-test')
       view = new PackageDetailView(pack, new SettingsView(), new PackageManager(), SnippetsProvider)
-      settingsPanels = view.find('.package-grammars .settings-panel')
+      settingsPanels = view.element.querySelectorAll('.package-grammars .settings-panel')
 
-    waitsFor ->
-      settingsPanels.children().length is 2
+      waitsFor ->
+        children = Array.from(settingsPanels).map((s) -> s.children.length)
+        childrenCount = children.reduce(((a, b) -> a + b), 0)
+        childrenCount is 2
 
-    runs ->
-      expect(settingsPanels.eq(0).find('.grammar-scope').text()).toBe 'Scope: source.a'
-      expect(settingsPanels.eq(0).find('.grammar-filetypes').text()).toBe 'File Types: .a, .aa, a'
+      expect(settingsPanels[0].querySelector('.grammar-scope').textContent).toBe 'Scope: source.a'
+      expect(settingsPanels[0].querySelector('.grammar-filetypes').textContent).toBe 'File Types: .a, .aa, a'
 
-      expect(settingsPanels.eq(1).find('.grammar-scope').text()).toBe 'Scope: source.b'
-      expect(settingsPanels.eq(1).find('.grammar-filetypes').text()).toBe 'File Types: '
+      expect(settingsPanels[1].querySelector('.grammar-scope').textContent).toBe 'Scope: source.b'
+      expect(settingsPanels[1].querySelector('.grammar-filetypes').textContent).toBe 'File Types: '
 
-      expect(settingsPanels.eq(2).length).toEqual(0)
+      expect(settingsPanels[2]).toBeUndefined()
 
   it "displays the snippets registered by the package", ->
     snippetsTable = null
@@ -50,20 +51,20 @@ describe "InstalledPackageView", ->
     runs ->
       pack = atom.packages.getActivePackage('language-test')
       view = new PackageDetailView(pack, new SettingsView(), new PackageManager(), SnippetsProvider)
-      snippetsTable = view.find('.package-snippets-table tbody')
+      snippetsTable = view.element.querySelector('.package-snippets-table tbody')
 
     waitsFor ->
-      snippetsTable.children().length >= 2
+      snippetsTable.children.length >= 2
     , 'Snippets table children to contain 2 items', 5000
 
     runs ->
-      expect(snippetsTable.find('tr:eq(0) td:eq(0)').text()).toBe 'b'
-      expect(snippetsTable.find('tr:eq(0) td:eq(1)').text()).toBe 'BAR'
-      expect(snippetsTable.find('tr:eq(0) td:eq(2)').text()).toBe 'bar?'
+      expect(snippetsTable.querySelector('tr:nth-child(1) td:nth-child(1)').textContent).toBe 'b'
+      expect(snippetsTable.querySelector('tr:nth-child(1) td:nth-child(2)').textContent).toBe 'BAR'
+      expect(snippetsTable.querySelector('tr:nth-child(1) td:nth-child(3)').textContent).toBe 'bar?'
 
-      expect(snippetsTable.find('tr:eq(1) td:eq(0)').text()).toBe 'f'
-      expect(snippetsTable.find('tr:eq(1) td:eq(1)').text()).toBe 'FOO'
-      expect(snippetsTable.find('tr:eq(1) td:eq(2)').text()).toBe 'foo!'
+      expect(snippetsTable.querySelector('tr:nth-child(2) td:nth-child(1)').textContent).toBe 'f'
+      expect(snippetsTable.querySelector('tr:nth-child(2) td:nth-child(2)').textContent).toBe 'FOO'
+      expect(snippetsTable.querySelector('tr:nth-child(2) td:nth-child(3)').textContent).toBe 'foo!'
 
   it "does not display keybindings from other platforms", ->
     keybindingsTable = null
@@ -74,8 +75,8 @@ describe "InstalledPackageView", ->
     runs ->
       pack = atom.packages.getActivePackage('language-test')
       view = new PackageDetailView(pack, new SettingsView(), new PackageManager(), SnippetsProvider)
-      keybindingsTable = view.find('.package-keymap-table tbody')
-      expect(keybindingsTable.children().length).toBe 1
+      keybindingsTable = view.element.querySelector('.package-keymap-table tbody')
+      expect(keybindingsTable.children.length).toBe 1
 
   describe "when the keybindings toggle is clicked", ->
     it "sets the packagesWithKeymapsDisabled config to include the package name", ->
@@ -137,7 +138,7 @@ describe "InstalledPackageView", ->
         expect(atom.packages.isPackageActive('status-bar')).toBe(true)
         pack = atom.packages.getLoadedPackage('status-bar')
         view = new PackageDetailView(pack, new SettingsView(), new PackageManager(), SnippetsProvider)
-        packageCard = view.find('.package-card')
+        packageCard = view.element.querySelector('.package-card')
 
       runs ->
         # Trigger observeDisabledPackages() here
@@ -145,7 +146,7 @@ describe "InstalledPackageView", ->
         atom.packages.observeDisabledPackages()
         atom.packages.disablePackage('status-bar')
         expect(atom.packages.isPackageDisabled('status-bar')).toBe(true)
-        expect(packageCard.hasClass('disabled')).toBe(true)
+        expect(packageCard.classList.contains('disabled')).toBe(true)
 
   describe "when the package is not active", ->
     it "displays the correct enablement state", ->
@@ -153,14 +154,14 @@ describe "InstalledPackageView", ->
       expect(atom.packages.isPackageActive('status-bar')).toBe(false)
       pack = atom.packages.getLoadedPackage('status-bar')
       view = new PackageDetailView(pack, new SettingsView(), new PackageManager(), SnippetsProvider)
-      packageCard = view.find('.package-card')
+      packageCard = view.element.querySelector('.package-card')
 
       # Trigger observeDisabledPackages() here
       # because it is not default in specs
       atom.packages.observeDisabledPackages()
       atom.packages.disablePackage('status-bar')
       expect(atom.packages.isPackageDisabled('status-bar')).toBe(true)
-      expect(packageCard.hasClass('disabled')).toBe(true)
+      expect(packageCard.classList.contains('disabled')).toBe(true)
 
     it "still loads the config schema for the package", ->
       atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-config'))
@@ -190,5 +191,5 @@ describe "InstalledPackageView", ->
         expect(pack.metadata.readme).toBe normalizePackageDataReadmeError
 
         view = new PackageDetailView(pack, new SettingsView(), new PackageManager(), SnippetsProvider)
-        expect(view.sections.find('.package-readme').text()).not.toBe normalizePackageDataReadmeError
-        expect(view.sections.find('.package-readme').text().trim()).toContain 'I am a Readme!'
+        expect(view.refs.sections.querySelector('.package-readme').textContent).not.toBe normalizePackageDataReadmeError
+        expect(view.refs.sections.querySelector('.package-readme').textContent.trim()).toContain 'I am a Readme!'
