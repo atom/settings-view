@@ -7,7 +7,6 @@
   "dependencies": {
     "async": "~0.2.9",
     "atom-space-pen-views": "^2.1.1",
-    "cheerio": "0.15.0",
     "etch": "^0.8.0",
     "fs-plus": "^2.4",
     "fuzzaldrin": "^2.1",
