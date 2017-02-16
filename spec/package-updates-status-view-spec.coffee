@@ -1,7 +1,7 @@
 PackageManager = require '../lib/package-manager'
 PackageUpdatesStatusView = require '../lib/package-updates-status-view'
 
-ffdescribe "PackageUpdatesStatusView", ->
+describe "PackageUpdatesStatusView", ->
   [statusBar, statusView, packageManager] = []
 
   outdatedPackage1 =
