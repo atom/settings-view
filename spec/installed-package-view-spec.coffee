@@ -80,21 +80,20 @@ describe "InstalledPackageView", ->
 
   describe "when the keybindings toggle is clicked", ->
     it "sets the packagesWithKeymapsDisabled config to include the package name", ->
-
       waitsForPromise ->
         atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
 
       runs ->
         pack = atom.packages.getActivePackage('language-test')
         card = new PackageKeymapView(pack)
-        jasmine.attachToDOM(card[0])
+        jasmine.attachToDOM(card.element)
 
-        card.keybindingToggle.click()
-        expect(card.keybindingToggle.prop('checked')).toBe false
+        card.refs.keybindingToggle.click()
+        expect(card.refs.keybindingToggle.checked).toBe false
         expect(_.include(atom.config.get('core.packagesWithKeymapsDisabled') ? [], 'language-test')).toBe true
 
-        card.keybindingToggle.click()
-        expect(card.keybindingToggle.prop('checked')).toBe true
+        card.refs.keybindingToggle.click()
+        expect(card.refs.keybindingToggle.checked).toBe true
         expect(_.include(atom.config.get('core.packagesWithKeymapsDisabled') ? [], 'language-test')).toBe false
 
   describe "when a keybinding is copied", ->
@@ -111,7 +110,7 @@ describe "InstalledPackageView", ->
     describe "when the keybinding file ends in .cson", ->
       it "writes a CSON snippet to the clipboard", ->
         spyOn(atom.keymaps, 'getUserKeymapPath').andReturn 'keymap.cson'
-        card.find('.copy-icon').click()
+        card.element.querySelector('.copy-icon').click()
         expect(atom.clipboard.read()).toBe """
           'test':
             'cmd-g': 'language-test:run'
@@ -120,7 +119,7 @@ describe "InstalledPackageView", ->
     describe "when the keybinding file ends in .json", ->
       it "writes a JSON snippet to the clipboard", ->
         spyOn(atom.keymaps, 'getUserKeymapPath').andReturn 'keymap.json'
-        card.find('.copy-icon').click()
+        card.element.querySelector('.copy-icon').click()
         expect(atom.clipboard.read()).toBe """
           "test": {
             "cmd-g": "language-test:run"
