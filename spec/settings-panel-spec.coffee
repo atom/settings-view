@@ -1,4 +1,4 @@
-SettingsPanel = require '../lib/settings-panel-2'
+SettingsPanel = require '../lib/settings-panel'
 _ = require 'underscore-plus'
 
 describe "SettingsPanel", ->
