@@ -1,6 +1,8 @@
 SettingsView = null
 settingsView = null
 
+statusView = null
+
 PackageManager = require './package-manager'
 packageManager = null
 
@@ -58,14 +60,17 @@ module.exports =
 
   deactivate: ->
     settingsView?.destroy()
+    statusView?.destroy()
     settingsView = null
     packageManager = null
+    statusView = null
 
   consumeStatusBar: (statusBar) ->
     packageManager ?= new PackageManager()
     packageManager.getOutdated().then (updates) ->
       PackageUpdatesStatusView = require './package-updates-status-view'
-      new PackageUpdatesStatusView(statusBar, packageManager, updates)
+      statusView = new PackageUpdatesStatusView()
+      statusView.initialize(statusBar, packageManager, updates)
 
   consumeSnippets: (snippets) ->
     if typeof snippets.getUnparsedSnippets is "function"
