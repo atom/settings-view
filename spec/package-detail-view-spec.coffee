@@ -83,7 +83,7 @@ describe "PackageDetailView", ->
   it "renders the README successfully after a call to the atom.io api", ->
     loadPackageFromRemote()
     expect(view.packageCard).toBeDefined()
-    expect(view.packageCard.packageName.text()).toBe('package-with-readme')
+    expect(view.packageCard.refs.packageName.textContent).toBe('package-with-readme')
     expect(view.element.querySelectorAll('.package-readme').length).toBe(1)
 
   it "renders the README successfully with sanitized html", ->
@@ -98,7 +98,7 @@ describe "PackageDetailView", ->
     view = new PackageDetailView(pack, new SettingsView(), packageManager, SnippetsProvider)
 
     expect(view.packageCard).toBeDefined()
-    expect(view.packageCard.packageName.text()).toBe('package-with-readme')
+    expect(view.packageCard.refs.packageName.textContent).toBe('package-with-readme')
     expect(view.element.querySelectorAll('.package-readme').length).toBe(1)
 
   it "should show 'Install' as the first breadcrumb by default", ->
