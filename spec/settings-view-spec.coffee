@@ -1,14 +1,16 @@
 path = require 'path'
 {$, $$} = require 'atom-space-pen-views'
+PackageManager = require '../lib/package-manager'
 SettingsView = require '../lib/settings-view'
 SnippetsProvider =
   getSnippets: -> {}
 
 describe "SettingsView", ->
   settingsView = null
+  packageManager = new PackageManager()
 
   beforeEach ->
-    settingsView = new SettingsView({snippetsProvider: SnippetsProvider})
+    settingsView = new SettingsView({packageManager: packageManager, snippetsProvider: SnippetsProvider})
     spyOn(settingsView, "initializePanels").andCallThrough()
     window.advanceClock(10000)
     waitsFor ->

@@ -81,6 +81,7 @@ class SettingsView extends ScrollView
     version: 2
     activePanel: @activePanel ? @deferredPanel
     uri: @uri
+    packageManager: @packageManager
 
   getPackages: ->
     return @packages if @packages?
