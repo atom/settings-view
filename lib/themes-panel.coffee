@@ -52,35 +52,36 @@ class ThemesPanel extends CollapsibleSectionPanel
           @div class: 'editor-container', =>
             @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter themes by name')
 
-          @div outlet: 'themeErrors'
+          @div outlet: 'errors'
 
-          @section class: 'sub-section installed-packages', =>
-            @h3 outlet: 'communityThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
-              @text 'Community Themes'
-              @span outlet: 'communityCount', class: 'section-heading-count badge badge-flexible', '…'
-            @div outlet: 'communityPackages', class: 'container package-container', =>
-              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
+          @div outlet: 'themes', =>
+            @section class: 'sub-section installed-packages', =>
+              @h3 outlet: 'communityThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
+                @text 'Community Themes'
+                @span outlet: 'communityCount', class: 'section-heading-count badge badge-flexible', '…'
+              @div outlet: 'communityPackages', class: 'container package-container', =>
+                @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
-          @section class: 'sub-section core-packages', =>
-            @h3 outlet: 'coreThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
-              @text 'Core Themes'
-              @span outlet: 'coreCount', class: 'section-heading-count badge badge-flexible', '…'
-            @div outlet: 'corePackages', class: 'container package-container', =>
-              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
+            @section class: 'sub-section core-packages', =>
+              @h3 outlet: 'coreThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
+                @text 'Core Themes'
+                @span outlet: 'coreCount', class: 'section-heading-count badge badge-flexible', '…'
+              @div outlet: 'corePackages', class: 'container package-container', =>
+                @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
-          @section class: 'sub-section dev-packages', =>
-            @h3 outlet: 'developmentThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
-              @text 'Development Themes'
-              @span outlet: 'devCount', class: 'section-heading-count badge badge-flexible', '…'
-            @div outlet: 'devPackages', class: 'container package-container', =>
-              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
+            @section class: 'sub-section dev-packages', =>
+              @h3 outlet: 'developmentThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
+                @text 'Development Themes'
+                @span outlet: 'devCount', class: 'section-heading-count badge badge-flexible', '…'
+              @div outlet: 'devPackages', class: 'container package-container', =>
+                @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
-          @section class: 'sub-section git-packages', =>
-            @h3 outlet: 'gitThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
-              @text 'Git Themes'
-              @span outlet: 'gitCount', class: 'section-heading-count badge badge-flexible', '…'
-            @div outlet: 'gitPackages', class: 'container package-container', =>
-              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
+            @section class: 'sub-section git-packages', =>
+              @h3 outlet: 'gitThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
+                @text 'Git Themes'
+                @span outlet: 'gitCount', class: 'section-heading-count badge badge-flexible', '…'
+              @div outlet: 'gitPackages', class: 'container package-container', =>
+                @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading themes…"
 
   initialize: (@packageManager) ->
     super
@@ -178,8 +179,9 @@ class ThemesPanel extends CollapsibleSectionPanel
         @updateSectionCounts()
 
       .catch (error) =>
-        @loadingMessage.hide()
-        @themeErrors.append(new ErrorView(@packageManager, error))
+        @totalPackages.hide()
+        @themes.hide()
+        @errors.append(new ErrorView(@packageManager, error))
 
   # Update the active UI and syntax themes and populate the menu
   updateActiveThemes: ->
