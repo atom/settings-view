@@ -198,3 +198,29 @@ describe "ThemesPanel", ->
       expect(panel.find('.section-heading-count').text()).toMatch /^0(0\/0)+$/
       expect(panel.find('.sub-section .icon-paintcan').length).toBe 4
       expect(panel.find('.sub-section .icon-paintcan.has-items').length).toBe 0
+
+  describe 'when an error occurs loading themes', ->
+    beforeEach ->
+      spyOn(packageManager, 'loadCompatiblePackageVersion').andCallFake ->
+      spyOn(packageManager, 'getInstalled').andReturn Promise.reject({stderr: 'nope'})
+      panel = new ThemesPanel(packageManager)
+
+      waitsFor ->
+        packageManager.getInstalled.callCount is 1 and panel.errors.text().length isnt 0
+
+    it 'displays the error and hides the theme sections', ->
+      expect(panel.errors.text()).toContain 'nope'
+      expect(panel.totalPackages.isHidden()).toBe true
+      expect(panel.installedThemes.isHidden()).toBe true
+      expect(panel.find('.sub-section.installed-packages')).toBeHidden()
+
+  describe 'when an error occurs uninstalling a theme', ->
+    beforeEach ->
+      panel = new ThemesPanel(packageManager)
+      packageManager.emitPackageEvent('install-failed', {theme: true}, {stderr: 'nope'})
+
+      waitsFor ->
+        panel.errors.text().length isnt 0
+
+    it 'displays the error', ->
+      expect(panel.errors.text()).toContain 'nope'
