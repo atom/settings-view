@@ -54,7 +54,7 @@ class ThemesPanel extends CollapsibleSectionPanel
 
           @div outlet: 'errors'
 
-          @div outlet: 'themes', =>
+          @div outlet: 'installedThemes', =>
             @section class: 'sub-section installed-packages', =>
               @h3 outlet: 'communityThemesHeader', class: 'sub-section-heading icon icon-paintcan', =>
                 @text 'Community Themes'
@@ -180,7 +180,7 @@ class ThemesPanel extends CollapsibleSectionPanel
 
       .catch (error) =>
         @totalPackages.hide()
-        @themes.hide()
+        @installedThemes.hide()
         @errors.append(new ErrorView(@packageManager, error))
 
   # Update the active UI and syntax themes and populate the menu

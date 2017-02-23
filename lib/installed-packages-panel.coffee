@@ -26,7 +26,7 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
 
           @div outlet: 'errors'
 
-          @div outlet: 'packages', =>
+          @div outlet: 'installedPackages', =>
             @section outlet: 'deprecatedSection', class: 'sub-section deprecated-packages', =>
               @h3 outlet: 'deprecatedPackagesHeader', class: 'sub-section-heading icon icon-package', =>
                 @text 'Deprecated Packages'
@@ -162,7 +162,7 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
 
       .catch (error) =>
         @totalPackages.hide()
-        @packages.hide()
+        @installedPackages.hide()
         @errors.append(new ErrorView(@packageManager, error))
 
   displayPackageUpdates: (packagesWithUpdates) ->
