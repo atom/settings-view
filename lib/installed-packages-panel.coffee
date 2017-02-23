@@ -82,7 +82,7 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
 
     @packageManagerSubscriptions = new CompositeDisposable
     @packageManagerSubscriptions.add @packageManager.on 'package-install-failed theme-install-failed package-uninstall-failed theme-uninstall-failed package-update-failed theme-update-failed', ({pack, error}) =>
-      @updateErrors.append(new ErrorView(@packageManager, error))
+      @errors.append(new ErrorView(@packageManager, error))
 
     loadPackagesTimeout = null
     @packageManagerSubscriptions.add @packageManager.on 'package-updated package-installed package-uninstalled package-installed-alternative', =>

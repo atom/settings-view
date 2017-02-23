@@ -101,7 +101,7 @@ class ThemesPanel extends CollapsibleSectionPanel
 
     @disposables = new CompositeDisposable()
     @disposables.add @packageManager.on 'theme-install-failed theme-uninstall-failed', ({pack, error}) =>
-      @themeErrors.append(new ErrorView(@packageManager, error))
+      @errors.append(new ErrorView(@packageManager, error))
 
     @openUserStysheet.on 'click', ->
       atom.commands.dispatch(atom.views.getView(atom.workspace), 'application:open-your-stylesheet')
