@@ -1,9 +1,9 @@
 fs = require 'fs-plus'
 path = require 'path'
+{remote} = require 'electron'
 
-glob = null    # defer until used
-request = null # defer until used
-DefaultRequestHeaders = {'User-Agent': navigator.userAgent}
+glob = require 'glob'
+request = require 'request'
 
 module.exports =
 class AtomIoClient
@@ -66,10 +66,9 @@ class AtomIoClient
         callback(error, null)
 
   request: (path, callback) ->
-    request ?= require 'request'
     options = {
       url: "#{@baseURL}#{path}"
-      headers: DefaultRequestHeaders
+      headers: {'User-Agent': navigator.userAgent}
     }
 
     request options, (err, res, body) =>
@@ -122,7 +121,6 @@ class AtomIoClient
     path.join @getCachePath(), "#{login}-#{Date.now()}"
 
   cachedAvatar: (login, callback) ->
-    glob ?= require 'glob'
     glob @avatarGlob(login), (err, files) =>
       return callback(err) if err
       files.sort().reverse()
@@ -141,10 +139,9 @@ class AtomIoClient
       callback(null, null)
     else
       imagePath = @avatarPath login
-      request ?= require 'request'
       requestObject = {
         url: "https://avatars.githubusercontent.com/#{login}"
-        headers: DefaultRequestHeaders
+        headers: {'User-Agent': navigator.userAgent}
       }
       request.head requestObject, (error, response, body) ->
         if error? or response.statusCode isnt 200 or not response.headers['content-type'].startsWith('image/')
@@ -189,5 +186,4 @@ class AtomIoClient
         children.forEach(deleteAvatar)
 
   getCachePath: ->
-    {remote} = require 'electron'
     @cachePath ?= path.join(remote.app.getPath('userData'), 'Cache', 'settings-view')
