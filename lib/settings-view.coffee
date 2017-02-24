@@ -35,7 +35,6 @@ class SettingsView extends ScrollView
   initialize: ({@uri, @packageManager, @snippetsProvider, activePanel}={}) ->
     super
 
-    @packageManager ?= new PackageManager()
     @deferredPanel = activePanel
     process.nextTick => @initializePanels()
 
