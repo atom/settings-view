@@ -10,9 +10,11 @@ class UpdatesPanel extends ScrollView
     @div tabindex: 0, class: 'panels-item', =>
       @section class: 'section packages', =>
         @div class: 'section-container updates-container', =>
-          @h1 class: 'section-heading icon icon-cloud-download', 'Available Updates', =>
-            @button outlet: 'updateAllButton', class: 'pull-right update-all-button btn btn-primary', 'Update All'
-            @button outlet: 'checkButton', class: 'pull-right update-all-button btn btn', 'Check for Updates'
+          @div class: 'updates-heading-container', =>
+            @h1 class: 'section-heading icon icon-cloud-download', 'Available Updates'
+            @div class: 'section-heading updates-btn-group', =>
+              @button outlet: 'checkButton', class: 'update-all-button btn', 'Check for Updates'
+              @button outlet: 'updateAllButton', class: 'update-all-button btn btn-primary', 'Update All'
 
           @div outlet: 'updateErrors'
           @div outlet: 'checkingMessage', class: 'alert alert-info icon icon-hourglass', 'Checking for updates\u2026'
