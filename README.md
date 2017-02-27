@@ -34,7 +34,7 @@ Custom keybindings can be added by referencing the above commands.  To learn mor
 ## Customize
 The Settings View package uses the `ui-variables` to match a theme's color scheme. You can still customize the UI in your `styles.less` file. For example:
 
-```css
+```less
 // Change the color of the titles
 .settings-view .section .section-heading {
   color: white;
