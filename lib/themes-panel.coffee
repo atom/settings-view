@@ -225,7 +225,15 @@ class ThemesPanel extends CollapsibleSectionPanel
   populateThemeMenus: ->
     @uiMenu.empty()
     @syntaxMenu.empty()
-    availableThemes = _.sortBy(atom.themes.getLoadedThemes(), 'name')
+    availableThemes = atom.themes.getLoadedThemes().sort (a, b) ->
+      nameA = a.name.toLowerCase()
+      nameB = b.name.toLowerCase()
+      if nameA < nameB
+        -1
+      else if nameA > nameB
+        1
+      else 0
+
     for {name, metadata} in availableThemes
       switch metadata.theme
         when 'ui'
@@ -266,7 +274,7 @@ class ThemesPanel extends CollapsibleSectionPanel
 
   # Get a human readable title for the given theme name.
   getThemeTitle: (themeName='') ->
-    title = themeName.replace(/-(ui|syntax)/g, '').replace(/-theme$/g, '')
+    title = themeName.replace(/-(ui|syntax)/gi, '').replace(/-theme$/gi, '')
     _.undasherize(_.uncamelcase(title))
 
   createPackageCard: (pack) =>

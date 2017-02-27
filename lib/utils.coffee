@@ -18,9 +18,11 @@ packageComparatorAscending = (left, right) ->
   leftStatus = atom.packages.isPackageDisabled(left.name)
   rightStatus = atom.packages.isPackageDisabled(right.name)
   if leftStatus is rightStatus
-    if left.name > right.name
+    leftName = left.name.toLowerCase()
+    rightName = right.name.toLowerCase()
+    if leftName > rightName
       -1
-    else if left.name < right.name
+    else if leftName < rightName
       1
     else
       0

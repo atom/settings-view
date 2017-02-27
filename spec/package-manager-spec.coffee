@@ -104,7 +104,7 @@ describe "PackageManager", ->
         expect(packageManager.runCommand).toHaveBeenCalled()
         expect(runArgs).toEqual ['install', 'user/repo', '--json']
 
-      it 'installs and activates git pacakges with names different from the repo name', ->
+      it 'installs and activates git packages with names different from the repo name', ->
         spyOn(atom.packages, 'activatePackage')
         packageManager.install(name: 'git-repo-name')
         json =
@@ -204,14 +204,14 @@ describe "PackageManager", ->
         expect(installedCallback.mostRecentCall.args[1]).toEqual eventArg
 
   describe "::packageHasSettings", ->
-    it "returns true when the pacakge has config", ->
+    it "returns true when the package has config", ->
       atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-config'))
       expect(packageManager.packageHasSettings('package-with-config')).toBe true
 
-    it "returns false when the pacakge does not have config and doesn't define language grammars", ->
+    it "returns false when the package does not have config and doesn't define language grammars", ->
       expect(packageManager.packageHasSettings('random-package')).toBe false
 
-    it "returns true when the pacakge does not have config, but does define language grammars", ->
+    it "returns true when the package does not have config, but does define language grammars", ->
       packageName = 'language-test'
 
       waitsForPromise ->

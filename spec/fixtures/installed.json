@@ -17,6 +17,10 @@
     {
       "name": "user-package",
       "version": "1.0.0"
+    },
+    {
+      "name": "Z-package",
+      "version": "1.0.0"
     }
   ],
   "dev": [
