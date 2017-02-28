@@ -24,43 +24,44 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
           @div class: 'editor-container', =>
             @subview 'filterEditor', new TextEditorView(mini: true, placeholderText: 'Filter packages by name')
 
-          @div outlet: 'updateErrors'
+          @div outlet: 'errors'
 
-          @section outlet: 'deprecatedSection', class: 'sub-section deprecated-packages', =>
-            @h3 outlet: 'deprecatedPackagesHeader', class: 'sub-section-heading icon icon-package', =>
-              @text 'Deprecated Packages'
-              @span outlet: 'deprecatedCount', class: 'section-heading-count badge badge-flexible', '…'
-            @p 'Atom does not load deprecated packages. These packages may have updates available.'
-            @div outlet: 'deprecatedPackages', class: 'container package-container', =>
-              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
+          @div outlet: 'installedPackages', =>
+            @section outlet: 'deprecatedSection', class: 'sub-section deprecated-packages', =>
+              @h3 outlet: 'deprecatedPackagesHeader', class: 'sub-section-heading icon icon-package', =>
+                @text 'Deprecated Packages'
+                @span outlet: 'deprecatedCount', class: 'section-heading-count badge badge-flexible', '…'
+              @p 'Atom does not load deprecated packages. These packages may have updates available.'
+              @div outlet: 'deprecatedPackages', class: 'container package-container', =>
+                @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
-          @section class: 'sub-section installed-packages', =>
-            @h3 outlet: 'communityPackagesHeader', class: 'sub-section-heading icon icon-package', =>
-              @text 'Community Packages'
-              @span outlet: 'communityCount', class: 'section-heading-count badge badge-flexible', '…'
-            @div outlet: 'communityPackages', class: 'container package-container', =>
-              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
+            @section class: 'sub-section installed-packages', =>
+              @h3 outlet: 'communityPackagesHeader', class: 'sub-section-heading icon icon-package', =>
+                @text 'Community Packages'
+                @span outlet: 'communityCount', class: 'section-heading-count badge badge-flexible', '…'
+              @div outlet: 'communityPackages', class: 'container package-container', =>
+                @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
-          @section class: 'sub-section core-packages', =>
-            @h3 outlet: 'corePackagesHeader', class: 'sub-section-heading icon icon-package', =>
-              @text 'Core Packages'
-              @span outlet: 'coreCount', class: 'section-heading-count badge badge-flexible', '…'
-            @div outlet: 'corePackages', class: 'container package-container', =>
-              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
+            @section class: 'sub-section core-packages', =>
+              @h3 outlet: 'corePackagesHeader', class: 'sub-section-heading icon icon-package', =>
+                @text 'Core Packages'
+                @span outlet: 'coreCount', class: 'section-heading-count badge badge-flexible', '…'
+              @div outlet: 'corePackages', class: 'container package-container', =>
+                @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
-          @section class: 'sub-section dev-packages', =>
-            @h3 outlet: 'devPackagesHeader', class: 'sub-section-heading icon icon-package', =>
-              @text 'Development Packages'
-              @span outlet: 'devCount', class: 'section-heading-count badge badge-flexible', '…'
-            @div outlet: 'devPackages', class: 'container package-container', =>
-              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
+            @section class: 'sub-section dev-packages', =>
+              @h3 outlet: 'devPackagesHeader', class: 'sub-section-heading icon icon-package', =>
+                @text 'Development Packages'
+                @span outlet: 'devCount', class: 'section-heading-count badge badge-flexible', '…'
+              @div outlet: 'devPackages', class: 'container package-container', =>
+                @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
-          @section class: 'sub-section git-packages', =>
-            @h3 outlet: 'gitPackagesHeader', class: 'sub-section-heading icon icon-package', =>
-              @text 'Git Packages'
-              @span outlet: 'gitCount', class: 'section-heading-count badge badge-flexible', '…'
-            @div outlet: 'gitPackages', class: 'container package-container', =>
-              @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
+            @section class: 'sub-section git-packages', =>
+              @h3 outlet: 'gitPackagesHeader', class: 'sub-section-heading icon icon-package', =>
+                @text 'Git Packages'
+                @span outlet: 'gitCount', class: 'section-heading-count badge badge-flexible', '…'
+              @div outlet: 'gitPackages', class: 'container package-container', =>
+                @div class: 'alert alert-info loading-area icon icon-hourglass', "Loading packages…"
 
   initialize: (@packageManager) ->
     super
@@ -81,7 +82,7 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
 
     @packageManagerSubscriptions = new CompositeDisposable
     @packageManagerSubscriptions.add @packageManager.on 'package-install-failed theme-install-failed package-uninstall-failed theme-uninstall-failed package-update-failed theme-update-failed', ({pack, error}) =>
-      @updateErrors.append(new ErrorView(@packageManager, error))
+      @errors.append(new ErrorView(@packageManager, error))
 
     loadPackagesTimeout = null
     @packageManagerSubscriptions.add @packageManager.on 'package-updated package-installed package-uninstalled package-installed-alternative', =>
@@ -160,9 +161,9 @@ class InstalledPackagesPanel extends CollapsibleSectionPanel
         @matchPackages()
 
       .catch (error) =>
-        console.error error.message, error.stack
-        @loadingMessage.hide()
-        @featuredErrors.append(new ErrorView(@packageManager, error))
+        @totalPackages.hide()
+        @installedPackages.hide()
+        @errors.append(new ErrorView(@packageManager, error))
 
   displayPackageUpdates: (packagesWithUpdates) ->
     for packageType in ['dev', 'core', 'user', 'git', 'deprecated']

@@ -122,3 +122,45 @@ describe 'InstallPanel', ->
         spyOn(@panel, 'updateGitPackageCard')
         @packageManager.emitter.emit('package-installed', {pack: newPack})
         expect(@panel.updateGitPackageCard).toHaveBeenCalledWith newPack
+
+  describe 'when an error occurs loading featured packages', ->
+    beforeEach ->
+      @client = @packageManager.getClient()
+      @featuredPackagesSpy = spyOn(@client, 'featuredPackages')
+      @panel.loadFeaturedPackages()
+
+      waitsFor ->
+        @client.featuredPackages.callCount is 1
+
+      runs ->
+        # featuredPackages uses a callback function
+        @featuredPackagesSpy.mostRecentCall.args[0]({stderr: 'nope'})
+
+      waitsFor ->
+        @panel.featuredErrors.text().length isnt 0
+
+    it 'displays the error and hides the loading message', ->
+      expect(@panel.featuredErrors.text()).toContain 'nope'
+      expect(@panel.loadingMessage.isHidden()).toBe true
+
+  describe 'when an error occurs searching for a package', ->
+    beforeEach ->
+      spyOn(@packageManager, 'search').andReturn Promise.reject({stderr: 'nope'})
+      @panel.search()
+
+      waitsFor ->
+        @packageManager.search.callCount is 1 and @panel.searchErrors.text().length isnt 0
+
+    it 'displays the error and hides the search message', ->
+      expect(@panel.searchErrors.text()).toContain 'nope'
+      expect(@panel.searchMessage.isHidden()).toBe true
+
+  describe 'when an error occurs installing a package', ->
+    beforeEach ->
+      @packageManager.emitPackageEvent('install-failed', {}, {stderr: 'nope'})
+
+      waitsFor ->
+        @panel.searchErrors.text().length isnt 0
+
+    it 'displays the error', ->
+      expect(@panel.searchErrors.text()).toContain 'nope'

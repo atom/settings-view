@@ -147,6 +147,34 @@ describe 'InstalledPackagesPanel', ->
       runs ->
         expect(PackageCard::displayAvailableUpdate).toHaveBeenCalledWith('1.1.0')
 
+  describe 'when an error occurs loading packages', ->
+    beforeEach ->
+      @packageManager = new PackageManager
+      spyOn(@packageManager, 'loadCompatiblePackageVersion').andCallFake ->
+      spyOn(@packageManager, 'getInstalled').andReturn Promise.reject({stderr: 'nope'})
+      @panel = new InstalledPackagesPanel(@packageManager)
+
+      waitsFor ->
+        @packageManager.getInstalled.callCount is 1 and @panel.errors.text().length isnt 0
+
+    it 'displays the error and hides the package sections', ->
+      expect(@panel.errors.text()).toContain 'nope'
+      expect(@panel.totalPackages.isHidden()).toBe true
+      expect(@panel.installedPackages.isHidden()).toBe true
+      expect(@panel.find('.sub-section.installed-packages')).toBeHidden()
+
+  describe 'when an error occurs uninstalling a package', ->
+    beforeEach ->
+      @packageManager = new PackageManager
+      @panel = new InstalledPackagesPanel(@packageManager)
+      @packageManager.emitPackageEvent('install-failed', {}, {stderr: 'nope'})
+
+      waitsFor ->
+        @panel.errors.text().length isnt 0
+
+    it 'displays the error', ->
+      expect(@panel.errors.text()).toContain 'nope'
+
   describe 'expanding and collapsing sub-sections', ->
     beforeEach ->
       @packageManager = new PackageManager

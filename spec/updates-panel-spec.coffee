@@ -168,3 +168,14 @@ describe 'UpdatesPanel', ->
 
         packageManager.emitPackageEvent 'update-failed', {name: 'packA'}
         expect(panel.checkButton.prop('disabled')).toBe false
+
+  describe 'when an error occurs loading updates', ->
+    beforeEach ->
+      rejectOutdated({stderr: 'nope'})
+
+      waitsFor ->
+        packageManager.getOutdated.callCount is 1 and panel.updateErrors.text().length isnt 0
+
+    it 'displays the error and hides the checking message', ->
+      expect(panel.updateErrors.text()).toContain 'nope'
+      expect(panel.checkingMessage.isHidden()).toBe true
