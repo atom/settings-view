@@ -128,6 +128,23 @@ describe "ThemesPanel", ->
         expect(panel.communityCount.text().trim()).toBe '2'
         expect(panel.communityPackages.find('.package-card:not(.hidden)').length).toBe 2
 
+    it 'displays theme titles correctly', ->
+      [installCallback] = []
+      spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
+        installCallback = callback
+        onWillThrowError: ->
+      spyOn(atom.packages, 'loadPackage').andCallFake (name) =>
+        installed.user.push {name, theme: 'syntax'}
+
+      packageManager.install({name: 'syntax-theme-with-config', theme: 'syntax'})
+      installCallback(0, '', '')
+
+      advanceClock ThemesPanel.loadPackagesDelay
+      waits 1
+      runs ->
+        expect(panel.find('option[value="atom-dark-syntax"]').text()).toBe 'Atom Dark'
+        expect(panel.find('option[value="syntax-theme-with-config"]').text()).toBe 'Syntax Theme With Config'
+
     it 'collapses/expands a sub-section if its header is clicked', ->
       expect(panel.find('.sub-section-heading.has-items').length).toBe 3
       panel.find('.sub-section.installed-packages .sub-section-heading.has-items').click()

@@ -266,7 +266,7 @@ class ThemesPanel extends CollapsibleSectionPanel
 
   # Get a human readable title for the given theme name.
   getThemeTitle: (themeName='') ->
-    title = themeName.replace(/-(ui|syntax)/g, '').replace(/-theme$/g, '')
+    title = themeName.replace(/-(ui|syntax)$/g, '').replace(/-theme$/g, '')
     _.undasherize(_.uncamelcase(title))
 
   createPackageCard: (pack) =>
