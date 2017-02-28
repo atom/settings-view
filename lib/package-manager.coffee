@@ -410,8 +410,8 @@ class PackageManager
   getPackageTitle: ({name}) ->
     _.undasherize(_.uncamelcase(name))
 
-  getRepositoryUrl: ({metadata}) ->
-    {repository} = metadata
+  getRepositoryUrl: (pack) ->
+    {repository} = pack
     repoUrl = repository?.url ? repository ? ''
     if repoUrl.match 'git@github'
       repoName = repoUrl.split(':')[1]
