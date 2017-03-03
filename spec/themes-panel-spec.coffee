@@ -5,14 +5,12 @@ CSON = require 'season'
 
 PackageManager = require '../lib/package-manager'
 ThemesPanel = require '../lib/themes-panel'
-SettingsView = require '../lib/settings-view'
 
 describe "ThemesPanel", ->
   [panel, packageManager, reloadedHandler] = []
   settingsView = null
 
   beforeEach ->
-    settingsView = new SettingsView
     atom.packages.loadPackage('atom-light-ui')
     atom.packages.loadPackage('atom-dark-ui')
     atom.packages.loadPackage('atom-light-syntax')
@@ -32,7 +30,6 @@ describe "ThemesPanel", ->
       spyOn(packageManager, 'getFeatured').andCallFake (callback) ->
         Promise.resolve([themeMetadata])
       panel = new ThemesPanel(settingsView, packageManager)
-      settingsView.addPanel('Themes', -> panel)
 
       # Make updates synchronous
       spyOn(panel, 'scheduleUpdateThemeConfig').andCallFake -> @updateThemeConfig()

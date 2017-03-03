@@ -1,13 +1,16 @@
 path = require 'path'
+main = require '../lib/main'
+PackageManager = require '../lib/package-manager'
 SettingsView = require '../lib/settings-view'
 SnippetsProvider =
   getSnippets: -> {}
 
 describe "SettingsView", ->
   settingsView = null
+  packageManager = new PackageManager()
 
   beforeEach ->
-    settingsView = new SettingsView({snippetsProvider: SnippetsProvider})
+    settingsView = main.createSettingsView({packageManager: packageManager, snippetsProvider: SnippetsProvider})
     spyOn(settingsView, "initializePanels").andCallThrough()
     window.advanceClock(10000)
     waitsFor ->
@@ -16,7 +19,7 @@ describe "SettingsView", ->
   describe "serialization", ->
     it "remembers which panel was visible", ->
       settingsView.showPanel('Themes')
-      newSettingsView = new SettingsView(settingsView.serialize())
+      newSettingsView = main.createSettingsView(settingsView.serialize())
       settingsView.destroy()
       jasmine.attachToDOM(newSettingsView.element)
       newSettingsView.initializePanels()
@@ -34,7 +37,7 @@ describe "SettingsView", ->
         }
       )
       settingsView.showPanel('Panel 1')
-      newSettingsView = new SettingsView(settingsView.serialize())
+      newSettingsView = main.createSettingsView(settingsView.serialize())
       newSettingsView.addPanel('Panel 1', ->
         div = document.createElement('div')
         div.id = 'panel-1'
@@ -61,7 +64,7 @@ describe "SettingsView", ->
         }
       )
       settingsView.showPanel('Panel 1')
-      newSettingsView = new SettingsView(settingsView.serialize())
+      newSettingsView = main.createSettingsView(settingsView.serialize())
       settingsView.destroy()
       jasmine.attachToDOM(newSettingsView.element)
       newSettingsView.initializePanels()
@@ -69,8 +72,8 @@ describe "SettingsView", ->
 
     it "serializes the active panel name even when the panels were never initialized", ->
       settingsView.showPanel('Themes')
-      settingsView2 = new SettingsView(settingsView.serialize())
-      settingsView3 = new SettingsView(settingsView2.serialize())
+      settingsView2 = main.createSettingsView(settingsView.serialize())
+      settingsView3 = main.createSettingsView(settingsView2.serialize())
       jasmine.attachToDOM(settingsView3.element)
       settingsView3.initializePanels()
       expect(settingsView3.activePanel).toEqual {name: 'Themes', options: {}}

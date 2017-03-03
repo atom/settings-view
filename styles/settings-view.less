@@ -657,11 +657,15 @@
     }
   }
 
-  .update-all-button {
-    top: -4px; // visually centered to title
-    margin-left: 4px;
-    right: 0;
-    position: relative;
+  .updates-heading-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .update-all-button:last-child {
+    margin-left: @component-padding/2;
   }
 
   .keybinding-panel .is-user {
@@ -686,7 +690,6 @@
     content: "";
   }
 }
-
 
 // Reset Bootstrap media queries,
 // since it breaks when resizing the treeview or in multiple panes
