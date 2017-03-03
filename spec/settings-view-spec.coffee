@@ -1,5 +1,4 @@
 path = require 'path'
-{$, $$} = require 'atom-space-pen-views'
 main = require '../lib/main'
 PackageManager = require '../lib/package-manager'
 SettingsView = require '../lib/settings-view'
@@ -21,25 +20,52 @@ describe "SettingsView", ->
     it "remembers which panel was visible", ->
       settingsView.showPanel('Themes')
       newSettingsView = main.createSettingsView(settingsView.serialize())
-      settingsView.remove()
+      settingsView.destroy()
       jasmine.attachToDOM(newSettingsView.element)
       newSettingsView.initializePanels()
       expect(newSettingsView.activePanel).toEqual {name: 'Themes', options: {}}
 
     it "shows the previously active panel if it is added after deserialization", ->
-      settingsView.addCorePanel('Panel 1', 'panel1', -> $$ -> @div id: 'panel-1')
+      settingsView.addCorePanel('Panel 1', 'panel-1', ->
+        div = document.createElement('div')
+        div.id = 'panel-1'
+        {
+          element: div,
+          show: -> div.style.display = '',
+          focus: -> div.focus(),
+          destroy: -> div.remove()
+        }
+      )
       settingsView.showPanel('Panel 1')
       newSettingsView = main.createSettingsView(settingsView.serialize())
-      newSettingsView.addPanel('Panel 1', 'panel1', -> $$ -> @div id: 'panel-1')
+      newSettingsView.addPanel('Panel 1', ->
+        div = document.createElement('div')
+        div.id = 'panel-1'
+        {
+          element: div,
+          show: -> div.style.display = '',
+          focus: -> div.focus(),
+          destroy: -> div.remove()
+        }
+      )
       newSettingsView.initializePanels()
       jasmine.attachToDOM(newSettingsView.element)
       expect(newSettingsView.activePanel).toEqual {name: 'Panel 1', options: {}}
 
     it "shows the Settings panel if the last saved active panel name no longer exists", ->
-      settingsView.addCorePanel('Panel 1', 'panel1', -> $$ -> @div id: 'panel-1')
+      settingsView.addCorePanel('Panel 1', 'panel1', ->
+        div = document.createElement('div')
+        div.id = 'panel-1'
+        {
+          element: div,
+          show: -> div.style.display = '',
+          focus: -> div.focus(),
+          destroy: -> div.remove()
+        }
+      )
       settingsView.showPanel('Panel 1')
       newSettingsView = main.createSettingsView(settingsView.serialize())
-      settingsView.remove()
+      settingsView.destroy()
       jasmine.attachToDOM(newSettingsView.element)
       newSettingsView.initializePanels()
       expect(newSettingsView.activePanel).toEqual {name: 'Core', options: {}}
@@ -54,24 +80,42 @@ describe "SettingsView", ->
 
   describe ".addCorePanel(name, iconName, view)", ->
     it "adds a menu entry to the left and a panel that can be activated by clicking it", ->
-      settingsView.addCorePanel('Panel 1', 'panel1', -> $$ -> @div id: 'panel-1')
-      settingsView.addCorePanel('Panel 2', 'panel2', -> $$ -> @div id: 'panel-2')
+      settingsView.addCorePanel('Panel 1', 'panel1', ->
+        div = document.createElement('div')
+        div.id = 'panel-1'
+        {
+          element: div,
+          show: -> div.style.display = '',
+          focus: -> div.focus(),
+          destroy: -> div.remove()
+        }
+      )
+      settingsView.addCorePanel('Panel 2', 'panel2', ->
+        div = document.createElement('div')
+        div.id = 'panel-2'
+        {
+          element: div,
+          show: -> div.style.display = '',
+          focus: -> div.focus(),
+          destroy: -> div.remove()
+        }
+      )
 
-      expect(settingsView.panelMenu.find('li a:contains(Panel 1)')).toExist()
-      expect(settingsView.panelMenu.find('li a:contains(Panel 2)')).toExist()
-      expect(settingsView.panelMenu.children(':first')).toHaveClass 'active'
+      expect(settingsView.refs.panelMenu.querySelector('li[name="Panel 1"]')).toExist()
+      expect(settingsView.refs.panelMenu.querySelector('li[name="Panel 2"]')).toExist()
+      expect(settingsView.refs.panelMenu.children[0]).toHaveClass 'active'
 
       jasmine.attachToDOM(settingsView.element)
-      settingsView.panelMenu.find('li a:contains(Panel 1)').click()
-      expect(settingsView.panelMenu.children('.active').length).toBe 1
-      expect(settingsView.panelMenu.find('li:contains(Panel 1)')).toHaveClass('active')
-      expect(settingsView.panels.find('#panel-1')).toBeVisible()
-      expect(settingsView.panels.find('#panel-2')).not.toExist()
-      settingsView.panelMenu.find('li a:contains(Panel 2)').click()
-      expect(settingsView.panelMenu.children('.active').length).toBe 1
-      expect(settingsView.panelMenu.find('li:contains(Panel 2)')).toHaveClass('active')
-      expect(settingsView.panels.find('#panel-1')).toBeHidden()
-      expect(settingsView.panels.find('#panel-2')).toBeVisible()
+      settingsView.refs.panelMenu.querySelector('li[name="Panel 1"] a').click()
+      expect(settingsView.refs.panelMenu.querySelectorAll('.active').length).toBe 1
+      expect(settingsView.refs.panelMenu.querySelector('li[name="Panel 1"]')).toHaveClass('active')
+      expect(settingsView.refs.panels.querySelector('#panel-1')).toBeVisible()
+      expect(settingsView.refs.panels.querySelector('#panel-2')).not.toExist()
+      settingsView.refs.panelMenu.querySelector('li[name="Panel 2"] a').click()
+      expect(settingsView.refs.panelMenu.querySelectorAll('.active').length).toBe 1
+      expect(settingsView.refs.panelMenu.querySelector('li[name="Panel 2"]')).toHaveClass('active')
+      expect(settingsView.refs.panels.querySelector('#panel-1')).toBeHidden()
+      expect(settingsView.refs.panels.querySelector('#panel-2')).toBeVisible()
 
   describe "when the package is activated", ->
     openWithCommand = (command) ->
@@ -158,8 +202,7 @@ describe "SettingsView", ->
     describe "when atom.workspace.open() is used with a config URI", ->
       focusIsWithinActivePanel = ->
         activePanel = settingsView.panelsByName[settingsView.activePanel.name]
-        # Return true if the element that has the focus, or its ancestors, is the activePanel
-        $(document.activeElement).parents().addBack().toArray().indexOf(activePanel.element) isnt -1
+        activePanel.element is document.activeElement or activePanel.contains(document.activeElement)
 
       expectActivePanelToBeKeyboardScrollable = ->
         activePanel = settingsView.panelsByName[settingsView.activePanel.name]
@@ -338,12 +381,18 @@ describe "SettingsView", ->
           if systemPanel?
             panels.push systemPanel
           for panel in panels
-            spyOn(panel, 'dispose')
+            if panel.dispose
+              spyOn(panel, 'dispose')
+            else
+              spyOn(panel, 'destroy')
 
           atom.packages.deactivatePackage('settings-view')
 
           for panel in panels
-            expect(panel.dispose).toHaveBeenCalled()
+            if panel.dispose
+              expect(panel.dispose).toHaveBeenCalled()
+            else
+              expect(panel.destroy).toHaveBeenCalled()
 
           return
 
@@ -359,13 +408,13 @@ describe "SettingsView", ->
         settingsView.showPanel('Install')
 
       waitsFor ->
-        settingsView.find('.package-card:not(.hidden)').length > 0
+        settingsView.element.querySelectorAll('.package-card:not(.hidden)').length > 0
 
       runs ->
-        settingsView.find('.package-card:not(.hidden):first').click()
+        settingsView.element.querySelectorAll('.package-card:not(.hidden)')[0].click()
 
-        packageDetail = settingsView.find('.package-detail').view()
-        expect(packageDetail.title.text()).toBe 'Settings View'
+        packageDetail = settingsView.element.querySelector('.package-detail .active')
+        expect(packageDetail.textContent).toBe 'Settings View'
 
   describe "when the active theme has settings", ->
     panel = null
@@ -385,7 +434,7 @@ describe "SettingsView", ->
 
       runs ->
         settingsView.showPanel('Themes')
-        panel = settingsView.find('.themes-panel').view()
+        panel = settingsView.element.querySelector('.themes-panel')
 
     afterEach ->
       atom.themes.unwatchUserStylesheet()
@@ -393,17 +442,17 @@ describe "SettingsView", ->
     describe "when the UI theme's settings button is clicked", ->
       it "navigates to that theme's detail view", ->
         jasmine.attachToDOM(settingsView.element)
-        expect(panel.activeUiThemeSettings).toBeVisible()
+        expect(panel.querySelector('.active-theme-settings')).toBeVisible()
 
-        panel.activeUiThemeSettings.click()
-        packageDetail = settingsView.find('.package-detail').view()
-        expect(packageDetail.title.text()).toBe 'Ui Theme With Config'
+        panel.querySelector('.active-theme-settings').click()
+        packageDetail = settingsView.element.querySelector('.package-detail li.active')
+        expect(packageDetail.textContent).toBe 'Ui Theme With Config'
 
     describe "when the syntax theme's settings button is clicked", ->
       it "navigates to that theme's detail view", ->
         jasmine.attachToDOM(settingsView.element)
-        expect(panel.activeSyntaxThemeSettings).toBeVisible()
+        expect(panel.querySelector('.active-syntax-settings')).toBeVisible()
 
-        panel.activeSyntaxThemeSettings.click()
-        packageDetail = settingsView.find('.package-detail').view()
-        expect(packageDetail.title.text()).toBe 'Syntax Theme With Config'
+        panel.querySelector('.active-syntax-settings').click()
+        packageDetail = settingsView.element.querySelector('.package-detail li.active')
+        expect(packageDetail.textContent).toBe 'Syntax Theme With Config'

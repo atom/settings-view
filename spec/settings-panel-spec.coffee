@@ -42,7 +42,7 @@ describe "SettingsPanel", ->
       atom.config.setSchema("foo", config)
       atom.config.setDefaults("foo", gong: 'gong')
       expect(_.size(atom.config.get('foo'))).toBe 6
-      settingsPanel = new SettingsPanel("foo", {includeTitle: false})
+      settingsPanel = new SettingsPanel({namespace: "foo", includeTitle: false})
 
     it "sorts settings by order and then alphabetically by the key", ->
       settings = atom.config.get('foo')
@@ -85,7 +85,7 @@ describe "SettingsPanel", ->
       atom.config.setSchema("foo", config)
       atom.config.setDefaults("foo", gong: 'gong')
       expect(_.size(atom.config.get('foo'))).toBe 3
-      settingsPanel = new SettingsPanel("foo", {includeTitle: false})
+      settingsPanel = new SettingsPanel({namespace: "foo", includeTitle: false})
 
     it 'ensures default stays default', ->
       expect(settingsPanel.getDefault('foo.haz')).toBe 'haz'
@@ -114,7 +114,7 @@ describe "SettingsPanel", ->
         expect(atom.config.get('editor.tabLength')).toBe(2)
         atom.config.set('editor.tabLength', 8)
 
-        settingsPanel = new SettingsPanel("editor", {includeTitle: false, scopeName: '.source.js'})
+        settingsPanel = new SettingsPanel({namespace: "editor", includeTitle: false, scopeName: '.source.js'})
         tabLengthEditor = settingsPanel.element.querySelector('[id="editor.tabLength"]')
         expect(tabLengthEditor.getModel().getText()).toBe('')
         expect(tabLengthEditor.getModel().getPlaceholderText()).toBe('Unscoped value: 8')
@@ -152,39 +152,34 @@ describe "SettingsPanel", ->
             default: ''
       atom.config.setSchema('foo', config)
       expect(_.size(atom.config.get('foo'))).toBe 3
-      settingsPanel = new SettingsPanel('foo', {includeTitle: false})
+      settingsPanel = new SettingsPanel({namespace: 'foo', includeTitle: false})
 
     it 'ensures that only grouped settings have a group title', ->
-      expect(settingsPanel.find('.section-container > .section-body')).toHaveLength 1
-      sectionBody = settingsPanel.find('.section-body:first')
-      expect(sectionBody.find('>.control-group')).toHaveLength 3
-      firstControlGroup = sectionBody.find('>.control-group:nth(0)')
-      expect(firstControlGroup.find('.sub-section .sub-section-heading')).toHaveLength 1
-      expect(firstControlGroup.find('.sub-section .sub-section-heading:first').text()).toBe 'Bar group'
-      expect(firstControlGroup.find('.sub-section .sub-section-body')).toHaveLength 1
-      subsectionBody = firstControlGroup.find('.sub-section .sub-section-body:first')
-      expect(subsectionBody.find('.control-group')).toHaveLength 1
-      secondControlGroup = sectionBody.find('>.control-group:nth(1)')
-      expect(secondControlGroup.find('.sub-section .sub-section-heading')).toHaveLength 1
-      expect(secondControlGroup.find('.sub-section .sub-section-heading:first').text()).toBe 'Baz Group'
-      expect(secondControlGroup.find('.sub-section .sub-section-body')).toHaveLength 1
-      subsectionBody = secondControlGroup.find('.sub-section .sub-section-body:first')
-      expect(subsectionBody.find('.control-group')).toHaveLength 1
-      thirdControlGroup = sectionBody.find('>.control-group:nth(2)')
-      expect(thirdControlGroup.find('.sub-section')).toHaveLength 0
-      expect(thirdControlGroup.find('.sub-section-heading')).toHaveLength 0
+      expect(settingsPanel.element.querySelectorAll('.section-container > .section-body')).toHaveLength 1
+      controlGroups = settingsPanel.element.querySelectorAll('.section-body > .control-group')
+      expect(controlGroups).toHaveLength 3
+      expect(controlGroups[0].querySelectorAll('.sub-section .sub-section-heading')).toHaveLength 1
+      expect(controlGroups[0].querySelector('.sub-section .sub-section-heading').textContent).toBe 'Bar group'
+      expect(controlGroups[0].querySelectorAll('.sub-section .sub-section-body')).toHaveLength 1
+      subsectionBody = controlGroups[0].querySelector('.sub-section .sub-section-body')
+      expect(subsectionBody.querySelectorAll('.control-group')).toHaveLength 1
+      expect(controlGroups[1].querySelectorAll('.sub-section .sub-section-heading')).toHaveLength 1
+      expect(controlGroups[1].querySelector('.sub-section .sub-section-heading').textContent).toBe 'Baz Group'
+      expect(controlGroups[1].querySelectorAll('.sub-section .sub-section-body')).toHaveLength 1
+      subsectionBody = controlGroups[1].querySelector('.sub-section .sub-section-body')
+      expect(subsectionBody.querySelectorAll('.control-group')).toHaveLength 1
+      expect(controlGroups[2].querySelectorAll('.sub-section')).toHaveLength 0
+      expect(controlGroups[2].querySelectorAll('.sub-section-heading')).toHaveLength 0
 
     it 'ensures grouped settings are collapsable', ->
-      expect(settingsPanel.find('.section-container > .section-body')).toHaveLength 1
-      sectionBody = settingsPanel.find('.section-body:first')
-      expect(sectionBody.find('>.control-group')).toHaveLength 3
-      firstControlGroup = sectionBody.find('>.control-group:nth(0)')
+      expect(settingsPanel.element.querySelectorAll('.section-container > .section-body')).toHaveLength 1
+      controlGroups = settingsPanel.element.querySelectorAll('.section-body > .control-group')
+      expect(controlGroups).toHaveLength 3
       # Bar group
-      expect(firstControlGroup.find('.sub-section .sub-section-heading')).toHaveLength 1
-      expect(firstControlGroup.find('.sub-section .sub-section-heading:first').hasClass('has-items')).toBe true
+      expect(controlGroups[0].querySelectorAll('.sub-section .sub-section-heading')).toHaveLength 1
+      expect(controlGroups[0].querySelector('.sub-section .sub-section-heading').classList.contains('has-items')).toBe true
       # Baz Group
-      secondControlGroup = sectionBody.find('>.control-group:nth(1)')
-      expect(secondControlGroup.find('.sub-section .sub-section-heading')).toHaveLength 1
-      expect(secondControlGroup.find('.sub-section .sub-section-heading:first').hasClass('has-items')).toBe true
+      expect(controlGroups[1].querySelectorAll('.sub-section .sub-section-heading')).toHaveLength 1
+      expect(controlGroups[1].querySelector('.sub-section .sub-section-heading').classList.contains('has-items')).toBe true
       # Should be already collapsed
-      expect(secondControlGroup.find('.sub-section .sub-section-heading:first').parent().hasClass('collapsed')).toBe true
+      expect(controlGroups[1].querySelector('.sub-section .sub-section-heading').parentElement.classList.contains('collapsed')).toBe true

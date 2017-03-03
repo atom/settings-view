@@ -25,7 +25,10 @@ class ListView
     view = @createView(item)
     @views.push(view)
     @viewMap[@list.keyForItem(item)] = view
-    @container.prepend(view)
+    row = document.createElement('div')
+    row.classList.add('row')
+    row.appendChild(view.element)
+    @container.insertBefore(row, @container.children[0])
 
   removeView: (item) ->
     key = @list.keyForItem(item)
@@ -34,4 +37,5 @@ class ListView
       index = @views.indexOf(view)
       @views.splice(index, 1) if index > -1
       delete @viewMap[key]
-      view.remove()
+      view.element.parentElement.remove()
+      view.destroy()

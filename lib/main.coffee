@@ -1,6 +1,8 @@
 SettingsView = null
 settingsView = null
 
+statusView = null
+
 PackageManager = require './package-manager'
 packageManager = null
 
@@ -27,7 +29,8 @@ module.exports =
   activate: ->
     atom.workspace.addOpener (uri) =>
       if uri.startsWith(configUri)
-        settingsView ?= @createSettingsView({uri})
+        if not settingsView? or settingsView.destroyed
+          settingsView = @createSettingsView({uri})
         if match = uriRegex.exec(uri)
           panelName = match[1]
           panelName = panelName[0].toUpperCase() + panelName.slice(1)
@@ -56,16 +59,18 @@ module.exports =
         @showDeprecatedNotification(packages) if packages.user?.length
 
   deactivate: ->
-    settingsView?.dispose()
-    settingsView?.remove()
+    settingsView?.destroy()
+    statusView?.destroy()
     settingsView = null
     packageManager = null
+    statusView = null
 
   consumeStatusBar: (statusBar) ->
     packageManager ?= new PackageManager()
     packageManager.getOutdated().then (updates) ->
       PackageUpdatesStatusView = require './package-updates-status-view'
-      new PackageUpdatesStatusView(statusBar, packageManager, updates)
+      statusView = new PackageUpdatesStatusView()
+      statusView.initialize(statusBar, packageManager, updates)
 
   consumeSnippets: (snippets) ->
     if typeof snippets.getUnparsedSnippets is "function"
