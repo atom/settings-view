@@ -119,11 +119,11 @@ describe "SettingsView", ->
 
   describe "when the package is activated", ->
     openWithCommand = (command) ->
-      atom.commands.dispatch(atom.views.getView(atom.workspace), command)
-      waitsFor ->
-        atom.workspace.getActivePaneItem()?
       waitsFor (done) ->
-        process.nextTick(done)
+        openSubscription = atom.workspace.onDidOpen ->
+          openSubscription.dispose()
+          done()
+        atom.commands.dispatch(atom.views.getView(atom.workspace), command)
 
     beforeEach ->
       jasmine.attachToDOM(atom.views.getView(atom.workspace))
