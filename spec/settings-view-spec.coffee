@@ -118,22 +118,14 @@ describe "SettingsView", ->
       expect(settingsView.refs.panels.querySelector('#panel-2')).toBeVisible()
 
   describe "when the package is activated", ->
-    lastOpenResult = null
-
     openWithCommand = (command) ->
-      atom.commands.dispatch(atom.views.getView(atom.workspace), command)
-      waitsFor ->
-        atom.workspace.getActivePaneItem()?
       waitsFor (done) ->
-        process.nextTick(done)
-      waitsForPromise -> lastOpenResult
+        openSubscription = atom.workspace.onDidOpen ->
+          openSubscription.dispose()
+          done()
+        atom.commands.dispatch(atom.views.getView(atom.workspace), command)
 
     beforeEach ->
-      originalOpen = atom.workspace.open.bind(atom.workspace)
-      spyOn(atom.workspace, 'open').andCallFake(
-        (args...) => lastOpenResult = originalOpen(args...)
-      )
-
       jasmine.attachToDOM(atom.views.getView(atom.workspace))
       waitsForPromise ->
         atom.packages.activatePackage('settings-view')
