@@ -9,7 +9,13 @@ SnippetsProvider =
 
 describe "InstalledPackageView", ->
   beforeEach ->
+    atom.packages.packageDirPaths.push(path.join(__dirname, 'fixtures'))
+
     spyOn(PackageManager.prototype, 'loadCompatiblePackageVersion').andCallFake ->
+
+  afterEach ->
+    index = atom.packages.packageDirPaths.indexOf(path.join(__dirname, 'fixtures'))
+    atom.packages.packageDirPaths.splice(index, 1)
 
   it "displays the grammars registered by the package", ->
     settingsPanels = null
