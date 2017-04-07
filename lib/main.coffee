@@ -68,9 +68,10 @@ module.exports =
   consumeStatusBar: (statusBar) ->
     packageManager ?= new PackageManager()
     packageManager.getOutdated().then (updates) ->
-      PackageUpdatesStatusView = require './package-updates-status-view'
-      statusView = new PackageUpdatesStatusView()
-      statusView.initialize(statusBar, packageManager, updates)
+      if settingsView?
+        PackageUpdatesStatusView = require './package-updates-status-view'
+        statusView = new PackageUpdatesStatusView()
+        statusView.initialize(statusBar, packageManager, updates)
 
   consumeSnippets: (snippets) ->
     if typeof snippets.getUnparsedSnippets is "function"
