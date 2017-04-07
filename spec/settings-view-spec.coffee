@@ -202,7 +202,7 @@ describe "SettingsView", ->
     describe "when atom.workspace.open() is used with a config URI", ->
       focusIsWithinActivePanel = ->
         activePanel = settingsView.panelsByName[settingsView.activePanel.name]
-        activePanel.element is document.activeElement or activePanel.contains(document.activeElement)
+        activePanel.element is document.activeElement or activePanel.element.contains(document.activeElement)
 
       expectActivePanelToBeKeyboardScrollable = ->
         activePanel = settingsView.panelsByName[settingsView.activePanel.name]
@@ -212,7 +212,6 @@ describe "SettingsView", ->
         spyOn(activePanel, 'pageUp')
         atom.commands.dispatch(activePanel.element, 'core:page-up')
         expect(activePanel.pageUp).toHaveBeenCalled()
-
 
       beforeEach ->
         settingsView = null
