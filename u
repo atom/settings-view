@@ -1,0 +1,111 @@
+Using worker: saucelabs-mac-1.worker.travis-ci.org:travis-mac_osx-17
+system_info
+Build system information
+Build language: objective-c
+git.checkout
+3.00s$ git clone --depth=10 --branch=master git://github.com/atom/settings-view.git atom/settings-view
+Cloning into 'atom/settings-view'...
+remote: Counting objects: 105, done.
+remote: Compressing objects: 100% (85/85), done.
+remote: Total 105 (delta 32), reused 53 (delta 14)
+Receiving objects: 100% (105/105), 45.58 KiB | 0 bytes/s, done.
+Resolving deltas: 100% (32/32), done.
+Checking connectivity... done.
+$ cd atom/settings-view
+$ git checkout -qf d9656380052c7afb5648d41118bbe07a643dae2f
+rvm
+1.00s$ rvm use default
+Using /Users/travis/.rvm/gems/ruby-2.0.0-p481
+0.00s0.00s$ ruby --version
+ruby 2.0.0p481 (2014-05-08 revision 45883) [x86_64-darwin13.1.0]
+$ rvm --version
+rvm 1.25.33 (stable) by Wayne E. Seguin <wayneeseguin@gmail.com>, Michal Papis <mpapis@gmail.com> [https://rvm.io/]
+$ bundle --version
+Bundler version 1.7.4
+announce
+$ xcodebuild -version -sdk
+MacOSX10.9.sdk - OS X 10.9 (macosx10.9)
+SDKVersion: 10.9
+Path: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk
+PlatformVersion: 1.1
+PlatformPath: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform
+ProductBuildVersion: 13F26
+ProductCopyright: 1983-2014 Apple Inc.
+ProductName: Mac OS X
+ProductUserVisibleVersion: 10.9.5
+ProductVersion: 10.9.5
+MacOSX10.10.sdk - OS X 10.10 (macosx10.10)
+SDKVersion: 10.10
+Path: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.10.sdk
+PlatformVersion: 1.1
+PlatformPath: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform
+ProductBuildVersion: 14A382
+ProductCopyright: 1983-2014 Apple Inc.
+ProductName: Mac OS X
+ProductUserVisibleVersion: 10.10
+ProductVersion: 10.10
+iPhoneOS8.1.sdk - iOS 8.1 (iphoneos8.1)
+SDKVersion: 8.1
+Path: /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk
+PlatformVersion: 8.1
+PlatformPath: /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform
+ProductBuildVersion: 12B411
+ProductCopyright: 1983-2014 Apple Inc.
+ProductName: iPhone OS
+ProductVersion: 8.1
+iPhoneSimulator7.0.sdk - Simulator - iOS 7.0 (iphonesimulator7.0)
+SDKVersion: 7.0
+Path: /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator7.0.sdk
+PlatformVersion: 8.1
+PlatformPath: /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform
+ProductBuildVersion: 11B507
+ProductCopyright: 1983-2013 Apple Inc.
+ProductName: iPhone OS
+ProductVersion: 7.0.3
+iPhoneSimulator7.1.sdk - Simulator - iOS 7.1 (iphonesimulator7.1)
+SDKVersion: 7.1
+Path: /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator7.1.sdk
+PlatformVersion: 8.1
+PlatformPath: /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform
+ProductBuildVersion: 11D167
+ProductCopyright: 1983-2014 Apple Inc.
+ProductName: iPhone OS
+ProductVersion: 7.1
+iPhoneSimulator8.1.sdk - Simulator - iOS 8.1 (iphonesimulator8.1)
+SDKVersion: 8.1
+Path: /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator8.1.sdk
+PlatformVersion: 8.1
+PlatformPath: /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform
+ProductBuildVersion: 12B411
+ProductCopyright: 1983-2014 Apple Inc.
+ProductName: iPhone OS
+ProductVersion: 8.1
+Xcode 6.1
+Build version 6A1052c
+$ xctool -version
+0.2.1
+106.00s$ curl -s https://raw.githubusercontent.com/atom/ci/master/build-package.sh | sh
+Downloading node v0.10.22...
+Downloading latest Atom release...
+Using Atom version:
+0.176.0
+Downloading package dependencies...
+Installing modules ✓
+Running specs...
+[1104:0130/120451:INFO:renderer_main.cc(207)] Renderer process started
+[1101:0130/120459:INFO:CONSOLE(54)] "Window load time: 7346ms", source: file:///Users/travis/build/atom/settings-view/atom/Atom.app/Contents/Resources/app/static/index.js (54)
+.............FF...................
+InstalledPackagesPanel
+  it shows packages
+    Expected '1' to be '(1)'. (spec/installed-packages-panel-spec.coffee:19:51)
+    Expected '1' to be '(1)'. (spec/installed-packages-panel-spec.coffee:22:46)
+    Expected '1' to be '(1)'. (spec/installed-packages-panel-spec.coffee:25:45)
+  it filters packages by name
+    Expected '1/1' to be '(1/1)'. (spec/installed-packages-panel-spec.coffee:35:51)
+    Expected '0/1' to be '(0/1)'. (spec/installed-packages-panel-spec.coffee:38:46)
+    Expected '0/1' to be '(0/1)'. (spec/installed-packages-panel-spec.coffee:41:45)
+Finished in 20.623 seconds
+34 tests, 123 assertions, 6 failures, 0 skipped
+Tests failed
+The command "curl -s https://raw.githubusercontent.com/atom/ci/master/build-package.sh | sh" exited with 1.
+Done. Your build exited with 1.
