@@ -324,7 +324,7 @@ class PackageManager
     nameWithVersion = if version? then "#{name}@#{version}" else name
 
     @unload(name)
-    args = ['install', nameWithVersion, '--json']
+    args = ['install', nameWithVersion, '--production', '--json']
 
     errorMessage = "Installing \u201C#{nameWithVersion}\u201D failed."
     onError = (error) =>
