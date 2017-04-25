@@ -123,6 +123,51 @@ describe "SettingsPanel", ->
         settingsPanel.set('editor.tabLength', 2)
         expect(tabLengthEditor.getModel().getText()).toBe('2')
         expect(atom.config.get('editor.tabLength', {scope: ['source.js']})).toBe(2)
+  
+  describe 'custom settings UI', ->
+    customView = null
+    beforeEach ->
+      class ConfigUi
+        constructor: (@configKey) ->
+          @element = document.createElement('div')
+          @element.classList.add('custom-config-ui')
+          @element.setAttribute('data-config-key', @configKey)
+          @element.innerText = String(atom.config.get(@configKey))
+          @handleClick = @handleClick.bind(this)
+          @element.onclick = @handleClick
+          # Since we're testing and there will only be one instance at a time,
+          # store the view instance for easy equality checking.
+          customView = this
+        getElement: -> @element
+        # Empty method serves as a hook for Jasmine `spyOn`.
+        handleClick: ->
+          atom.config.set(@configKey, 'New bar!')
+        destroy: ->
+      config =
+        type: 'object',
+        properties:
+          bar:
+            name: 'Bar'
+            type: 'string',
+            description: 'The bar setting'
+            renderer: ConfigUi
+            default: 'Bar value'
+      atom.config.setSchema('foo', config)
+      settingsPanel = new SettingsPanel({namespace: 'foo', includeTitle: false})
+    it 'renders the custom control when specified', ->
+      expect(atom.config.get('foo.bar')).toBe 'Bar value'
+      configUiElementList = settingsPanel.element.querySelectorAll('.custom-config-ui')
+      expect(configUiElementList).toHaveLength 1
+      configUiElement = configUiElementList[0]
+      expect(configUiElement).toBe customView.getElement()
+      expect(configUiElement.getAttribute('data-config-key')).toBe 'foo.bar'
+      expect(configUiElement.innerText).toBe 'Bar value'
+      configUiElement.click()
+      expect(atom.config.get('foo.bar')).toBe 'New bar!'
+    it 'calls `destroy()` on the custom view when settings UI is disposed of', ->
+      spyOn(customView, 'destroy')
+      settingsPanel.destroy()
+      expect(customView.destroy).toHaveBeenCalled()
 
   describe 'grouped settings', ->
     beforeEach ->
