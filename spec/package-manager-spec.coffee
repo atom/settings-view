@@ -239,7 +239,8 @@ describe "PackageManager", ->
 
       packageManager.loadOutdated false, ->
       now = Date.now()
-      spyOn(Date, 'now').andReturn((-> now + packageManager.CACHE_EXPIRY + 1)())
+      spyOn(Date, 'now') unless Date.now.andReturn
+      Date.now.andReturn((-> now + packageManager.CACHE_EXPIRY + 1)())
       packageManager.loadOutdated false, ->
 
       expect(packageManager.runCommand.calls.length).toBe(2)
