@@ -146,17 +146,17 @@ class PackageManager
           error = createJsonParseError(errorMessage, parseError, stdout)
           return callback(error)
 
-        pinnedPackages = atom.config.get('core.versionPinnedPackages')
-        packages = (pack for pack in packages when not pinnedPackages.includes(pack?.name))
+        pinnedPackages = atom.config.get('core.versionPinnedPackages') ? []
+        updatablePackages = (pack for pack in packages when not pinnedPackages.includes(pack?.name))
 
         @apmCache.loadOutdated =
-          value: packages
+          value: updatablePackages
           expiry: Date.now() + @CACHE_EXPIRY
 
-        for pack in packages
+        for pack in updatablePackages
           @emitPackageEvent 'update-available', pack
 
-        callback(null, packages)
+        callback(null, updatablePackages)
       else
         error = new Error(errorMessage)
         error.stdout = stdout
