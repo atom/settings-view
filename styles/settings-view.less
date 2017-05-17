@@ -8,6 +8,7 @@
 .settings-view {
   display: flex;
   overflow: auto;
+  will-change: transform;
 
   .breadcrumb {
     margin-bottom: 0;
@@ -303,6 +304,7 @@
     background-color: lighten(@base-background-color, 2%);
     border-right: 1px solid @base-border-color;
     overflow-x: auto;
+    will-change: transform;
 
     .icon:before {
       text-align: center;
@@ -311,6 +313,7 @@
     .panels-packages{
       flex-grow: 1;
       overflow: auto;
+      will-change: transform;
       height: 0;
 
       li + li {
@@ -396,6 +399,7 @@
       flex: 1;
       min-width: 372px; // magic number: fit the Settings, Uninstall and Disable button
       overflow: auto;
+      will-change: transform;
     }
   }
 
