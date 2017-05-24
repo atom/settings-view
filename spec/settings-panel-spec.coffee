@@ -183,3 +183,29 @@ describe "SettingsPanel", ->
       expect(controlGroups[1].querySelector('.sub-section .sub-section-heading').classList.contains('has-items')).toBe true
       # Should be already collapsed
       expect(controlGroups[1].querySelector('.sub-section .sub-section-heading').parentElement.classList.contains('collapsed')).toBe true
+
+  describe 'hidden settings', ->
+    beforeEach ->
+      config =
+        type: 'object'
+        properties:
+          visible:
+            name: 'visible'
+            title: 'A visible setting'
+            description: 'This setting should appear in the settings view'
+            type: 'string'
+            default: 'hurf'
+          invisible:
+            name: 'shhh'
+            title: 'Oh no'
+            description: 'This setting should not appear in the settings view'
+            type: 'integer'
+            default: 400
+            hidden: true
+
+      atom.config.setSchema("foo", config)
+      settingsPanel = new SettingsPanel({namespace: "foo", includeTitle: false})
+
+    it 'does not display the hidden setting', ->
+      expect(settingsPanel.element.querySelectorAll('[id="foo.visible"]').length).toEqual 1
+      expect(settingsPanel.element.querySelectorAll('[id="foo.invisible"]').length).toEqual 0
