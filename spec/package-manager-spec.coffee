@@ -78,31 +78,31 @@ describe "PackageManager", ->
     it "installs the latest version when a package version is not specified", ->
       packageManager.install {name: 'something'}, ->
       expect(packageManager.runCommand).toHaveBeenCalled()
-      expect(runArgs).toEqual ['install', 'something', '--json']
+      expect(runArgs).toEqual ['install', 'something', '--production', '--json']
 
     it "installs the package@version when a version is specified", ->
       packageManager.install {name: 'something', version: '0.2.3'}, ->
       expect(packageManager.runCommand).toHaveBeenCalled()
-      expect(runArgs).toEqual ['install', 'something@0.2.3', '--json']
+      expect(runArgs).toEqual ['install', 'something@0.2.3', '--production', '--json']
 
     describe "git url installation", ->
       it 'installs https:// urls', ->
         url = "https://github.com/user/repo.git"
         packageManager.install {name: url}
         expect(packageManager.runCommand).toHaveBeenCalled()
-        expect(runArgs).toEqual ['install', 'https://github.com/user/repo.git', '--json']
+        expect(runArgs).toEqual ['install', 'https://github.com/user/repo.git', '--production', '--json']
 
       it 'installs git@ urls', ->
         url = "git@github.com:user/repo.git"
         packageManager.install {name: url}
         expect(packageManager.runCommand).toHaveBeenCalled()
-        expect(runArgs).toEqual ['install', 'git@github.com:user/repo.git', '--json']
+        expect(runArgs).toEqual ['install', 'git@github.com:user/repo.git', '--production', '--json']
 
       it 'installs user/repo url shortcuts', ->
         url = "user/repo"
         packageManager.install {name: url}
         expect(packageManager.runCommand).toHaveBeenCalled()
-        expect(runArgs).toEqual ['install', 'user/repo', '--json']
+        expect(runArgs).toEqual ['install', 'user/repo', '--production', '--json']
 
       it 'installs and activates git pacakges with names different from the repo name', ->
         spyOn(atom.packages, 'activatePackage')
@@ -175,7 +175,7 @@ describe "PackageManager", ->
       packageManager.installAlternative({name: 'language-test'}, 'a-new-package', installedCallback)
       expect(packageManager.runCommand).toHaveBeenCalled()
       expect(packageManager.runCommand.calls[0].args[0]).toEqual(['uninstall', '--hard', 'language-test'])
-      expect(packageManager.runCommand.calls[1].args[0]).toEqual(['install', 'a-new-package', '--json'])
+      expect(packageManager.runCommand.calls[1].args[0]).toEqual(['install', 'a-new-package', '--production', '--json'])
       expect(atom.packages.isPackageLoaded('language-test')).toBe true
 
       expect(installedEvent).not.toHaveBeenCalled()
