@@ -92,7 +92,7 @@ describe "InstalledPackageView", ->
         expect(card.refs.keybindingToggle.checked).toBe false
         expect(_.include(atom.config.get('core.packagesWithKeymapsDisabled') ? [], 'language-test')).toBe true
 
-        keybindingRows = card.element.querySelectorAll('.package-keymap-table tbody tr')
+        keybindingRows = card.element.querySelectorAll('.package-keymap-table tbody.text-subtle tr')
         expect(keybindingRows.length).toBe 1
 
         card.refs.keybindingToggle.click()
