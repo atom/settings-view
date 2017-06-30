@@ -92,15 +92,15 @@ describe "InstalledPackageView", ->
         expect(card.refs.keybindingToggle.checked).toBe false
         expect(_.include(atom.config.get('core.packagesWithKeymapsDisabled') ? [], 'language-test')).toBe true
 
-        keybindingRows = view.element.querySelector('.package-keymap-table tbody tr')
-        expect(keybindingsRows.length).toBe 1
+        keybindingRows = card.element.querySelectorAll('.package-keymap-table tbody tr')
+        expect(keybindingRows.length).toBe 1
 
         card.refs.keybindingToggle.click()
         expect(card.refs.keybindingToggle.checked).toBe true
         expect(_.include(atom.config.get('core.packagesWithKeymapsDisabled') ? [], 'language-test')).toBe false
 
-        keybindingRows = view.element.querySelector('.package-keymap-table tbody tr')
-        expect(keybindingsRows.length).toBe 1
+        keybindingRows = card.element.querySelectorAll('.package-keymap-table tbody tr')
+        expect(keybindingRows.length).toBe 1
 
   describe "when a keybinding is copied", ->
     [pack, card] = []
