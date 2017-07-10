@@ -118,3 +118,20 @@ describe "PackageUpdatesStatusView", ->
       packageManager.emitPackageEvent('update-failed', outdatedPackage1)
       packageManager.emitPackageEvent('update-failed', outdatedPackage1)
       expect(document.querySelector('status-bar .package-updates-status-view').textContent).toBe '2 updates (1 failed)'
+
+  describe "when a package that can be updated is uninstalled", ->
+    it "updates the tile", ->
+      packageManager.emitPackageEvent('uninstalled', outdatedPackage1)
+      expect(document.querySelector('status-bar .package-updates-status-view').textContent).toBe '1 update'
+
+  describe "when a package that is updating is uninstalled", ->
+    it "updates the tile", ->
+      packageManager.emitPackageEvent('updating', outdatedPackage1)
+      packageManager.emitPackageEvent('uninstalled', outdatedPackage1)
+      expect(document.querySelector('status-bar .package-updates-status-view').textContent).toBe '1 update'
+
+  describe "when a package that failed to update is uninstalled", ->
+    it "updates the tile", ->
+      packageManager.emitPackageEvent('update-failed', outdatedPackage1)
+      packageManager.emitPackageEvent('uninstalled', outdatedPackage1)
+      expect(document.querySelector('status-bar .package-updates-status-view').textContent).toBe '1 update'
