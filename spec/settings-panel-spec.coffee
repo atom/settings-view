@@ -110,16 +110,22 @@ describe "SettingsPanel", ->
       expect(settingsPanel.isDefault('foo.testZero')).toBe true
 
     describe 'scoped settings', ->
-      xit 'displays the scoped default', ->
+      beforeEach ->
+        schema =
+          scopes:
+            '.source.python':
+              default: 4
+
+        atom.config.setScopedDefaultsFromSchema('editor.tabLength', schema)
         expect(atom.config.get('editor.tabLength')).toBe(2)
 
+      it 'displays the scoped default', ->
         settingsPanel = new SettingsPanel({namespace: "editor", includeTitle: false, scopeName: '.source.python'})
         tabLengthEditor = settingsPanel.element.querySelector('[id="editor.tabLength"]')
         expect(tabLengthEditor.getModel().getText()).toBe('')
         expect(tabLengthEditor.getModel().getPlaceholderText()).toBe('Default: 4')
 
       it 'allows the scoped setting to be changed to its normal default if the unscoped value is different', ->
-        expect(atom.config.get('editor.tabLength')).toBe(2)
         atom.config.set('editor.tabLength', 8)
 
         settingsPanel = new SettingsPanel({namespace: "editor", includeTitle: false, scopeName: '.source.js'})
@@ -132,9 +138,7 @@ describe "SettingsPanel", ->
         expect(tabLengthEditor.getModel().getText()).toBe('2')
         expect(atom.config.get('editor.tabLength', {scope: ['source.js']})).toBe(2)
 
-      xit 'allows the scoped setting to be changed to the unscoped default if it is different', ->
-        expect(atom.config.get('editor.tabLength')).toBe(2)
-
+      it 'allows the scoped setting to be changed to the unscoped default if it is different', ->
         settingsPanel = new SettingsPanel({namespace: "editor", includeTitle: false, scopeName: '.source.python'})
         tabLengthEditor = settingsPanel.element.querySelector('[id="editor.tabLength"]')
         expect(tabLengthEditor.getModel().getText()).toBe('')
