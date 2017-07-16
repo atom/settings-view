@@ -133,7 +133,7 @@ describe "SettingsPanel", ->
         expect(tabLengthEditor.getModel().getText()).toBe('')
         expect(tabLengthEditor.getModel().getPlaceholderText()).toBe('Default: 8')
 
-        # This is the scoped default, but it differs from the current unscoped value
+        # This is the unscoped default, but it differs from the current unscoped value
         settingsPanel.set('editor.tabLength', 2)
         expect(tabLengthEditor.getModel().getText()).toBe('2')
         expect(atom.config.get('editor.tabLength', {scope: ['source.js']})).toBe(2)
