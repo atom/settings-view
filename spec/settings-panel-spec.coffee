@@ -102,10 +102,16 @@ describe "SettingsPanel", ->
 
     # Regression test for #783
     it 'allows 0 to be a default', ->
+      zeroEditor = settingsPanel.element.querySelector('[id="foo.testZero"]')
+      expect(zeroEditor.getModel().getText()).toBe('')
+      expect(zeroEditor.getModel().getPlaceholderText()).toBe('Default: 0')
+
       expect(settingsPanel.getDefault('foo.testZero')).toBe 0
       expect(settingsPanel.isDefault('foo.testZero')).toBe true
+
       settingsPanel.set('foo.testZero', 15)
       expect(settingsPanel.isDefault('foo.testZero')).toBe false
+
       settingsPanel.set('foo.testZero', 0)
       expect(settingsPanel.isDefault('foo.testZero')).toBe true
 
