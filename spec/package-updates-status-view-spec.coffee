@@ -70,6 +70,16 @@ describe "PackageUpdatesStatusView", ->
 
   describe "when a package fails to update", ->
     it "updates the tile", ->
+      packageManager.emitPackageEvent('updating', outdatedPackage1)
+      packageManager.emitPackageEvent('update-failed', outdatedPackage1)
+      expect(document.querySelector('status-bar .package-updates-status-view').textContent).toBe '2 updates (1 failed)'
+
+  describe "when a package that previously failed to update starts updating again", ->
+    it "updates the tile", ->
+      packageManager.emitPackageEvent('updating', outdatedPackage1)
+      packageManager.emitPackageEvent('update-failed', outdatedPackage1)
+      packageManager.emitPackageEvent('updating', outdatedPackage1)
+      expect(document.querySelector('status-bar .package-updates-status-view').textContent).toBe '1/2 updating'
       packageManager.emitPackageEvent('update-failed', outdatedPackage1)
       expect(document.querySelector('status-bar .package-updates-status-view').textContent).toBe '2 updates (1 failed)'
 
