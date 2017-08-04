@@ -25,12 +25,18 @@ describe "KeybindingsPanel", ->
         command: 'core:undo'
         selector: ".platform-a, .platform-b"
       }
+      {
+        source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps"
+        keystrokes: 'shift-\\ \\'
+        command: 'core:undo'
+        selector: '.editor'
+      }
     ]
     spyOn(atom.keymaps, 'getKeyBindings').andReturn(keyBindings)
     panel = new KeybindingsPanel
 
   it "loads and displays core key bindings", ->
-    expect(panel.refs.keybindingRows.children.length).toBe 1
+    expect(panel.refs.keybindingRows.children.length).toBe 2
 
     row = panel.refs.keybindingRows.children[0]
     expect(row.querySelector('.keystroke').textContent).toBe 'ctrl-a'
@@ -58,17 +64,26 @@ describe "KeybindingsPanel", ->
           }
         """
 
+    describe "when the keybinding contains backslashes", ->
+      it "escapes the backslashes before copying", ->
+        spyOn(atom.keymaps, 'getUserKeymapPath').andReturn 'keymap.cson'
+        panel.element.querySelectorAll('.copy-icon')[1].click()
+        expect(atom.clipboard.read()).toBe """
+          '.editor':
+            'shift-\\\\ \\\\': 'core:undo'
+        """
+
   describe "when the key bindings change", ->
     it "reloads the key bindings", ->
       keyBindings.push
         source: atom.keymaps.getUserKeymapPath(), keystrokes: 'ctrl-b', command: 'core:undo', selector: '.editor'
       atom.keymaps.emitter.emit 'did-reload-keymap'
 
-      waitsFor ->
-        panel.refs.keybindingRows.children.length is 2
+      waitsFor "the new keybinding to show up in the keybinding panel", ->
+        panel.refs.keybindingRows.children.length is 3
 
       runs ->
-        row = panel.refs.keybindingRows.children[panel.refs.keybindingRows.children.length - 1]
+        row = panel.refs.keybindingRows.children[1]
         expect(row.querySelector('.keystroke').textContent).toBe 'ctrl-b'
         expect(row.querySelector('.command').textContent).toBe 'core:undo'
         expect(row.querySelector('.source').textContent).toBe 'User'
