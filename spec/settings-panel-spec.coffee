@@ -214,3 +214,54 @@ describe "SettingsPanel", ->
       expect(controlGroups[1].querySelector('.sub-section .sub-section-heading').classList.contains('has-items')).toBe true
       # Should be already collapsed
       expect(controlGroups[1].querySelector('.sub-section .sub-section-heading').parentElement.classList.contains('collapsed')).toBe true
+
+  describe 'settings validation', ->
+    beforeEach ->
+      config =
+        type: 'object'
+        properties:
+          minMax:
+            name: 'minMax'
+            title: 'Min max'
+            description: 'The minMax setting'
+            type: 'integer'
+            default: 10
+            minimum: 1
+            maximum: 100
+
+      atom.config.setSchema('foo', config)
+      settingsPanel = new SettingsPanel({namespace: 'foo', includeTitle: false})
+
+    it 'prevents setting a value below the minimum', ->
+      minMaxEditor = settingsPanel.element.querySelector('[id="foo.minMax"]')
+      minMaxEditor.getModel().setText('0')
+      minMaxEditor.getModel().getBuffer().emitter.emit 'did-stop-changing'
+      expect(minMaxEditor.getModel().getText()).toBe '1'
+
+      minMaxEditor.getModel().setText('-5')
+      minMaxEditor.getModel().getBuffer().emitter.emit 'did-stop-changing'
+      expect(minMaxEditor.getModel().getText()).toBe '1'
+
+    it 'prevents setting a value above the maximum', ->
+      minMaxEditor = settingsPanel.element.querySelector('[id="foo.minMax"]')
+      minMaxEditor.getModel().setText('1000')
+      minMaxEditor.getModel().getBuffer().emitter.emit 'did-stop-changing'
+      expect(minMaxEditor.getModel().getText()).toBe '100'
+
+      minMaxEditor.getModel().setText('10000')
+      minMaxEditor.getModel().getBuffer().emitter.emit 'did-stop-changing'
+      expect(minMaxEditor.getModel().getText()).toBe '100'
+
+    it 'prevents setting a value that cannot be coerced to the correct type', ->
+      minMaxEditor = settingsPanel.element.querySelector('[id="foo.minMax"]')
+      minMaxEditor.getModel().setText('"abcde"')
+      minMaxEditor.getModel().getBuffer().emitter.emit 'did-stop-changing'
+      expect(minMaxEditor.getModel().getText()).toBe '' # aka default
+
+      minMaxEditor.getModel().setText('15')
+      minMaxEditor.getModel().getBuffer().emitter.emit 'did-stop-changing'
+      expect(minMaxEditor.getModel().getText()).toBe '15'
+
+      minMaxEditor.getModel().setText('"abcde"')
+      minMaxEditor.getModel().getBuffer().emitter.emit 'did-stop-changing'
+      expect(minMaxEditor.getModel().getText()).toBe '15'
