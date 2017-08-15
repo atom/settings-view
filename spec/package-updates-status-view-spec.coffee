@@ -122,6 +122,11 @@ describe "PackageUpdatesStatusView", ->
       packageManager.emitPackageEvent('update-available', outdatedPackage1)
       expect(document.querySelector('status-bar .package-updates-status-view').textContent).toBe '2 updates'
 
+      # There are more fields in an actual package object,
+      # so make sure only name is tested and not object equality
+      packageManager.emitPackageEvent('update-available', {name: 'out-dated-1', date: Date.now()})
+      expect(document.querySelector('status-bar .package-updates-status-view').textContent).toBe '2 updates'
+
   describe "when the same update fails multiple times", ->
     it "does not keep updating the tile", ->
       packageManager.emitPackageEvent('update-failed', outdatedPackage1)
