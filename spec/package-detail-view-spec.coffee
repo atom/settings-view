@@ -87,9 +87,12 @@ describe "PackageDetailView", ->
     expect(view.element.querySelectorAll('.package-readme').length).toBe(1)
 
   it "renders the README successfully with sanitized html", ->
+    console.log('-- README SANITIZE --')
     loadPackageFromRemote()
     expect(view.element.querySelectorAll('.package-readme script').length).toBe(0)
     expect(view.element.querySelectorAll('.package-readme input[type="checkbox"][disabled]').length).toBe(2)
+    expect(view.element.querySelector('img[alt="AbsoluteImage"]').getAttribute('src')).toBe('https://example.com/static/image.jpg')
+    expect(view.element.querySelector('img[alt="RelativeImage"]').getAttribute('src')).toBe('https://github.com/example/package-with-readme/blob/master/static/image.jpg')
 
   it "renders the README when the package path is undefined", ->
     atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-readme'))
