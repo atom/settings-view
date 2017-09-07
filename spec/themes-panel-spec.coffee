@@ -36,7 +36,8 @@ describe "ThemesPanel", ->
 
   afterEach ->
     atom.packages.unloadPackage('a-theme') if atom.packages.isPackageLoaded('a-theme')
-    atom.themes.deactivateThemes()
+    waitsForPromise ->
+      Promise.resolve(atom.themes.deactivateThemes()) # Ensure works on promise and non-promise versions
 
   it "selects the active syntax and UI themes", ->
     expect(panel.refs.uiMenu.value).toBe 'atom-dark-ui'
@@ -175,7 +176,8 @@ describe "ThemesPanel", ->
         packageManager.getInstalled.callCount is 1 and panel.refs.communityCount.textContent.indexOf('…') < 0
 
     afterEach ->
-      atom.themes.deactivateThemes()
+      waitsForPromise ->
+        Promise.resolve(atom.themes.deactivateThemes()) # Ensure works on promise and non-promise versions
 
     it 'has a count of zero in all headings', ->
       for heading in panel.element.querySelector('.section-heading-count')
