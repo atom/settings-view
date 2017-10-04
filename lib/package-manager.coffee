@@ -13,7 +13,7 @@ class PackageManager
     @packagePromises = []
     @apmCache =
       loadOutdated:
-        value: null
+        value: []
         expiry: 0
 
     @emitter = new Emitter
@@ -132,6 +132,10 @@ class PackageManager
     # Short circuit if we have cached data.
     else if @apmCache.loadOutdated.value and @apmCache.loadOutdated.expiry > Date.now()
       return callback(null, @apmCache.loadOutdated.value)
+    # Return cached or empty package lists, if automatic updates are disabled,
+    # even if cache has expired, as long as no cache rebuilding is being forced.
+    else if (not atom.config.get('core.automaticallyUpdate'))
+      return callback(null, @apmCache.loadOutdated.value)
 
     args = ['outdated', '--json']
     version = atom.getVersion()
@@ -169,7 +173,7 @@ class PackageManager
 
   clearOutdatedCache: ->
     @apmCache.loadOutdated =
-      value: null
+      value: []
       expiry: 0
 
   loadPackage: (packageName, callback) ->
