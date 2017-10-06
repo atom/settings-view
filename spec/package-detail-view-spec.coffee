@@ -89,6 +89,7 @@ describe "PackageDetailView", ->
   it "renders the README successfully with sanitized html", ->
     loadPackageFromRemote()
     expect(view.element.querySelectorAll('.package-readme script').length).toBe(0)
+    expect(view.element.querySelectorAll('.package-readme iframe').length).toBe(0)
     expect(view.element.querySelectorAll('.package-readme input[type="checkbox"][disabled]').length).toBe(2)
 
   it "renders the README when the package path is undefined", ->
