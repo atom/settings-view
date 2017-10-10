@@ -13,6 +13,13 @@ class AtomIoClient
     @expiry = 1000 * 60 * 60 * 12
     @createAvatarCache()
     @expireAvatarCache()
+    @packageManager.isStrictSsl()
+      .then (resolve) =>
+        @strictSsl = resolve
+    @packageManager.getHttpsProxy()
+      .then (resolve) =>
+        @httpsProxy = resolve
+
 
   # Public: Get an avatar image from the filesystem, fetching it first if necessary
   avatar: (login, callback) ->
@@ -70,6 +77,10 @@ class AtomIoClient
       url: "#{@baseURL}#{path}"
       headers: {'User-Agent': navigator.userAgent}
     }
+    if @httpsProxy?
+      options.proxy = @httpsProxy
+    if @strictSsl is false
+      options.rejectUnauthorized = false
 
     request options, (err, res, body) =>
       try
