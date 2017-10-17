@@ -4,6 +4,10 @@
   "main": "./lib/main",
   "description": "Edit config settings, install packages, and change themes",
   "license": "MIT",
+  "urlHandler": {
+    "method": "handleUrl",
+    "deferActivation": false
+  },
   "dependencies": {
     "async": "~0.2.9",
     "dompurify": "^1.0.2",
