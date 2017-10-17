@@ -4,8 +4,8 @@
   "main": "./lib/main",
   "description": "Edit config settings, install packages, and change themes",
   "license": "MIT",
-  "urlHandler": {
-    "method": "handleUrl",
+  "uriHandler": {
+    "method": "handleUri",
     "deferActivation": false
   },
   "dependencies": {
