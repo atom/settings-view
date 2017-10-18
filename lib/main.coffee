@@ -26,7 +26,7 @@ openPanel = (settingsView, panelName, uri) ->
   settingsView.showPanel(panelName, options)
 
 module.exports =
-  handleUri: (parsed) ->
+  handleURI: (parsed) ->
     switch parsed.pathname
       when "/show-package" then @showPackage(parsed.query.package)
 

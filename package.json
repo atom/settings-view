@@ -5,7 +5,7 @@
   "description": "Edit config settings, install packages, and change themes",
   "license": "MIT",
   "uriHandler": {
-    "method": "handleUri",
+    "method": "handleURI",
     "deferActivation": false
   },
   "dependencies": {
