@@ -26,6 +26,13 @@ openPanel = (settingsView, panelName, uri) ->
   settingsView.showPanel(panelName, options)
 
 module.exports =
+  handleUri: (parsed) ->
+    switch parsed.pathname
+      when "/show-package" then @showPackage(parsed.query.package)
+
+  showPackage: (packageName) ->
+    atom.workspace.open("atom://config/packages/#{packageName}")
+
   activate: ->
     atom.workspace.addOpener (uri) =>
       if uri.startsWith(configUri)
