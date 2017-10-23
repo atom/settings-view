@@ -1,6 +1,6 @@
 {
   "name": "settings-view",
-  "version": "0.252.0",
+  "version": "0.252.1",
   "main": "./lib/main",
   "description": "Edit config settings, install packages, and change themes",
   "license": "MIT",
