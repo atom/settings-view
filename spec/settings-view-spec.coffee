@@ -385,15 +385,17 @@ describe "SettingsView", ->
             else
               spyOn(panel, 'destroy')
 
-          atom.packages.deactivatePackage('settings-view')
+          waitsForPromise ->
+            Promise.resolve(atom.packages.deactivatePackage('settings-view')) # Ensure works on promise and non-promise versions
 
-          for panel in panels
-            if panel.dispose
-              expect(panel.dispose).toHaveBeenCalled()
-            else
-              expect(panel.destroy).toHaveBeenCalled()
+          runs ->
+            for panel in panels
+              if panel.dispose
+                expect(panel.dispose).toHaveBeenCalled()
+              else
+                expect(panel.destroy).toHaveBeenCalled()
 
-          return
+            return
 
   describe "when an installed package is clicked from the Install panel", ->
     it "displays the package details", ->
