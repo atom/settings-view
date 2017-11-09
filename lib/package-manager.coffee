@@ -216,7 +216,7 @@ class PackageManager
 
   isStrictSsl: ->
     new Promise (resolve, reject) =>
-      args = ['config' ,'get', 'strict-ssl']
+      args = ['config' , 'get', 'strict-ssl']
       errorMessage = 'Checking strict-ssl configuration failed'
       apmProcess = @runCommand args, (code, stdout, stderr) ->
         if code is 0
@@ -235,7 +235,7 @@ class PackageManager
 
   getHttpsProxy: ->
     new Promise (resolve, reject) =>
-      args = ['config' ,'get', 'https-proxy']
+      args = ['config' , 'get', 'https-proxy']
       errorMessage = 'Checking https-proxy configuration failed'
       apmProcess = @runCommand args, (code, stdout, stderr) ->
         if code is 0
