@@ -13,10 +13,10 @@ class AtomIoClient
     @expiry = 1000 * 60 * 60 * 12
     @createAvatarCache()
     @expireAvatarCache()
-    @packageManager.isStrictSsl()
+    @packageManager?.isStrictSsl()
       .then (resolve) =>
         @strictSsl = resolve
-    @packageManager.getHttpsProxy()
+    @packageManager?.getHttpsProxy()
       .then (resolve) =>
         @httpsProxy = resolve
 
