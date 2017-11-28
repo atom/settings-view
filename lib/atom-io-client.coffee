@@ -1,9 +1,9 @@
 fs = require 'fs-plus'
 path = require 'path'
+{remote} = require 'electron'
 
-glob = null    # defer until used
-request = null # defer until used
-DefaultRequestHeaders = {'User-Agent': navigator.userAgent}
+glob = require 'glob'
+request = require 'request'
 
 module.exports =
 class AtomIoClient
@@ -66,10 +66,9 @@ class AtomIoClient
         callback(error, null)
 
   request: (path, callback) ->
-    request ?= require 'request'
     options = {
       url: "#{@baseURL}#{path}"
-      headers: DefaultRequestHeaders
+      headers: {'User-Agent': navigator.userAgent}
     }
 
     request options, (err, res, body) =>
@@ -122,7 +121,6 @@ class AtomIoClient
     path.join @getCachePath(), "#{login}-#{Date.now()}"
 
   cachedAvatar: (login, callback) ->
-    glob ?= require 'glob'
     glob @avatarGlob(login), (err, files) =>
       return callback(err) if err
       files.sort().reverse()
@@ -137,21 +135,27 @@ class AtomIoClient
     path.join @getCachePath(), "#{login}-*([0-9])"
 
   fetchAndCacheAvatar: (login, callback) ->
-    if @online()
-      imagePath = @avatarPath login
-      writeStream = fs.createWriteStream imagePath
-      writeStream.on 'finish', -> callback(null, imagePath)
-      writeStream.on 'error', (error) -> callback(error)
-
-      request ?= require 'request'
-      readStream = request({
-        url: "https://avatars.githubusercontent.com/#{login}"
-        headers: DefaultRequestHeaders
-      })
-      readStream.on 'error', (error) -> callback(error)
-      readStream.pipe(writeStream)
-    else
+    if not @online()
       callback(null, null)
+    else
+      imagePath = @avatarPath login
+      requestObject = {
+        url: "https://avatars.githubusercontent.com/#{login}"
+        headers: {'User-Agent': navigator.userAgent}
+      }
+      request.head requestObject, (error, response, body) ->
+        if error? or response.statusCode isnt 200 or not response.headers['content-type'].startsWith('image/')
+          callback(error)
+        else
+          writeStream = fs.createWriteStream imagePath
+          writeStream.on 'finish', -> callback(null, imagePath)
+          writeStream.on 'error', (error) ->
+            writeStream.close()
+            try
+              fs.unlinkSync imagePath if fs.existsSync imagePath
+            callback(error)
+          request(requestObject).pipe(writeStream)
+
   # The cache expiry doesn't need to be clever, or even compare dates, it just
   # needs to always keep around the newest item, and that item only. The localStorage
   # cache updates in place, so it doesn't need to be purged.
@@ -175,13 +179,11 @@ class AtomIoClient
 
       for key, children of files
         children.sort()
-        keep = children.pop()
+        children.pop() # keep
         # Right now a bunch of clients might be instantiated at once, so
         # we can just ignore attempts to unlink files that have already been removed
         # - this should be fixed with a singleton client
         children.forEach(deleteAvatar)
 
   getCachePath: ->
-    # TODO: Remove the catch once Atom 1.7.0 is released
-    try {remote} = require 'electron' catch then remote = require 'remote'
-    @cachePath ?= path.join(remote.require('app').getDataPath(), 'Cache', 'settings-view')
+    @cachePath ?= path.join(remote.app.getPath('userData'), 'Cache', 'settings-view')

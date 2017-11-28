@@ -1,7 +1,8 @@
 path = require 'path'
+process = require 'process'
 PackageManager = require '../lib/package-manager'
 
-describe "package manager", ->
+describe "PackageManager", ->
   [packageManager] = []
 
   beforeEach ->
@@ -9,6 +10,7 @@ describe "package manager", ->
     packageManager = new PackageManager()
 
   it "handle errors spawning apm", ->
+    noSuchCommandError = if process.platform is 'win32' then ' cannot find the path ' else 'ENOENT'
     waitsForPromise shouldReject: true, -> packageManager.search('test')
     waitsForPromise shouldReject: true, -> packageManager.getInstalled()
     waitsForPromise shouldReject: true, -> packageManager.getOutdated()
@@ -26,9 +28,10 @@ describe "package manager", ->
       installCallback.callCount is 1
 
     runs ->
-      expect(installCallback.argsForCall[0][0].message).toBe "Installing \u201Cfoo@1.0.0\u201D failed."
-      expect(installCallback.argsForCall[0][0].packageInstallError).toBe true
-      expect(installCallback.argsForCall[0][0].stderr).toContain 'ENOENT'
+      installArg = installCallback.argsForCall[0][0]
+      expect(installArg.message).toBe "Installing \u201Cfoo@1.0.0\u201D failed."
+      expect(installArg.packageInstallError).toBe true
+      expect(installArg.stderr).toContain noSuchCommandError
 
       packageManager.uninstall {name: 'foo'}, uninstallCallback
 
@@ -36,8 +39,9 @@ describe "package manager", ->
       uninstallCallback.callCount is 1
 
     runs ->
-      expect(uninstallCallback.argsForCall[0][0].message).toBe "Uninstalling \u201Cfoo\u201D failed."
-      expect(uninstallCallback.argsForCall[0][0].stderr).toContain 'ENOENT'
+      uninstallArg = uninstallCallback.argsForCall[0][0]
+      expect(uninstallArg.message).toBe "Uninstalling \u201Cfoo\u201D failed."
+      expect(uninstallArg.stderr).toContain noSuchCommandError
 
       packageManager.update {name: 'foo'}, '1.0.0', updateCallback
 
@@ -45,9 +49,10 @@ describe "package manager", ->
       updateCallback.callCount is 1
 
     runs ->
-      expect(updateCallback.argsForCall[0][0].message).toBe "Updating to \u201Cfoo@1.0.0\u201D failed."
-      expect(updateCallback.argsForCall[0][0].packageInstallError).toBe true
-      expect(updateCallback.argsForCall[0][0].stderr).toContain 'ENOENT'
+      updateArg = updateCallback.argsForCall[0][0]
+      expect(updateArg.message).toBe "Updating to \u201Cfoo@1.0.0\u201D failed."
+      expect(updateArg.packageInstallError).toBe true
+      expect(updateArg.stderr).toContain noSuchCommandError
 
   describe "::isPackageInstalled()", ->
     it "returns false a package is not installed", ->
@@ -58,11 +63,7 @@ describe "package manager", ->
       expect(packageManager.isPackageInstalled('some-package')).toBe true
 
     it "returns true when a package is disabled", ->
-      spyOn(atom.packages, 'isPackageDisabled').andReturn true
-      expect(packageManager.isPackageInstalled('some-package')).toBe false
-
-    it "returns true when a package is in the availablePackageCache", ->
-      spyOn(packageManager, 'getAvailablePackageNames').andReturn ['some-package']
+      spyOn(atom.packages, 'getAvailablePackageNames').andReturn ['some-package']
       expect(packageManager.isPackageInstalled('some-package')).toBe true
 
   describe "::install()", ->
@@ -83,14 +84,6 @@ describe "package manager", ->
       packageManager.install {name: 'something', version: '0.2.3'}, ->
       expect(packageManager.runCommand).toHaveBeenCalled()
       expect(runArgs).toEqual ['install', 'something@0.2.3', '--json']
-
-    it "installs the package and adds the package to the available package names", ->
-      packageManager.cacheAvailablePackageNames(user: [{name: 'a-package'}])
-      packageManager.install {name: 'something', version: '0.2.3'}, ->
-
-      expect(packageManager.getAvailablePackageNames()).not.toContain('something')
-      runCallback(0, '', '')
-      expect(packageManager.getAvailablePackageNames()).toContain('something')
 
     describe "git url installation", ->
       it 'installs https:// urls', ->
@@ -140,27 +133,17 @@ describe "package manager", ->
         expect(installEmittedCount).toBe 1
 
   describe "::uninstall()", ->
-    [runArgs, runCallback] = []
+    [runCallback] = []
 
     beforeEach ->
       spyOn(packageManager, 'unload')
       spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
-        runArgs = args
         runCallback = callback
         onWillThrowError: ->
-
-    it "uninstalls the package and removes the package from the available package names", ->
-      packageManager.cacheAvailablePackageNames(user: [{name: 'something'}])
-      packageManager.uninstall {name: 'something'}, ->
-
-      expect(packageManager.getAvailablePackageNames()).toContain('something')
-      runCallback(0, '', '')
-      expect(packageManager.getAvailablePackageNames()).not.toContain('something')
 
     it "removes the package from the core.disabledPackages list", ->
       atom.config.set('core.disabledPackages', ['something'])
 
-      packageManager.cacheAvailablePackageNames(user: [{name: 'something'}])
       packageManager.uninstall {name: 'something'}, ->
 
       expect(atom.config.get('core.disabledPackages')).toContain('something')
@@ -239,56 +222,137 @@ describe "package manager", ->
 
   describe "::loadOutdated", ->
     it "caches results", ->
-      [runArgs, runCallback] = []
       spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
-        callback(0, '["boop"]', '')
+        callback(0, '[{"name": "boop"}]', '')
         onWillThrowError: ->
 
-      packageManager.loadOutdated ->
-      expect(packageManager.apmCache.loadOutdated.value).toMatch(['boop'])
+      packageManager.loadOutdated false, ->
+      expect(packageManager.apmCache.loadOutdated.value).toMatch([{"name": "boop"}])
 
-      packageManager.loadOutdated ->
+      packageManager.loadOutdated false, ->
       expect(packageManager.runCommand.calls.length).toBe(1)
-
 
     it "expires results after a timeout", ->
       spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
-        callback(0, '["boop"]', '')
+        callback(0, '[{"name": "boop"}]', '')
         onWillThrowError: ->
 
-      packageManager.loadOutdated ->
+      packageManager.loadOutdated false, ->
       now = Date.now()
-      spyOn(Date, 'now').andReturn((-> now + packageManager.CACHE_EXPIRY + 1)())
-      packageManager.loadOutdated ->
+      spyOn(Date, 'now') unless Date.now.andReturn
+      Date.now.andReturn((-> now + packageManager.CACHE_EXPIRY + 1)())
+      packageManager.loadOutdated false, ->
 
       expect(packageManager.runCommand.calls.length).toBe(2)
 
-  it "expires results after a package updated/installed", ->
-    packageManager.apmCache.loadOutdated =
-      value: ['hi']
-      expiry: Date.now() + 999999999
+    it "expires results after a package updated/installed", ->
+      packageManager.apmCache.loadOutdated =
+        value: ['hi']
+        expiry: Date.now() + 999999999
 
-    [runArgs, runCallback] = []
-    spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
-      callback(0, '["boop"]', '')
-      onWillThrowError: ->
+      spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
+        callback(0, '[{"name": "boop"}]', '')
+        onWillThrowError: ->
 
-    # Just prevent this stuff from calling through, it doesn't matter for this test
-    spyOn(atom.packages, 'deactivatePackage').andReturn(true)
-    spyOn(atom.packages, 'activatePackage').andReturn(true)
-    spyOn(atom.packages, 'unloadPackage').andReturn(true)
-    spyOn(atom.packages, 'loadPackage').andReturn(true)
+      # Just prevent this stuff from calling through, it doesn't matter for this test
+      spyOn(atom.packages, 'deactivatePackage').andReturn(true)
+      spyOn(atom.packages, 'activatePackage').andReturn(true)
+      spyOn(atom.packages, 'unloadPackage').andReturn(true)
+      spyOn(atom.packages, 'loadPackage').andReturn(true)
 
-    packageManager.loadOutdated ->
-    expect(packageManager.runCommand.calls.length).toBe(0)
+      packageManager.loadOutdated false, ->
+      expect(packageManager.runCommand.calls.length).toBe(0)
 
-    packageManager.update {}, {}, -> # +1 runCommand call to update the package
-    packageManager.loadOutdated -> # +1 runCommand call to load outdated because the cache should be wiped
-    expect(packageManager.runCommand.calls.length).toBe(2)
+      packageManager.update {}, {}, -> # +1 runCommand call to update the package
+      packageManager.loadOutdated false, -> # +1 runCommand call to load outdated because the cache should be wiped
+      expect(packageManager.runCommand.calls.length).toBe(2)
 
-    packageManager.install {}, -> # +1 runCommand call to install the package
-    packageManager.loadOutdated -> # +1 runCommand call to load outdated because the cache should be wiped
-    expect(packageManager.runCommand.calls.length).toBe(4)
+      packageManager.install {}, -> # +1 runCommand call to install the package
+      packageManager.loadOutdated false, -> # +1 runCommand call to load outdated because the cache should be wiped
+      expect(packageManager.runCommand.calls.length).toBe(4)
 
-    packageManager.loadOutdated -> # +0 runCommand call, should be cached
-    expect(packageManager.runCommand.calls.length).toBe(4)
+      packageManager.loadOutdated false, -> # +0 runCommand call, should be cached
+      expect(packageManager.runCommand.calls.length).toBe(4)
+
+    it "expires results if it is called with clearCache set to true", ->
+      packageManager.apmCache.loadOutdated =
+        value: ['hi']
+        expiry: Date.now() + 999999999
+
+      spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
+        callback(0, '[{"name": "boop"}]', '')
+        onWillThrowError: ->
+
+      packageManager.loadOutdated true, ->
+      expect(packageManager.runCommand.calls.length).toBe(1)
+      expect(packageManager.apmCache.loadOutdated.value).toEqual [{"name": "boop"}]
+
+    describe "when there is a version pinned package", ->
+      beforeEach ->
+        atom.config.set('core.versionPinnedPackages', ['beep'])
+
+      it "caches results", ->
+        spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
+          callback(0, '[{"name": "boop"}, {"name": "beep"}]', '')
+          onWillThrowError: ->
+
+        packageManager.loadOutdated false, ->
+        expect(packageManager.apmCache.loadOutdated.value).toMatch([{"name": "boop"}])
+
+        packageManager.loadOutdated false, ->
+        expect(packageManager.runCommand.calls.length).toBe(1)
+
+      it "expires results after a timeout", ->
+        spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
+          callback(0, '[{"name": "boop"}, {"name": "beep"}]', '')
+          onWillThrowError: ->
+
+        packageManager.loadOutdated false, ->
+        now = Date.now()
+        spyOn(Date, 'now') unless Date.now.andReturn
+        Date.now.andReturn((-> now + packageManager.CACHE_EXPIRY + 1)())
+        packageManager.loadOutdated false, ->
+
+        expect(packageManager.runCommand.calls.length).toBe(2)
+
+      it "expires results after a package updated/installed", ->
+        packageManager.apmCache.loadOutdated =
+          value: ['hi']
+          expiry: Date.now() + 999999999
+
+        spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
+          callback(0, '[{"name": "boop"}, {"name": "beep"}]', '')
+          onWillThrowError: ->
+
+        # Just prevent this stuff from calling through, it doesn't matter for this test
+        spyOn(atom.packages, 'deactivatePackage').andReturn(true)
+        spyOn(atom.packages, 'activatePackage').andReturn(true)
+        spyOn(atom.packages, 'unloadPackage').andReturn(true)
+        spyOn(atom.packages, 'loadPackage').andReturn(true)
+
+        packageManager.loadOutdated false, ->
+        expect(packageManager.runCommand.calls.length).toBe(0)
+
+        packageManager.update {}, {}, -> # +1 runCommand call to update the package
+        packageManager.loadOutdated false, -> # +1 runCommand call to load outdated because the cache should be wiped
+        expect(packageManager.runCommand.calls.length).toBe(2)
+
+        packageManager.install {}, -> # +1 runCommand call to install the package
+        packageManager.loadOutdated false, -> # +1 runCommand call to load outdated because the cache should be wiped
+        expect(packageManager.runCommand.calls.length).toBe(4)
+
+        packageManager.loadOutdated false, -> # +0 runCommand call, should be cached
+        expect(packageManager.runCommand.calls.length).toBe(4)
+
+      it "expires results if it is called with clearCache set to true", ->
+        packageManager.apmCache.loadOutdated =
+          value: ['hi']
+          expiry: Date.now() + 999999999
+
+        spyOn(packageManager, 'runCommand').andCallFake (args, callback) ->
+          callback(0, '[{"name": "boop"}, {"name": "beep"}]', '')
+          onWillThrowError: ->
+
+        packageManager.loadOutdated true, ->
+        expect(packageManager.runCommand.calls.length).toBe(1)
+        expect(packageManager.apmCache.loadOutdated.value).toEqual [{"name": "boop"}]

@@ -25,24 +25,30 @@ describe "KeybindingsPanel", ->
         command: 'core:undo'
         selector: ".platform-a, .platform-b"
       }
+      {
+        source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps"
+        keystrokes: 'shift-\\ \\'
+        command: 'core:undo'
+        selector: '.editor'
+      }
     ]
     spyOn(atom.keymaps, 'getKeyBindings').andReturn(keyBindings)
     panel = new KeybindingsPanel
 
   it "loads and displays core key bindings", ->
-    expect(panel.keybindingRows.children().length).toBe 1
+    expect(panel.refs.keybindingRows.children.length).toBe 2
 
-    row = panel.keybindingRows.children(':first')
-    expect(row.find('.keystroke').text()).toBe 'ctrl-a'
-    expect(row.find('.command').text()).toBe 'core:select-all'
-    expect(row.find('.source').text()).toBe 'Core'
-    expect(row.find('.selector').text()).toBe '.editor, .platform-test'
+    row = panel.refs.keybindingRows.children[0]
+    expect(row.querySelector('.keystroke').textContent).toBe 'ctrl-a'
+    expect(row.querySelector('.command').textContent).toBe 'core:select-all'
+    expect(row.querySelector('.source').textContent).toBe 'Core'
+    expect(row.querySelector('.selector').textContent).toBe '.editor, .platform-test'
 
   describe "when a keybinding is copied", ->
     describe "when the keybinding file ends in .cson", ->
       it "writes a CSON snippet to the clipboard", ->
         spyOn(atom.keymaps, 'getUserKeymapPath').andReturn 'keymap.cson'
-        panel.find('.copy-icon').click()
+        panel.element.querySelector('.copy-icon').click()
         expect(atom.clipboard.read()).toBe """
           '.editor, .platform-test':
             'ctrl-a': 'core:select-all'
@@ -51,11 +57,20 @@ describe "KeybindingsPanel", ->
     describe "when the keybinding file ends in .json", ->
       it "writes a JSON snippet to the clipboard", ->
         spyOn(atom.keymaps, 'getUserKeymapPath').andReturn 'keymap.json'
-        panel.find('.copy-icon').click()
+        panel.element.querySelector('.copy-icon').click()
         expect(atom.clipboard.read()).toBe """
           ".editor, .platform-test": {
             "ctrl-a": "core:select-all"
           }
+        """
+
+    describe "when the keybinding contains backslashes", ->
+      it "escapes the backslashes before copying", ->
+        spyOn(atom.keymaps, 'getUserKeymapPath').andReturn 'keymap.cson'
+        panel.element.querySelectorAll('.copy-icon')[1].click()
+        expect(atom.clipboard.read()).toBe """
+          '.editor':
+            'shift-\\\\ \\\\': 'core:undo'
         """
 
   describe "when the key bindings change", ->
@@ -64,15 +79,15 @@ describe "KeybindingsPanel", ->
         source: atom.keymaps.getUserKeymapPath(), keystrokes: 'ctrl-b', command: 'core:undo', selector: '.editor'
       atom.keymaps.emitter.emit 'did-reload-keymap'
 
-      waitsFor ->
-        panel.keybindingRows.children().length is 2
+      waitsFor "the new keybinding to show up in the keybinding panel", ->
+        panel.refs.keybindingRows.children.length is 3
 
       runs ->
-        row = panel.keybindingRows.children(':last')
-        expect(row.find('.keystroke').text()).toBe 'ctrl-b'
-        expect(row.find('.command').text()).toBe 'core:undo'
-        expect(row.find('.source').text()).toBe 'User'
-        expect(row.find('.selector').text()).toBe '.editor'
+        row = panel.refs.keybindingRows.children[1]
+        expect(row.querySelector('.keystroke').textContent).toBe 'ctrl-b'
+        expect(row.querySelector('.command').textContent).toBe 'core:undo'
+        expect(row.querySelector('.source').textContent).toBe 'User'
+        expect(row.querySelector('.selector').textContent).toBe '.editor'
 
   describe "when searching key bindings", ->
     it "find case-insensitive results", ->
@@ -82,10 +97,21 @@ describe "KeybindingsPanel", ->
 
       panel.filterKeyBindings keyBindings, 'f11'
 
-      expect(panel.keybindingRows.children().length).toBe 1
+      expect(panel.refs.keybindingRows.children.length).toBe 1
 
-      row = panel.keybindingRows.children(':first')
-      expect(row.find('.keystroke').text()).toBe 'F11'
-      expect(row.find('.command').text()).toBe 'window:toggle-full-screen'
-      expect(row.find('.source').text()).toBe 'Core'
-      expect(row.find('.selector').text()).toBe 'body'
+      row = panel.refs.keybindingRows.children[0]
+      expect(row.querySelector('.keystroke').textContent).toBe 'F11'
+      expect(row.querySelector('.command').textContent).toBe 'window:toggle-full-screen'
+      expect(row.querySelector('.source').textContent).toBe 'Core'
+      expect(row.querySelector('.selector').textContent).toBe 'body'
+
+    it "perform a fuzzy match for each keyword", ->
+      panel.filterKeyBindings keyBindings, 'core ctrl-a'
+
+      expect(panel.refs.keybindingRows.children.length).toBe 1
+
+      row = panel.refs.keybindingRows.children[0]
+      expect(row.querySelector('.keystroke').textContent).toBe 'ctrl-a'
+      expect(row.querySelector('.command').textContent).toBe 'core:select-all'
+      expect(row.querySelector('.source').textContent).toBe 'Core'
+      expect(row.querySelector('.selector').textContent).toBe '.editor, .platform-test'

@@ -11,7 +11,6 @@ class PackageManager
 
   constructor: ->
     @packagePromises = []
-    @availablePackageCache = null
     @apmCache =
       loadOutdated:
         value: null
@@ -25,12 +24,10 @@ class PackageManager
   isPackageInstalled: (packageName) ->
     if atom.packages.isPackageLoaded(packageName)
       true
-    else if packageNames = @getAvailablePackageNames()
-      packageNames.indexOf(packageName) > -1
     else
-      false
+      atom.packages.getAvailablePackageNames().indexOf(packageName) > -1
 
-  packageHasSettings: _.memoize((packageName) ->
+  packageHasSettings: (packageName) ->
     grammars = atom.grammars.getGrammars() ? []
     for grammar in grammars when grammar.path
       return true if grammar.packageName is packageName
@@ -39,7 +36,27 @@ class PackageManager
     pack.activateConfig() if pack? and not atom.packages.isPackageActive(packageName)
     schema = atom.config.getSchema(packageName)
     schema? and (schema.type isnt 'any')
-  )
+
+  setProxyServers: (callback) =>
+    session = atom.getCurrentWindow().webContents.session
+    session.resolveProxy 'http://atom.io', (httpProxy) =>
+      @applyProxyToEnv('http_proxy', httpProxy)
+      session.resolveProxy 'https://atom.io', (httpsProxy) =>
+        @applyProxyToEnv('https_proxy', httpsProxy)
+        callback()
+
+  setProxyServersAsync: (callback) =>
+    httpProxyPromise = atom.resolveProxy('http://atom.io').then((proxy) => @applyProxyToEnv('http_proxy', proxy))
+    httpsProxyPromise = atom.resolveProxy('https://atom.io').then((proxy) => @applyProxyToEnv('https_proxy', proxy))
+    Promise.all([httpProxyPromise, httpsProxyPromise]).then(callback)
+
+  applyProxyToEnv: (envName, proxy) ->
+    if proxy?
+      proxy = proxy.split(' ')
+      switch proxy[0].trim().toUpperCase()
+        when 'DIRECT' then delete process.env[envName]
+        when 'PROXY'  then process.env[envName] = 'http://' + proxy[1]
+    return
 
   runCommand: (args, callback) ->
     command = atom.packages.getApmPath()
@@ -51,19 +68,27 @@ class PackageManager
       callback(code, outputLines.join('\n'), errorLines.join('\n'))
 
     args.push('--no-color')
-    new BufferedProcess({command, args, stdout, stderr, exit})
+
+    if atom.config.get('core.useProxySettingsWhenCallingApm')
+      bufferedProcess = new BufferedProcess({command, args, stdout, stderr, exit, autoStart: false})
+      if atom.resolveProxy?
+        @setProxyServersAsync -> bufferedProcess.start()
+      else
+        @setProxyServers -> bufferedProcess.start()
+      return bufferedProcess
+    else
+      return new BufferedProcess({command, args, stdout, stderr, exit})
 
   loadInstalled: (callback) ->
     args = ['ls', '--json']
     errorMessage = 'Fetching local packages failed.'
-    apmProcess = @runCommand args, (code, stdout, stderr) =>
+    apmProcess = @runCommand args, (code, stdout, stderr) ->
       if code is 0
         try
           packages = JSON.parse(stdout) ? []
         catch parseError
           error = createJsonParseError(errorMessage, parseError, stdout)
           return callback(error)
-        @cacheAvailablePackageNames(packages)
         callback(null, packages)
       else
         error = new Error(errorMessage)
@@ -101,9 +126,11 @@ class PackageManager
 
     handleProcessErrors(apmProcess, errorMessage, callback)
 
-  loadOutdated: (callback) ->
+  loadOutdated: (clearCache, callback) ->
+    if clearCache
+      @clearOutdatedCache()
     # Short circuit if we have cached data.
-    if @apmCache.loadOutdated.value and @apmCache.loadOutdated.expiry > Date.now()
+    else if @apmCache.loadOutdated.value and @apmCache.loadOutdated.expiry > Date.now()
       return callback(null, @apmCache.loadOutdated.value)
 
     args = ['outdated', '--json']
@@ -119,11 +146,16 @@ class PackageManager
           error = createJsonParseError(errorMessage, parseError, stdout)
           return callback(error)
 
+        updatablePackages = (pack for pack in packages when not @getVersionPinnedPackages().includes(pack?.name))
+
         @apmCache.loadOutdated =
-          value: packages
+          value: updatablePackages
           expiry: Date.now() + @CACHE_EXPIRY
 
-        callback(null, packages)
+        for pack in updatablePackages
+          @emitPackageEvent 'update-available', pack
+
+        callback(null, updatablePackages)
       else
         error = new Error(errorMessage)
         error.stdout = stdout
@@ -131,6 +163,9 @@ class PackageManager
         callback(error)
 
     handleProcessErrors(apmProcess, errorMessage, callback)
+
+  getVersionPinnedPackages: ->
+    atom.config.get('core.versionPinnedPackages') ? []
 
   clearOutdatedCache: ->
     @apmCache.loadOutdated =
@@ -195,9 +230,9 @@ class PackageManager
         else
           resolve(result)
 
-  getOutdated: ->
+  getOutdated: (clearCache = false) ->
     new Promise (resolve, reject) =>
-      @loadOutdated (error, result) ->
+      @loadOutdated clearCache, (error, result) ->
         if error
           reject(error)
         else
@@ -233,6 +268,10 @@ class PackageManager
         if code is 0
           try
             packages = JSON.parse(stdout) ? []
+            if options.sortBy
+              packages = _.sortBy packages, (pkg) ->
+                return pkg[options.sortBy]*-1
+
             resolve(packages)
           catch parseError
             error = createJsonParseError(errorMessage, parseError, stdout)
@@ -248,14 +287,6 @@ class PackageManager
 
   update: (pack, newVersion, callback) ->
     {name, theme, apmInstallSource} = pack
-
-    if theme
-      activateOnSuccess = atom.packages.isPackageActive(name)
-    else
-      activateOnSuccess = not atom.packages.isPackageDisabled(name)
-    activateOnFailure = atom.packages.isPackageActive(name)
-    atom.packages.deactivatePackage(name) if atom.packages.isPackageActive(name)
-    atom.packages.unloadPackage(name) if atom.packages.isPackageLoaded(name)
 
     errorMessage = if newVersion
       "Updating to \u201C#{name}@#{newVersion}\u201D failed."
@@ -274,22 +305,15 @@ class PackageManager
     exit = (code, stdout, stderr) =>
       if code is 0
         @clearOutdatedCache()
-        activation = if activateOnSuccess
-          atom.packages.activatePackage(name)
-        else
-          atom.packages.loadPackage(name)
-
-        Promise.resolve(activation).then =>
-          callback?()
-          @emitPackageEvent 'updated', pack
+        callback?()
+        @emitPackageEvent 'updated', pack
       else
-        atom.packages.activatePackage(name) if activateOnFailure
         error = new Error(errorMessage)
         error.stdout = stdout
         error.stderr = stderr
         onError(error)
 
-    @emitter.emit('package-updating', {pack})
+    @emitPackageEvent 'updating', pack
     apmProcess = @runCommand(args, exit)
     handleProcessErrors(apmProcess, errorMessage, onError)
 
@@ -328,7 +352,6 @@ class PackageManager
         else
           atom.packages.loadPackage(name)
 
-        @addPackageToAvailablePackageNames(name)
         callback?()
         @emitPackageEvent 'installed', pack
       else
@@ -357,7 +380,6 @@ class PackageManager
       if code is 0
         @clearOutdatedCache()
         @unload(name)
-        @removePackageFromAvailablePackageNames(name)
         @removePackageNameFromDisabledPackages(name)
         callback?()
         @emitPackageEvent 'uninstalled', pack
@@ -424,28 +446,6 @@ class PackageManager
 
   removePackageNameFromDisabledPackages: (packageName) ->
     atom.config.removeAtKeyPath('core.disabledPackages', packageName)
-
-  cacheAvailablePackageNames: (packages) ->
-    @availablePackageCache = []
-    for packageType in ['core', 'user', 'dev', 'git']
-      continue unless packages[packageType]?
-      packageNames = (pack.name for pack in packages[packageType])
-      @availablePackageCache.push(packageNames...)
-    @availablePackageCache
-
-  addPackageToAvailablePackageNames: (packageName) ->
-    @availablePackageCache ?= []
-    @availablePackageCache.push(packageName) if @availablePackageCache.indexOf(packageName) < 0
-    @availablePackageCache
-
-  removePackageFromAvailablePackageNames: (packageName) ->
-    @availablePackageCache ?= []
-    index = @availablePackageCache.indexOf(packageName)
-    @availablePackageCache.splice(index, 1) if index > -1
-    @availablePackageCache
-
-  getAvailablePackageNames: ->
-    @availablePackageCache
 
   # Emits the appropriate event for the given package.
   #

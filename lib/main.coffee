@@ -1,6 +1,11 @@
 SettingsView = null
 settingsView = null
 
+statusView = null
+
+PackageManager = require './package-manager'
+packageManager = null
+
 SnippetsProvider =
   getSnippets: -> atom.config.scopedSettingsStore.propertySets
 
@@ -21,10 +26,18 @@ openPanel = (settingsView, panelName, uri) ->
   settingsView.showPanel(panelName, options)
 
 module.exports =
+  handleURI: (parsed) ->
+    switch parsed.pathname
+      when "/show-package" then @showPackage(parsed.query.package)
+
+  showPackage: (packageName) ->
+    atom.workspace.open("atom://config/packages/#{packageName}")
+
   activate: ->
     atom.workspace.addOpener (uri) =>
       if uri.startsWith(configUri)
-        settingsView ?= @createSettingsView({uri})
+        if not settingsView? or settingsView.destroyed
+          settingsView = @createSettingsView({uri})
         if match = uriRegex.exec(uri)
           panelName = match[1]
           panelName = panelName[0].toUpperCase() + panelName.slice(1)
@@ -33,6 +46,8 @@ module.exports =
 
     atom.commands.add 'atom-workspace',
       'settings-view:open': -> atom.workspace.open(configUri)
+      'settings-view:core': -> atom.workspace.open("#{configUri}/core")
+      'settings-view:editor': -> atom.workspace.open("#{configUri}/editor")
       'settings-view:show-keybindings': -> atom.workspace.open("#{configUri}/keybindings")
       'settings-view:change-themes': -> atom.workspace.open("#{configUri}/themes")
       'settings-view:install-packages-and-themes': -> atom.workspace.open("#{configUri}/install")
@@ -42,25 +57,28 @@ module.exports =
       'settings-view:uninstall-packages': -> atom.workspace.open("#{configUri}/packages")
       'settings-view:check-for-package-updates': -> atom.workspace.open("#{configUri}/updates")
 
+    if process.platform is 'win32' and require('atom').WinShell?
+      atom.commands.add 'atom-workspace', 'settings-view:system': -> atom.workspace.open("#{configUri}/system")
+
+    unless localStorage.getItem('hasSeenDeprecatedNotification')
+      packageManager ?= new PackageManager()
+      packageManager.getInstalled().then (packages) =>
+        @showDeprecatedNotification(packages) if packages.user?.length
+
   deactivate: ->
-    settingsView?.dispose()
-    settingsView?.remove()
+    settingsView?.destroy()
+    statusView?.destroy()
     settingsView = null
+    packageManager = null
+    statusView = null
 
   consumeStatusBar: (statusBar) ->
-    PackageManager = require './package-manager'
-    packageManager = new PackageManager()
-    Promise.all([packageManager.getOutdated(), packageManager.getInstalled()]).then (values) ->
-      outdatedPackages = values[0]
-      allPackages = values[1]
-      if outdatedPackages.length > 0
+    packageManager ?= new PackageManager()
+    packageManager.getOutdated().then (updates) ->
+      if packageManager?
         PackageUpdatesStatusView = require './package-updates-status-view'
-        packageUpdatesStatusView = new PackageUpdatesStatusView(statusBar, outdatedPackages)
-
-      if allPackages.length > 0 and not localStorage.getItem('hasSeenDeprecatedNotification')
-        @showDeprecatedNotification(allPackages)
-    .catch (error) ->
-      console.log error.message, error.stack
+        statusView = new PackageUpdatesStatusView()
+        statusView.initialize(statusBar, packageManager, updates)
 
   consumeSnippets: (snippets) ->
     if typeof snippets.getUnparsedSnippets is "function"
@@ -68,10 +86,14 @@ module.exports =
 
   createSettingsView: (params) ->
     SettingsView ?= require './settings-view'
+    packageManager ?= new PackageManager()
+    params.packageManager = packageManager
     params.snippetsProvider = SnippetsProvider
     settingsView = new SettingsView(params)
 
   showDeprecatedNotification: (packages) ->
+    localStorage.setItem('hasSeenDeprecatedNotification', true)
+
     deprecatedPackages = packages.user.filter ({name, version}) ->
       atom.packages.isDeprecatedPackage(name, version)
     return unless deprecatedPackages.length
@@ -93,9 +115,3 @@ module.exports =
           atom.commands.dispatch(atom.views.getView(atom.workspace), 'settings-view:view-installed-packages')
           notification.dismiss()
       }]
-    localStorage.setItem('hasSeenDeprecatedNotification', true)
-
-if parseFloat(atom.getVersion()) < 1.7
-  atom.deserializers.add
-    name: 'SettingsView'
-    deserialize: module.exports.createSettingsView.bind(module.exports)

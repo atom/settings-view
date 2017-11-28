@@ -7,6 +7,7 @@
 
 .settings-view {
   display: flex;
+  overflow: auto;
 
   .breadcrumb {
     margin-bottom: 0;
@@ -92,7 +93,7 @@
     align-items: stretch;
   }
 
-  .btn.active-theme-settings {
+  .themes-picker-item .btn {
     margin-left: 2px;
     &::before {
       margin-right: 0;
@@ -111,71 +112,7 @@
     }
   }
   input[type="checkbox"] {
-    -webkit-appearance: none;
-    display: inline-block;
-    position: relative;
-    font-size: inherit;
     margin: 0 .75em 0 -2.25em;
-    vertical-align: top;
-    width: 1.5em;
-    height: 1.5em;
-    cursor: pointer;
-    outline: 0;
-    border-radius: @component-border-radius;
-    background-color: @text-color-subtle;
-    transition: background-color .16s cubic-bezier(0.5, 0.15, 0.2, 1);
-
-    &:focus {
-      box-shadow: 0 0 0 1px @base-border-color;
-    }
-
-    &:active {
-      background-color: @background-color-success;
-    }
-
-    &:before,
-    &:after {
-      content: "";
-      position: absolute;
-      top: 1.1em;
-      left: .6em;
-      height: .16em;
-      min-height: 2px;
-      border-radius: 1px;
-      background-color: @base-background-color;
-      transform-origin: 0% 0%;
-      opacity: 0;
-      transition: transform .1s cubic-bezier(0.5, 0.15, 0.2, 1), opacity .1s cubic-bezier(0.5, 0.15, 0.2, 1);
-    }
-    &:before {
-      width: .45em;
-      transform: rotate(225deg) scale(0);
-    }
-    &:after {
-      width: .9em;
-      margin: -1px;
-      transform: rotate(-45deg) scale(0);
-      transition-delay: .05s;
-    }
-
-    &:checked {
-      background-color: @background-color-success;
-      &:active {
-        background-color: @text-color-subtle;
-      }
-      &:before,
-      &:after {
-        opacity: 1;
-      }
-      &:before {
-        transform: rotate(225deg) scale(1);
-        transition-delay: .05s;
-      }
-      &:after {
-        transform: rotate(-45deg) scale(1);
-        transition-delay: 0;
-      }
-    }
   }
 
   .color {
@@ -226,14 +163,14 @@
       border-top: none;
     }
 
-    atom-text-editor[mini], atom-text-editor[mini]::shadow {
+    atom-text-editor[mini] {
       opacity: .75;
       .selection .region {
         background-color: contrast(@input-background-color, lighten(@input-background-color, 8%), darken(@input-background-color, 8%) );
       }
     }
 
-    atom-text-editor[mini].is-focused, atom-text-editor[mini].is-focused::shadow {
+    atom-text-editor[mini].is-focused {
       opacity: 1;
       .selection .region {
       background-color: contrast(@input-background-color, lighten(@input-background-color, 12%), darken(@input-background-color, 12%) );
@@ -241,13 +178,8 @@
     }
   }
 
-  // Override settings.less
-  // TODO: refactor! This is super ugly, but fixes multiple nesting of sections
-  div > section.section.settings-panel {
+  div > .package-detail section.section.settings-panel {
       border-top: 1px solid @base-border-color;
-  }
-  div > form.general-panel + .settings-panel {
-    border-top: none;
   }
 
   .section-container {
@@ -304,7 +236,7 @@
       &.has-items {
         cursor: pointer;
 
-        &:after {
+        &::after {
           .icon(16px);
           content: @fold;
           position: absolute;
@@ -326,8 +258,8 @@
       .sub-section-heading:after {
         content: @unfold;
       }
-
-      .package-container .package-card {
+      .package-container .package-card,
+      .sub-section-body .control-group {
         display: none !important;
       }
     }
@@ -458,6 +390,7 @@
     flex-flow: column;
     display: flex;
     position: relative;
+    min-width: 0;
 
    .panels-item {
       flex: 1;
@@ -540,7 +473,6 @@
   }
 
   .packages {
-    height: 100%;
     display: flex;
     flex-flow: column;
 
@@ -605,7 +537,7 @@
 
   .loading-area {
     span {
-      &:before {
+      &::before {
         font-size: 1.1em;
         width: 1.1em;
         height: 1.1em;
@@ -687,6 +619,18 @@
       border-style: solid;
     }
   }
+
+  .uri-history {
+    width: 100%;
+
+    th {
+      white-space: nowrap;
+    }
+
+    td, th {
+      padding: 0 @component-padding @component-padding/2 0;
+    }
+  }
 }
 
 @media all and (max-width: 800px) {
@@ -696,6 +640,10 @@
       margin: 2px 0;
     }
   }
+}
+
+.package-updates-status-view:hover {
+  text-decoration: underline;
 }
 
 .available-updates-status {
@@ -716,11 +664,15 @@
     }
   }
 
-  .update-all-button {
-    top: -4px; // visually centered to title
-    margin-left: 4px;
-    right: 0;
-    position: relative;
+  .updates-heading-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .update-all-button:last-child {
+    margin-left: @component-padding/2;
   }
 
   .keybinding-panel .is-user {
@@ -734,18 +686,17 @@
 }
 
 .clearfix {
-  &:before {
+  &::before {
     display: table;
     content: "";
   }
 
-  &:after {
+  &::after {
     display: table;
     clear: both;
     content: "";
   }
 }
-
 
 // Reset Bootstrap media queries,
 // since it breaks when resizing the treeview or in multiple panes

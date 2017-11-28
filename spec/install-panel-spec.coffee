@@ -1,23 +1,25 @@
 InstallPanel = require '../lib/install-panel'
 PackageManager = require '../lib/package-manager'
+SettingsView = require '../lib/settings-view'
 
 describe 'InstallPanel', ->
   beforeEach ->
+    settingsView = new SettingsView()
     @packageManager = new PackageManager()
-    @panel = new InstallPanel(@packageManager)
+    @panel = new InstallPanel(settingsView, @packageManager)
 
   describe "when the packages button is clicked", ->
     beforeEach ->
       spyOn(@panel, 'search')
-      @panel.searchEditorView.setText('something')
+      @panel.refs.searchEditor.setText('something')
 
     it "performs a search for the contents of the input", ->
-      @panel.searchPackagesButton.click()
+      @panel.refs.searchPackagesButton.click()
       expect(@panel.searchType).toBe 'packages'
       expect(@panel.search).toHaveBeenCalledWith 'something'
       expect(@panel.search.callCount).toBe 1
 
-      @panel.searchPackagesButton.click()
+      @panel.refs.searchPackagesButton.click()
       expect(@panel.searchType).toBe 'packages'
       expect(@panel.search).toHaveBeenCalledWith 'something'
       expect(@panel.search.callCount).toBe 2
@@ -25,36 +27,61 @@ describe 'InstallPanel', ->
   describe "when the themes button is clicked", ->
     beforeEach ->
       spyOn(@panel, 'search')
-      @panel.searchEditorView.setText('something')
+      @panel.refs.searchEditor.setText('something')
 
     it "performs a search for the contents of the input", ->
-      @panel.searchThemesButton.click()
+      @panel.refs.searchThemesButton.click()
       expect(@panel.searchType).toBe 'themes'
       expect(@panel.search.callCount).toBe 1
       expect(@panel.search).toHaveBeenCalledWith 'something'
 
-      @panel.searchThemesButton.click()
+      @panel.refs.searchThemesButton.click()
       expect(@panel.searchType).toBe 'themes'
       expect(@panel.search.callCount).toBe 2
 
   describe "when the buttons are toggled", ->
     beforeEach ->
       spyOn(@panel, 'search')
-      @panel.searchEditorView.setText('something')
+      @panel.refs.searchEditor.setText('something')
 
     it "performs a search for the contents of the input", ->
-      @panel.searchThemesButton.click()
+      @panel.refs.searchThemesButton.click()
       expect(@panel.searchType).toBe 'themes'
       expect(@panel.search.callCount).toBe 1
       expect(@panel.search).toHaveBeenCalledWith 'something'
 
-      @panel.searchPackagesButton.click()
+      @panel.refs.searchPackagesButton.click()
       expect(@panel.searchType).toBe 'packages'
       expect(@panel.search.callCount).toBe 2
 
-      @panel.searchThemesButton.click()
+      @panel.refs.searchThemesButton.click()
       expect(@panel.searchType).toBe 'themes'
       expect(@panel.search.callCount).toBe 3
+
+  describe "searching packages", ->
+    it "highlights exact name matches", ->
+      spyOn(@packageManager, 'search').andCallFake ->
+        new Promise (resolve, reject) -> resolve([ {name: 'not-first'}, {name: 'first'} ])
+      spyOn(@panel, 'getPackageCardView').andCallThrough()
+
+      waitsForPromise =>
+        @panel.search('first')
+
+      runs ->
+        expect(@panel.getPackageCardView.argsForCall[0][0].name).toEqual 'first'
+        expect(@panel.getPackageCardView.argsForCall[1][0].name).toEqual 'not-first'
+
+    it "prioritizes partial name matches", ->
+      spyOn(@packageManager, 'search').andCallFake ->
+        new Promise (resolve, reject) -> resolve([ {name: 'something else'}, {name: 'partial name match'} ])
+      spyOn(@panel, 'getPackageCardView').andCallThrough()
+
+      waitsForPromise =>
+        @panel.search('match')
+
+      runs ->
+        expect(@panel.getPackageCardView.argsForCall[0][0].name).toEqual 'partial name match'
+        expect(@panel.getPackageCardView.argsForCall[1][0].name).toEqual 'something else'
 
   describe "searching git packages", ->
     beforeEach ->
