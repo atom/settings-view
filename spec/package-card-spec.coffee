@@ -260,6 +260,26 @@ describe "PackageCard", ->
       runs ->
         expect(card.refs.updateButton).toBeVisible()
 
+    it 'does not error when attempting to update without any update available', ->
+      # While this cannot be done through the package card UI,
+      # updates can still be triggered through the Updates panel's Update All button
+      # https://github.com/atom/settings-view/issues/879
+
+      pack = atom.packages.getLoadedPackage('package-with-config')
+
+      originalLoadPackage = atom.packages.loadPackage
+      spyOn(atom.packages, 'loadPackage').andCallFake ->
+        originalLoadPackage.call(atom.packages, path.join(__dirname, 'fixtures', 'package-with-config'))
+
+      card = new PackageCard(pack, new SettingsView(), packageManager)
+      jasmine.attachToDOM(card.element)
+      expect(card.refs.updateButton).not.toBeVisible()
+
+      waitsForPromise -> card.update()
+
+      runs ->
+        expect(card.refs.updateButton).not.toBeVisible()
+
     it "will stay disabled after an update", ->
       pack = atom.packages.getLoadedPackage('package-with-config')
       pack.latestVersion = '1.1.0'
