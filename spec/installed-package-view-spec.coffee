@@ -50,8 +50,7 @@ describe "InstalledPackageView", ->
     waitsForPromise ->
       atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
 
-    waitsFor 'snippets to load', (done) ->
-      snippetsModule.onDidLoadSnippets(done)
+    waitsFor 'snippets to load', -> snippetsModule.provideSnippets().bundledSnippetsLoaded()
 
     runs ->
       pack = atom.packages.getActivePackage('language-test')
