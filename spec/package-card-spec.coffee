@@ -305,6 +305,33 @@ describe "PackageCard", ->
       runs ->
         expect(atom.packages.isPackageDisabled('package-with-config')).toBe true
 
+    it "doesn't prompt to restart if package is disabled", ->
+      pack = atom.packages.getLoadedPackage('package-with-config')
+      pack.latestVersion = '1.1.0'
+      pack.disable()
+      packageUpdated = false
+
+      packageManager.on 'package-updated', -> packageUpdated = true
+      packageManager.runCommand.andCallFake (args, callback) ->
+        callback(0, '', '')
+        onWillThrowError: ->
+
+      originalLoadPackage = atom.packages.loadPackage
+      spyOn(atom.packages, 'loadPackage').andCallFake ->
+        originalLoadPackage.call(atom.packages, path.join(__dirname, 'fixtures', 'package-with-config'))
+
+      card = new PackageCard(pack, new SettingsView(), packageManager)
+      jasmine.attachToDOM(card.element)
+      expect(card.refs.updateButton).toBeVisible()
+
+      card.refs.updateButton.click()
+
+      waits 0 # Wait for PackageCard.update promise to resolve
+
+      runs ->
+        notifications = atom.notifications.getNotifications()
+        expect(notifications.length).toBe 0
+
     it "is uninstalled when the uninstallButton is clicked", ->
       setPackageStatusSpies {installed: true, disabled: false}
 
