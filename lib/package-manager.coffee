@@ -435,6 +435,14 @@ class PackageManager
       repoUrl = "https://github.com/#{repoName}"
     repoUrl.replace(/\.git$/, '').replace(/\/+$/, '').replace(/^git\+/, '')
 
+  getReadmeSrc: (url) ->
+    repoData = url.split('/')
+    releaseURL = "https://api.github.com/repos/#{repoData[3]}/#{repoData[4]}/tags"
+    # Builds the url to img src from the readme based on latest tag
+    fetch(releaseURL)
+    .then((res) => res.json())
+    .then((json) => return "#{url}/raw/#{json[0].name}/")
+
   checkNativeBuildTools: ->
     new Promise (resolve, reject) =>
       apmProcess = @runCommand ['install', '--check'], (code, stdout, stderr) ->
