@@ -27,7 +27,7 @@ class AtomIoClient
   # caching.
   package: (name, callback) ->
     packagePath = "packages/#{name}"
-    @fetchFromCache packagePath, {}, (err, data) =>
+    @fetchFromCache packagePath, (err, data) =>
       if data
         callback(null, data)
       else
@@ -35,7 +35,7 @@ class AtomIoClient
 
   featuredPackages: (callback) ->
     # TODO clean up caching copypasta
-    @fetchFromCache 'packages/featured', {}, (err, data) =>
+    @fetchFromCache 'packages/featured', (err, data) =>
       if data
         callback(null, data)
       else
@@ -43,7 +43,7 @@ class AtomIoClient
 
   featuredThemes: (callback) ->
     # TODO clean up caching copypasta
-    @fetchFromCache 'themes/featured', {}, (err, data) =>
+    @fetchFromCache 'themes/featured', (err, data) =>
       if data
         callback(null, data)
       else
@@ -93,18 +93,10 @@ class AtomIoClient
   # This could use a better name, since it checks whether it's appropriate to return
   # the cached data and pretends it's null if it's stale and we're online
   # FIXME: Why is this even a callback when everything is sync? We never return an error anyway
-  fetchFromCache: (packagePath, options, callback) ->
-    unless callback
-      callback = options
-      options = {}
-
-    unless options.force
-      # Set `force` to true if we can't reach the network.
-      options.force = not @online()
-
+  fetchFromCache: (packagePath, callback) ->
     cached = localStorage.getItem(@cacheKeyForPath(packagePath))
     cached = if cached then JSON.parse(cached)
-    if cached? and (not @online() or options.force or (Date.now() - cached.createdOn < @expiry))
+    if cached? and (not @online() or Date.now() - cached.createdOn < @expiry)
       callback(null, cached.data)
     else
       # falsy data means "try to hit the network"
