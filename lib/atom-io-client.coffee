@@ -27,27 +27,27 @@ class AtomIoClient
   # caching.
   package: (name, callback) ->
     packagePath = "packages/#{name}"
-    @fetchFromCache packagePath, (err, data) =>
-      if data
-        callback(null, data)
-      else
-        @request(packagePath, callback)
+    data = @fetchFromCache(packagePath)
+    if data
+      callback(null, data)
+    else
+      @request(packagePath, callback)
 
   featuredPackages: (callback) ->
     # TODO clean up caching copypasta
-    @fetchFromCache 'packages/featured', (err, data) =>
-      if data
-        callback(null, data)
-      else
-        @getFeatured(false, callback)
+    data = @fetchFromCache 'packages/featured'
+    if data
+      callback(null, data)
+    else
+      @getFeatured(false, callback)
 
   featuredThemes: (callback) ->
     # TODO clean up caching copypasta
-    @fetchFromCache 'themes/featured', (err, data) =>
-      if data
-        callback(null, data)
-      else
-        @getFeatured(true, callback)
+    data = @fetchFromCache 'themes/featured'
+    if data
+      callback(null, data)
+    else
+      @getFeatured(true, callback)
 
   getFeatured: (loadThemes, callback) ->
     # apm already does this, might as well use it instead of request i guess? The
@@ -92,15 +92,14 @@ class AtomIoClient
 
   # This could use a better name, since it checks whether it's appropriate to return
   # the cached data and pretends it's null if it's stale and we're online
-  # FIXME: Why is this even a callback when everything is sync? We never return an error anyway
-  fetchFromCache: (packagePath, callback) ->
+  fetchFromCache: (packagePath) ->
     cached = localStorage.getItem(@cacheKeyForPath(packagePath))
     cached = if cached then JSON.parse(cached)
     if cached? and (not @online() or Date.now() - cached.createdOn < @expiry)
-      callback(null, cached.data)
+      return cached.data
     else
       # falsy data means "try to hit the network"
-      callback(null, null)
+      return null
 
   createAvatarCache: ->
     fs.makeTree(@getCachePath())

@@ -66,10 +66,7 @@ describe "PackageDetailView", ->
   it "shows an error when package metadata cannot be loaded from the cache and the network is unavailable", ->
     spyOn(AtomIoClient.prototype, 'online').andReturn(false)
     spyOn(AtomIoClient.prototype, 'request').andCallThrough()
-    spyOn(AtomIoClient.prototype, 'fetchFromCache').andCallFake (path, cb) ->
-      # this is the special case which happens when the data is not in the cache
-      # and there's no connectivity
-      cb(null, {})
+    spyOn(AtomIoClient.prototype, 'fetchFromCache').andReturn({})
 
     view = new PackageDetailView({name: 'some-package'}, new SettingsView(), packageManager, SnippetsProvider)
 

@@ -13,8 +13,7 @@ describe "AtomIoClient", ->
 
   it "fetches api json from cache if the network is unavailable", ->
     spyOn(@client, 'online').andReturn(false)
-    spyOn(@client, 'fetchFromCache').andCallFake (path, cb) ->
-      cb(null, {})
+    spyOn(@client, 'fetchFromCache').andReturn({})
     spyOn(@client, 'request')
     @client.package 'test-package', ->
 
