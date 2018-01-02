@@ -92,6 +92,7 @@ class AtomIoClient
 
   # This could use a better name, since it checks whether it's appropriate to return
   # the cached data and pretends it's null if it's stale and we're online
+  # FIXME: Why is this even a callback when everything is sync? We never return an error anyway
   fetchFromCache: (packagePath, options, callback) ->
     unless callback
       callback = options
@@ -106,10 +107,6 @@ class AtomIoClient
     if cached? and (not @online() or options.force or (Date.now() - cached.createdOn < @expiry))
       cached ?= data: {}
       callback(null, cached.data)
-    else if not cached? and not @online()
-      # The user hasn't requested this resource before and there's no way for us
-      # to get it to them so just hand back an empty object so callers don't crash
-      callback(null, {})
     else
       # falsy data means "try to hit the network"
       callback(null, null)
