@@ -105,7 +105,6 @@ class AtomIoClient
     cached = localStorage.getItem(@cacheKeyForPath(packagePath))
     cached = if cached then JSON.parse(cached)
     if cached? and (not @online() or options.force or (Date.now() - cached.createdOn < @expiry))
-      cached ?= data: {}
       callback(null, cached.data)
     else
       # falsy data means "try to hit the network"
