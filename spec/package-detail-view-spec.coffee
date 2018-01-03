@@ -64,14 +64,16 @@ describe "PackageDetailView", ->
     expect(view.element.querySelectorAll('.package-card').length).toBe(0)
 
   it "shows an error when package metadata cannot be loaded from the cache and the network is unavailable", ->
+    localStorage.removeItem('settings-view:packages/some-package')
+
     spyOn(AtomIoClient.prototype, 'online').andReturn(false)
-    spyOn(AtomIoClient.prototype, 'request').andCallThrough()
-    spyOn(AtomIoClient.prototype, 'fetchFromCache').andReturn({})
+    spyOn(AtomIoClient.prototype, 'request').andCallFake (path, callback) ->
+      callback(new Error('getaddrinfo ENOENT atom.io:443'))
+    spyOn(AtomIoClient.prototype, 'fetchFromCache').andCallThrough()
 
     view = new PackageDetailView({name: 'some-package'}, new SettingsView(), packageManager, SnippetsProvider)
 
     expect(AtomIoClient.prototype.fetchFromCache).toHaveBeenCalled()
-    expect(AtomIoClient.prototype.request).not.toHaveBeenCalled()
 
     expect(view.refs.errorMessage.classList.contains('hidden')).not.toBe(true)
     expect(view.refs.loadingMessage.classList.contains('hidden')).toBe(true)
