@@ -93,7 +93,7 @@
     align-items: stretch;
   }
 
-  .btn.active-theme-settings {
+  .themes-picker-item .btn {
     margin-left: 2px;
     &::before {
       margin-right: 0;
@@ -255,7 +255,7 @@
     }
 
     &.collapsed {
-      .sub-section-heading:after {
+      .sub-section-heading.has-items:after {
         content: @unfold;
       }
       .package-container .package-card,
@@ -617,6 +617,18 @@
       text-shadow: none;
       border-width: 1px;
       border-style: solid;
+    }
+  }
+
+  .uri-history {
+    width: 100%;
+
+    th {
+      white-space: nowrap;
+    }
+
+    td, th {
+      padding: 0 @component-padding @component-padding/2 0;
     }
   }
 }

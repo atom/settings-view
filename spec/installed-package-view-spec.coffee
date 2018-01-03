@@ -37,25 +37,28 @@ describe "InstalledPackageView", ->
 
   it "displays the snippets registered by the package", ->
     snippetsTable = null
+    snippetsModule = null
 
     waitsForPromise ->
       atom.packages.activatePackage('snippets').then (p) ->
-        return unless p.mainModule.provideSnippets().getUnparsedSnippets?
+        snippetsModule = p.mainModule
+        return unless snippetsModule.provideSnippets().getUnparsedSnippets?
 
         SnippetsProvider =
-          getSnippets: -> p.mainModule.provideSnippets().getUnparsedSnippets()
+          getSnippets: -> snippetsModule.provideSnippets().getUnparsedSnippets()
 
     waitsForPromise ->
       atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+
+    waitsFor 'snippets to load', -> snippetsModule.provideSnippets().bundledSnippetsLoaded()
 
     runs ->
       pack = atom.packages.getActivePackage('language-test')
       view = new PackageDetailView(pack, new SettingsView(), new PackageManager(), SnippetsProvider)
       snippetsTable = view.element.querySelector('.package-snippets-table tbody')
 
-    waitsFor ->
+    waitsFor 'snippets table children to contain 2 items', ->
       snippetsTable.children.length >= 2
-    , 'Snippets table children to contain 2 items', 5000
 
     runs ->
       expect(snippetsTable.querySelector('tr:nth-child(1) td:nth-child(1)').textContent).toBe 'b'

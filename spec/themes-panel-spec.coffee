@@ -36,7 +36,8 @@ describe "ThemesPanel", ->
 
   afterEach ->
     atom.packages.unloadPackage('a-theme') if atom.packages.isPackageLoaded('a-theme')
-    atom.themes.deactivateThemes()
+    waitsForPromise ->
+      Promise.resolve(atom.themes.deactivateThemes()) # Ensure works on promise and non-promise versions
 
   it "selects the active syntax and UI themes", ->
     expect(panel.refs.uiMenu.value).toBe 'atom-dark-ui'
@@ -47,14 +48,20 @@ describe "ThemesPanel", ->
       for child in panel.refs.uiMenu.children
         child.selected = child.value is 'atom-light-ui'
         child.dispatchEvent(new Event('change', {bubbles: true}))
-      expect(atom.config.get('core.themes')).toEqual ['atom-light-ui', 'atom-dark-syntax']
+      waitsFor ->
+        reloadedHandler.callCount is 2
+      runs ->
+        expect(atom.config.get('core.themes')).toEqual ['atom-light-ui', 'atom-dark-syntax']
 
   describe "when a syntax theme is selected", ->
     it "updates the 'core.themes' config key with the selected syntax theme", ->
       for child in panel.refs.syntaxMenu.children
         child.selected = child.value is 'atom-light-syntax'
         child.dispatchEvent(new Event('change', {bubbles: true}))
-      expect(atom.config.get('core.themes')).toEqual ['atom-dark-ui', 'atom-light-syntax']
+      waitsFor ->
+        reloadedHandler.callCount is 2
+      runs ->
+        expect(atom.config.get('core.themes')).toEqual ['atom-dark-ui', 'atom-light-syntax']
 
   describe "when the 'core.config' key changes", ->
     it "refreshes the theme menus", ->
@@ -175,7 +182,8 @@ describe "ThemesPanel", ->
         packageManager.getInstalled.callCount is 1 and panel.refs.communityCount.textContent.indexOf('…') < 0
 
     afterEach ->
-      atom.themes.deactivateThemes()
+      waitsForPromise ->
+        Promise.resolve(atom.themes.deactivateThemes()) # Ensure works on promise and non-promise versions
 
     it 'has a count of zero in all headings', ->
       for heading in panel.element.querySelector('.section-heading-count')
