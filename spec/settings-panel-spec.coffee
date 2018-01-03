@@ -235,33 +235,33 @@ describe "SettingsPanel", ->
     it 'prevents setting a value below the minimum', ->
       minMaxEditor = settingsPanel.element.querySelector('[id="foo.minMax"]')
       minMaxEditor.getModel().setText('0')
-      minMaxEditor.getModel().getBuffer().emitter.emit 'did-stop-changing'
+      advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
       expect(minMaxEditor.getModel().getText()).toBe '1'
 
       minMaxEditor.getModel().setText('-5')
-      minMaxEditor.getModel().getBuffer().emitter.emit 'did-stop-changing'
+      advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
       expect(minMaxEditor.getModel().getText()).toBe '1'
 
     it 'prevents setting a value above the maximum', ->
       minMaxEditor = settingsPanel.element.querySelector('[id="foo.minMax"]')
       minMaxEditor.getModel().setText('1000')
-      minMaxEditor.getModel().getBuffer().emitter.emit 'did-stop-changing'
+      advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
       expect(minMaxEditor.getModel().getText()).toBe '100'
 
       minMaxEditor.getModel().setText('10000')
-      minMaxEditor.getModel().getBuffer().emitter.emit 'did-stop-changing'
+      advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
       expect(minMaxEditor.getModel().getText()).toBe '100'
 
     it 'prevents setting a value that cannot be coerced to the correct type', ->
       minMaxEditor = settingsPanel.element.querySelector('[id="foo.minMax"]')
       minMaxEditor.getModel().setText('"abcde"')
-      minMaxEditor.getModel().getBuffer().emitter.emit 'did-stop-changing'
+      advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
       expect(minMaxEditor.getModel().getText()).toBe '' # aka default
 
       minMaxEditor.getModel().setText('15')
-      minMaxEditor.getModel().getBuffer().emitter.emit 'did-stop-changing'
+      advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
       expect(minMaxEditor.getModel().getText()).toBe '15'
 
       minMaxEditor.getModel().setText('"abcde"')
-      minMaxEditor.getModel().getBuffer().emitter.emit 'did-stop-changing'
+      advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
       expect(minMaxEditor.getModel().getText()).toBe '15'
