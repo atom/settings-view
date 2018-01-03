@@ -1,5 +1,4 @@
 SettingsPanel = require '../lib/settings-panel'
-_ = require 'underscore-plus'
 
 describe "SettingsPanel", ->
   settingsPanel = null
@@ -41,12 +40,12 @@ describe "SettingsPanel", ->
             ]
       atom.config.setSchema("foo", config)
       atom.config.setDefaults("foo", gong: 'gong')
-      expect(_.size(atom.config.get('foo'))).toBe 6
+      expect(Object.keys(atom.config.get('foo')).length).toBe 6
       settingsPanel = new SettingsPanel({namespace: "foo", includeTitle: false})
 
     it "sorts settings by order and then alphabetically by the key", ->
       settings = atom.config.get('foo')
-      expect(_.size(settings)).toBe 6
+      expect(Object.keys(settings).length).toBe 6
       sortedSettings = settingsPanel.sortSettings("foo", settings)
       expect(sortedSettings[0]).toBe 'zing'
       expect(sortedSettings[1]).toBe 'zang'
@@ -58,7 +57,7 @@ describe "SettingsPanel", ->
     it "gracefully deals with a null settings object", ->
       sortedSettings = settingsPanel.sortSettings("foo", null)
       expect(sortedSettings).not.toBeNull
-      expect(_.size(sortedSettings)).toBe 0
+      expect(Object.keys(sortedSettings).length).toBe 0
 
     it "presents enum options with their descriptions", ->
       select = settingsPanel.element.querySelector('#foo\\.enum')
@@ -84,7 +83,7 @@ describe "SettingsPanel", ->
             default: 0
       atom.config.setSchema("foo", config)
       atom.config.setDefaults("foo", gong: 'gong')
-      expect(_.size(atom.config.get('foo'))).toBe 3
+      expect(Object.keys(atom.config.get('foo')).length).toBe 3
       settingsPanel = new SettingsPanel({namespace: "foo", includeTitle: false})
 
     it 'ensures default stays default', ->
@@ -182,7 +181,7 @@ describe "SettingsPanel", ->
             type: 'string'
             default: ''
       atom.config.setSchema('foo', config)
-      expect(_.size(atom.config.get('foo'))).toBe 3
+      expect(Object.keys(atom.config.get('foo')).length).toBe 3
       settingsPanel = new SettingsPanel({namespace: 'foo', includeTitle: false})
 
     it 'ensures that only grouped settings have a group title', ->
