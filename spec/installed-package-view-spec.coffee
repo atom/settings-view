@@ -3,7 +3,6 @@ PackageDetailView = require '../lib/package-detail-view'
 PackageManager = require '../lib/package-manager'
 SettingsView = require '../lib/settings-view'
 PackageKeymapView = require '../lib/package-keymap-view'
-_ = require 'underscore-plus'
 SnippetsProvider =
   getSnippets: -> atom.config.scopedSettingsStore.propertySets
 
@@ -93,7 +92,7 @@ describe "InstalledPackageView", ->
 
         card.refs.keybindingToggle.click()
         expect(card.refs.keybindingToggle.checked).toBe false
-        expect(_.include(atom.config.get('core.packagesWithKeymapsDisabled') ? [], 'language-test')).toBe true
+        expect((atom.config.get('core.packagesWithKeymapsDisabled') ? []).includes('language-test')).toBe true
 
         if atom.keymaps.build?
           keybindingRows = card.element.querySelectorAll('.package-keymap-table tbody.text-subtle tr')
@@ -101,7 +100,7 @@ describe "InstalledPackageView", ->
 
         card.refs.keybindingToggle.click()
         expect(card.refs.keybindingToggle.checked).toBe true
-        expect(_.include(atom.config.get('core.packagesWithKeymapsDisabled') ? [], 'language-test')).toBe false
+        expect((atom.config.get('core.packagesWithKeymapsDisabled') ? []).includes('language-test')).toBe false
 
         if atom.keymaps.build?
           keybindingRows = card.element.querySelectorAll('.package-keymap-table tbody tr')
