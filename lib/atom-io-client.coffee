@@ -188,32 +188,32 @@ class AtomIoClient
   getCachePath: ->
     @cachePath ?= path.join(remote.app.getPath('userData'), 'Cache', 'settings-view')
 
-  search: (query, type, callback) ->
+  search: (query, options) ->
     qs = {q: query}
 
-    if type is 'packages'
-      qs.filter = 'package'
-    else if type is 'themes'
+    if options.themes
       qs.filter = 'theme'
+    else if options.packages
+      qs.filter = 'package'
+
+    if options.sort
+      qs.sort = options.sort
 
     options = {
       url: "#{@baseURL}packages/search"
       headers: {'User-Agent': navigator.userAgent}
       qs: qs
+      json: true
     }
 
     new Promise (resolve, reject) ->
       request options, (err, res, body) ->
         if err
-          reject err
+          error = new Error("Searching for \u201C#{query}\u201D failed.")
+          error.stderr = err.message
+          reject error
         else
-          try
-            resolve (
-              JSON.parse body
-                .filter (pack) -> pack.releases?.latest?
-                .map ({readme, metadata, downloads, stargazers_count}) ->
-                  Object.assign metadata, {readme, downloads, stargazers_count}
-                .sort (a, b) -> b.downloads - a.downloads
-            )
-          catch error
-            reject error
+          body = body.filter (pkg) -> pkg.releases?.latest?
+                     .map ({readme, metadata, downloads, stargazers_count}) ->
+                       Object.assign metadata, {readme, downloads, stargazers_count}
+          resolve body
