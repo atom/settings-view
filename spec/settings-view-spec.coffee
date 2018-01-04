@@ -199,13 +199,11 @@ describe "SettingsView", ->
             expect(atom.workspace.getActivePaneItem().activePanel)
               .toEqual name: 'Updates', options: uri: 'atom://config/updates'
 
-    for i in [1..100]
+    for i in [1..5]
       describe "when atom.workspace.open() is used with a config URI #{i}", ->
         focusIsWithinActivePanel = ->
           activePanel = settingsView.panelsByName[settingsView.activePanel.name]
-          if activePanel.element isnt document.activeElement and not activePanel.element.contains(document.activeElement)
-            console.log document.activeElement
-          activePanel.element is document.activeElement or activePanel.element.contains(document.activeElement)
+          activePanel.element.contains(document.activeElement)
 
         expectActivePanelToBeKeyboardScrollable = ->
           activePanel = settingsView.panelsByName[settingsView.activePanel.name]
@@ -223,7 +221,7 @@ describe "SettingsView", ->
           waitsForPromise ->
             atom.workspace.open('atom://config').then (s) -> settingsView = s
 
-          waitsFor (done) -> process.nextTick(done)
+          # waitsFor (done) -> process.nextTick(done)
           runs ->
             expect(settingsView.activePanel)
               .toEqual name: 'Core', options: {}
@@ -233,7 +231,7 @@ describe "SettingsView", ->
           waitsForPromise ->
             atom.workspace.open('atom://config/editor').then (s) -> settingsView = s
 
-          waits 1
+          # waits 1
           runs ->
             expect(settingsView.activePanel)
               .toEqual name: 'Editor', options: uri: 'atom://config/editor'
@@ -243,7 +241,7 @@ describe "SettingsView", ->
           waitsForPromise ->
             atom.workspace.open('atom://config/keybindings').then (s) -> settingsView = s
 
-          waits 1
+          # waits 1
           runs ->
             expect(settingsView.activePanel)
               .toEqual name: 'Keybindings', options: uri: 'atom://config/keybindings'
@@ -253,7 +251,7 @@ describe "SettingsView", ->
           waitsForPromise ->
             atom.workspace.open('atom://config/packages').then (s) -> settingsView = s
 
-          waits 1
+          # waits 1
           runs ->
             expect(settingsView.activePanel)
               .toEqual name: 'Packages', options: uri: 'atom://config/packages'
@@ -263,7 +261,7 @@ describe "SettingsView", ->
           waitsForPromise ->
             atom.workspace.open('atom://config/themes').then (s) -> settingsView = s
 
-          waits 1
+          # waits 1
           runs ->
             expect(settingsView.activePanel)
               .toEqual name: 'Themes', options: uri: 'atom://config/themes'
@@ -273,7 +271,7 @@ describe "SettingsView", ->
           waitsForPromise ->
             atom.workspace.open('atom://config/updates').then (s) -> settingsView = s
 
-          waits 1
+          # waits 1
           runs ->
             expect(settingsView.activePanel)
               .toEqual name: 'Updates', options: uri: 'atom://config/updates'
@@ -284,7 +282,7 @@ describe "SettingsView", ->
             atom.workspace.open('atom://config/install').then (s) -> settingsView = s
 
           hasSystemPanel = false
-          waits 1
+          # waits 1
           runs ->
             expect(settingsView.activePanel)
               .toEqual name: 'Install', options: uri: 'atom://config/install'
@@ -296,7 +294,7 @@ describe "SettingsView", ->
             waitsForPromise ->
               atom.workspace.open('atom://config/system').then (s) -> settingsView = s
 
-            waits 1
+            # waits 1
             runs ->
               expect(settingsView.activePanel)
                 .toEqual name: 'System', options: uri: 'atom://config/system'
