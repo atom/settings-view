@@ -245,53 +245,53 @@ describe "SettingsView", ->
             expect(focusIsWithinActivePanel()).toBe true
             expectActivePanelToBeKeyboardScrollable()
 
-          waitsForPromise ->
-            atom.workspace.open('atom://config/packages').then (s) -> settingsView = s
+          # waitsForPromise ->
+          #   atom.workspace.open('atom://config/packages').then (s) -> settingsView = s
+          #
+          # runs ->
+          #   expect(settingsView.activePanel)
+          #     .toEqual name: 'Packages', options: uri: 'atom://config/packages'
+          #   expect(focusIsWithinActivePanel()).toBe true
+          #   expectActivePanelToBeKeyboardScrollable()
 
-          runs ->
-            expect(settingsView.activePanel)
-              .toEqual name: 'Packages', options: uri: 'atom://config/packages'
-            expect(focusIsWithinActivePanel()).toBe true
-            expectActivePanelToBeKeyboardScrollable()
-
-          waitsForPromise ->
-            atom.workspace.open('atom://config/themes').then (s) -> settingsView = s
-
-          runs ->
-            expect(settingsView.activePanel)
-              .toEqual name: 'Themes', options: uri: 'atom://config/themes'
-            expect(focusIsWithinActivePanel()).toBe true
-            expectActivePanelToBeKeyboardScrollable()
-
-          waitsForPromise ->
-            atom.workspace.open('atom://config/updates').then (s) -> settingsView = s
-
-          runs ->
-            expect(settingsView.activePanel)
-              .toEqual name: 'Updates', options: uri: 'atom://config/updates'
-            expect(focusIsWithinActivePanel()).toBe true
-            expectActivePanelToBeKeyboardScrollable()
-
-          waitsForPromise ->
-            atom.workspace.open('atom://config/install').then (s) -> settingsView = s
-
-          hasSystemPanel = false
-          runs ->
-            expect(settingsView.activePanel)
-              .toEqual name: 'Install', options: uri: 'atom://config/install'
-            expect(focusIsWithinActivePanel()).toBe true
-            expectActivePanelToBeKeyboardScrollable()
-            hasSystemPanel = settingsView.panelsByName['System']?
-
-          if hasSystemPanel
-            waitsForPromise ->
-              atom.workspace.open('atom://config/system').then (s) -> settingsView = s
-
-            runs ->
-              expect(settingsView.activePanel)
-                .toEqual name: 'System', options: uri: 'atom://config/system'
-              expect(focusIsWithinActivePanel()).toBe true
-              expectActivePanelToBeKeyboardScrollable()
+          # waitsForPromise ->
+          #   atom.workspace.open('atom://config/themes').then (s) -> settingsView = s
+          #
+          # runs ->
+          #   expect(settingsView.activePanel)
+          #     .toEqual name: 'Themes', options: uri: 'atom://config/themes'
+          #   expect(focusIsWithinActivePanel()).toBe true
+          #   expectActivePanelToBeKeyboardScrollable()
+          #
+          # waitsForPromise ->
+          #   atom.workspace.open('atom://config/updates').then (s) -> settingsView = s
+          #
+          # runs ->
+          #   expect(settingsView.activePanel)
+          #     .toEqual name: 'Updates', options: uri: 'atom://config/updates'
+          #   expect(focusIsWithinActivePanel()).toBe true
+          #   expectActivePanelToBeKeyboardScrollable()
+          #
+          # waitsForPromise ->
+          #   atom.workspace.open('atom://config/install').then (s) -> settingsView = s
+          #
+          # hasSystemPanel = false
+          # runs ->
+          #   expect(settingsView.activePanel)
+          #     .toEqual name: 'Install', options: uri: 'atom://config/install'
+          #   expect(focusIsWithinActivePanel()).toBe true
+          #   expectActivePanelToBeKeyboardScrollable()
+          #   hasSystemPanel = settingsView.panelsByName['System']?
+          #
+          # if hasSystemPanel
+          #   waitsForPromise ->
+          #     atom.workspace.open('atom://config/system').then (s) -> settingsView = s
+          #
+          #   runs ->
+          #     expect(settingsView.activePanel)
+          #       .toEqual name: 'System', options: uri: 'atom://config/system'
+          #     expect(focusIsWithinActivePanel()).toBe true
+          #     expectActivePanelToBeKeyboardScrollable()
 
       it "opens the package settings view with atom://config/packages/<package-name>", ->
         waitsForPromise ->
