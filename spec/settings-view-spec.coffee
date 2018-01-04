@@ -218,7 +218,7 @@ describe "SettingsView", ->
           settingsView = null
 
         it "opens the settings to the correct panel with atom://config/<panel-name> and that panel is keyboard-scrollable", ->
-          spyOn(packageManager, 'destroy').andCallThrough()
+          spyOn(PackageManager.prototype, 'destroy').andCallThrough()
 
           waitsForPromise ->
             atom.workspace.open('atom://config').then (s) -> settingsView = s
@@ -296,7 +296,7 @@ describe "SettingsView", ->
               expectActivePanelToBeKeyboardScrollable()
 
           runs ->
-            expect(packageManager.destroy).not.toHaveBeenCalled()
+            expect(PackageManager.prototype.destroy).not.toHaveBeenCalled()
 
       it "opens the package settings view with atom://config/packages/<package-name>", ->
         waitsForPromise ->
