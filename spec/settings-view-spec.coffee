@@ -203,6 +203,7 @@ describe "SettingsView", ->
       describe "when atom.workspace.open() is used with a config URI #{i}", ->
         focusIsWithinActivePanel = ->
           activePanel = settingsView.panelsByName[settingsView.activePanel.name]
+          process.stdout.write(document.activeElement.outerHTML)
           activePanel.element.contains(document.activeElement)
 
         expectActivePanelToBeKeyboardScrollable = ->
