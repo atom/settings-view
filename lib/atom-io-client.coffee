@@ -213,7 +213,8 @@ class AtomIoClient
           error.stderr = err.message
           reject error
         else
-          body = body.filter (pkg) -> pkg.releases?.latest?
-                     .map ({readme, metadata, downloads, stargazers_count}) ->
-                       Object.assign metadata, {readme, downloads, stargazers_count}
-          resolve body
+          resolve(
+            body.filter (pkg) -> pkg.releases?.latest?
+                .map ({readme, metadata, downloads, stargazers_count}) ->
+                  Object.assign metadata, {readme, downloads, stargazers_count}
+          )
