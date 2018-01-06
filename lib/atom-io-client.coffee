@@ -196,9 +196,6 @@ class AtomIoClient
     else if options.packages
       qs.filter = 'package'
 
-    if options.sort
-      qs.sort = options.sort
-
     options = {
       url: "#{@baseURL}packages/search"
       headers: {'User-Agent': navigator.userAgent}
@@ -217,4 +214,5 @@ class AtomIoClient
             body.filter (pkg) -> pkg.releases?.latest?
                 .map ({readme, metadata, downloads, stargazers_count}) ->
                   Object.assign metadata, {readme, downloads, stargazers_count}
+                .sort (a, b) -> b.downloads - a.downloads
           )
