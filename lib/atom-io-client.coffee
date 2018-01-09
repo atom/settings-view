@@ -201,6 +201,7 @@ class AtomIoClient
       headers: {'User-Agent': navigator.userAgent}
       qs: qs
       json: true
+      gzip: true
     }
 
     new Promise (resolve, reject) ->
