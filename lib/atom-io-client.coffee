@@ -69,17 +69,16 @@ class AtomIoClient
     options = {
       url: "#{@baseURL}#{path}"
       headers: {'User-Agent': navigator.userAgent}
+      json: true
+      gzip: true
     }
 
     request options, (err, res, body) =>
-      try
-        data = JSON.parse(body)
-      catch error
-        return callback(error)
+      return callback(err) if err
 
-      delete data.versions
+      delete body.versions
       cached =
-        data: data
+        data: body
         createdOn: Date.now()
       localStorage.setItem(@cacheKeyForPath(path), JSON.stringify(cached))
       callback(err, cached.data)
