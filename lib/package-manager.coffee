@@ -432,6 +432,13 @@ class PackageManager
       repoUrl = "https://github.com/#{repoName}"
     repoUrl.replace(/\.git$/, '').replace(/\/+$/, '').replace(/^git\+/, '')
 
+  getRepositoryBugUri: ({metadata}) ->
+    {bugs} = metadata
+    bugUri = bugs ?.url ? bugs ?.email ? this.getRepositoryUrl({metadata}) + '/issues/new'
+    if bugUri.includes('@')
+      bugUri = 'mailto:' + bugUri
+    bugUri
+
   checkNativeBuildTools: ->
     new Promise (resolve, reject) =>
       apmProcess = @runCommand ['install', '--check'], (code, stdout, stderr) ->
