@@ -8,6 +8,14 @@
     "method": "handleURI",
     "deferActivation": false
   },
+  "configSchema": {
+    "maxApmInstances": {
+      "title": "Max APM Instances",
+      "description": "Limit how many apm processes may run simultaneously during package updates. Use this, if updating many packages at once slows down your machine.",
+      "type": "integer",
+      "default": -1
+    }
+  },
   "dependencies": {
     "async": "~0.2.9",
     "dompurify": "^1.0.2",
