@@ -74,6 +74,8 @@ describe 'UpdatesPanel', ->
       spyOn(cardB, 'update').andReturn(new Promise((resolve, reject) -> [resolveB, rejectB] = [resolve, reject]))
       spyOn(cardC, 'update').andReturn(new Promise((resolve, reject) -> [resolveC, rejectC] = [resolve, reject]))
 
+      atom.config.set("settings-view.maxApmInstances", -1)
+
     it 'attempts to update all packages and prompts to restart if at least one package updates successfully', ->
       expect(atom.notifications.getNotifications().length).toBe 0
       expect(panel.refs.updateAllButton).toBeVisible()
@@ -98,9 +100,26 @@ describe 'UpdatesPanel', ->
         notifications[0].options.buttons[0].onDidClick()
         expect(atom.restartApplication).toHaveBeenCalled()
 
-    it 'becomes hidden if all updates succeed', ->
-      expect(panel.refs.updateAllButton.disabled).toBe false
+    it 'works with queue enabled', ->
+      expect(panel.refs.updateAllButton).not.toBeDisabled()
+      atom.config.set("settings-view.maxApmInstances", 2)
+
       panel.updateAll()
+
+      resolveA()
+      resolveB()
+      resolveC()
+
+      waits 0
+      runs ->
+        expect(panel.refs.updateAllButton).toBeHidden()
+
+    it 'becomes hidden if all updates succeed', ->
+      expect(panel.refs.updateAllButton).not.toBeDisabled()
+
+      panel.updateAll()
+
+      expect(panel.refs.updateAllButton).toBeDisabled()
 
       resolveA()
       resolveB()
