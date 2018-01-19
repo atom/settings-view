@@ -255,36 +255,6 @@ class PackageManager
     [version] = version.split('-') if typeof version is 'string'
     version
 
-  search: (query, options = {}) ->
-    new Promise (resolve, reject) =>
-      args = ['search', query, '--json']
-      if options.themes
-        args.push '--themes'
-      else if options.packages
-        args.push '--packages'
-      errorMessage = "Searching for \u201C#{query}\u201D failed."
-
-      apmProcess = @runCommand args, (code, stdout, stderr) ->
-        if code is 0
-          try
-            packages = JSON.parse(stdout) ? []
-            if options.sortBy
-              packages = _.sortBy packages, (pkg) ->
-                return pkg[options.sortBy]*-1
-
-            resolve(packages)
-          catch parseError
-            error = createJsonParseError(errorMessage, parseError, stdout)
-            reject(error)
-        else
-          error = new Error(errorMessage)
-          error.stdout = stdout
-          error.stderr = stderr
-          reject(error)
-
-      handleProcessErrors apmProcess, errorMessage, (error) ->
-        reject(error)
-
   update: (pack, newVersion, callback) ->
     {name, theme, apmInstallSource} = pack
 
