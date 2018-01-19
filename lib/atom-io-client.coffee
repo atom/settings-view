@@ -208,11 +208,10 @@ class AtomIoClient
         if err
           error = new Error("Searching for \u201C#{query}\u201D failed.")
           error.stderr = err.message
-          reject error
+          reject(error)
         else
           resolve(
-            body.filter (pkg) -> pkg.releases?.latest?
-                .map ({readme, metadata, downloads, stargazers_count}) ->
-                  Object.assign metadata, {readme, downloads, stargazers_count}
-                .sort (a, b) -> b.downloads - a.downloads
+            body.filter (pack) ->
+              pack.releases?.latest?.map ({readme, metadata, downloads, stargazers_count}) ->
+                Object.assign metadata, {readme, downloads, stargazers_count}
           )
