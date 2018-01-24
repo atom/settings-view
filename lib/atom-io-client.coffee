@@ -211,7 +211,8 @@ class AtomIoClient
           reject(error)
         else
           resolve(
-            body.filter (pack) ->
-              pack.releases?.latest?.map ({readme, metadata, downloads, stargazers_count}) ->
+            body
+              .filter (pack) -> pack.releases?.latest?
+              .map ({readme, metadata, downloads, stargazers_count}) ->
                 Object.assign metadata, {readme, downloads, stargazers_count}
           )
