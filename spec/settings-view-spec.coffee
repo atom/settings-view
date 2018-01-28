@@ -319,6 +319,41 @@ describe "SettingsView", ->
               back: 'Packages'
             }
 
+      it "doesn't use cached package detail when package re-activated and opnes the package view with atom://config/packages/<package-name>", ->
+        [detailInitial, detailAfterReactivate] = []
+
+        waitsForPromise ->
+          atom.packages.activate()
+          new Promise (resolve) -> atom.packages.onDidActivateInitialPackages(resolve)
+
+        waitsForPromise ->
+          atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'package-with-readme'))
+
+        waitsForPromise ->
+          atom.workspace.open('atom://config/packages/package-with-readme').then (s) -> settingsView = s
+
+        waitsFor (done) -> process.nextTick(done)
+
+        runs ->
+          detailInitial = settingsView.getOrCreatePanel('package-with-readme')
+          expect(settingsView.getOrCreatePanel('package-with-readme')).toBe detailInitial
+
+        waitsForPromise ->
+          atom.packages.deactivatePackage('package-with-readme')
+
+        waitsForPromise ->
+          atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'package-with-readme'))
+
+        waitsForPromise ->
+          atom.workspace.open('atom://config/packages/package-with-readme')
+
+        runs ->
+          detailAfterReactivate = settingsView.getOrCreatePanel('package-with-readme')
+          expect(settingsView.getOrCreatePanel('package-with-readme')).toBe detailAfterReactivate
+          expect(detailInitial).toBeTruthy()
+          expect(detailAfterReactivate).toBeTruthy()
+          expect(detailInitial).not.toBe(detailAfterReactivate)
+
       it "passes the URI to a pane's beforeShow() method on settings view initialization", ->
         InstallPanel = require '../lib/install-panel'
         spyOn(InstallPanel::, 'beforeShow')
