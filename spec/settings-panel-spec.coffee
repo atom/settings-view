@@ -163,6 +163,7 @@ describe "SettingsPanel", ->
           barGroup:
             type: 'object'
             title: 'Bar group'
+            description: 'description of bar group'
             properties:
               bar:
                 title: 'Bar'
@@ -214,6 +215,13 @@ describe "SettingsPanel", ->
       expect(controlGroups[1].querySelector('.sub-section .sub-section-heading').classList.contains('has-items')).toBe true
       # Should be already collapsed
       expect(controlGroups[1].querySelector('.sub-section .sub-section-heading').parentElement.classList.contains('collapsed')).toBe true
+
+    it 'ensures grouped settings can have a description', ->
+      expect(settingsPanel.element.querySelectorAll('.section-container > .section-body')).toHaveLength 1
+      controlGroups = settingsPanel.element.querySelectorAll('.section-body > .control-group')
+      expect(controlGroups).toHaveLength 3
+      expect(controlGroups[0].querySelectorAll('.sub-section > .setting-description')).toHaveLength 1
+      expect(controlGroups[0].querySelector('.sub-section > .setting-description').textContent).toBe 'description of bar group'
 
   describe 'settings validation', ->
     beforeEach ->
