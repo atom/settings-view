@@ -265,3 +265,10 @@ describe "SettingsPanel", ->
       minMaxEditor.getModel().setText('"abcde"')
       advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
       expect(minMaxEditor.getModel().getText()).toBe '15'
+
+    it 'allows setting a valid scoped value', ->
+      settingsPanel = new SettingsPanel({namespace: 'foo', includeTitle: false, scopeName: 'source.js'})
+      minMaxEditor = settingsPanel.element.querySelector('atom-text-editor')
+      minMaxEditor.getModel().setText('15')
+      advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
+      expect(minMaxEditor.getModel().getText()).toBe '15'
