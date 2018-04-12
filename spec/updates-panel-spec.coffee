@@ -70,6 +70,10 @@ describe 'UpdatesPanel', ->
 
       [cardA, cardB, cardC] = panel.packageCards
 
+      # fake a git url package
+      cardC.pack.apmInstallSource = {type: 'git', sha: 'cf23df2207d99a74fbe169e3eba035e633b65d94'}
+      cardC.pack.latestSha = 'a296114f3d0deec519a41f4c62e7fc56075b7f01'
+
       spyOn(cardA, 'update').andReturn(new Promise((resolve, reject) -> [resolveA, rejectA] = [resolve, reject]))
       spyOn(cardB, 'update').andReturn(new Promise((resolve, reject) -> [resolveB, rejectB] = [resolve, reject]))
       spyOn(cardC, 'update').andReturn(new Promise((resolve, reject) -> [resolveC, rejectC] = [resolve, reject]))
@@ -93,6 +97,7 @@ describe 'UpdatesPanel', ->
       runs ->
         notifications = atom.notifications.getNotifications()
         expect(notifications.length).toBe 1
+        expect(notifications[0].options.detail).toBe 'test-package-a@1.0.0 -> 99.0.0\ntest-package-b@1.0.0 -> 99.0.0\ntest-package-c@cf23df22 -> a296114f'
 
         spyOn(atom, 'restartApplication')
         notifications[0].options.buttons[0].onDidClick()
