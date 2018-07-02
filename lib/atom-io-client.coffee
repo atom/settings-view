@@ -205,9 +205,13 @@ class AtomIoClient
 
     new Promise (resolve, reject) ->
       request options, (err, res, body) ->
-        if err
+        # Interestingly, request does not treat failure to parse JSON as an error
+        # and returns the raw HTML instead as a string.
+        # Therefore, make sure the body has been successfully parsed before
+        # trying to filter package results.
+        if err or typeof body isnt 'object'
           error = new Error("Searching for \u201C#{query}\u201D failed.")
-          error.stderr = err.message
+          error.stderr = err?.message ? "Please try again later."
           reject error
         else
           resolve(
