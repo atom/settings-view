@@ -141,6 +141,31 @@ describe "SettingsView", ->
             expect(atom.workspace.getActivePaneItem().activePanel)
               .toEqual name: 'Core', options: {}
 
+        it "always open existing item in workspace", ->
+          center = atom.workspace.getCenter()
+          [pane1, pane2] = []
+
+          waitsForPromise -> atom.workspace.open(null, split: 'right')
+          runs ->
+            expect(center.getPanes()).toHaveLength(2)
+            [pane1, pane2] = center.getPanes()
+            expect(atom.workspace.getActivePane()).toBe(pane2)
+
+          openWithCommand('settings-view:open')
+
+          runs ->
+            expect(atom.workspace.getActivePaneItem().activePanel).toEqual name: 'Core', options: {}
+            expect(atom.workspace.getActivePane()).toBe(pane2)
+
+          runs ->
+            pane1.activate()
+
+          openWithCommand('settings-view:open')
+
+          runs ->
+            expect(atom.workspace.getActivePaneItem().activePanel).toEqual name: 'Core', options: {}
+            expect(atom.workspace.getActivePane()).toBe(pane2)
+
       describe "settings-view:core", ->
         it "opens the core settings view", ->
           openWithCommand('settings-view:editor')

@@ -1,6 +1,6 @@
 {
   "name": "settings-view",
-  "version": "0.254.0",
+  "version": "0.255.0",
   "main": "./lib/main",
   "description": "Edit config settings, install packages, and change themes",
   "license": "MIT",
@@ -25,7 +25,7 @@
     "glob": "4.3.1",
     "hosted-git-info": "^2.1.4",
     "marked": "^0.3.6",
-    "request": "^2.40",
+    "request": "^2.83.0",
     "roaster": "^1.1.2",
     "season": "^6.0.2",
     "semver": "^5.3.0",
