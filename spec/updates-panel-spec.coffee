@@ -111,7 +111,7 @@ describe 'UpdatesPanel', ->
       resolveC()
 
       waitsFor ->
-        panel.refs.updateAllButton.style.display == 'none'
+        panel.refs.updateAllButton.style.display === 'none'
 
     it 'becomes hidden if all updates succeed', ->
       expect(panel.refs.updateAllButton).not.toBeDisabled()
@@ -125,7 +125,7 @@ describe 'UpdatesPanel', ->
       resolveC()
 
       waitsFor ->
-        panel.refs.updateAllButton.style.display == 'none'
+        panel.refs.updateAllButton.style.display === 'none'
 
     it 'remains enabled and visible if not all updates succeed', ->
       panel.updateAll()
