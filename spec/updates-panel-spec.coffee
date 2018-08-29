@@ -74,7 +74,7 @@ describe 'UpdatesPanel', ->
       spyOn(cardB, 'update').andReturn(new Promise((resolve, reject) -> [resolveB, rejectB] = [resolve, reject]))
       spyOn(cardC, 'update').andReturn(new Promise((resolve, reject) -> [resolveC, rejectC] = [resolve, reject]))
 
-      atom.config.set("settings-view.maxApmInstances", -1)
+      atom.config.set("settings-view.packageUpdateConcurrency", -1)
 
     it 'attempts to update all packages and prompts to restart if at least one package updates successfully', ->
       expect(atom.notifications.getNotifications().length).toBe 0
@@ -102,7 +102,7 @@ describe 'UpdatesPanel', ->
 
     it 'works with queue enabled', ->
       expect(panel.refs.updateAllButton).not.toBeDisabled()
-      atom.config.set("settings-view.maxApmInstances", 2)
+      atom.config.set("settings-view.packageUpdateConcurrency", 2)
 
       panel.updateAll()
 
