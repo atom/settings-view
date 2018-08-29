@@ -110,9 +110,8 @@ describe 'UpdatesPanel', ->
       resolveB()
       resolveC()
 
-      waits 0
-      runs ->
-        expect(panel.refs.updateAllButton).toBeHidden()
+      waitsFor ->
+        panel.refs.updateAllButton.style.display == 'none'
 
     it 'becomes hidden if all updates succeed', ->
       expect(panel.refs.updateAllButton).not.toBeDisabled()
@@ -125,9 +124,8 @@ describe 'UpdatesPanel', ->
       resolveB()
       resolveC()
 
-      waits 0
-      runs ->
-        expect(panel.refs.updateAllButton).toBeHidden()
+      waitsFor ->
+        panel.refs.updateAllButton.style.display == 'none'
 
     it 'remains enabled and visible if not all updates succeed', ->
       panel.updateAll()
