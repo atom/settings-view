@@ -128,15 +128,20 @@ describe 'UpdatesPanel', ->
         panel.refs.updateAllButton.style.display is 'none'
 
     it 'remains enabled and visible if not all updates succeed', ->
+      expect(panel.refs.updateAllButton).not.toBeDisabled()
+
       panel.updateAll()
+
+      expect(panel.refs.updateAllButton).toBeDisabled()
 
       resolveA()
       rejectB('Error updating package')
       resolveC()
 
-      waits 0
+      waitsFor ->
+        panel.refs.updateAllButton.disabled is false
+
       runs ->
-        expect(panel.refs.updateAllButton.disabled).toBe false
         expect(panel.refs.updateAllButton).toBeVisible()
 
     it 'does not attempt to update packages that are already updating', ->
