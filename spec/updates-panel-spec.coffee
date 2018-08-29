@@ -2,7 +2,7 @@ UpdatesPanel = require '../lib/updates-panel'
 PackageManager = require '../lib/package-manager'
 SettingsView = require '../lib/settings-view'
 
-fdescribe 'UpdatesPanel', ->
+describe 'UpdatesPanel', ->
   panel = null
   settingsView = null
   packageManager = null
