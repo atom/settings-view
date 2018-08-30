@@ -11,7 +11,7 @@
   "configSchema": {
     "packageUpdateConcurrency": {
       "title": "Maximum simultaneous package updates",
-      "description": "Limit how many processes run simultaenously during package updates. Use this if updating many packages at once slows down your machine.",
+      "description": "Limit how many processes run simultaneously during package updates. Use this if updating many packages at once slows down your machine.",
       "type": "integer",
       "default": -1
     }
