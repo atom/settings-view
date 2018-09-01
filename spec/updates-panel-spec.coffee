@@ -74,6 +74,8 @@ describe 'UpdatesPanel', ->
       spyOn(cardB, 'update').andReturn(new Promise((resolve, reject) -> [resolveB, rejectB] = [resolve, reject]))
       spyOn(cardC, 'update').andReturn(new Promise((resolve, reject) -> [resolveC, rejectC] = [resolve, reject]))
 
+      atom.config.set("settings-view.packageUpdateConcurrency", -1)
+
     it 'attempts to update all packages and prompts to restart if at least one package updates successfully', ->
       expect(atom.notifications.getNotifications().length).toBe 0
       expect(panel.refs.updateAllButton).toBeVisible()
@@ -89,37 +91,56 @@ describe 'UpdatesPanel', ->
 
         resolveC()
 
-      waits 0
-      runs ->
-        notifications = atom.notifications.getNotifications()
-        expect(notifications.length).toBe 1
+      waitsFor ->
+        atom.notifications.getNotifications().length is 1
 
+      runs ->
         spyOn(atom, 'restartApplication')
-        notifications[0].options.buttons[0].onDidClick()
+        atom.notifications.getNotifications()[0].options.buttons[0].onDidClick()
         expect(atom.restartApplication).toHaveBeenCalled()
 
-    it 'becomes hidden if all updates succeed', ->
-      expect(panel.refs.updateAllButton.disabled).toBe false
+    it 'works with queue enabled', ->
+      expect(panel.refs.updateAllButton).not.toBeDisabled()
+      atom.config.set("settings-view.packageUpdateConcurrency", 2)
+
       panel.updateAll()
 
       resolveA()
       resolveB()
       resolveC()
 
-      waits 0
-      runs ->
-        expect(panel.refs.updateAllButton).toBeHidden()
+      waitsFor ->
+        panel.refs.updateAllButton.style.display is 'none'
+
+    it 'becomes hidden if all updates succeed', ->
+      expect(panel.refs.updateAllButton).not.toBeDisabled()
+
+      panel.updateAll()
+
+      expect(panel.refs.updateAllButton).toBeDisabled()
+
+      resolveA()
+      resolveB()
+      resolveC()
+
+      waitsFor ->
+        panel.refs.updateAllButton.style.display is 'none'
 
     it 'remains enabled and visible if not all updates succeed', ->
+      expect(panel.refs.updateAllButton).not.toBeDisabled()
+
       panel.updateAll()
+
+      expect(panel.refs.updateAllButton).toBeDisabled()
 
       resolveA()
       rejectB('Error updating package')
       resolveC()
 
-      waits 0
+      waitsFor ->
+        panel.refs.updateAllButton.disabled is false
+
       runs ->
-        expect(panel.refs.updateAllButton.disabled).toBe false
         expect(panel.refs.updateAllButton).toBeVisible()
 
     it 'does not attempt to update packages that are already updating', ->
