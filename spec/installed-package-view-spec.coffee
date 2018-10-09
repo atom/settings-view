@@ -3,6 +3,7 @@ PackageDetailView = require '../lib/package-detail-view'
 PackageManager = require '../lib/package-manager'
 SettingsView = require '../lib/settings-view'
 PackageKeymapView = require '../lib/package-keymap-view'
+PackageSnippetsView = require '../lib/package-snippets-view'
 _ = require 'underscore-plus'
 SnippetsProvider =
   getSnippets: -> atom.config.scopedSettingsStore.propertySets
@@ -63,11 +64,134 @@ describe "InstalledPackageView", ->
     runs ->
       expect(snippetsTable.querySelector('tr:nth-child(1) td:nth-child(1)').textContent).toBe 'b'
       expect(snippetsTable.querySelector('tr:nth-child(1) td:nth-child(2)').textContent).toBe 'BAR'
-      expect(snippetsTable.querySelector('tr:nth-child(1) td:nth-child(3)').textContent).toBe 'bar?'
+      expect(snippetsTable.querySelector('tr:nth-child(1) td.snippet-scope-name').textContent).toBe '.b.source'
 
       expect(snippetsTable.querySelector('tr:nth-child(2) td:nth-child(1)').textContent).toBe 'f'
       expect(snippetsTable.querySelector('tr:nth-child(2) td:nth-child(2)').textContent).toBe 'FOO'
-      expect(snippetsTable.querySelector('tr:nth-child(2) td:nth-child(3)').textContent).toBe 'foo!'
+      expect(snippetsTable.querySelector('tr:nth-child(2) td.snippet-scope-name').textContent).toBe '.a.source'
+
+  describe "when a snippet body is viewed", ->
+    it "shows a tooltip", ->
+      tooltipCalls = []
+      view = null
+      snippetsTable = null
+      snippetsModule = null
+
+      waitsForPromise ->
+        atom.packages.activatePackage('snippets').then (p) ->
+          snippetsModule = p.mainModule
+          return unless snippetsModule.provideSnippets().getUnparsedSnippets?
+
+          SnippetsProvider =
+            getSnippets: -> snippetsModule.provideSnippets().getUnparsedSnippets()
+
+      waitsForPromise ->
+        atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+
+      waitsFor 'snippets to load', -> snippetsModule.provideSnippets().bundledSnippetsLoaded()
+
+      runs ->
+        pack = atom.packages.getActivePackage('language-test')
+        view = new PackageDetailView(pack, new SettingsView(), new PackageManager(), SnippetsProvider)
+        snippetsTable = view.element.querySelector('.package-snippets-table tbody')
+
+      waitsFor 'snippets table children to contain 2 items', ->
+        snippetsTable.children.length >= 2
+
+      runs ->
+        expect(view.element.ownerDocument.querySelector('.snippet-body-tooltip')).not.toExist()
+
+        view.element.querySelector('.package-snippets-table tbody tr:nth-child(1) td.snippet-body .snippet-view-btn').click()
+        expect(view.element.ownerDocument.querySelector('.snippet-body-tooltip')).toExist()
+
+
+  describe "when a snippet is copied", ->
+    [pack, card] = []
+    snippetsTable = null
+    snippetsModule = null
+
+    beforeEach ->
+      waitsForPromise ->
+        atom.packages.activatePackage('snippets').then (p) ->
+          snippetsModule = p.mainModule
+          return unless snippetsModule.provideSnippets().getUnparsedSnippets?
+
+          SnippetsProvider =
+            getSnippets: -> snippetsModule.provideSnippets().getUnparsedSnippets()
+
+      waitsForPromise ->
+        atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+
+      waitsFor 'snippets to load', -> snippetsModule.provideSnippets().bundledSnippetsLoaded()
+
+      runs ->
+        pack = atom.packages.getActivePackage('language-test')
+        card = new PackageSnippetsView(pack, SnippetsProvider)
+        snippetsTable = card.element.querySelector('.package-snippets-table tbody')
+
+      waitsFor 'snippets table children to contain 2 items', ->
+        snippetsTable.children.length >= 2
+
+    describe "when the snippets file ends in .cson", ->
+      it "writes a CSON snippet to the clipboard", ->
+        spyOn(snippetsModule, 'getUserSnippetsPath').andReturn('snippets.cson')
+        card.element.querySelector('.package-snippets-table tbody tr:nth-child(1) td.snippet-body .snippet-copy-btn').click()
+        expect(atom.clipboard.read()).toBe """
+          \n'.b.source':
+            'BAR':
+              'prefix': 'b'
+              'body': 'bar?'\n
+        """
+
+    describe "when the snippets file ends in .json", ->
+      it "writes a JSON snippet to the clipboard", ->
+        spyOn(snippetsModule, 'getUserSnippetsPath').andReturn('snippets.json')
+        card.element.querySelector('.package-snippets-table tbody tr:nth-child(1) td.snippet-body .btn:nth-child(2)').click()
+        expect(atom.clipboard.read()).toBe """
+          \n  ".b.source": {
+              "BAR": {
+                "prefix": "b",
+                "body": "bar?"
+              }
+            }\n
+        """
+
+  describe "when the snippets toggle is clicked", ->
+    it "sets the packagesWithSnippetsDisabled config to include the package name", ->
+      [pack, card] = []
+      snippetsModule = []
+      waitsForPromise ->
+        atom.packages.activatePackage('snippets').then (p) ->
+          snippetsModule = p.mainModule
+          return unless snippetsModule.provideSnippets().getUnparsedSnippets?
+
+          SnippetsProvider =
+            getSnippets: -> snippetsModule.provideSnippets().getUnparsedSnippets()
+
+      waitsForPromise ->
+        atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+
+      waitsFor 'snippets to load', -> snippetsModule.provideSnippets().bundledSnippetsLoaded()
+
+      runs ->
+        pack = atom.packages.getActivePackage('language-test')
+        card = new PackageSnippetsView(pack, SnippetsProvider)
+        jasmine.attachToDOM(card.element)
+
+        card.refs.snippetToggle.click()
+        expect(card.refs.snippetToggle.checked).toBe false
+        expect(_.include(atom.config.get('core.packagesWithSnippetsDisabled') ? [], 'language-test')).toBe true
+
+      waitsFor 'snippets table to update', ->
+        card.refs.snippets.classList.contains('text-subtle')
+
+      runs ->
+        card.refs.snippetToggle.click()
+        expect(card.refs.snippetToggle.checked).toBe true
+        expect(_.include(atom.config.get('core.packagesWithSnippetsDisabled') ? [], 'language-test')).toBe false
+
+      waitsFor 'snippets table to update', ->
+        not card.refs.snippets.classList.contains('text-subtle')
 
   it "does not display keybindings from other platforms", ->
     keybindingsTable = null

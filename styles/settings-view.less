@@ -417,7 +417,7 @@
     }
   }
 
-  .package-detail-view {
+  .package-detail {
     .package-keymap-table,
     .package-grammars-table,
     .package-snippets-table {
@@ -428,10 +428,13 @@
         white-space: nowrap;
       }
 
-      .snippet-body,
       .snippet-prefix {
         font-family: monospace;
       }
+    }
+
+    .package-snippets-table {
+      max-width: 100%;
     }
 
     .update-message {
@@ -640,6 +643,14 @@
       margin: 2px 0;
     }
   }
+}
+
+// A tooltip that shows the body of a snippet should treat whitespace literally
+// and should align to the left so that indentation is clearer.
+.snippet-body-tooltip .tooltip-inner {
+  font-family: monospace;
+  white-space: pre !important;
+  text-align: left;
 }
 
 .package-updates-status-view:hover {
