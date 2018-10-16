@@ -40,6 +40,10 @@ describe "InstalledPackageView", ->
     snippetsTable = null
     snippetsModule = null
 
+    # Relies on behavior not present in the snippets package before 1.33.
+    # TODO: These tests should always run once 1.33 is released.
+    shouldRunScopeTest = parseFloat(atom.getVersion()) >= 1.33
+
     waitsForPromise ->
       atom.packages.activatePackage('snippets').then (p) ->
         snippetsModule = p.mainModule
@@ -64,11 +68,11 @@ describe "InstalledPackageView", ->
     runs ->
       expect(snippetsTable.querySelector('tr:nth-child(1) td:nth-child(1)').textContent).toBe 'b'
       expect(snippetsTable.querySelector('tr:nth-child(1) td:nth-child(2)').textContent).toBe 'BAR'
-      expect(snippetsTable.querySelector('tr:nth-child(1) td.snippet-scope-name').textContent).toBe '.b.source'
+      expect(snippetsTable.querySelector('tr:nth-child(1) td.snippet-scope-name').textContent).toBe '.b.source' if shouldRunScopeTest
 
       expect(snippetsTable.querySelector('tr:nth-child(2) td:nth-child(1)').textContent).toBe 'f'
       expect(snippetsTable.querySelector('tr:nth-child(2) td:nth-child(2)').textContent).toBe 'FOO'
-      expect(snippetsTable.querySelector('tr:nth-child(2) td.snippet-scope-name').textContent).toBe '.a.source'
+      expect(snippetsTable.querySelector('tr:nth-child(2) td.snippet-scope-name').textContent).toBe '.a.source' if shouldRunScopeTest
 
   describe "when a snippet body is viewed", ->
     it "shows a tooltip", ->
@@ -105,56 +109,60 @@ describe "InstalledPackageView", ->
         expect(view.element.ownerDocument.querySelector('.snippet-body-tooltip')).toExist()
 
 
-  describe "when a snippet is copied", ->
-    [pack, card] = []
-    snippetsTable = null
-    snippetsModule = null
+  # Relies on behavior not present in the snippets package before 1.33.
+  # TODO: These tests should always run once 1.33 is released.
+  if parseFloat(atom.getVersion()) >= 1.33
+    describe "when a snippet is copied", ->
+      [pack, card] = []
+      snippetsTable = null
+      snippetsModule = null
 
-    beforeEach ->
-      waitsForPromise ->
-        atom.packages.activatePackage('snippets').then (p) ->
-          snippetsModule = p.mainModule
-          return unless snippetsModule.provideSnippets().getUnparsedSnippets?
+      beforeEach ->
+        waitsForPromise ->
+          atom.packages.activatePackage('snippets').then (p) ->
+            snippetsModule = p.mainModule
+            return unless snippetsModule.provideSnippets().getUnparsedSnippets?
 
-          SnippetsProvider =
-            getSnippets: -> snippetsModule.provideSnippets().getUnparsedSnippets()
+            SnippetsProvider =
+              getSnippets: -> snippetsModule.provideSnippets().getUnparsedSnippets()
+              getUserSnippetsPath: snippetsModule.getUserSnippetsPath()
 
-      waitsForPromise ->
-        atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+        waitsForPromise ->
+          atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
 
-      waitsFor 'snippets to load', -> snippetsModule.provideSnippets().bundledSnippetsLoaded()
+        waitsFor 'snippets to load', -> snippetsModule.provideSnippets().bundledSnippetsLoaded()
 
-      runs ->
-        pack = atom.packages.getActivePackage('language-test')
-        card = new PackageSnippetsView(pack, SnippetsProvider)
-        snippetsTable = card.element.querySelector('.package-snippets-table tbody')
+        runs ->
+          pack = atom.packages.getActivePackage('language-test')
+          card = new PackageSnippetsView(pack, SnippetsProvider)
+          snippetsTable = card.element.querySelector('.package-snippets-table tbody')
 
-      waitsFor 'snippets table children to contain 2 items', ->
-        snippetsTable.children.length >= 2
+        waitsFor 'snippets table children to contain 2 items', ->
+          snippetsTable.children.length >= 2
 
-    describe "when the snippets file ends in .cson", ->
-      it "writes a CSON snippet to the clipboard", ->
-        spyOn(snippetsModule, 'getUserSnippetsPath').andReturn('snippets.cson')
-        card.element.querySelector('.package-snippets-table tbody tr:nth-child(1) td.snippet-body .snippet-copy-btn').click()
-        expect(atom.clipboard.read()).toBe """
-          \n'.b.source':
-            'BAR':
-              'prefix': 'b'
-              'body': 'bar?'\n
-        """
+      describe "when the snippets file ends in .cson", ->
+        it "writes a CSON snippet to the clipboard", ->
+          spyOn(SnippetsProvider, 'getUserSnippetsPath').andReturn('snippets.cson')
+          card.element.querySelector('.package-snippets-table tbody tr:nth-child(1) td.snippet-body .snippet-copy-btn').click()
+          expect(atom.clipboard.read()).toBe """
+            \n'.b.source':
+              'BAR':
+                'prefix': 'b'
+                'body': 'bar?\\nline two'\n
+          """
 
-    describe "when the snippets file ends in .json", ->
-      it "writes a JSON snippet to the clipboard", ->
-        spyOn(snippetsModule, 'getUserSnippetsPath').andReturn('snippets.json')
-        card.element.querySelector('.package-snippets-table tbody tr:nth-child(1) td.snippet-body .btn:nth-child(2)').click()
-        expect(atom.clipboard.read()).toBe """
-          \n  ".b.source": {
-              "BAR": {
-                "prefix": "b",
-                "body": "bar?"
-              }
-            }\n
-        """
+      describe "when the snippets file ends in .json", ->
+        it "writes a JSON snippet to the clipboard", ->
+          spyOn(SnippetsProvider, 'getUserSnippetsPath').andReturn('snippets.json')
+          card.element.querySelector('.package-snippets-table tbody tr:nth-child(1) td.snippet-body .btn:nth-child(2)').click()
+          expect(atom.clipboard.read()).toBe """
+            \n  ".b.source": {
+                "BAR": {
+                  "prefix": "b",
+                  "body": "bar?\\nline two"
+                }
+              }\n
+          """
 
   describe "when the snippets toggle is clicked", ->
     it "sets the packagesWithSnippetsDisabled config to include the package name", ->
