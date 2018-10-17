@@ -2,7 +2,7 @@
   ".source.b": {
     "BAR": {
       "prefix": "b",
-      "body": "bar?"
+      "body": "bar?\nline two"
     }
   }
 }
