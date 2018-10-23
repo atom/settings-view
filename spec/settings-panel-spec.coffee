@@ -39,14 +39,23 @@ describe "SettingsPanel", ->
               {value: 'one', description: 'One'}
               'Two'
             ]
+          radio:
+            title: 'An enum with radio buttons'
+            radio: true
+            type: 'string'
+            default: 'Two'
+            enum: [
+              {value: 'one', description: 'One'}
+              'Two'
+            ]
       atom.config.setSchema("foo", config)
       atom.config.setDefaults("foo", gong: 'gong')
-      expect(_.size(atom.config.get('foo'))).toBe 6
+      expect(_.size(atom.config.get('foo'))).toBe 7
       settingsPanel = new SettingsPanel({namespace: "foo", includeTitle: false})
 
     it "sorts settings by order and then alphabetically by the key", ->
       settings = atom.config.get('foo')
-      expect(_.size(settings)).toBe 6
+      expect(_.size(settings)).toBe 7
       sortedSettings = settingsPanel.sortSettings("foo", settings)
       expect(sortedSettings[0]).toBe 'zing'
       expect(sortedSettings[1]).toBe 'zang'
@@ -54,6 +63,7 @@ describe "SettingsPanel", ->
       expect(sortedSettings[3]).toBe 'enum'
       expect(sortedSettings[4]).toBe 'gong'
       expect(sortedSettings[5]).toBe 'haz'
+      expect(sortedSettings[6]).toBe 'radio'
 
     it "gracefully deals with a null settings object", ->
       sortedSettings = settingsPanel.sortSettings("foo", null)
@@ -64,6 +74,13 @@ describe "SettingsPanel", ->
       select = settingsPanel.element.querySelector('#foo\\.enum')
       pairs = ([opt.value, opt.innerText] for opt in select.children)
       expect(pairs).toEqual([['one', 'One'], ['Two', 'Two']])
+
+    it "presents radio options with their descriptions", ->
+      radio = settingsPanel.element.querySelector('#foo\\.radio')
+      options = for label in radio.querySelectorAll 'label'
+        button = label.querySelector('input[type=radio]')
+        [button.id, button.value, label.innerText]
+      expect(options).toEqual([['foo.radio[one]', 'one', 'One'], ['foo.radio[Two]', 'Two', 'Two']])
 
   describe 'default settings', ->
     beforeEach ->
