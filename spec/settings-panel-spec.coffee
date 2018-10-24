@@ -78,7 +78,7 @@ describe "SettingsPanel", ->
     it "presents radio options with their descriptions", ->
       radio = settingsPanel.element.querySelector('#foo\\.radio')
       options = for label in radio.querySelectorAll 'label'
-        button = label.querySelector('input[type=radio]')
+        button = label.querySelector('input[type=radio][name="foo.radio"]')
         [button.id, button.value, label.innerText]
       expect(options).toEqual([['foo.radio[one]', 'one', 'One'], ['foo.radio[Two]', 'Two', 'Two']])
 
@@ -109,9 +109,19 @@ describe "SettingsPanel", ->
             description: 'Setting for testing zero as a default'
             type: 'integer'
             default: 0
+          radio:
+            title: 'An enum with radio buttons'
+            radio: true
+            type: 'string'
+            default: 'Two'
+            enum: [
+              {value: 'one', description: 'One'}
+              'Two'
+              'Three'
+            ]
       atom.config.setSchema("foo", config)
       atom.config.setDefaults("foo", gong: 'gong')
-      expect(_.size(atom.config.get('foo'))).toBe 4
+      expect(_.size(atom.config.get('foo'))).toBe 5
       settingsPanel = new SettingsPanel({namespace: "foo", includeTitle: false})
 
     it 'ensures default stays default', ->
@@ -155,6 +165,11 @@ describe "SettingsPanel", ->
 
       settingsPanel.set('foo.testZero', 0)
       expect(settingsPanel.isDefault('foo.testZero')).toBe true
+
+    it "selects the default choice for radio options", ->
+      expect(settingsPanel.getDefault 'foo.radio').toBe 'Two'
+      settingsPanel.set 'foo.radio', 'Two'
+      expect(settingsPanel.element.querySelector '#foo\\.radio\\[Two\\]').toBeChecked()
 
     describe 'scoped settings', ->
       beforeEach ->
