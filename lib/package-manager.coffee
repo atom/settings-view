@@ -18,6 +18,9 @@ class PackageManager
 
     @emitter = new Emitter
 
+  destroy: ->
+    @emitter.dispose()
+
   getClient: ->
     @client ?= new Client(this)
 
