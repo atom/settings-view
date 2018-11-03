@@ -76,6 +76,16 @@ describe "SettingsPanel", ->
             description: 'The haz setting'
             type: 'string'
             default: 'haz'
+          qux:
+            name: 'qux'
+            title: 'Qux'
+            description: 'The qux setting'
+            type: 'string'
+            default: 'a'
+            enum: [
+              {value: 'a', description: 'Alice'},
+              {value: 'b', description: 'Bob'}
+            ]
           testZero:
             name: 'testZero'
             title: 'Test Zero'
@@ -84,7 +94,7 @@ describe "SettingsPanel", ->
             default: 0
       atom.config.setSchema("foo", config)
       atom.config.setDefaults("foo", gong: 'gong')
-      expect(_.size(atom.config.get('foo'))).toBe 3
+      expect(_.size(atom.config.get('foo'))).toBe 4
       settingsPanel = new SettingsPanel({namespace: "foo", includeTitle: false})
 
     it 'ensures default stays default', ->
@@ -99,6 +109,20 @@ describe "SettingsPanel", ->
       settingsPanel.set('foo.haz', 'newhaz')
       expect(settingsPanel.isDefault('foo.haz')).toBe false
       expect(atom.config.get('foo.haz')).toBe 'newhaz'
+
+    it 'has a tooltip showing the default value', ->
+      hazEditor = settingsPanel.element.querySelector('[id="foo.haz"]')
+      tooltips = atom.tooltips.findTooltips(hazEditor)
+      expect(tooltips).toHaveLength 1
+      title = tooltips[0].options.title
+      expect(title).toBe "Default: haz"
+
+    it 'has a tooltip showing the description of the default value', ->
+      quxEditor = settingsPanel.element.querySelector('[id="foo.qux"]')
+      tooltips = atom.tooltips.findTooltips(quxEditor)
+      expect(tooltips).toHaveLength 1
+      title = tooltips[0].options.title
+      expect(title).toBe "Default: Alice"
 
     # Regression test for #783
     it 'allows 0 to be a default', ->
@@ -214,3 +238,61 @@ describe "SettingsPanel", ->
       expect(controlGroups[1].querySelector('.sub-section .sub-section-heading').classList.contains('has-items')).toBe true
       # Should be already collapsed
       expect(controlGroups[1].querySelector('.sub-section .sub-section-heading').parentElement.classList.contains('collapsed')).toBe true
+
+  describe 'settings validation', ->
+    beforeEach ->
+      config =
+        type: 'object'
+        properties:
+          minMax:
+            name: 'minMax'
+            title: 'Min max'
+            description: 'The minMax setting'
+            type: 'integer'
+            default: 10
+            minimum: 1
+            maximum: 100
+
+      atom.config.setSchema('foo', config)
+      settingsPanel = new SettingsPanel({namespace: 'foo', includeTitle: false})
+
+    it 'prevents setting a value below the minimum', ->
+      minMaxEditor = settingsPanel.element.querySelector('[id="foo.minMax"]')
+      minMaxEditor.getModel().setText('0')
+      advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
+      expect(minMaxEditor.getModel().getText()).toBe '1'
+
+      minMaxEditor.getModel().setText('-5')
+      advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
+      expect(minMaxEditor.getModel().getText()).toBe '1'
+
+    it 'prevents setting a value above the maximum', ->
+      minMaxEditor = settingsPanel.element.querySelector('[id="foo.minMax"]')
+      minMaxEditor.getModel().setText('1000')
+      advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
+      expect(minMaxEditor.getModel().getText()).toBe '100'
+
+      minMaxEditor.getModel().setText('10000')
+      advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
+      expect(minMaxEditor.getModel().getText()).toBe '100'
+
+    it 'prevents setting a value that cannot be coerced to the correct type', ->
+      minMaxEditor = settingsPanel.element.querySelector('[id="foo.minMax"]')
+      minMaxEditor.getModel().setText('"abcde"')
+      advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
+      expect(minMaxEditor.getModel().getText()).toBe '' # aka default
+
+      minMaxEditor.getModel().setText('15')
+      advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
+      expect(minMaxEditor.getModel().getText()).toBe '15'
+
+      minMaxEditor.getModel().setText('"abcde"')
+      advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
+      expect(minMaxEditor.getModel().getText()).toBe '15'
+
+    it 'allows setting a valid scoped value', ->
+      settingsPanel = new SettingsPanel({namespace: 'foo', includeTitle: false, scopeName: 'source.js'})
+      minMaxEditor = settingsPanel.element.querySelector('atom-text-editor')
+      minMaxEditor.getModel().setText('15')
+      advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
+      expect(minMaxEditor.getModel().getText()).toBe '15'

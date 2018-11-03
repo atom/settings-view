@@ -11,7 +11,6 @@ describe "PackageManager", ->
 
   it "handle errors spawning apm", ->
     noSuchCommandError = if process.platform is 'win32' then ' cannot find the path ' else 'ENOENT'
-    waitsForPromise shouldReject: true, -> packageManager.search('test')
     waitsForPromise shouldReject: true, -> packageManager.getInstalled()
     waitsForPromise shouldReject: true, -> packageManager.getOutdated()
     waitsForPromise shouldReject: true, -> packageManager.getFeatured()

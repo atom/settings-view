@@ -69,20 +69,25 @@ class AtomIoClient
     options = {
       url: "#{@baseURL}#{path}"
       headers: {'User-Agent': navigator.userAgent}
+      gzip: true
     }
 
     request options, (err, res, body) =>
-      try
-        data = JSON.parse(body)
-      catch error
-        return callback(error)
+      return callback(err) if err
 
-      delete data.versions
-      cached =
-        data: data
-        createdOn: Date.now()
-      localStorage.setItem(@cacheKeyForPath(path), JSON.stringify(cached))
-      callback(err, cached.data)
+      try
+        # NOTE: request's json option does not populate err if parsing fails,
+        # so we do it manually
+        body = JSON.parse(body)
+        delete body.versions
+
+        cached =
+          data: body
+          createdOn: Date.now()
+        localStorage.setItem(@cacheKeyForPath(path), JSON.stringify(cached))
+        callback(err, cached.data)
+      catch error
+        callback(error)
 
   cacheKeyForPath: (path) ->
     "settings-view:#{path}"
@@ -174,3 +179,40 @@ class AtomIoClient
 
   getCachePath: ->
     @cachePath ?= path.join(remote.app.getPath('userData'), 'Cache', 'settings-view')
+
+  search: (query, options) ->
+    qs = {q: query}
+
+    if options.themes
+      qs.filter = 'theme'
+    else if options.packages
+      qs.filter = 'package'
+
+    options = {
+      url: "#{@baseURL}packages/search"
+      headers: {'User-Agent': navigator.userAgent}
+      qs: qs
+      gzip: true
+    }
+
+    new Promise (resolve, reject) ->
+      request options, (err, res, body) ->
+        if err
+          error = new Error("Searching for \u201C#{query}\u201D failed.")
+          error.stderr = err.message
+          reject error
+        else
+          try
+            # NOTE: request's json option does not populate err if parsing fails,
+            # so we do it manually
+            body = JSON.parse(body)
+            resolve(
+              body.filter (pkg) -> pkg.releases?.latest?
+                  .map ({readme, metadata, downloads, stargazers_count}) ->
+                    Object.assign metadata, {readme, downloads, stargazers_count}
+                  .sort (a, b) -> b.downloads - a.downloads
+            )
+          catch e
+            error = new Error("Searching for \u201C#{query}\u201D failed.")
+            error.stderr = e.message + '\n' + body
+            reject error
