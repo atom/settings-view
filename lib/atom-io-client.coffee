@@ -76,6 +76,8 @@ class AtomIoClient
       return callback(err) if err
 
       try
+        # NOTE: request's json option does not populate err if parsing fails,
+        # so we do it manually
         body = JSON.parse(body)
         delete body.versions
 
@@ -214,6 +216,8 @@ class AtomIoClient
           reject error
         else
           try
+            # NOTE: request's json option does not populate err if parsing fails,
+            # so we do it manually
             body = JSON.parse(body)
             resolve(
               body.filter (pkg) -> pkg.releases?.latest?
