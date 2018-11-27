@@ -1,5 +1,6 @@
 fs = require 'fs'
 path = require 'path'
+{shell} = require 'electron'
 
 PackageDetailView = require '../lib/package-detail-view'
 PackageManager = require '../lib/package-manager'
@@ -104,6 +105,12 @@ describe "PackageDetailView", ->
     expect(view.packageCard).toBeDefined()
     expect(view.packageCard.refs.packageName.textContent).toBe('package-with-readme')
     expect(view.element.querySelectorAll('.package-readme').length).toBe(1)
+
+  it "triggers a report issue button click and checks that the fallback repository issue tracker URL was opened", ->
+    loadPackageFromRemote()
+    spyOn(shell, 'openExternal')
+    view.refs.issueButton.click()
+    expect(shell.openExternal).toHaveBeenCalledWith('https://github.com/example/package-with-readme/issues/new')
 
   it "should show 'Install' as the first breadcrumb by default", ->
     loadPackageFromRemote()
