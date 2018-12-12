@@ -95,14 +95,16 @@ describe 'UpdatesPanel', ->
 
         resolveC()
 
-      waits 0
+      waitsFor (done) ->
+        atom.notifications.onDidAddNotification(done)
+
       runs ->
         notifications = atom.notifications.getNotifications()
         expect(notifications.length).toBe 1
         expect(notifications[0].options.detail).toBe 'test-package-a@1.0.0 -> 99.0.0\ntest-package-b@1.0.0 -> 99.0.0\ntest-package-c@cf23df22 -> a296114f'
 
         spyOn(atom, 'restartApplication')
-        atom.notifications.getNotifications()[0].options.buttons[0].onDidClick()
+        notifications[0].options.buttons[0].onDidClick()
         expect(atom.restartApplication).toHaveBeenCalled()
 
     it 'works with queue enabled', ->
