@@ -501,6 +501,7 @@ describe "PackageCard", ->
             pack.metadata.version = '1.1.0' if pack?
             pack
 
+          card.pack.latestVersion = "1.1.0"
           card.displayAvailableUpdate('1.1.0')
           expect(card.refs.updateButtonGroup).toBeVisible()
 
@@ -534,10 +535,38 @@ describe "PackageCard", ->
 
             notifications = atom.notifications.getNotifications()
             expect(notifications.length).toBe 1
+            expect(notifications[0].options.detail).toBe "1.0.0 -> 1.1.0"
 
             spyOn(atom, 'restartApplication')
             notifications[0].options.buttons[0].onDidClick()
             expect(atom.restartApplication).toHaveBeenCalled()
+
+        it "shows the sha in the notification when a git url package is updated", ->
+          expect(atom.packages.getLoadedPackage('package-with-config')).toBeTruthy()
+
+          [updateCallback] = []
+          packageManager.runCommand.andCallFake (args, callback) ->
+            updateCallback = callback
+            onWillThrowError: ->
+          spyOn(packageManager, 'update').andCallThrough()
+
+          card.pack.apmInstallSource = {type: 'git', sha: 'cf23df2207d99a74fbe169e3eba035e633b65d94'}
+          card.pack.latestSha = 'a296114f3d0deec519a41f4c62e7fc56075b7f01'
+
+          card.displayAvailableUpdate('1.1.0')
+          expect(card.refs.updateButtonGroup).toBeVisible()
+
+          expect(atom.packages.getLoadedPackage('package-with-config')).toBeTruthy()
+          card.refs.updateButton.click()
+
+          updateCallback(0, '', '')
+
+          waits 0 # Wait for PackageCard.update promise to resolve
+
+          runs ->
+            notifications = atom.notifications.getNotifications()
+            expect(notifications.length).toBe 1
+            expect(notifications[0].options.detail).toBe "cf23df22 -> a296114f"
 
     describe "when hasAlternative is true and alternative is core", ->
       beforeEach ->
