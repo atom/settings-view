@@ -76,6 +76,16 @@ describe "SettingsPanel", ->
             description: 'The haz setting'
             type: 'string'
             default: 'haz'
+          qux:
+            name: 'qux'
+            title: 'Qux'
+            description: 'The qux setting'
+            type: 'string'
+            default: 'a'
+            enum: [
+              {value: 'a', description: 'Alice'},
+              {value: 'b', description: 'Bob'}
+            ]
           testZero:
             name: 'testZero'
             title: 'Test Zero'
@@ -84,7 +94,7 @@ describe "SettingsPanel", ->
             default: 0
       atom.config.setSchema("foo", config)
       atom.config.setDefaults("foo", gong: 'gong')
-      expect(_.size(atom.config.get('foo'))).toBe 3
+      expect(_.size(atom.config.get('foo'))).toBe 4
       settingsPanel = new SettingsPanel({namespace: "foo", includeTitle: false})
 
     it 'ensures default stays default', ->
@@ -99,6 +109,20 @@ describe "SettingsPanel", ->
       settingsPanel.set('foo.haz', 'newhaz')
       expect(settingsPanel.isDefault('foo.haz')).toBe false
       expect(atom.config.get('foo.haz')).toBe 'newhaz'
+
+    it 'has a tooltip showing the default value', ->
+      hazEditor = settingsPanel.element.querySelector('[id="foo.haz"]')
+      tooltips = atom.tooltips.findTooltips(hazEditor)
+      expect(tooltips).toHaveLength 1
+      title = tooltips[0].options.title
+      expect(title).toBe "Default: haz"
+
+    it 'has a tooltip showing the description of the default value', ->
+      quxEditor = settingsPanel.element.querySelector('[id="foo.qux"]')
+      tooltips = atom.tooltips.findTooltips(quxEditor)
+      expect(tooltips).toHaveLength 1
+      title = tooltips[0].options.title
+      expect(title).toBe "Default: Alice"
 
     # Regression test for #783
     it 'allows 0 to be a default', ->
