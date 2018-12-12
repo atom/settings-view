@@ -69,19 +69,25 @@ class AtomIoClient
     options = {
       url: "#{@baseURL}#{path}"
       headers: {'User-Agent': navigator.userAgent}
-      json: true
       gzip: true
     }
 
     request options, (err, res, body) =>
       return callback(err) if err
 
-      delete body.versions
-      cached =
-        data: body
-        createdOn: Date.now()
-      localStorage.setItem(@cacheKeyForPath(path), JSON.stringify(cached))
-      callback(err, cached.data)
+      try
+        # NOTE: request's json option does not populate err if parsing fails,
+        # so we do it manually
+        body = JSON.parse(body)
+        delete body.versions
+
+        cached =
+          data: body
+          createdOn: Date.now()
+        localStorage.setItem(@cacheKeyForPath(path), JSON.stringify(cached))
+        callback(err, cached.data)
+      catch error
+        callback(error)
 
   cacheKeyForPath: (path) ->
     "settings-view:#{path}"
@@ -199,7 +205,6 @@ class AtomIoClient
       url: "#{@baseURL}packages/search"
       headers: {'User-Agent': navigator.userAgent}
       qs: qs
-      json: true
       gzip: true
     }
 
@@ -210,9 +215,16 @@ class AtomIoClient
           error.stderr = err.message
           reject(error)
         else
-          resolve(
-            body
-              .filter (pack) -> pack.releases?.latest?
-              .map ({readme, metadata, downloads, stargazers_count}) ->
-                Object.assign metadata, {readme, downloads, stargazers_count}
-          )
+          try
+            # NOTE: request's json option does not populate err if parsing fails,
+            # so we do it manually
+            body = JSON.parse(body)
+            resolve(
+              body.filter (pkg) -> pkg.releases?.latest?
+                  .map ({readme, metadata, downloads, stargazers_count}) ->
+                    Object.assign metadata, {readme, downloads, stargazers_count}
+            )
+          catch e
+            error = new Error("Searching for \u201C#{query}\u201D failed.")
+            error.stderr = e.message + '\n' + body
+            reject error
