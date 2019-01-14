@@ -27,27 +27,27 @@ class AtomIoClient
   # caching.
   package: (name, callback) ->
     packagePath = "packages/#{name}"
-    @fetchFromCache packagePath, {}, (err, data) =>
-      if data
-        callback(null, data)
-      else
-        @request(packagePath, callback)
+    data = @fetchFromCache(packagePath)
+    if data
+      callback(null, data)
+    else
+      @request(packagePath, callback)
 
   featuredPackages: (callback) ->
     # TODO clean up caching copypasta
-    @fetchFromCache 'packages/featured', {}, (err, data) =>
-      if data
-        callback(null, data)
-      else
-        @getFeatured(false, callback)
+    data = @fetchFromCache 'packages/featured'
+    if data
+      callback(null, data)
+    else
+      @getFeatured(false, callback)
 
   featuredThemes: (callback) ->
     # TODO clean up caching copypasta
-    @fetchFromCache 'themes/featured', {}, (err, data) =>
-      if data
-        callback(null, data)
-      else
-        @getFeatured(true, callback)
+    data = @fetchFromCache 'themes/featured'
+    if data
+      callback(null, data)
+    else
+      @getFeatured(true, callback)
 
   getFeatured: (loadThemes, callback) ->
     # apm already does this, might as well use it instead of request i guess? The
@@ -97,27 +97,14 @@ class AtomIoClient
 
   # This could use a better name, since it checks whether it's appropriate to return
   # the cached data and pretends it's null if it's stale and we're online
-  fetchFromCache: (packagePath, options, callback) ->
-    unless callback
-      callback = options
-      options = {}
-
-    unless options.force
-      # Set `force` to true if we can't reach the network.
-      options.force = not @online()
-
+  fetchFromCache: (packagePath) ->
     cached = localStorage.getItem(@cacheKeyForPath(packagePath))
     cached = if cached then JSON.parse(cached)
-    if cached? and (not @online() or options.force or (Date.now() - cached.createdOn < @expiry))
-      cached ?= data: {}
-      callback(null, cached.data)
-    else if not cached? and not @online()
-      # The user hasn't requested this resource before and there's no way for us
-      # to get it to them so just hand back an empty object so callers don't crash
-      callback(null, {})
+    if cached? and (not @online() or Date.now() - cached.createdOn < @expiry)
+      return cached.data
     else
       # falsy data means "try to hit the network"
-      callback(null, null)
+      return null
 
   createAvatarCache: ->
     fs.makeTree(@getCachePath())
