@@ -59,29 +59,16 @@ describe 'InstallPanel', ->
       expect(@panel.search.callCount).toBe 3
 
   describe "searching packages", ->
-    it "highlights exact name matches", ->
-      spyOn(@panel.client, 'search').andCallFake ->
-        new Promise (resolve, reject) -> resolve([ {name: 'not-first'}, {name: 'first'} ])
+    it "displays the packages in the order returned", ->
+      spyOn(@panel.client, 'search').andCallFake -> Promise.resolve([{name: 'not-first'}, {name: 'first'}])
       spyOn(@panel, 'getPackageCardView').andCallThrough()
 
       waitsForPromise =>
         @panel.search('first')
 
       runs ->
-        expect(@panel.getPackageCardView.argsForCall[0][0].name).toEqual 'first'
-        expect(@panel.getPackageCardView.argsForCall[1][0].name).toEqual 'not-first'
-
-    it "prioritizes partial name matches", ->
-      spyOn(@panel.client, 'search').andCallFake ->
-        new Promise (resolve, reject) -> resolve([ {name: 'something else'}, {name: 'partial name match'} ])
-      spyOn(@panel, 'getPackageCardView').andCallThrough()
-
-      waitsForPromise =>
-        @panel.search('match')
-
-      runs ->
-        expect(@panel.getPackageCardView.argsForCall[0][0].name).toEqual 'partial name match'
-        expect(@panel.getPackageCardView.argsForCall[1][0].name).toEqual 'something else'
+        expect(@panel.getPackageCardView.argsForCall[0][0].name).toEqual 'not-first'
+        expect(@panel.getPackageCardView.argsForCall[1][0].name).toEqual 'first'
 
   describe "searching git packages", ->
     beforeEach ->

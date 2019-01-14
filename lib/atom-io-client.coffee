@@ -200,7 +200,7 @@ class AtomIoClient
         if err
           error = new Error("Searching for \u201C#{query}\u201D failed.")
           error.stderr = err.message
-          reject error
+          reject(error)
         else
           try
             # NOTE: request's json option does not populate err if parsing fails,
@@ -210,7 +210,6 @@ class AtomIoClient
               body.filter (pkg) -> pkg.releases?.latest?
                   .map ({readme, metadata, downloads, stargazers_count}) ->
                     Object.assign metadata, {readme, downloads, stargazers_count}
-                  .sort (a, b) -> b.downloads - a.downloads
             )
           catch e
             error = new Error("Searching for \u201C#{query}\u201D failed.")
