@@ -252,6 +252,12 @@ describe "SettingsPanel", ->
             default: 10
             minimum: 1
             maximum: 100
+          commaValueArray:
+            name: 'commaValueArray'
+            title: 'Comma value in array'
+            description: 'An array with a comma value'
+            type: 'array'
+            default: []
 
       atom.config.setSchema('foo', config)
       settingsPanel = new SettingsPanel({namespace: 'foo', includeTitle: false})
@@ -296,3 +302,40 @@ describe "SettingsPanel", ->
       minMaxEditor.getModel().setText('15')
       advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
       expect(minMaxEditor.getModel().getText()).toBe '15'
+
+    describe 'commaValueArray', ->
+      it 'comma in value is escaped', ->
+        commaValueArrayEditor = settingsPanel.element.querySelector('[id="foo.commaValueArray"]')
+        commaValueArrayEditor.getModel().setText('1, \\,, 2')
+        advanceClock(commaValueArrayEditor.getModel().getBuffer().getStoppedChangingDelay())
+        expect(atom.config.get("foo.commaValueArray")).toEqual ["1", ",", "2"]
+
+        commaValueArrayEditor.getModel().setText('1\\, 2')
+        advanceClock(commaValueArrayEditor.getModel().getBuffer().getStoppedChangingDelay())
+        expect(atom.config.get("foo.commaValueArray")).toEqual ["1, 2"]
+
+        commaValueArrayEditor.getModel().setText('1\\,')
+        advanceClock(commaValueArrayEditor.getModel().getBuffer().getStoppedChangingDelay())
+        expect(atom.config.get("foo.commaValueArray")).toEqual ["1,"]
+
+        commaValueArrayEditor.getModel().setText('\\, 2')
+        advanceClock(commaValueArrayEditor.getModel().getBuffer().getStoppedChangingDelay())
+        expect(atom.config.get("foo.commaValueArray")).toEqual [", 2"]
+
+      it 'renders an escaped comma', ->
+        commaValueArrayEditor = settingsPanel.element.querySelector('[id="foo.commaValueArray"]')
+        atom.config.set("foo.commaValueArray", ["3", ",", "4"])
+        advanceClock(1000)
+        expect(commaValueArrayEditor.getModel().getText()).toBe '3, \\,, 4'
+
+        atom.config.set("foo.commaValueArray", ["3, 4"])
+        advanceClock(1000)
+        expect(commaValueArrayEditor.getModel().getText()).toBe '3\\, 4'
+
+        atom.config.set("foo.commaValueArray", ["3,"])
+        advanceClock(1000)
+        expect(commaValueArrayEditor.getModel().getText()).toBe '3\\,'
+
+        atom.config.set("foo.commaValueArray", [", 4"])
+        advanceClock(1000)
+        expect(commaValueArrayEditor.getModel().getText()).toBe '\\, 4'
