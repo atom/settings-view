@@ -10,11 +10,22 @@
   overflow: auto;
 
   .breadcrumb {
+    position: fixed;
+    width: 100%;
+    z-index: 1;
     margin-bottom: 0;
-    padding: @breadcrumb-padding;
+    padding: 0 @breadcrumb-padding;
     font-size: 1.2em;
+    line-height: 5rem;
     color: @text-color-subtle;
     list-style: none;
+    border-bottom: 1px solid @base-border-color;
+    background-color: @base-background-color;
+
+    + .section {
+      margin-top: 5rem; // space for breadcrumbs
+      border-top: none;
+    }
 
     > li {
       display: inline-block;
