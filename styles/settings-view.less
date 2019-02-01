@@ -15,8 +15,8 @@
     z-index: 1;
     margin-bottom: 0;
     padding: 0 @breadcrumb-padding;
-    font-size: 1.2em;
-    line-height: 5rem;
+    font-size: 1.125em;
+    line-height: 3rem;
     color: @text-color-subtle;
     list-style: none;
     border-bottom: 1px solid @base-border-color;
@@ -34,12 +34,13 @@
       }
 
       + li:before {
-        content: "/\00a0"; // Unicode space added since inline-block means non-collapsing white-space
-        padding: 0 5px;
+        content: "/"; // Unicode space added since inline-block means non-collapsing white-space
+        padding: 0 .75em ;
       }
     }
 
     > .active a {
+      font-weight: 600;
       color: @text-color-highlight;
     }
 
