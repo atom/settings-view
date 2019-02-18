@@ -234,7 +234,7 @@
 
     .sub-section-heading {
       position: sticky;
-      top: 0px;
+      top: -1px; // -1px fixes a rounding issue on retina screens
       z-index: 1;
       margin: 0;
       padding: @component-padding 0;
