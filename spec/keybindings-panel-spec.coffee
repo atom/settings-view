@@ -95,7 +95,7 @@ describe "KeybindingsPanel", ->
       atom.keymaps.emitter.emit 'did-reload-keymap'
 
       waitsFor "the new keybinding to show up in the keybinding panel", ->
-        panel.refs.keybindingRows.children.length is 3
+        panel.refs.keybindingRows.children.length is 4
 
       runs ->
         row = panel.refs.keybindingRows.children[1]
