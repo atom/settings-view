@@ -6,37 +6,44 @@ describe "KeybindingsPanel", ->
 
   beforeEach ->
     expect(atom.keymaps).toBeDefined()
+    keySource = "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps"
     keyBindings = [
       {
-        source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps"
+        source: keySource
         keystrokes: 'ctrl-a'
         command: 'core:select-all'
         selector: '.editor, .platform-test'
       }
       {
-        source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps"
+        source: keySource
         keystrokes: 'ctrl-u'
         command: 'core:undo'
         selector: ".platform-test"
       }
       {
-        source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps"
+        source: keySource
         keystrokes: 'ctrl-u'
         command: 'core:undo'
         selector: ".platform-a, .platform-b"
       }
       {
-        source: "#{atom.getLoadSettings().resourcePath}#{path.sep}keymaps"
+        source: keySource
         keystrokes: 'shift-\\ \\'
         command: 'core:undo'
         selector: '.editor'
+      }
+      {
+        source: keySource
+        keystrokes: 'ctrl-z\''
+        command: 'core:toggle'
+        selector: 'atom-text-editor[data-grammar~=\'css\']'
       }
     ]
     spyOn(atom.keymaps, 'getKeyBindings').andReturn(keyBindings)
     panel = new KeybindingsPanel
 
   it "loads and displays core key bindings", ->
-    expect(panel.refs.keybindingRows.children.length).toBe 2
+    expect(panel.refs.keybindingRows.children.length).toBe 3
 
     row = panel.refs.keybindingRows.children[0]
     expect(row.querySelector('.keystroke').textContent).toBe 'ctrl-a'
@@ -64,13 +71,21 @@ describe "KeybindingsPanel", ->
           }
         """
 
-    describe "when the keybinding contains backslashes", ->
+    describe "when the keybinding contains special characters", ->
       it "escapes the backslashes before copying", ->
         spyOn(atom.keymaps, 'getUserKeymapPath').andReturn 'keymap.cson'
-        panel.element.querySelectorAll('.copy-icon')[1].click()
+        panel.element.querySelectorAll('.copy-icon')[2].click()
         expect(atom.clipboard.read()).toBe """
           '.editor':
             'shift-\\\\ \\\\': 'core:undo'
+        """
+
+      it "escapes the single quotes before copying", ->
+        spyOn(atom.keymaps, 'getUserKeymapPath').andReturn 'keymap.cson'
+        panel.element.querySelectorAll('.copy-icon')[1].click()
+        expect(atom.clipboard.read()).toBe """
+          'atom-text-editor[data-grammar~=\\'css\\']':
+            'ctrl-z\\'': 'core:toggle'
         """
 
   describe "when the key bindings change", ->
