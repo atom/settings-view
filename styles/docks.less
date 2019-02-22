@@ -5,7 +5,6 @@
 
 atom-dock.left .settings-view,
 atom-dock.right .settings-view {
-  // display: block;
   flex-direction: column;
 
   &.pane-item {
@@ -14,7 +13,11 @@ atom-dock.right .settings-view {
 
   .config-menu {
     flex: none;
-    padding-top: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    padding: @component-padding/2;
     min-width: 0;
     max-width: none;
     border: none;
@@ -23,27 +26,31 @@ atom-dock.right .settings-view {
     overflow-x: initial;
 
     .nav {
-      display: contents;
+      display: contents; // hide from DOM
 
-      & > li {
-        & > a {
-         padding: @component-padding/1.5 @component-padding*1.5;
-        }
+      & > li > a {
+        padding: 0 .5em;
+        border-radius: @component-border-radius;
+      }
+
+      .icon:before {
+        display: none;
       }
     }
 
-    &:not(:hover) {
-      .nav > li {
-        display: none;
-        &.active {
-          display: block;
-          & > a {
-            background-color: transparent;
-          }
+    .button-area {
+      display: contents; // hide from DOM
+
+      .icon-link-external {
+        font-size: 0;
+        width: auto;
+        margin: 0 @component-padding/2;
+        padding: @component-padding/4 @component-padding/2;
+        overflow: hidden;
+        &:before {
+          font-size: 16px;
+          margin: 0;
         }
-      }
-      .button-area {
-        display: none;
       }
     }
   }
