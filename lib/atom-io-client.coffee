@@ -208,8 +208,8 @@ class AtomIoClient
             body = JSON.parse(body)
             resolve(
               body.filter (pkg) -> pkg.releases?.latest?
-                  .map ({readme, metadata, downloads, stargazers_count}) ->
-                    Object.assign metadata, {readme, downloads, stargazers_count}
+                  .map ({readme, metadata, downloads, stargazers_count, repository}) ->
+                    Object.assign metadata, {readme, downloads, stargazers_count, repository: repository.url}
             )
           catch e
             error = new Error("Searching for \u201C#{query}\u201D failed.")
