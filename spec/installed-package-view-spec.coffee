@@ -45,15 +45,15 @@ describe "InstalledPackageView", ->
     shouldRunScopeTest = parseFloat(atom.getVersion()) >= 1.33
 
     waitsForPromise ->
+      atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+
+    waitsForPromise ->
       atom.packages.activatePackage('snippets').then (p) ->
         snippetsModule = p.mainModule
         return unless snippetsModule.provideSnippets().getUnparsedSnippets?
 
         SnippetsProvider =
           getSnippets: -> snippetsModule.provideSnippets().getUnparsedSnippets()
-
-    waitsForPromise ->
-      atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
 
     waitsFor 'snippets to load', -> snippetsModule.provideSnippets().bundledSnippetsLoaded()
 
@@ -82,15 +82,15 @@ describe "InstalledPackageView", ->
       snippetsModule = null
 
       waitsForPromise ->
+        atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+
+      waitsForPromise ->
         atom.packages.activatePackage('snippets').then (p) ->
           snippetsModule = p.mainModule
           return unless snippetsModule.provideSnippets().getUnparsedSnippets?
 
           SnippetsProvider =
             getSnippets: -> snippetsModule.provideSnippets().getUnparsedSnippets()
-
-      waitsForPromise ->
-        atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
 
       waitsFor 'snippets to load', -> snippetsModule.provideSnippets().bundledSnippetsLoaded()
 
@@ -119,6 +119,9 @@ describe "InstalledPackageView", ->
 
       beforeEach ->
         waitsForPromise ->
+          atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+
+        waitsForPromise ->
           atom.packages.activatePackage('snippets').then (p) ->
             snippetsModule = p.mainModule
             return unless snippetsModule.provideSnippets().getUnparsedSnippets?
@@ -126,9 +129,6 @@ describe "InstalledPackageView", ->
             SnippetsProvider =
               getSnippets: -> snippetsModule.provideSnippets().getUnparsedSnippets()
               getUserSnippetsPath: snippetsModule.getUserSnippetsPath()
-
-        waitsForPromise ->
-          atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
 
         waitsFor 'snippets to load', -> snippetsModule.provideSnippets().bundledSnippetsLoaded()
 
@@ -168,6 +168,10 @@ describe "InstalledPackageView", ->
     it "sets the packagesWithSnippetsDisabled config to include the package name", ->
       [pack, card] = []
       snippetsModule = []
+
+      waitsForPromise ->
+        atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+
       waitsForPromise ->
         atom.packages.activatePackage('snippets').then (p) ->
           snippetsModule = p.mainModule
@@ -175,9 +179,6 @@ describe "InstalledPackageView", ->
 
           SnippetsProvider =
             getSnippets: -> snippetsModule.provideSnippets().getUnparsedSnippets()
-
-      waitsForPromise ->
-        atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
 
       waitsFor 'snippets to load', -> snippetsModule.provideSnippets().bundledSnippetsLoaded()
 
