@@ -30,6 +30,15 @@ describe "PackageDetailView", ->
     view = new PackageDetailView({name: packageName}, new SettingsView(), packageManager, SnippetsProvider)
     view.beforeShow(opts)
 
+  loadCustomPackageFromRemote = (packageName, opts) ->
+    opts ?= {}
+    packageManager.client = createClientSpy()
+    packageManager.client.package.andCallFake (name, cb) ->
+      packageData = require(path.join(__dirname, 'fixtures', packageName, 'package.json'))
+      cb(null, packageData)
+    view = new PackageDetailView({name: packageName}, new SettingsView(), packageManager, SnippetsProvider)
+    view.beforeShow(opts)
+
   it "renders a package when provided in `initialize`", ->
     atom.packages.loadPackage(path.join(__dirname, 'fixtures', 'package-with-config'))
     pack = atom.packages.getLoadedPackage('package-with-config')
@@ -104,6 +113,30 @@ describe "PackageDetailView", ->
     expect(view.packageCard).toBeDefined()
     expect(view.packageCard.refs.packageName.textContent).toBe('package-with-readme')
     expect(view.element.querySelectorAll('.package-readme').length).toBe(1)
+
+  it "triggers a report issue button click and checks that the fallback repository issue tracker URL was opened", ->
+    loadCustomPackageFromRemote('package-without-bugs-property')
+    spyOn(shell, 'openExternal')
+    view.refs.issueButton.click()
+    expect(shell.openExternal).toHaveBeenCalledWith('https://github.com/example/package-without-bugs-property/issues/new')
+
+  it "triggers a report issue button click and checks that the bugs URL string was opened", ->
+    loadCustomPackageFromRemote('package-with-bugs-property-url-string')
+    spyOn(shell, 'openExternal')
+    view.refs.issueButton.click()
+    expect(shell.openExternal).toHaveBeenCalledWith('https://example.com/custom-issue-tracker/new')
+
+  it "triggers a report issue button click and checks that the bugs URL was opened", ->
+    loadCustomPackageFromRemote('package-with-bugs-property-url')
+    spyOn(shell, 'openExternal')
+    view.refs.issueButton.click()
+    expect(shell.openExternal).toHaveBeenCalledWith('https://example.com/custom-issue-tracker/new')
+
+  it "triggers a report issue button click and checks that the bugs email link was opened", ->
+    loadCustomPackageFromRemote('package-with-bugs-property-email')
+    spyOn(shell, 'openExternal')
+    view.refs.issueButton.click()
+    expect(shell.openExternal).toHaveBeenCalledWith('mailto:issues@example.com')
 
   it "should show 'Install' as the first breadcrumb by default", ->
     loadPackageFromRemote('package-with-readme')
