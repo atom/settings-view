@@ -39,14 +39,23 @@ describe "SettingsPanel", ->
               {value: 'one', description: 'One'}
               'Two'
             ]
+          radio:
+            title: 'An enum with radio buttons'
+            radio: true
+            type: 'string'
+            default: 'Two'
+            enum: [
+              {value: 'one', description: 'One'}
+              'Two'
+            ]
       atom.config.setSchema("foo", config)
       atom.config.setDefaults("foo", gong: 'gong')
-      expect(_.size(atom.config.get('foo'))).toBe 6
+      expect(_.size(atom.config.get('foo'))).toBe 7
       settingsPanel = new SettingsPanel({namespace: "foo", includeTitle: false})
 
     it "sorts settings by order and then alphabetically by the key", ->
       settings = atom.config.get('foo')
-      expect(_.size(settings)).toBe 6
+      expect(_.size(settings)).toBe 7
       sortedSettings = settingsPanel.sortSettings("foo", settings)
       expect(sortedSettings[0]).toBe 'zing'
       expect(sortedSettings[1]).toBe 'zang'
@@ -54,6 +63,7 @@ describe "SettingsPanel", ->
       expect(sortedSettings[3]).toBe 'enum'
       expect(sortedSettings[4]).toBe 'gong'
       expect(sortedSettings[5]).toBe 'haz'
+      expect(sortedSettings[6]).toBe 'radio'
 
     it "gracefully deals with a null settings object", ->
       sortedSettings = settingsPanel.sortSettings("foo", null)
@@ -64,6 +74,13 @@ describe "SettingsPanel", ->
       select = settingsPanel.element.querySelector('#foo\\.enum')
       pairs = ([opt.value, opt.innerText] for opt in select.children)
       expect(pairs).toEqual([['one', 'One'], ['Two', 'Two']])
+
+    it "presents radio options with their descriptions", ->
+      radio = settingsPanel.element.querySelector('#foo\\.radio')
+      options = for label in radio.querySelectorAll 'label'
+        button = label.querySelector('input[type=radio][name="foo.radio"]')
+        [button.id, button.value, label.innerText]
+      expect(options).toEqual([['foo.radio[one]', 'one', 'One'], ['foo.radio[Two]', 'Two', 'Two']])
 
   describe 'default settings', ->
     beforeEach ->
@@ -92,9 +109,19 @@ describe "SettingsPanel", ->
             description: 'Setting for testing zero as a default'
             type: 'integer'
             default: 0
+          radio:
+            title: 'An enum with radio buttons'
+            radio: true
+            type: 'string'
+            default: 'Two'
+            enum: [
+              {value: 'one', description: 'One'}
+              'Two'
+              'Three'
+            ]
       atom.config.setSchema("foo", config)
       atom.config.setDefaults("foo", gong: 'gong')
-      expect(_.size(atom.config.get('foo'))).toBe 4
+      expect(_.size(atom.config.get('foo'))).toBe 5
       settingsPanel = new SettingsPanel({namespace: "foo", includeTitle: false})
 
     it 'ensures default stays default', ->
@@ -138,6 +165,11 @@ describe "SettingsPanel", ->
 
       settingsPanel.set('foo.testZero', 0)
       expect(settingsPanel.isDefault('foo.testZero')).toBe true
+
+    it "selects the default choice for radio options", ->
+      expect(settingsPanel.getDefault 'foo.radio').toBe 'Two'
+      settingsPanel.set 'foo.radio', 'Two'
+      expect(settingsPanel.element.querySelector '#foo\\.radio\\[Two\\]').toBeChecked()
 
     describe 'scoped settings', ->
       beforeEach ->
@@ -187,6 +219,7 @@ describe "SettingsPanel", ->
           barGroup:
             type: 'object'
             title: 'Bar group'
+            description: 'description of bar group'
             properties:
               bar:
                 title: 'Bar'
@@ -239,6 +272,13 @@ describe "SettingsPanel", ->
       # Should be already collapsed
       expect(controlGroups[1].querySelector('.sub-section .sub-section-heading').parentElement.classList.contains('collapsed')).toBe true
 
+    it 'ensures grouped settings can have a description', ->
+      expect(settingsPanel.element.querySelectorAll('.section-container > .section-body')).toHaveLength 1
+      controlGroups = settingsPanel.element.querySelectorAll('.section-body > .control-group')
+      expect(controlGroups).toHaveLength 3
+      expect(controlGroups[0].querySelectorAll('.sub-section > .setting-description')).toHaveLength 1
+      expect(controlGroups[0].querySelector('.sub-section > .setting-description').textContent).toBe 'description of bar group'
+
   describe 'settings validation', ->
     beforeEach ->
       config =
@@ -252,6 +292,12 @@ describe "SettingsPanel", ->
             default: 10
             minimum: 1
             maximum: 100
+          commaValueArray:
+            name: 'commaValueArray'
+            title: 'Comma value in array'
+            description: 'An array with a comma value'
+            type: 'array'
+            default: []
 
       atom.config.setSchema('foo', config)
       settingsPanel = new SettingsPanel({namespace: 'foo', includeTitle: false})
@@ -296,3 +342,40 @@ describe "SettingsPanel", ->
       minMaxEditor.getModel().setText('15')
       advanceClock(minMaxEditor.getModel().getBuffer().getStoppedChangingDelay())
       expect(minMaxEditor.getModel().getText()).toBe '15'
+
+    describe 'commaValueArray', ->
+      it 'comma in value is escaped', ->
+        commaValueArrayEditor = settingsPanel.element.querySelector('[id="foo.commaValueArray"]')
+        commaValueArrayEditor.getModel().setText('1, \\,, 2')
+        advanceClock(commaValueArrayEditor.getModel().getBuffer().getStoppedChangingDelay())
+        expect(atom.config.get("foo.commaValueArray")).toEqual ['1', ',', '2']
+
+        commaValueArrayEditor.getModel().setText('1\\, 2')
+        advanceClock(commaValueArrayEditor.getModel().getBuffer().getStoppedChangingDelay())
+        expect(atom.config.get('foo.commaValueArray')).toEqual ['1, 2']
+
+        commaValueArrayEditor.getModel().setText('1\\,')
+        advanceClock(commaValueArrayEditor.getModel().getBuffer().getStoppedChangingDelay())
+        expect(atom.config.get('foo.commaValueArray')).toEqual ['1,']
+
+        commaValueArrayEditor.getModel().setText('\\, 2')
+        advanceClock(commaValueArrayEditor.getModel().getBuffer().getStoppedChangingDelay())
+        expect(atom.config.get('foo.commaValueArray')).toEqual [', 2']
+
+      it 'renders an escaped comma', ->
+        commaValueArrayEditor = settingsPanel.element.querySelector('[id="foo.commaValueArray"]')
+        atom.config.set('foo.commaValueArray', ['3', ',', '4'])
+        advanceClock(1000)
+        expect(commaValueArrayEditor.getModel().getText()).toBe '3, \\,, 4'
+
+        atom.config.set('foo.commaValueArray', ['3, 4'])
+        advanceClock(1000)
+        expect(commaValueArrayEditor.getModel().getText()).toBe '3\\, 4'
+
+        atom.config.set('foo.commaValueArray', ['3,'])
+        advanceClock(1000)
+        expect(commaValueArrayEditor.getModel().getText()).toBe '3\\,'
+
+        atom.config.set('foo.commaValueArray', [', 4'])
+        advanceClock(1000)
+        expect(commaValueArrayEditor.getModel().getText()).toBe '\\, 4'

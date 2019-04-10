@@ -2,19 +2,25 @@
 @import "octicon-utf-codes";
 @import "ui-variables";
 
-@section-padding: 4 * @component-padding;
+@section-padding: 2 * @component-padding;
 @breadcrumb-padding: 2 * @component-padding;
 
 .settings-view {
   display: flex;
-  overflow: auto;
 
   .breadcrumb {
     margin-bottom: 0;
-    padding: @breadcrumb-padding;
-    font-size: 1.2em;
+    padding: 0 @breadcrumb-padding;
+    font-size: 1.125em;
+    line-height: 3rem;
     color: @text-color-subtle;
     list-style: none;
+    border-bottom: 1px solid @base-border-color;
+    background-color: @base-background-color;
+
+    + .section {
+      border-top: none;
+    }
 
     > li {
       display: inline-block;
@@ -23,12 +29,13 @@
       }
 
       + li:before {
-        content: "/\00a0"; // Unicode space added since inline-block means non-collapsing white-space
-        padding: 0 5px;
+        content: "/"; // Unicode space added since inline-block means non-collapsing white-space
+        padding: 0 .75em ;
       }
     }
 
     > .active a {
+      font-weight: 600;
       color: @text-color-highlight;
     }
 
@@ -224,23 +231,26 @@
   }
 
   .sub-section {
-    margin: @section-padding 0;
 
     .sub-section-heading {
-      color: @text-color-highlight;
+      position: sticky;
+      top: -1px; // -1px fixes a rounding issue on retina screens
+      z-index: 1;
+      margin: 0;
+      padding: @component-padding 0;
       font-size: 1.4em;
       font-weight: bold;
       line-height: 1;
+      color: @text-color-highlight;
+      background-color: @base-background-color;
       -webkit-user-select: none;
 
       &.has-items {
         cursor: pointer;
 
-        &::after {
-          .icon(16px);
-          content: @fold;
-          position: absolute;
-          right: 0;
+        &::before {
+          .icon(20px);
+          content: @chevron-down;
           color: @text-color-subtle;
         }
 
@@ -251,15 +261,19 @@
     }
 
     .sub-section-body {
-      margin-top: 20px;
+      margin-top: @component-padding;
+      margin-bottom: @component-padding*3;
+      margin-left: 6px;
+      padding-left: 14px;
+      border-left: 1px solid @base-border-color;
     }
 
     &.collapsed {
-      .sub-section-heading.has-items:after {
-        content: @unfold;
+      .sub-section-heading.has-items:before {
+        content: @chevron-right;
       }
       .package-container .package-card,
-      .sub-section-body .control-group {
+      .sub-section-body {
         display: none !important;
       }
     }
@@ -415,9 +429,17 @@
     .grammar-filetypes {
       margin-top: @component-padding;
     }
+
+    .input-radio-group .input-label {
+      margin-right: 1em;
+    }
   }
 
   .package-detail {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
     .package-keymap-table,
     .package-grammars-table,
     .package-snippets-table {
@@ -472,6 +494,12 @@
       flex: 1;
       min-width: 320px; // Enough for the UI Theme description
       padding: 0 @component-padding;
+      .controls {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
     }
   }
 

@@ -20,14 +20,14 @@ describe "PackageDetailView", ->
     packageManager = new PackageManager
     view = null
 
-  loadPackageFromRemote = (opts) ->
+  loadPackageFromRemote = (packageName, opts) ->
     opts ?= {}
     packageManager.client = createClientSpy()
     packageManager.client.package.andCallFake (name, cb) ->
-      packageData = require(path.join(__dirname, 'fixtures', 'package-with-readme', 'package.json'))
-      packageData.readme = fs.readFileSync(path.join(__dirname, 'fixtures', 'package-with-readme', 'README.md'), 'utf8')
+      packageData = require(path.join(__dirname, 'fixtures', packageName, 'package.json'))
+      packageData.readme = fs.readFileSync(path.join(__dirname, 'fixtures', packageName, 'README.md'), 'utf8')
       cb(null, packageData)
-    view = new PackageDetailView({name: 'package-with-readme'}, new SettingsView(), packageManager, SnippetsProvider)
+    view = new PackageDetailView({name: packageName}, new SettingsView(), packageManager, SnippetsProvider)
     view.beforeShow(opts)
 
   loadCustomPackageFromRemote = (packageName, opts) ->
@@ -56,7 +56,7 @@ describe "PackageDetailView", ->
     expect(packageManager.client.package.callCount).toBe(1)
 
   it "shows a loading message and calls out to atom.io when package metadata is missing", ->
-    loadPackageFromRemote()
+    loadPackageFromRemote('package-with-readme')
     expect(view.refs.loadingMessage).not.toBe(null)
     expect(view.refs.loadingMessage.classList.contains('hidden')).not.toBe(true)
     expect(packageManager.client.package).toHaveBeenCalled()
@@ -74,30 +74,29 @@ describe "PackageDetailView", ->
     expect(view.element.querySelectorAll('.package-card').length).toBe(0)
 
   it "shows an error when package metadata cannot be loaded from the cache and the network is unavailable", ->
+    localStorage.removeItem('settings-view:packages/some-package')
+
     spyOn(AtomIoClient.prototype, 'online').andReturn(false)
-    spyOn(AtomIoClient.prototype, 'request').andCallThrough()
-    spyOn(AtomIoClient.prototype, 'fetchFromCache').andCallFake (path, opts, cb) ->
-      # this is the special case which happens when the data is not in the cache
-      # and there's no connectivity
-      cb(null, {})
+    spyOn(AtomIoClient.prototype, 'request').andCallFake (path, callback) ->
+      callback(new Error('getaddrinfo ENOENT atom.io:443'))
+    spyOn(AtomIoClient.prototype, 'fetchFromCache').andCallThrough()
 
     view = new PackageDetailView({name: 'some-package'}, new SettingsView(), packageManager, SnippetsProvider)
 
     expect(AtomIoClient.prototype.fetchFromCache).toHaveBeenCalled()
-    expect(AtomIoClient.prototype.request).not.toHaveBeenCalled()
 
     expect(view.refs.errorMessage.classList.contains('hidden')).not.toBe(true)
     expect(view.refs.loadingMessage.classList.contains('hidden')).toBe(true)
     expect(view.element.querySelectorAll('.package-card').length).toBe(0)
 
   it "renders the README successfully after a call to the atom.io api", ->
-    loadPackageFromRemote()
+    loadPackageFromRemote('package-with-readme')
     expect(view.packageCard).toBeDefined()
     expect(view.packageCard.refs.packageName.textContent).toBe('package-with-readme')
     expect(view.element.querySelectorAll('.package-readme').length).toBe(1)
 
   it "renders the README successfully with sanitized html", ->
-    loadPackageFromRemote()
+    loadPackageFromRemote('package-with-readme')
     expect(view.element.querySelectorAll('.package-readme script').length).toBe(0)
     expect(view.element.querySelectorAll('.package-readme iframe').length).toBe(0)
     expect(view.element.querySelectorAll('.package-readme input[type="checkbox"][disabled]').length).toBe(2)
@@ -140,5 +139,18 @@ describe "PackageDetailView", ->
     expect(shell.openExternal).toHaveBeenCalledWith('mailto:issues@example.com')
 
   it "should show 'Install' as the first breadcrumb by default", ->
-    loadPackageFromRemote()
+    loadPackageFromRemote('package-with-readme')
     expect(view.refs.breadcrumb.textContent).toBe('Install')
+    
+  it "should open repository url", ->
+    loadPackageFromRemote('package-with-readme')
+    spyOn(shell, 'openExternal')
+    view.refs.packageRepo.click()
+    expect(shell.openExternal).toHaveBeenCalledWith('https://github.com/example/package-with-readme')
+    
+  it "should open internal package repository url", ->
+    loadPackageFromRemote('package-internal')
+    spyOn(shell, 'openExternal')
+    view.refs.packageRepo.click()
+    expect(shell.openExternal).toHaveBeenCalledWith('https://github.com/atom/atom/tree/master/packages/package-internal')
+

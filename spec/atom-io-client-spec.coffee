@@ -11,15 +11,28 @@ describe "AtomIoClient", ->
     expect(@client.fetchAndCacheAvatar).not.toHaveBeenCalled()
     @client.avatar 'test-user', ->
 
-  it "fetches api json from cache if the network is unavailable", ->
-    spyOn(@client, 'online').andReturn(false)
-    spyOn(@client, 'fetchFromCache').andCallFake (path, opts, cb) ->
-      cb(null, {})
-    spyOn(@client, 'request')
-    @client.package 'test-package', ->
+  describe "request", ->
+    it "fetches api json from cache if the network is unavailable", ->
+      spyOn(@client, 'online').andReturn(false)
+      spyOn(@client, 'fetchFromCache').andReturn({})
+      spyOn(@client, 'request')
+      @client.package 'test-package', ->
 
-    expect(@client.fetchFromCache).toHaveBeenCalled()
-    expect(@client.request).not.toHaveBeenCalled()
+      expect(@client.fetchFromCache).toHaveBeenCalled()
+      expect(@client.request).not.toHaveBeenCalled()
+
+    it "returns an error if the API response is not JSON", ->
+      jsonParse = JSON.parse
+
+      waitsFor (done) ->
+        spyOn(JSON, 'parse').andThrow()
+        @client.request 'path', (error, data) ->
+          expect(error).not.toBeNull()
+          done()
+
+      runs ->
+        # Tests will throw without this as cleanup requires JSON.parse to work
+        JSON.parse = jsonParse
 
   it "handles glob errors", ->
     spyOn(@client, 'avatarGlob').andReturn "#{__dirname}/**"
