@@ -96,7 +96,7 @@ describe 'UpdatesPanel', ->
         resolveC()
 
       waitsFor ->
-        atom.notifications.getNotifications().length == 1
+        atom.notifications.getNotifications().length is 1
 
       runs ->
         notifications = atom.notifications.getNotifications()
