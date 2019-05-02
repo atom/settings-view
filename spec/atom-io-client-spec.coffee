@@ -25,7 +25,7 @@ describe "AtomIoClient", ->
       jsonParse = JSON.parse
 
       waitsFor (done) ->
-        spyOn(JSON, 'parse').andThrow()
+        spyOn(@client, 'parseJSON').andThrow()
         @client.request 'path', (error, data) ->
           expect(error).not.toBeNull()
           done()

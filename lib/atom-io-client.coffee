@@ -78,7 +78,7 @@ class AtomIoClient
       try
         # NOTE: request's json option does not populate err if parsing fails,
         # so we do it manually
-        body = JSON.parse(body)
+        body = @parseJSON(body)
         delete body.versions
 
         cached =
@@ -99,7 +99,7 @@ class AtomIoClient
   # the cached data and pretends it's null if it's stale and we're online
   fetchFromCache: (packagePath) ->
     cached = localStorage.getItem(@cacheKeyForPath(packagePath))
-    cached = if cached then JSON.parse(cached)
+    cached = if cached then @parseJSON(cached)
     if cached? and (not @online() or Date.now() - cached.createdOn < @expiry)
       return cached.data
     else
@@ -196,7 +196,7 @@ class AtomIoClient
     }
 
     new Promise (resolve, reject) ->
-      request options, (err, res, body) ->
+      request options, (err, res, body) =>
         if err
           error = new Error("Searching for \u201C#{query}\u201D failed.")
           error.stderr = err.message
@@ -205,7 +205,7 @@ class AtomIoClient
           try
             # NOTE: request's json option does not populate err if parsing fails,
             # so we do it manually
-            body = JSON.parse(body)
+            body = @parseJSON(body)
             resolve(
               body.filter (pkg) -> pkg.releases?.latest?
                   .map ({readme, metadata, downloads, stargazers_count, repository}) ->
@@ -215,3 +215,6 @@ class AtomIoClient
             error = new Error("Searching for \u201C#{query}\u201D failed.")
             error.stderr = e.message + '\n' + body
             reject error
+
+  parseJSON: (s) ->
+    JSON.parse(s)
