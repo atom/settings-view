@@ -195,7 +195,7 @@ class AtomIoClient
       gzip: true
     }
 
-    new Promise (resolve, reject) ->
+    new Promise (resolve, reject) =>
       request options, (err, res, body) =>
         if err
           error = new Error("Searching for \u201C#{query}\u201D failed.")
