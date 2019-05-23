@@ -208,6 +208,7 @@ class AtomIoClient
             body = @parseJSON(body)
             resolve(
               body.filter (pkg) -> pkg.releases?.latest?
+                  .filter (pkg) -> !atom.packages.isDeprecatedPackage(pkg.name, pkg.version)
                   .map ({readme, metadata, downloads, stargazers_count, repository}) ->
                     Object.assign metadata, {readme, downloads, stargazers_count, repository: repository.url}
                   .sort (a, b) -> b.downloads - a.downloads
