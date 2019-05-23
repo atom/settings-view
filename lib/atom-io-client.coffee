@@ -210,6 +210,7 @@ class AtomIoClient
               body.filter (pkg) -> pkg.releases?.latest?
                   .map ({readme, metadata, downloads, stargazers_count, repository}) ->
                     Object.assign metadata, {readme, downloads, stargazers_count, repository: repository.url}
+                  .sort (a, b) -> b.downloads - a.downloads
             )
           catch e
             error = new Error("Searching for \u201C#{query}\u201D failed.")
