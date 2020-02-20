@@ -379,3 +379,89 @@ describe "SettingsPanel", ->
         atom.config.set('foo.commaValueArray', [', 4'])
         advanceClock(1000)
         expect(commaValueArrayEditor.getModel().getText()).toBe '\\, 4'
+
+  describe 'hidden settings', ->
+    beforeEach ->
+      config =
+        type: 'object'
+        properties:
+          hiddenString:
+            name: 'hiddenString'
+            title: 'Hidden String'
+            description: 'The hiddenString setting'
+            type: 'string'
+            hidden: true
+            default: 'hiddenString'
+          hiddenEnum:
+            name: 'hiddenEnum'
+            title: 'Hidden Enum'
+            description: 'The hiddenEnum setting'
+            type: 'string'
+            hidden: true
+            default: 'a'
+            enum: [
+              {value: 'a', description: 'Alice'},
+              {value: 'b', description: 'Bob'}
+            ]
+          hiddenInteger:
+            name: 'hiddenInteger'
+            title: 'Hidden Integer'
+            description: 'The hiddenInteger setting'
+            type: 'integer'
+            hidden: true
+            default: 1
+          hiddenBoolean:
+            name: 'hiddenBoolean'
+            title: 'Hidden Boolean'
+            description: 'The hiddenBoolean setting'
+            type: 'boolean'
+            hidden: true
+            default: true
+          visibleString:
+            name: 'visibleString'
+            title: 'Visible String'
+            description: 'The visibleString setting'
+            type: 'string'
+            default: 'visibleString'
+          visibleObject:
+            title: 'A visible object'
+            type: 'object'
+            properties:
+              hiddenProp:
+                title: 'Visible in visible object'
+                type: 'boolean'
+                hidden: true
+                default: true
+              visibleProp:
+                title: 'Hidden in visible object'
+                type: 'boolean'
+                default: true
+          hiddenObject:
+            title: 'A hidden object'
+            type: 'object'
+            hidden: true
+            properties:
+              hiddenProp1:
+                title: 'Hidden in hidden object'
+                type: 'boolean'
+                hidden: true
+                default: true
+              hiddenProp2:
+                title: 'Hidden by hidden object'
+                type: 'boolean'
+                default: true
+
+      atom.config.setSchema("foo", config)
+      expect(_.size(atom.config.get('foo'))).toBe 7
+      settingsPanel = new SettingsPanel({namespace: "foo", includeTitle: false})
+
+    it "only shows visible settings", ->
+      expect(settingsPanel.element.querySelector '#foo\\.hiddenString').toBe(null)
+      expect(settingsPanel.element.querySelector '#foo\\.hiddenEnum').toBe(null)
+      expect(settingsPanel.element.querySelector '#foo\\.hiddenInteger').toBe(null)
+      expect(settingsPanel.element.querySelector '#foo\\.hiddenBoolean').toBe(null)
+      expect(settingsPanel.element.querySelector '#foo\\.visibleString').not.toBe(null)
+      expect(settingsPanel.element.querySelector '#foo\\.visibleObject\\.visibleProp').not.toBe(null)
+      expect(settingsPanel.element.querySelector '#foo\\.visibleObject\\.hiddenProp').toBe(null)
+      expect(settingsPanel.element.querySelector '#foo\\.hiddenObject\\.hiddenProp1').toBe(null)
+      expect(settingsPanel.element.querySelector '#foo\\.hiddenObject\\.hiddenProp2').toBe(null)
