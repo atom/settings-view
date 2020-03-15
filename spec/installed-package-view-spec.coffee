@@ -294,7 +294,7 @@ describe "InstalledPackageView", ->
 
       runs ->
         atom.keymaps.keyBindings = atom.keymaps.keyBindings.filter (keyBinding) ->
-            return !(/language-test/.test(keyBinding.source) || keyBinding.selector == 'test')
+          return not (/language-test/.test(keyBinding.source) or keyBinding.selector is 'test')
 
         pack = atom.packages.getActivePackage('language-test')
         card = new PackageKeymapView(pack)
