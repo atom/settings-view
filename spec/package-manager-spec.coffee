@@ -7,6 +7,7 @@ describe "PackageManager", ->
 
   beforeEach ->
     spyOn(atom.packages, 'getApmPath').andReturn('/an/invalid/apm/command/to/run')
+    atom.config.set('core.useProxySettingsWhenCallingApm', false)
     packageManager = new PackageManager()
 
   it "handle errors spawning apm", ->
