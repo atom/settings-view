@@ -535,11 +535,18 @@ describe "PackageCard", ->
 
             notifications = atom.notifications.getNotifications()
             expect(notifications.length).toBe 1
-            expect(notifications[0].options.detail).toBe "1.0.0 -> 1.1.0"
+            notif = notifications[0]
+            
+            expect(notif.options.detail).toBe "1.0.0 -> 1.1.0"
+            expect(notif.options.buttons.length).toBe(2)
 
             spyOn(atom, 'restartApplication')
-            notifications[0].options.buttons[0].onDidClick()
+            notif.options.buttons[0].onDidClick()
             expect(atom.restartApplication).toHaveBeenCalled()
+
+            spyOn(notif, 'dismiss')
+            notif.options.buttons[1].onDidClick()
+            expect(notif.dismiss).toHaveBeenCalled()
 
         it "shows the sha in the notification when a git url package is updated", ->
           expect(atom.packages.getLoadedPackage('package-with-config')).toBeTruthy()

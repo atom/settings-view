@@ -101,11 +101,19 @@ describe 'UpdatesPanel', ->
       runs ->
         notifications = atom.notifications.getNotifications()
         expect(notifications.length).toBe 1
-        expect(notifications[0].options.detail).toBe 'test-package-a@1.0.0 -> 99.0.0\ntest-package-b@1.0.0 -> 99.0.0\ntest-package-c@cf23df22 -> a296114f'
+        notif = notifications[0]
+
+        expect(notif.options.detail).toBe 'test-package-a@1.0.0 -> 99.0.0\ntest-package-b@1.0.0 -> 99.0.0\ntest-package-c@cf23df22 -> a296114f'
+
+        expect(notif.options.buttons.length).toBe(2)
 
         spyOn(atom, 'restartApplication')
-        notifications[0].options.buttons[0].onDidClick()
+        notif.options.buttons[0].onDidClick()
         expect(atom.restartApplication).toHaveBeenCalled()
+
+        spyOn(notif, 'dismiss')
+        notif.options.buttons[1].onDidClick()
+        expect(notif.dismiss).toHaveBeenCalled()
 
     it 'works with queue enabled', ->
       expect(panel.refs.updateAllButton).not.toBeDisabled()
