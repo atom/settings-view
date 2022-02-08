@@ -76,7 +76,6 @@ describe "PackageCard", ->
     jasmine.attachToDOM(card.element)
 
     expect(card.refs.loginLink.textContent).toBe(authorName)
-    expect(card.refs.loginLink.href).toBe("https://atom.io/users/#{authorName}")
 
   describe "when the package is not installed", ->
     it "shows the settings, uninstall, and disable buttons", ->
@@ -536,7 +535,7 @@ describe "PackageCard", ->
             notifications = atom.notifications.getNotifications()
             expect(notifications.length).toBe 1
             notif = notifications[0]
-            
+
             expect(notif.options.detail).toBe "1.0.0 -> 1.1.0"
             expect(notif.options.buttons.length).toBe(2)
 
