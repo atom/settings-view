@@ -41,13 +41,13 @@ class PackageManager
     session = atom.getCurrentWindow().webContents.session
     session.resolveProxy 'http://atom.io', (httpProxy) =>
       @applyProxyToEnv('http_proxy', httpProxy)
-      session.resolveProxy 'https://atom.io', (httpsProxy) =>
+      session.resolveProxy 'https://pulsar-edit.com', (httpsProxy) =>
         @applyProxyToEnv('https_proxy', httpsProxy)
         callback()
 
   setProxyServersAsync: (callback) =>
     httpProxyPromise = atom.resolveProxy('http://atom.io').then((proxy) => @applyProxyToEnv('http_proxy', proxy))
-    httpsProxyPromise = atom.resolveProxy('https://atom.io').then((proxy) => @applyProxyToEnv('https_proxy', proxy))
+    httpsProxyPromise = atom.resolveProxy('https://pulsar-edit.com').then((proxy) => @applyProxyToEnv('https_proxy', proxy))
     Promise.all([httpProxyPromise, httpsProxyPromise]).then(callback)
 
   applyProxyToEnv: (envName, proxy) ->

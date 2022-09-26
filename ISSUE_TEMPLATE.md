@@ -13,7 +13,7 @@ Do you want to ask a question? Are you looking for support? The Atom message boa
     * Followed all applicable steps in the debugging guide: http://flight-manual.atom.io/hacking-atom/sections/debugging/
     * Checked the FAQs on the message board for common solutions: https://discuss.atom.io/c/faq
     * Checked that your issue isn't already filed: https://github.com/issues?utf8=✓&q=is%3Aissue+user%3Aatom
-    * Checked that there is not already an Atom package that provides the described functionality: https://atom.io/packages
+    * Checked that there is not already an Atom package that provides the described functionality: https://pulsar-edit.com/packages
 
 ### Description
 
