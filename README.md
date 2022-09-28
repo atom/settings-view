@@ -1,4 +1,5 @@
-# Settings View package
+##### Atom and all repositories under Atom will be archived on December 15, 2022. Learn more in our [official announcement](https://github.blog/2022-06-08-sunsetting-atom/)
+ # Settings View package
 [![macOS Build Status](https://travis-ci.org/atom/settings-view.svg?branch=master)](https://travis-ci.org/atom/settings-view) [![Windows Build Status](https://ci.appveyor.com/api/projects/status/hatgxg6k2g3grafq/branch/master?svg=true)](https://ci.appveyor.com/project/Atom/settings-view/branch/master) [![Dependency Status](https://david-dm.org/atom/settings-view.svg)](https://david-dm.org/atom/settings-view)
 
 Edit core configuration settings, install and configure packages, and change themes from within Atom.
