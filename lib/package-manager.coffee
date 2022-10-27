@@ -214,6 +214,45 @@ class PackageManager
 
     handleProcessErrors(apmProcess, errorMessage, callback)
 
+  isStrictSsl: ->
+    new Promise (resolve, reject) =>
+      args = ['config' , 'get', 'strict-ssl']
+      errorMessage = 'Checking strict-ssl configuration failed'
+      apmProcess = @runCommand args, (code, stdout, stderr) ->
+        if code is 0
+          if stdout.trim() is 'false'
+            resolve(false)
+          else
+            resolve(true)
+        else
+          error = new Error(errorMessage)
+          error.stdout = stdout
+          error.stderr = stderr
+          reject(error)
+
+      handleProcessErrors apmProcess, errorMessage, (error) ->
+        reject(error)
+
+  getHttpsProxy: ->
+    new Promise (resolve, reject) =>
+      args = ['config' , 'get', 'https-proxy']
+      errorMessage = 'Checking https-proxy configuration failed'
+      apmProcess = @runCommand args, (code, stdout, stderr) ->
+        if code is 0
+          result = stdout.trim()
+          if result isnt 'null'
+            resolve(result)
+          else
+            resolve(null)
+        else
+          error = new Error(errorMessage)
+          error.stdout = stdout
+          error.stderr = stderr
+          reject(error)
+
+      handleProcessErrors apmProcess, errorMessage, (error) ->
+        reject(error)
+
   getInstalled: ->
     new Promise (resolve, reject) =>
       @loadInstalled (error, result) ->
