@@ -150,3 +150,17 @@ describe "PackageUpdatesStatusView", ->
       packageManager.emitPackageEvent('update-failed', outdatedPackage1)
       packageManager.emitPackageEvent('uninstalled', outdatedPackage1)
       expect(document.querySelector('status-bar .package-updates-status-view').textContent).toBe '1 update'
+
+  describe "when one packages is disabled", ->
+    it "updates the tile", ->
+      spyOn(atom.packages, 'isPackageDisabled').andCallFake (args) ->
+        if args is outdatedPackage1.name
+          return true
+      atom.config.set('core.disabledPackages', ['something'])
+      expect(document.querySelector('status-bar .package-updates-status-view').textContent).toBe '1 update'
+
+  describe "when all packages are disabled", ->
+    it "destroys the tile", ->
+      spyOn(atom.packages, 'isPackageDisabled').andReturn true
+      atom.config.set('core.disabledPackages', ['something'])
+      expect(document.querySelector('status-bar .package-updates-status-view')).not.toExist()
