@@ -270,6 +270,44 @@ describe "InstalledPackageView", ->
           }
         """
 
+  describe "when a package keybinding is installed", ->
+    it "does not decorate its row with and first column with text-subtle and icon.inoc-circle-slash classes", ->
+      waitsForPromise ->
+        atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+
+      runs ->
+        pack = atom.packages.getActivePackage('language-test')
+        card = new PackageKeymapView(pack)
+        jasmine.attachToDOM(card.element)
+
+        normalKeyRows = card.element.querySelectorAll('.package-keymap-table tr.text-subtle')
+        expect(normalKeyRows.length).toBe 0
+
+        disabledKeysByIcon = card.element.querySelectorAll('.package-keymap-table td.icon.icon-circle-slash')
+        expect(disabledKeysByIcon.length).toBe 0
+
+  describe "when a package keybinding is not installed", ->
+    it "decorates its row with and first column with text-subtle and icon.inoc-circle-slash classes", ->
+    it "decorates rows with a disabled keybinding", ->
+      waitsForPromise ->
+        atom.packages.activatePackage(path.join(__dirname, 'fixtures', 'language-test'))
+
+      runs ->
+        atom.keymaps.keyBindings = atom.keymaps.keyBindings.filter (keyBinding) ->
+          return not (/language-test/.test(keyBinding.source) or keyBinding.selector is 'test')
+
+        pack = atom.packages.getActivePackage('language-test')
+        card = new PackageKeymapView(pack)
+        jasmine.attachToDOM(card.element)
+
+        disabledKeyRows = card.element.querySelectorAll('.package-keymap-table tr.text-subtle')
+        expect(disabledKeyRows.length).toBe 1
+
+        disabledKeysByIcon = card.element.querySelectorAll('.package-keymap-table td.icon.icon-circle-slash')
+        expect(disabledKeysByIcon.length).toBe 1
+
+
+
   describe "when the package is active", ->
     it "displays the correct enablement state", ->
       packageCard = null
